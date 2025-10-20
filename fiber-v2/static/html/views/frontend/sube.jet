@@ -26,7 +26,7 @@
                 <div class="portfolio-details__content">
                     <div class="portfolio-details__image wow fadeInUp" data-wow-delay="00ms" data-wow-duration="1500ms">
                         {{ if Sube.SubeMediaPath }}
-                            <img src="{{ Sube.SubeMediaPath }}" alt="{{ Sube.SubeMediaAltText }}" title="{{ Sube.SubeMediaTitle }}">
+                            <img src="{{ PathOnStart }}{{ Sube.SubeMediaPath }}" alt="{{ Sube.SubeMediaAltText }}" title="{{ Sube.SubeMediaTitle }}">
                         {{ else }}
                             <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ Sube.Name }}" title="{{ Sube.Name }}">
                         {{ end }}
