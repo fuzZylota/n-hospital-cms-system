@@ -940,7 +940,7 @@ class SubeEditHandler {
         const phone = field.value.trim();
         if (!phone) return true; // Not required
         
-        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,}$/;
         const isValid = phoneRegex.test(phone);
         
         this.setFieldState(field, isValid, isValid ? '' : 'Geçerli bir telefon numarası girin.');
