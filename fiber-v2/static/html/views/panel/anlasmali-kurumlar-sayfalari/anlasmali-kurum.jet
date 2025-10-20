@@ -194,17 +194,17 @@
                         </div>
                     </div>
                     {{if SubeData.SubeMediaPath}}
-                    <div class="info-item">
-                        <label class="info-label">Şube Logosu</label>
-                        <div class="info-value">
-                            <div class="image-preview" data-media-id="{{ SubeData.SubeMediaMid }}">
-                                <img src="{{ PathOnStart }}{{ SubeData.SubeMediaPath }}" alt="{{ SubeData.SubeMediaAltText }}" title="{{ SubeData.SubeMediaTitle }}" class="preview-image zoomable">
-                                <div class="image-overlay">
-                                    <i class="icon-maximize"></i>
+                        <div class="info-item">
+                            <label class="info-label">Şube Logosu</label>
+                            <div class="info-value">
+                                <div class="image-preview" data-media-id="{{ AnlasmaliKurum.LogoMid }}">
+                                    <img src="{{ PathOnStart }}{{ SubeData.SubeMediaPath }}" alt="{{ SubeData.SubeMediaAltText }}" title="{{ SubeData.SubeMediaTitle }}" class="preview-image zoomable">
+                                    <div class="image-overlay">
+                                        <i class="icon-maximize"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     {{end}}
                 </div>
             </div>
