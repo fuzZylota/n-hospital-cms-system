@@ -20,12 +20,6 @@
     </div><!-- /.container-fluid -->
 </section><!-- /.page-header -->
 
-{{ range index1, CssContent := CssContents }}
-    <div class="css-eval">
-        {{ CssContent }}
-    </div>
-{{ end }}
-
 <section class="service-details section-space">
     <div class="container">
         <div class="row gutter-y-50">
@@ -212,12 +206,6 @@
         </div>
     </div>
 </section>
-
-{{ range index1, JavascriptContent := JavascriptContents }}
-    <div class="js-eval">
-        {{ JavascriptContent }}
-    </div>
-{{ end }}
 
 <script src="{{ PathOnStart }}js/frontend/html-eval.js"></script>
 <script src="{{ PathOnStart }}js/frontend/js-eval.js"></script>

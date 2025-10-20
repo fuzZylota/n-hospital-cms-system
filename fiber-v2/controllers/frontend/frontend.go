@@ -489,7 +489,12 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 		Orm := utilities.Orm
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, err := Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/")
+		}
 
 		return c.Render("views/frontend/insan-kaynaklari", fiber.Map{
 			"PathOnStart": "../",
