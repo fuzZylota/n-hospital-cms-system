@@ -1,0 +1,526 @@
+/* Custom Content Duzenle Page Specific Styles */
+
+/* Import base styles mirrored from tedkik-duzenle */
+@import url('tedkik-duzenle.css');
+
+/* Page header/content spacing (inner padding only, keep container width) */
+.page-header {
+    padding: 0 16px;
+}
+
+.forms-container {
+    padding: 0 16px;
+}
+
+.form-section .section-content,
+.form-section .form-content {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 0 8px; }
+    .forms-container { padding: 0 8px; }
+    .form-section .section-content,
+    .form-section .form-content { padding-left: 8px; padding-right: 8px; }
+}
+
+/* Code Editor Specific Styles (bring back from previous custom content page) */
+.code-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: #f8f9fa;
+    color: #333;
+    resize: vertical;
+    min-height: 200px;
+    width: 100%;
+    padding: 12px;
+    transition: var(--transition);
+}
+
+.code-editor:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* CodeMirror Integration */
+.CodeMirror {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 200px;
+    background: #f8f9fa;
+}
+
+.CodeMirror:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.CodeMirror-focused .CodeMirror-cursor {
+    border-left: 2px solid var(--primary-color);
+}
+
+/* CodeMirror Theme Override */
+.CodeMirror.cm-s-monokai { background: #272822; color: #f8f8f2; }
+.CodeMirror.cm-s-monokai .CodeMirror-gutters { background: #272822; border-right: 1px solid #3e3d32; }
+.CodeMirror.cm-s-monokai .CodeMirror-linenumber { color: #75715e; }
+
+/* Editor container + toolbar */
+.code-editor-container { position: relative; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.code-editor-header { background: var(--bg-tertiary); padding: 8px 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+.code-editor-actions { display: flex; gap: 8px; }
+.code-editor-action { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px 8px; border-radius: var(--border-radius-sm); font-size: 12px; transition: var(--transition); }
+.code-editor-action:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* Responsive tweaks for editors */
+@media (max-width: 768px) {
+    .CodeMirror { font-size: 13px; min-height: 150px; }
+}
+
+@media (max-width: 480px) {
+    .CodeMirror { font-size: 12px; min-height: 120px; }
+}
+
+/* Custom Content Duzenle Page Specific Styles */
+
+/* Import base styles from sube-duzenle (must be before overrides) */
+@import url('sube-duzenle.css');
+
+/* Page Layout and Header (align with other *-duzenle pages) */
+.page-header {
+    margin: 0 0 20px 0;
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 16px;
+}
+
+.page-header-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 12px;
+}
+
+.page-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.forms-container {
+    padding: 0 16px;
+}
+
+.form-section .form-content {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+@media (max-width: 768px) {
+    .page-header-content {
+        flex-direction: column;
+        gap: 16px;
+    }
+    .page-header {
+        padding: 0 8px;
+    }
+    .forms-container {
+        padding: 0 8px;
+    }
+    .form-section .form-content {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* keep container width unchanged on small screens too */
+}
+
+/* (import moved to top) */
+
+/* Code Editor Specific Styles */
+.code-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: #f8f9fa;
+    color: #333;
+    resize: vertical;
+    min-height: 200px;
+    width: 100%;
+    padding: 12px;
+    transition: var(--transition);
+}
+
+.code-editor:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* CodeMirror Integration */
+.CodeMirror {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 200px;
+    background: #f8f9fa;
+}
+
+.CodeMirror:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.CodeMirror-focused .CodeMirror-cursor {
+    border-left: 2px solid var(--primary-color);
+}
+
+/* CodeMirror Theme Override */
+.CodeMirror.cm-s-monokai {
+    background: #272822;
+    color: #f8f8f2;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-gutters {
+    background: #272822;
+    border-right: 1px solid #3e3d32;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-linenumber {
+    color: #75715e;
+}
+
+/* Form Section Enhancements for Code Editors */
+.form-section .form-group:has(.code-editor) {
+    margin-bottom: 24px;
+}
+
+.form-section .form-group:has(.code-editor) .form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section .form-group:has(.code-editor) .form-label::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+/* Code Editor Container */
+.code-editor-container {
+    position: relative;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.code-editor-header {
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.code-editor-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.code-editor-action {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.code-editor-action:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Syntax Highlighting Indicators */
+.syntax-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 11px;
+    font-weight: 500;
+    z-index: 10;
+}
+
+/* Form Section Icons */
+.form-section .form-icon i.fab.fa-html5 {
+    color: #e34c26;
+}
+
+.form-section .form-icon i.fab.fa-css3-alt {
+    color: #1572b6;
+}
+
+.form-section .form-icon i.fab.fa-js-square {
+    color: #f7df1e;
+}
+
+/* Enhanced Form Actions for Code Forms */
+.form-section:has(.code-editor) .form-actions {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 16px 24px;
+    margin-top: 16px;
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+/* Code Editor Validation States */
+.code-editor.error {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.code-editor.success {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* CodeMirror Error States */
+.CodeMirror.error {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.CodeMirror.success {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Loading States for Code Editors */
+.code-editor-container.loading {
+    position: relative;
+}
+
+.code-editor-container.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+}
+
+.code-editor-container.loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 21;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive Design for Code Editors */
+@media (max-width: 768px) {
+    .code-editor,
+    .CodeMirror {
+        font-size: 13px;
+        min-height: 150px;
+    }
+    
+    .code-editor-header {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+    
+    .syntax-indicator {
+        top: 6px;
+        right: 6px;
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .code-editor,
+    .CodeMirror {
+        font-size: 12px;
+        min-height: 120px;
+    }
+    
+    .form-section:has(.code-editor) .form-actions {
+        padding: 12px 16px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .code-editor,
+    .CodeMirror {
+        background: white;
+        border: 1px solid #ccc;
+        color: #333;
+    }
+    
+    .code-editor-header,
+    .syntax-indicator {
+        display: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .code-editor,
+    .CodeMirror {
+        border-width: 2px;
+    }
+    
+    .code-editor:focus,
+    .CodeMirror:focus {
+        border-width: 3px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .code-editor-container.loading::before {
+        animation: none;
+    }
+}
+
+/* Focus Management for Code Editors */
+.code-editor:focus,
+.CodeMirror:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Accessibility Improvements */
+.code-editor[aria-invalid="true"] {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.code-editor[aria-invalid="false"] {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Custom Scrollbar for Code Editors */
+.code-editor::-webkit-scrollbar,
+.CodeMirror ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.code-editor::-webkit-scrollbar-track,
+.CodeMirror ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.code-editor::-webkit-scrollbar-thumb,
+.CodeMirror ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.code-editor::-webkit-scrollbar-thumb:hover,
+.CodeMirror ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Code Editor Fullscreen Mode */
+.code-editor-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: white;
+    padding: 20px;
+}
+
+.code-editor-fullscreen .code-editor,
+.code-editor-fullscreen .CodeMirror {
+    height: calc(100vh - 100px);
+    min-height: auto;
+}
+
+/* Code Editor Toolbar */
+.code-editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.code-editor-toolbar button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+}
+
+.code-editor-toolbar button:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.code-editor-toolbar button.active {
+    background: var(--primary-color);
+    color: white;
+}
+

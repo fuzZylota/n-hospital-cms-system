@@ -1,0 +1,820 @@
+<link rel="stylesheet" href="/css/panel/dokumantasyon.css">
+
+<div class="doc-page">
+    <div class="doc-intro">
+        Bu sayfa; panelin temel işlevleri hakkında detaylı bir dökümantasyon içerir. Aşağıdaki kutularda, sistemin içindeki modüllerin amaçları, çalışma prensipleri ve örnek alanları gösterilmektedir.
+    </div>
+
+    <!-- Tables from schema.sql (hardcoded brief summaries) -->
+    <div class="doc-accordion open">
+        <div class="doc-acc-header"><div class="doc-acc-title">Seçenekler</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Site geneli yapılandırma ve tema ayarları. Bu tablo, hastane CMS'inin tüm sistem ayarlarını, renk şemasını, SMTP konfigürasyonunu, bakım modunu ve diğer global ayarları saklar. Sadece bir aktif ayar seti bulunabilir ve bu ayarlar tüm site genelinde geçerlidir. Bu özellikler, panel'in görünümünü etkilememektedir.</div>
+            </div>
+            <div class="doc-section-title">Temel Bilgiler</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Site İsmi</div>
+                    <div class="doc-list-desc">Hastane adı ve web sitesi başlığı. Ayarlanması Şiddetle Tavsiye Edilir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Site Açıklaması</div>
+                    <div class="doc-list-desc">Site açıklaması. Sistem'in münferit bölümlerinde bulunur, ayarlanması seo açısından önemlidir.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Medyalar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Site Logosu</div>
+                    <div class="doc-list-desc">Sisteminizin Logosu. Ayarlandığında bütün sayfalarda yer alacaktır. Ayarlanmazsa veya aktif seçenek setinde belirlenmemişse, default resim gösterilecektir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Site Favicon'u</div>
+                    <div class="doc-list-desc">Site'nin tarayıcı'daki sekmelerin sol tarafında yer alan simge. Ayarlandığında bütün sayfalarda yer alacaktır. Ayarlanmazsa veya aktif seçenek setinde belirlenmemişse, default resim gösterilecektir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Varsayılan Sayfa Görseli</div>
+                    <div class="doc-list-desc">Varsayılan sayfa görseli. Ayarlandığında, anasayfa hariç bütün sayfalarda, header bölümünün hemen altında görünecektir. Ayarlanmazsa veya aktif seçenek setinde belirlenmemişse, default resim gösterilecektir.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">SMTP Ayarları</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">SMTP ayarları. Bu ayarlar, randevu talebi alındığında, randevu oluşturulduğunda, randevu bilgileri düzenlendiğinde, iletişim isteği veya iş başvurusu yapıldığında ziyaretçi'ye bilgilendirme e-posta'ları gönderilmesini / iletişim isteği / iş başvurularının cevaplanmasını sağlar. SMTP ayarlarının olmaması durumunda, e-posta gönderimi gerçekleşmeyecektir.</div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">SMTP Sunucusu</div>
+                    <div class="doc-list-desc">SMTP sunucusu adresi. Örnek: smtp.gmail.com</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Port</div>
+                    <div class="doc-list-desc">SMTP sunucusu portu. Örnek: 587</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Kullanıcı Adı</div>
+                    <div class="doc-list-desc">SMTP sunucusu kullanıcı adı. Örnek: info@nermefraz.com</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Şifre</div>
+                    <div class="doc-list-desc">SMTP sunucusu şifresi. Örnek: 1234567890</div>
+                </div>
+            </div>
+            <div class="doc-section-title">İletişim Bilgileri</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">İletişim bilgileri Ve Sosyal Medya bağlantıları. Bu bilgiler, iletişim sayfasında görüntülenecektir. Sosyal medya bağlantıları, tam link olarak verilmeli, e-posta ve telefon numarası olduğu gibi girilmelidir.</div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Facebook</div>
+                    <div class="doc-list-desc">Facebook adresi. Örnek: https://facebook.com/nermefraz</div>
+                </div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Instagram</div>
+                    <div class="doc-list-desc">Instagram adresi. Örnek: https://www.instagram.com/nermefraz</div>
+                </div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">LinkedIn</div>
+                    <div class="doc-list-desc">LinkedIn adresi. Örnek: https://www.linkedin.com/company/nermefraz</div>
+                </div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İletişim Email</div>
+                    <div class="doc-list-desc">İletişim email adresi. Örnek: info@nermefraz.com</div>
+                </div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İletişim Telefon</div>
+                    <div class="doc-list-desc">İletişim telefon numarası. Örnek: +90 532 123 45 67</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Ana Sayfa Meta Bilgileri</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Ana sayfa meta bilgileri. Bu bilgiler, ana sayfa'nın Meta Title ve Meta Description tag'larında görüntülenecektir. Ayarlanması seo açısından önemlidir.</div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Meta Başlık</div>
+                    <div class="doc-list-desc">Ana sayfa meta başlığı. Örnek: N-Hospital CMS, Hastaneler için En Gelişmiş CMS</div>
+                </div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Meta Açıklama</div>
+                    <div class="doc-list-desc">Ana sayfa meta açıklaması. Örnek: N-Hospital CMS, Nermefraz Bilişim Teknolojileri, Yazılım Ve Danışmanlık tarafından tasarlanmış bir hastane yönetim sistemidir.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Renk Şeması</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Renk şeması. Bu bilgiler, site'nin renk şemasını oluşturur. Ayarlandığında sistem'in görünümüne hemen etki edecektir.</div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ana Renk</div>
+                    <div class="doc-list-desc">Ana renk. Örnek: rgba(40, 59, 106, 1)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İkincil Renk</div>
+                    <div class="doc-list-desc">İkincil renk. Örnek: rgba(223, 0, 36, 1)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Vurgu Rengi</div>
+                    <div class="doc-list-desc">Vurgu rengi. Örnek: rgba(51, 193, 237, 1)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Arkaplan Rengi</div>
+                    <div class="doc-list-desc">Arkaplan rengi. Örnek: rgba(255, 255, 255, 1)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Metin Rengi</div>
+                    <div class="doc-list-desc">Metin rengi. Örnek: rgba(51, 51, 51, 1)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Yazı Tipi</div>
+                    <div class="doc-list-desc">Yazı tipi. Örnek: Poppins, sans-serif</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Diğer Ayarlar</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Diğer ayarlar. Buradaki ayarlar, diğer herhangi bir grupta gruplandırılamayan, daha çok işlevsel ve sistem'in çalışma algoritmasına yönelik etkiler taşıyan ayarlardır. İhtiyaçlarınıza göre özelleştirilmesi şiddetle tavsiye edilir.</div>
+            </div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Güçlü Şifre Gerekliliği</div>
+                    <div class="doc-list-desc">Varsayılan değer: pasif. Aktifleştirildiğinde, panel'e giriş yapan kullanıcıların şifresinin bir büyük, bir küçük harf, bir sayı ve bir özel karakter içermesi zorunlu hale getirir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sayfa Başına Veri</div>
+                    <div class="doc-list-desc">Varsayılan değer: 10. Sayfa başına gösterilecek veri sayısı. Bu değer, hem panel, hem de site'nin kendisinde geçerlidir. Misalen: Eğer 20 olarak ayarlanırsa, Anasayfa'da gösterilecek maksimum Tıbbi Birim, Doktor ve Müşteri Yorumu sayısı 20 olacaktır. Daha hızlı sayfa yüklenmesi için düşük bir değer seçilmesi tavsiye edilir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Müşteri Yorumlarını Göster</div>
+                    <div class="doc-list-desc">Varsayılan değer: aktif. Pasifleştirildiğinde, Anasayfa'da müşteri yorumları gösterilmez.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Menü Öğesi Başına Max. Alt Link</div>
+                    <div class="doc-list-desc">Varsayılan değer: 5. Ayarlandığında, menü öğelerinin altına gösterilecek maksimum link sayısı belirlenir. Misalen: Eğer 5 olarak ayarlanırsa, bir menü öğesinin altına en fazla 5 link gösterilecektir. Özellikle özel menü sayfalarında kaç alt unsur'un görüneceğini belirlemek için kullanışlıdır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Doktor Sosyal Medya Bağlantılarını Göster</div>
+                    <div class="doc-list-desc">Varsayılan değer: pasif. Aktifleştirildiğinde, Doktorların sahip olduğu sosyal medya bağlantıları gösterilir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Doktor Randevu Ücretini Göster</div>
+                    <div class="doc-list-desc">Varsayılan değer: pasif. Aktifleştirildiğinde, Doktorların randevu ücreti gösterilir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Max. Upload Boyutu</div>
+                    <div class="doc-list-desc">Yüklenen dosyaların sahip olabileceği maksimum boyut'u byte cinsinden belirler, varsayılan değer: 5 MB. Özelleştirilen değerden daha büyük hiçbir dosya'nın yüklenmesine sistem izin vermeyecektir.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Kullanıcılar</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Panel yönetim kullanıcıları ve roller. Admin ve moderator rolleri bulunur. Kullanıcılar sisteme giriş yapabilir, randevuları yönetebilir, içerik düzenleyebilir ve diğer yönetim işlemlerini gerçekleştirebilir. Her kullanıcının benzersiz email ve telefon numarası olmalıdır. Kullanıcılar, ziyaretçilerin gerçekleştirdiği işlemler hakkında bildirim alarak, bu bildirimlere gereken işlemleri yapabilirler. Bütün kullanıcı etkileşimleri, kullanıcılara bildirim olarak iletilecektir. Herhangi bir banlanma durumu, kullanıcı'nın yapacağı bir sonraki istekte hemen etkili olacaktır.</div>
+            </div>
+            <div class="doc-section-title">Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">E-Posta</div>
+                    <div class="doc-list-desc">Kullanıcının e-posta adresi</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Telefon</div>
+                    <div class="doc-list-desc">Kullanıcının telefon numarası</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Rol</div>
+                    <div class="doc-list-desc">Kullanıcı rolü (admin, moderator). Moderatörler, admin hesaplarıyla ilgili bir işlem yapamazlar.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik Durumu</div>
+                    <div class="doc-list-desc">Kullanıcının hesabının aktiflik durumu. Aktiflik durumu pasifleştirildiğinde, kullanıcı sistem'e giriş yapamaz ve hemen sistemden çıkarılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Zaman Dilimi</div>
+                    <div class="doc-list-desc">Kullanıcının sistem'deki zaman dilimi. Kullanıcının sistem'deki zaman dilimi. Bulunduğunuz bölge'nin saat dilimine göre ayarlamanız tavsiye edilir. Kullanıcı'nın yaptığı işlemlerde etkili olacaktır. Türkiye için Europe/Istanbul zaman dilimi ayarlanmalıdır.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Menü Öğeleri</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Web sitesi üst menü öğeleri ve sıralamaları. Ana menü ve alt menü yapısını oluşturur. Her buton için başlık, URL, ikon ve sıralama bilgileri saklanır. 4 tane özel menü öğesi bulunur: Şube, Tıbbi Birim, Tetkik, Doktor, Branş. Bu tipteki öğeler, alt menü öğesi olamazlar ve bunların altına da özel alt menü öğesi eklenemez.</div>
+            </div>
+            <div class="doc-section-title">Alan Değerleri</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başlık</div>
+                    <div class="doc-list-desc">Menü öğesinin başlığı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">URL</div>
+                    <div class="doc-list-desc">Menü öğesinin URL'si. URL, menü öğesinin hangi sayfaya yönlendirileceğini belirler. Örnek: /subeler</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İkon</div>
+                    <div class="doc-list-desc">Menü öğesinin ikonu. İkon, menü öğesinin görüntülenirken kullanılacak olan simgeyi belirler. İkonlar, FontAwesome ikon sınıfları kullanılarak belirtilir. Örnek: fas fa-home. Tamamen tercihe bağlıdır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sıralama</div>
+                    <div class="doc-list-desc">Menü öğesinin sıralaması. Sıralama, bir menü öğesinin kendi grubu içerisinde kaçıncı sırada görüneceğini belirler. 1'den büyük olmalıdır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik Durumu</div>
+                    <div class="doc-list-desc">Menü öğesinin aktiflik durumu. Aktiflik durumu pasifleştirildiğinde, menü öğesi görüntülenmez.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Müşteri Yorumları</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Müşteri yorumları ve değerlendirmeleri. Hastane hizmetleri hakkında hasta geri bildirimleri bu tabloda saklanır. Her yorum için hasta bilgileri, yorum içeriği, puanlama ve onay durumu tutulur. Yorumlar web sitesinde görüntülenebilir ve yönetilebilir.</div>
+            </div>
+            <div class="doc-section-title">Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İsim</div>
+                    <div class="doc-list-desc">Müşterinin ismi</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Yorum</div>
+                    <div class="doc-list-desc">Müşterinin yorumu</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Puan</div>
+                    <div class="doc-list-desc">Müşterinin puanı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik Durumu</div>
+                    <div class="doc-list-desc">Müşterinin yorumunun aktiflik durumu. Aktiflik durumu pasifleştirildiğinde, müşterinin yorumu görüntülenmez.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Şubeler</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Hastane şubeleri ve adres/iletişim bilgileri. Her şube için konum, telefon, email, çalışma saatleri ve diğer iletişim bilgileri saklanır. Sadece bir şube ana şube olarak işaretlenebilir. Şubeler Google Maps entegrasyonu ile haritada gösterilebilir.</div>
+            </div>
+            <div class="doc-section-title">Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad</div>
+                    <div class="doc-list-desc">Şube adı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Adres</div>
+                    <div class="doc-list-desc">Şube adresi</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Şehir</div>
+                    <div class="doc-list-desc">Şehir bilgisi</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Telefon</div>
+                    <div class="doc-list-desc">İletişim telefonu</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ana Şube</div>
+                    <div class="doc-list-desc">Ana şube olup olmadığı. Sadece bir ana şube olabilir.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Anlaşmalı Kurumlar</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Anlaşmalı kurum ve sigortalar. Hastane ile anlaşmalı sigorta şirketleri, kurumsal müşteriler ve üniversiteleri içerir. Her kurum için iletişim bilgileri, indirim oranları, sözleşme tarihleri ve ödeme koşulları tutulur. Bu bilgilerin bir kısmı, anlaşmalı kurumlar sayfasında görüntülenecektir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad</div>
+                    <div class="doc-list-desc">Kurum adı ve türü</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İletişim Kişisi</div>
+                    <div class="doc-list-desc">İlgili kişi ve iletişim bilgileri</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sözleşme Başlangıç Tarihi</div>
+                    <div class="doc-list-desc">Sözleşme tarih aralığı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">İndirim Oranı</div>
+                    <div class="doc-list-desc">İndirim oranı ve aktiflik</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Branşlar</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Hastane bölümleri ve branşları. Her bölüm'ün kendine özgü iletişim bilgileri, başhekim'i vardır. Eğer branş'a bir şube atanmadıysa, o branş'ın bütün şubelerde bulunduğu varsayılacaktır. Doktorlara branş bilgisi girildiğinde, bu doktorların bilgileri arasında belirtilecektir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad</div>
+                    <div class="doc-list-desc">Bölüm adı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Şube</div>
+                    <div class="doc-list-desc">Bağlı olduğu şube. Eğer branş'a bir şube atanmadıysa, o branş'ın bütün şubelerde bulunduğu varsayılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başhekim</div>
+                    <div class="doc-list-desc">Bölüm başhekim doktor ID'si</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Doktorlar</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Doktor profilleri, çalışma, kariyer bilgileri. Her doktor için kişisel bilgiler, eğitim geçmişi, deneyim yılı, çalışma saatleri, randevu ücreti ve hangi bölümde çalıştığı bilgileri saklanır. Doktorlar randevu sistemi ile entegre çalışır ve doktor ve şube bilgileri üzerinden randevular verilebilir. Aynı tarih ve saatte aynı doktora ikinci bir randevu verilemez. Doktorlara ayrıca uzmanlık ve deneyim bilgileri eklenebilir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad, Soyad</div>
+                    <div class="doc-list-desc">Doktorun ad ve soyad bilgileri</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ünvan</div>
+                    <div class="doc-list-desc">Doktorun ünvanı. Dr., Prof. Dr., Doç. Dr., Op. Dr., Uzm. Dr. gibi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Branş</div>
+                    <div class="doc-list-desc">Bağlı olduğu branş.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Şube</div>
+                    <div class="doc-list-desc">Çalıştığı şube.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Biyografi</div>
+                    <div class="doc-list-desc">Doktorun biyografisi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Deneyim Yılı</div>
+                    <div class="doc-list-desc">Doktorun mesleki deneyim yılı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Diller</div>
+                    <div class="doc-list-desc">Doktorun konuştuğu diller. Virgülle ayırarak yazın.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Doğum Tarihi</div>
+                    <div class="doc-list-desc">Doktorun doğum tarihi.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">İletişim Bilgileri</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Telefon</div>
+                    <div class="doc-list-desc">Doktorun iletişim telefonu.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Email</div>
+                    <div class="doc-list-desc">Doktorun iletişim emaili.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Facebook</div>
+                    <div class="doc-list-desc">Doktorun Facebook sayfası URL'i.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">X</div>
+                    <div class="doc-list-desc">Doktorun X (Twitter) sayfası URL'i.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Instagram</div>
+                    <div class="doc-list-desc">Doktorun Instagram sayfası URL'i.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Linkedin</div>
+                    <div class="doc-list-desc">Doktorun Linkedin sayfası URL'i.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Personal URL</div>
+                    <div class="doc-list-desc">Doktorun kişisel web sitesi URL'i.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Doktorun Sahip Olduğu Uzmanlıklar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Uzmanlık Adı</div>
+                    <div class="doc-list-desc">Uzmanlık adı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sertifikasyon Tarihi</div>
+                    <div class="doc-list-desc">Uzmanlık sertifikasyon tarihi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sertifikasyon Kurumu</div>
+                    <div class="doc-list-desc">Uzmanlık sertifikasyon kurumu.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Birincil Uzmanlık</div>
+                    <div class="doc-list-desc">Uzmanlık birincil olup olmadığı.</div>
+                </div>
+            </div>
+            <div class="doc-section-title">Doktorun İş Deneyimleri</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Kurum Adı</div>
+                    <div class="doc-list-desc">İş deneyimi kurum adı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başlangıç Tarihi</div>
+                    <div class="doc-list-desc">İş deneyimi başlangıç tarihi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Bitiş Tarihi</div>
+                    <div class="doc-list-desc">İş deneyimi bitiş tarihi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Açıklama</div>
+                    <div class="doc-list-desc">İş deneyimi açıklama.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Deneyim Görseli</div>
+                    <div class="doc-list-desc">İş deneyimiyle ilgili bir görsel.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Uzmanlıklar</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Sistemde tanımlanmış uzmanlık alanları ve sertifikasyonlar. Doktorların sahip olduğu uzmanlık alanları bu tabloda tanımlanır. Her uzmanlık için açıklama, ikon ve aktiflik durumu saklanır. Doktorlar bu uzmanlıklara bağlanabilir. Bir doktor birden fazla uzmanlık alanına sahip olabilir ve sadece biri birincil uzmanlık olarak işaretlenebilir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">name, url_name</div>
+                    <div class="doc-list-desc">Uzmanlık adı ve URL adı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">description, icon</div>
+                    <div class="doc-list-desc">Açıklama ve ikon</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">is_active</div>
+                    <div class="doc-list-desc">Aktiflik durumu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Tıbbi Birimler</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Hastane içindeki farklı tıbbi birimler bu tabloda tanımlanır. Her birim için açıklama, kapak resmi ve aktiflik durumu saklanır. Bu birimler anasayfa ve kendilerine ait sayfalarda görüntülenecektir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad, URL Adı</div>
+                    <div class="doc-list-desc">Birim adı ve URL adı. URL adı, birim sayfasının adresi olarak kullanılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Açıklama</div>
+                    <div class="doc-list-desc">Birim açıklaması. Birim sayfasında görüntülenecektir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Kapak Medya ID'si, Aktiflik</div>
+                    <div class="doc-list-desc">Kapak medya ID'si ve aktiflik durumu. Kapak medya ID'si, birim sayfasının kapak resmi olarak kullanılacaktır.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Anasayfa İçerikleri</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Ana sayfa içerikleri ve dinamik bileşenler. HTML, CSS ve JavaScript kodları ayrı ayrı saklanır ve ana sayfada dinamik olarak yüklenir. İçerikler sıralama ve aktiflik durumuna göre anasayfada görüntülenecektir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad</div>
+                    <div class="doc-list-desc">İçerik adı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tip</div>
+                    <div class="doc-list-desc">İçerik tipi. Genel ya da Popup olabilir. Sınırsız miktarda genel içerik bulunabilirken, sadece bir adet popup içerik bulunabilir. İçerikler eklenirken, sadece o içeriğe etki edecek stil ve javascript'in yazılması ve eklenen kodların iyice debug edildikten sonra eklenmesi tavsiye edilir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sıralama</div>
+                    <div class="doc-list-desc">Sıralama. Sıralama ile anasayfada görüntülenecek sırada belirlenir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">HTML/CSS/JS</div>
+                    <div class="doc-list-desc">HTML, CSS ve JS içerikleri. İçeriklerin girdilerinde synthax highlighting aktif olarak bulunmaktadır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Hangi İçerikten sonra görüntülenecek?</div>
+                    <div class="doc-list-desc">İçeriğin, hangi varsayılan anasayfa içeriğinden sonra görüntüleneceğini belirler. Mesela, "1" olarak ayarlandığında, bu içerik banner'dan sonra yayınlanacaktır. Aynı varsayılan içerikten sonra yayınlanacak birden fazla anasayfa içeriği bulunduğu durumlarda, sıralama dikkate alınır, hangi içerik sıralamada öncelikli ise o içerik önce görüntülenecektir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik</div>
+                    <div class="doc-list-desc">Aktiflik durumu. Aktiflik durumu, içerikin anasayfada görüntülenecek olup olmadığını belirler.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Diğer Sayfa İçerikleri</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Diğer sayfa içerikleri ve statik sayfalar. Hakkımızda, KVKK, Misyon-Vizyon gibi statik sayfaların içerikleri bu tabloda saklanır. Her içerik için HTML, CSS, JavaScript ayrı ayrı tutulur ve belirli route'larda gösterilir. İçerikler kategorilere göre gruplandırılabilir. Örneğin, Hakkımızda içerikleri kendi kategorisi altında saklanır.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad</div>
+                    <div class="doc-list-desc">İçerik adı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tip</div>
+                    <div class="doc-list-desc">İçerik tipi. Hakkımızda, Kvkk, Misyon-Vizyon değerleri olabilir. Sınırsız miktarda içerik girilebilirken, bunlar kendi aralarında sıralanır ve görüntülenir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Sıralama</div>
+                    <div class="doc-list-desc">Sıralama. Sıralama ile içeriklerin görüntülenme sıralaması belirlenir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik</div>
+                    <div class="doc-list-desc">Aktiflik durumu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Haberler</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Hastane haberleri, duyurular ve basın açıklamalarını içerir. Her haber için başlık, içerik, yayın tarihi, kategori, etiketler ve SEO bilgileri tutulur. Haberlerin yayın durumu kontrol edilebilir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başlık, URL Adı</div>
+                    <div class="doc-list-desc">Haber başlığı ve URL adı. URL adı, haber sayfasının adresi olarak kullanılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Yayın Tarihi, Yayın Durumu</div>
+                    <div class="doc-list-desc">Yayın tarihi ve durumu. Yayın tarihi, haberin yayınlanma tarihi olarak kullanılacaktır. Yayın tarihi geçmiş haberler anasayfa'dan ulaşılabilir olacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Kategori, Etiketler</div>
+                    <div class="doc-list-desc">Kategori ve etiketler. Kategori, haberin hangi kategoride görüntüleneceğini belirler. Etiketler, haberin içeriğinde geçen anahtar kelimeleri belirler. Etiketler, haberin arama motorlarında daha iyi rank almasını sağlar.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Öne Çıkarılabilir</div>
+                    <div class="doc-list-desc">Öne çıkarılabilir. Öne çıkarılabilir olarak işaretlenen haberler anasayfada öne çıkarılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">SEO Başlık, SEO Açıklama, SEO Anahtar Kelimeler</div>
+                    <div class="doc-list-desc">SEO başlık, SEO açıklama ve SEO anahtar kelimeler. SEO başlık, haberin arama motorlarında daha iyi rank almasını sağlar. SEO açıklama, haberin arama motorlarında daha iyi rank almasını sağlar. SEO anahtar kelimeler, haberin arama motorlarında daha iyi rank almasını sağlar.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Görsel</div>
+                    <div class="doc-list-desc">Haberin görseli. Görsel, haberin görseli olarak kullanılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Aktiflik</div>
+                    <div class="doc-list-desc">Aktiflik durumu. Aktiflik durumu, haberin anasayfada görüntülenecek olup olmadığını belirler.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Tetkikler</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Hastanede yapılan tıbbi tetkikler (MR, BT, kan tahlili vb.) bu tabloda tanımlanır. Her tetkik için açıklama, kapak resmi ve aktiflik durumu saklanır. Tetkikler sayfalarda görüntülenecektir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Ad, URL Adı</div>
+                    <div class="doc-list-desc">Tetkik adı ve URL adı. URL adı, tetkik sayfasının adresi olarak kullanılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Açıklama</div>
+                    <div class="doc-list-desc">Tetkik açıklaması. Tetkik sayfasında görüntülenecektir.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Kapak Medya ID'si, Aktiflik</div>
+                    <div class="doc-list-desc">Kapak medya ID'si ve aktiflik durumu. Kapak medya ID'si, tetkik sayfasının kapak resmi olarak kullanılacaktır.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Randevu Talepleri</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Web sitesi üzerinden alınan randevu istekleri. Hastaların gireceği randevu talepleri üzerinden randevular tercih edilen tarih/saat, doktor ve şube bilgileri fark etmeksizin oluşturulabilir. Randevular oluşturulduğu ve/veya düzenlendiğinde, eğer gerekli ayarlamalar yapılmışsa hasta'ya bilgilendirme e-postası gönderilir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Hasta Adı</div>
+                    <div class="doc-list-desc">Hasta adı ve soyadı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Hasta Telefon Numarası</div>
+                    <div class="doc-list-desc">Hasta telefon numarası. Telefon numarası, hasta'ya bilgilendirme e-postası gönderilirken kullanılacaktır.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Randevu Tarihi</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği randevu tarihi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Randevu Saati</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği randevu saati.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Doktor</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği doktor.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Şube</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği şube.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">Randevular</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Randevular, hasta bilgileri, doktor, tarih/saat, süre, ücret ve durum bilgileri. Randevular iptal edilebilir, tamamlanabilir veya hasta gelmedi olarak işaretlenebilir. Randevulara belirli bir doktor atandığında, sistem tarafından o doktor için randevu çakışması olmaması sağlanacaktır.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Hasta Adı</div>
+                    <div class="doc-list-desc">Hasta adı ve soyadı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Randevu Tarihi</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği randevu tarihi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Randevu Saati</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği randevu saati.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Doktor</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği doktor.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Tercih Edilen Şube</div>
+                    <div class="doc-list-desc">Hasta'nın tercih ettiği şube.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">İletişim Talepleri</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">Web sitesi üzerinden alınan iletişim talepleri. Web sitesi tarafından gönderen bilgileri, konu, mesaj içeriği, öncelik seviyesi ve durum bilgileri tutulur. Talepler panel üzerinden cevaplanabilir ve cevaplandığında, cevaplandı olarak işaretlenir.</div>
+            </div>
+            <div class="doc-section-title">Temel Alanlar</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Adı Soyadı</div>
+                    <div class="doc-list-desc">Gönderenin adı ve soyadı.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">E-Posta</div>
+                    <div class="doc-list-desc">Gönderenin e-posta adresi.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Konu</div>
+                    <div class="doc-list-desc">Gönderenin mesaj konusu.</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Mesaj</div>
+                    <div class="doc-list-desc">Gönderenin mesaj içeriği.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="doc-accordion">
+        <div class="doc-acc-header"><div class="doc-acc-title">İş Başvuruları</div><div class="doc-acc-icon">▶</div></div>
+        <div class="doc-acc-content">
+            <div class="doc-section-title">Amaç</div>
+            <div class="doc-kv">
+                <div class="k">Açıklama</div><div class="v">İş başvurularını burada görürsünüz. Adayın kim olduğu, hangi pozisyona başvurduğu, iletişim bilgileri, CV’si ve süreçle ilgili notlar burada tutulur. Başvuruları onaylayabilir, bekletebilir, reddedebilir, cevaplayabilirsiniz.</div>
+            </div>
+            <div class="doc-section-title">Temel Bilgiler</div>
+            <div class="doc-list">
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Adı Soyadı</div>
+                    <div class="doc-list-desc">Adayın adı ve soyadı</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başvurulan Pozisyon</div>
+                    <div class="doc-list-desc">Adayın başvurduğu pozisyon</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">E‑Posta</div>
+                    <div class="doc-list-desc">Adayın e‑posta adresi</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Telefon</div>
+                    <div class="doc-list-desc">Adayın telefon numarası</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">Başvuru Durumu</div>
+                    <div class="doc-list-desc">Süreci (beklemede, kabul, red vb.)</div>
+                </div>
+                <div class="doc-list-item">
+                    <div class="doc-list-title">CV</div>
+                    <div class="doc-list-desc">Yüklenen özgeçmiş dosyası</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload custom file functionality (hardcoded) -->
+    <div class="doc-accordion">
+        <div class="doc-acc-header">
+            <div class="doc-acc-title">Özel Dosya Yükleme</div>
+            <div class="doc-acc-icon">▶</div>
+        </div>
+        <div class="doc-acc-content">
+            <div class="doc-upload">
+                <div class="doc-section-title">Dosya Yükle</div>
+                <div class="hint">Bu kutu sadece görsel amaçlıdır. Panel mimarisine uygun özel dosyalarınızı buradan yüklediğinizi varsayan bir akış gösterir.</div>
+                <div class="actions">
+                    <button class="doc-btn">Dosya Seç</button>
+                    <button class="doc-btn secondary">Yükle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/js/panel/dokumantasyon.js"></script>
+

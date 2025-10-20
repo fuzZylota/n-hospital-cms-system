@@ -1,0 +1,529 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/sube-duzenle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-edit"></i>
+                    Şube Bilgilerini Düzenle
+                </h1>
+                <p class="page-subtitle">{{ Sube.Name }} şubesinin bilgilerini düzenleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/subeler/{{ Sube.Sid }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    Görüntüle
+                </a>
+                <a href="/panel/subeler" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="forms-container">
+            <!-- General Information Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Genel Bilgiler
+                    </h2>
+                    <p class="section-description">Şubenin temel bilgilerini düzenleyin</p>
+                </div>
+                <div class="section-content">
+                    <form id="generalForm" class="general-form" novalidate>
+                        <!-- Hidden inputs for old values -->
+                        <input type="hidden" name="old_name" value="{{ Sube.Name }}">
+                        <input type="hidden" name="old_url_name" value="{{ Sube.UrlName }}">
+                        <input type="hidden" name="old_description" value="{{ Sube.Description }}">
+                        <input type="hidden" name="old_address" value="{{ Sube.Address }}">
+                        <input type="hidden" name="old_google_map_iframe" value="{{ Sube.GoogleMapIframe }}">
+                        <input type="hidden" name="old_transportation_info" value="{{ Sube.TransportationInfo }}">
+                        <input type="hidden" name="old_city" value="{{ Sube.City }}">
+                        <input type="hidden" name="old_district" value="{{ Sube.District }}">
+                        <input type="hidden" name="old_postal_code" value="{{ Sube.PostalCode }}">
+                        <input type="hidden" name="old_phone" value="{{ Sube.Phone }}">
+                        <input type="hidden" name="old_fax" value="{{ Sube.Fax }}">
+                        <input type="hidden" name="old_email" value="{{ Sube.Email }}">
+                        <input type="hidden" name="old_website" value="{{ Sube.Website }}">
+                        <input type="hidden" name="old_latitude" value="{{ Sube.Latitude }}">
+                        <input type="hidden" name="old_longitude" value="{{ Sube.Longitude }}">
+                        <input type="hidden" name="old_working_hours" value="{{ Sube.WorkingHours }}">
+                        <input type="hidden" name="old_is_active" value="{{ Sube.IsActive }}">
+
+                        <!-- Basic Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Temel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name" class="form-label required">Şube Adı</label>
+                                    <input type="text" id="name" name="name" class="form-input" 
+                                           value="{{ Sube.Name }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="url_name" class="form-label">URL Adı</label>
+                                    <input type="text" id="url_name" name="url_name" class="form-input" 
+                                           value="{{ Sube.UrlName }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description" class="form-label">Açıklama</label>
+                                <textarea id="description" name="description" class="form-textarea" 
+                                          rows="3">{{ Sube.Description }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="google_map_iframe" class="form-label">Google Harita Embed Kodu</label>
+                                <textarea id="google_map_iframe" name="google_map_iframe" class="form-textarea" 
+                                          rows="3">{{ Sube.GoogleMapIframe }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="transportation_info" class="form-label">Ulaşım Bilgileri</label>
+                                <textarea id="transportation_info" name="transportation_info" class="form-textarea" 
+                                          rows="3">{{ Sube.TransportationInfo }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="is_active" class="form-label">Aktif Durumu</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="is_active" name="is_active" {{ if Sube.IsActive }}checked{{ end }}>
+                                    <label for="is_active" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">{{ if Sube.IsActive }}Aktif{{ else }}Pasif{{ end }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Adres Bilgileri</h3>
+                            <div class="form-group">
+                                <label for="address" class="form-label required">Adres</label>
+                                <textarea id="address" name="address" class="form-textarea" 
+                                          rows="3" required>{{ Sube.Address }}</textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city" class="form-label required">Şehir</label>
+                                    <input type="text" id="city" name="city" class="form-input" 
+                                           value="{{ Sube.City }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="district" class="form-label">İlçe</label>
+                                    <input type="text" id="district" name="district" class="form-input" 
+                                           value="{{ Sube.District }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="postal_code" class="form-label">Posta Kodu</label>
+                                <input type="text" id="postal_code" name="postal_code" class="form-input" 
+                                       value="{{ Sube.PostalCode }}">
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">İletişim Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone" class="form-label">Telefon</label>
+                                    <input type="tel" id="phone" name="phone" class="form-input" 
+                                           value="{{ Sube.Phone }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fax" class="form-label">Faks</label>
+                                    <input type="tel" id="fax" name="fax" class="form-input" 
+                                           value="{{ Sube.Fax }}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">E-posta</label>
+                                    <input type="email" id="email" name="email" class="form-input" 
+                                           value="{{ Sube.Email }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="url" id="website" name="website" class="form-input" 
+                                           value="{{ Sube.Website }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Konum Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="latitude" class="form-label">Enlem</label>
+                                    <input type="number" id="latitude" name="latitude" class="form-input" 
+                                           value="{{ Sube.Latitude }}" step="0.000001" min="-90" max="90">
+                                </div>
+                                <div class="form-group">
+                                    <label for="longitude" class="form-label">Boylam</label>
+                                    <input type="number" id="longitude" name="longitude" class="form-input" 
+                                           value="{{ Sube.Longitude }}" step="0.000001" min="-180" max="180">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Ek Bilgiler</h3>
+                            <div class="form-group">
+                                <label for="working_hours" class="form-label">Çalışma Saatleri</label>
+                                <textarea id="working_hours" name="working_hours" class="form-textarea" 
+                                          rows="3" placeholder="Örn: Pazartesi-Cuma: 08:00-18:00, Cumartesi: 09:00-13:00">{{ Sube.WorkingHours }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="generalSubmitBtn">
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Bilgileri Güncelle</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Picture Management Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-image"></i>
+                        Şube Görseli
+                    </h2>
+                    <p class="section-description">Şube görselini yönetin</p>
+                </div>
+                <div class="section-content">
+                    <!-- Current Picture Display -->
+                    <div class="current-media-section">
+                        <h3 class="group-title">Mevcut Görsel</h3>
+                        <div class="media-grid">
+                            <div class="media-item">
+                                <div class="media-header">
+                                    <h4 class="media-title">Şube Görseli</h4>
+                                    {{ if Sube.SubeMediaPath }}
+                                    <button type="button" class="btn-delete-media" data-sid="{{ Sube.Sid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ end }}
+                                </div>
+                                <div class="media-preview">
+                                    {{ if Sube.SubeMediaPath }}
+                                    <img src="{{ PathOnStart }}{{ Sube.SubeMediaPath }}" alt="{{ Sube.SubeMediaAltText }}" 
+                                         title="{{ Sube.SubeMediaTitle }}" class="preview-image">
+                                    <div class="media-info">
+                                        <div class="info-item">
+                                            <strong>Alt Text:</strong> {{ Sube.SubeMediaAltText }}
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Title:</strong> {{ Sube.SubeMediaTitle }}
+                                        </div>
+                                    </div>
+                                    {{ else }}
+                                    <div class="no-media">
+                                        <i class="fas fa-image"></i>
+                                        <span>Şube görseli yüklenmemiş</span>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Picture Upload Form -->
+                    <div class="media-upload-section">
+                        <h3 class="group-title">Görseli Güncelle</h3>
+                        <form id="pictureForm" class="picture-form" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="old_sube_media_alt_text" value="{{ Sube.SubeMediaAltText }}">
+                            <input type="hidden" name="old_sube_media_title" value="{{ Sube.SubeMediaTitle }}">
+                            
+                            <div class="form-group">
+                                <label for="sube_media_path" class="form-label">Şube Görseli</label>
+                                <div class="file-upload-area" data-target="sube_media_path">
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-upload"></i>
+                                        <p class="file-upload-text">Görsel dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                        <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                                    </div>
+                                    <input type="file" id="sube_media_path" name="sube_media_path" 
+                                           class="file-input" accept="image/*">
+                                    <div class="file-preview" style="display: none;">
+                                        <img class="preview-image" src="" alt="Preview">
+                                        <button type="button" class="file-remove">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="file-meta-inputs">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="sube_media_alt_text" class="form-label">Görsel Alt Metni</label>
+                                            <input type="text" id="sube_media_alt_text" name="sube_media_alt_text" 
+                                                   class="form-input" value="{{ Sube.SubeMediaAltText }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sube_media_title" class="form-label">Görsel Başlığı</label>
+                                            <input type="text" id="sube_media_title" name="sube_media_title" 
+                                                   class="form-input" value="{{ Sube.SubeMediaTitle }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="pictureSubmitBtn">
+                                    <i class="fas fa-upload"></i>
+                                    <span class="btn-text">Görseli Güncelle</span>
+                                    <div class="btn-loader" style="display: none;">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Management Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-file-alt"></i>
+                        Şube Dokümanları
+                    </h2>
+                    <p class="section-description">Şube ile ilgili dokümanları yönetin</p>
+                </div>
+                <div class="section-content">
+                    <!-- Current Documents Display -->
+                    <div class="current-documents-section">
+                        <h3 class="group-title">Mevcut Dokümanlar</h3>
+                        {{ if SubeDocuments }}
+                        <div class="documents-grid">
+                            {{ range SubeDocuments }}
+                            <div class="document-item" data-mid="{{ .Mid }}">
+                                <div class="document-header">
+                                    <div class="document-icon">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <div class="document-info">
+                                        <h4 class="document-name">{{ .FileName }}</h4>
+                                        <div class="document-meta">
+                                            <span class="document-size">{{ .FileSize }} bytes</span>
+                                            <span class="document-date">{{ .CreatedAt }}</span>
+                                        </div>
+                                        {{ if .Data }}
+                                        <div class="document-data">
+                                            <strong>Ek Bilgi:</strong> {{ .Data }}
+                                        </div>
+                                        {{ end }}
+                                    </div>
+                                    <button type="button" class="btn-delete-document" data-mid="{{ .Mid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="document-actions">
+                                    <button type="button" class="btn btn-primary btn-sm btn-edit-document" data-mid="{{ .Mid }}">
+                                        <i class="fas fa-edit"></i>
+                                        Düzenle
+                                    </button>
+                                    <a href="{{ PathOnStart }}{{ .FilePath }}" target="_blank" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-download"></i>
+                                        İndir
+                                    </a>
+                                </div>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ else }}
+                        <div class="no-documents">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Henüz doküman yüklenmemiş</span>
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <!-- Document Upload Form -->
+                    <div class="document-upload-section">
+                        <h3 class="group-title">Doküman Ekle</h3>
+                        <form id="documentForm" class="document-form" enctype="multipart/form-data" novalidate>
+                            <!-- File Upload Area -->
+                            <div class="file-upload-area" id="documentUploadArea">
+                                <div class="upload-content">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-file-upload"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <h3 class="upload-title">Doküman Yükle</h3>
+                                        <p class="upload-description">
+                                            Dokümanlarınızı buraya sürükleyip bırakın veya
+                                            <span class="upload-link">dosya seçmek için tıklayın</span>
+                                        </p>
+                                        <div class="upload-info">
+                                            <span class="file-types">Tüm dosya türleri desteklenir (Maksimum 10 dosya)</span>
+                                            <span class="file-size">Maksimum dosya boyutu: <span id="maxFileSize">10MB</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" id="documentInput" name="file" class="file-input" accept="*/*" multiple>
+                            </div>
+
+                            <!-- Files Preview -->
+                            <div class="files-preview" id="documentPreview" style="display: none;">
+                                <div class="preview-header">
+                                    <h4 class="preview-title">Seçilen Dokümanlar</h4>
+                                    <button type="button" class="btn-remove-all" id="removeAllDocumentsBtn">
+                                        <i class="fas fa-times"></i>
+                                        Tümünü Kaldır
+                                    </button>
+                                </div>
+                                <div class="files-list" id="documentFilesList">
+                                    <!-- Files will be added here dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Upload Actions -->
+                            <div class="upload-actions" id="documentUploadActions" style="display: none;">
+                                <div class="upload-info">
+                                    <span class="files-count" id="documentFilesCount">0 dosya seçildi</span>
+                                    <span class="files-size" id="documentTotalSize">0 MB</span>
+                                </div>
+                                <div class="upload-buttons">
+                                    <button type="submit" class="btn btn-primary" id="documentUploadBtn">
+                                        <i class="fas fa-upload"></i>
+                                        <span class="btn-text">Dokümanları Yükle</span>
+                                        <div class="btn-loader" style="display: none;">
+                                            <div class="spinner"></div>
+                                        </div>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="documentCancelBtn">
+                                        <i class="fas fa-times"></i>
+                                        İptal
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">İşlem başarıyla tamamlandı.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deletePictureModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Görseli Sil</h3>
+        <p class="modal-message">Bu görseli silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deletePictureModal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeletePictureBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Document Confirmation Modal -->
+<div id="deleteDocumentModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Dokümanı Sil</h3>
+        <p class="modal-message">Bu dokümanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deleteDocumentModal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteDocumentBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Document Modal -->
+<div id="editDocumentModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Doküman Bilgilerini Düzenle</h3>
+            <button type="button" class="btn-close" onclick="closeModal('editDocumentModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editDocumentForm" class="edit-document-form">
+                <div class="form-group">
+                    <label for="editDocumentData" class="form-label">Ek Bilgi</label>
+                    <textarea id="editDocumentData" name="data" class="form-textarea" rows="4" 
+                              placeholder="Doküman için ek bilgi giriniz..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('editDocumentModal')">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmEditDocumentBtn">
+                <i class="fas fa-save"></i>
+                <span class="btn-text">Kaydet</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.pageData = {
+        sid: "{{ Sube.Sid }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/sube-duzenle.js"></script>

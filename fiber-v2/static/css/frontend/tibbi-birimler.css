@@ -1,0 +1,131 @@
+/* Tibbi Birimler Page Styles - align with hizmetlerimiz component */
+
+.service-details.section-space {
+    padding-top: 40px;
+}
+
+.service-card-two {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+}
+
+.service-card-two:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.service-card-two__bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.service-card-two__content {
+    position: relative;
+    padding: 24px;
+    /* leave room for the corner arrow button */
+    padding-right: 70px;
+}
+
+.service-card-two__image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    margin-bottom: 18px;
+}
+
+.service-card-two__title {
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 700;
+    margin: 0;
+    color: #1f2937;
+    max-width: 50px;
+    /* prevent overlap and awkward wrapping */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.service-card-two__title a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.service-card-two__title a:hover {
+    color: var(--theme-secondary-color);
+}
+
+.service-card-two__link {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--theme-primary-color);
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    z-index: 2;
+}
+
+.service-card-two__link i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.service-card-two:hover .service-card-two__link {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.service-details.section-space .service-card-two__image {
+    width: 100% !important;
+    height: 220px !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+    display: block !important;
+}
+
+/* use theme colors for titles like hizmetlerimiz */
+
+/* Prevent overlap by constraining title width */
+.service-details.section-space .service-card-two__content {
+    max-width: 100% !important;
+}
+
+.service-details.section-space .service-card-two__title {
+    display: block !important; /* allow normal wrapping like component */
+    max-width: calc(100% - 72px) !important; /* leave space for arrow button */
+}
+
+.service-details.section-space .service-card-two__link {
+    right: 18px !important;
+    bottom: 18px !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: var(--theme-primary-color) !important;
+    color: #fff !important;
+}
+
+
+@media (max-width: 768px) {
+    .service-card-two__image {
+        height: 180px;
+    }
+    .service-card-two__content {
+        padding: 18px 64px 18px 18px;
+    }
+}
+
+

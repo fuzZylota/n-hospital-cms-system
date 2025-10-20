@@ -1,0 +1,223 @@
+<div class="language-selector">
+    <div class="language-dropdown">
+        <button class="language-active" id="activeLanguageBtn">
+            <span class="flag">🇹🇷</span>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div class="language-menu" id="languageMenu">
+            <div class="language-option" data-lang="tr" data-flag="🇹🇷">
+                <span class="flag">🇹🇷</span>
+            </div>
+            <div class="language-option" data-lang="en" data-flag="🇬🇧">
+                <span class="flag">🇬🇧</span>
+            </div>
+            <div class="language-option" data-lang="ru" data-flag="🇷🇺">
+                <span class="flag">🇷🇺</span>
+            </div>
+            <div class="language-option" data-lang="az" data-flag="🇦🇿">
+                <span class="flag">🇦🇿</span>
+            </div>
+            <div class="language-option" data-lang="ar" data-flag="🇸🇦">
+                <span class="flag">🇸🇦</span>
+            </div>
+            <div class="language-option" data-lang="de" data-flag="🇩🇪">
+                <span class="flag">🇩🇪</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="google_translate_element" style="display:none"></div>
+
+<script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({pageLanguage: 'tr'}, 'google_translate_element');
+  }
+  
+  function setLang(lang) {
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=/tr/${lang};path=/;domain=${domain}`;
+    location.reload();
+  }
+
+  // Language selector functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const activeBtn = document.getElementById('activeLanguageBtn');
+    const languageMenu = document.getElementById('languageMenu');
+    const languageOptions = document.querySelectorAll('.language-option');
+    
+    // Get current language from cookie
+    function getCurrentLanguage() {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'googtrans') {
+          const langMatch = value.match(/\/tr\/([a-z]{2})/);
+          return langMatch ? langMatch[1] : 'tr';
+        }
+      }
+      return 'tr';
+    }
+    
+    // Set active language display
+    function setActiveLanguage(lang) {
+      const option = document.querySelector(`[data-lang="${lang}"]`);
+      if (option) {
+        const flag = option.dataset.flag;
+        activeBtn.querySelector('.flag').textContent = flag;
+      }
+    }
+    
+    // Initialize with current language
+    const currentLang = getCurrentLanguage();
+    setActiveLanguage(currentLang);
+    
+    // Toggle dropdown
+    activeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      languageMenu.classList.toggle('show');
+    });
+    
+    // Handle language selection
+    languageOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const lang = this.dataset.lang;
+        setLang(lang);
+      });
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!activeBtn.contains(e.target) && !languageMenu.contains(e.target)) {
+        languageMenu.classList.remove('show');
+      }
+    });
+    
+    // Close dropdown on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        languageMenu.classList.remove('show');
+      }
+    });
+  });
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<style>
+    .language-selector {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .language-dropdown {
+        position: relative;
+    }
+    
+    .language-active {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: transparent;
+        border: 1px solid #9ca3af; /* match social links gray */
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        font-size: 16px;
+        color: inherit; /* use topbar color */
+        box-shadow: none;
+        min-width: 50px;
+        justify-content: center;
+    }
+    
+    .language-active:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+    
+    .language-active i {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+        color: currentColor;
+    }
+    
+    .language-dropdown:hover .language-active i {
+        transform: rotate(90deg);
+    }
+    
+    .language-menu {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+        margin-left: 8px;
+        overflow: hidden;
+        min-width: 50px;
+    }
+    
+    .language-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+
+    /* Also show on hover without affecting layout */
+    .language-dropdown:hover .language-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+    
+    .language-option {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 16px;
+        color: #374151;
+        border-bottom: 1px solid #f1f5f9;
+        min-width: 50px;
+    }
+    
+    .language-option:last-child {
+        border-bottom: none;
+    }
+    
+    .language-option:hover {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: var(--theme-primary-color, #3b82f6);
+    }
+    
+    .flag {
+        font-size: 16px;
+        line-height: 1;
+    }
+    
+    /* Google Translate Styles */
+    .skiptranslate {
+        display: none !important;
+    }
+    
+    body {
+        top: 0px !important;
+    }
+    
+    .goog-logo-link,
+    .goog-te-gadget {
+        display: none !important;
+    }
+    
+    #google_translate_element {
+        display: none !important;
+    }
+</style>

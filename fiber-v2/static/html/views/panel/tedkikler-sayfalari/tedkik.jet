@@ -1,0 +1,178 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/tedkik.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/tedkikler" class="breadcrumb-link">
+                        <i class="fas fa-stethoscope"></i>
+                        Tedkikler
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Tedkik.Name }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Tedkik.Name }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Tedkik.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Tedkik.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Tedkik.Description}}
+                <p class="page-subtitle">{{ Tedkik.Description }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Tedkik.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/tedkikler/{{ Tedkik.Tid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <button class="btn btn-danger" id="deleteTedkikBtn" data-id="{{ Tedkik.Tid }}" data-name="{{ Tedkik.Name }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Tedkik Adı</label>
+                        <div class="info-value">{{ Tedkik.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL Adı</label>
+                        <div class="info-value">{{ Tedkik.UrlName }}</div>
+                    </div>
+                    {{if Tedkik.Description}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Açıklama</label>
+                        <div class="info-value">{{ Tedkik.Description }}</div>
+                    </div>
+                    {{end}}
+                    {{if Tedkik.CoverPath}}
+                    <div class="info-item">
+                        <label class="info-label">Tedkik Görseli</label>
+                        <div class="info-value">
+                            <div class="image-preview">
+                                <img src="{{ PathOnStart }}{{ Tedkik.CoverPath }}" alt="{{ Tedkik.CoverAltText }}" title="{{ Tedkik.CoverTitle }}" class="preview-image">
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Durum</label>
+                        <div class="info-value">
+                            {{if Tedkik.IsActive}}
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle"></i>
+                                Aktif
+                            </span>
+                            {{else}}
+                            <span class="status-badge inactive">
+                                <i class="fas fa-pause-circle"></i>
+                                Pasif
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Tedkiki Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı tedkiki silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.tedkikData = {
+        id: "{{ Tedkik.Tid }}",
+        name: "{{ Tedkik.Name }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/tedkik.js"></script>

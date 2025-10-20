@@ -1,0 +1,25 @@
+go 1.25.1
+
+use (
+	./baserouter
+	./main
+	./models
+	./database
+	./controllers/frontend
+	./controllers/panel
+	./controllers/post
+	./controllers/post/options
+	./controllers/post/users
+	./controllers/post/testimonials
+	./controllers/post/headerbuttons
+	./controllers/post/subeler
+	./controllers/post/anlasmali_kurumlar
+	./controllers/post/branslar
+	./controllers/post/doctors
+	./controllers/post/tibbibirimler
+	./controllers/post/tedkikler
+	./controllers/post/randevular
+	./controllers/post/haberler
+	./lib
+	./test
+)

@@ -1,0 +1,46 @@
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">{{ Tedkik.Name != "" ? Tedkik.Name : "Tetkik" }}</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-arrow-right"></i></span>
+                            <a href="/tetkikler">Tetkikler</a>
+                        </li>
+                        <li><span>{{ Tedkik.Name != "" ? Tedkik.Name : "Tetkik" }}</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="tedkik-detail">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkik.css">
+    <div class="container">
+        <div class="row gutter-y-40 align-items-stretch">
+            <div class="col-12">
+                <div class="tedkik-detail__card">
+                    <div class="tedkik-detail__media">
+                        <img class="tedkik-detail__image {{ Tedkik.CoverPath == "" ? "is-placeholder" : "" }}" src="{{ Tedkik.CoverPath != "" ? PathOnStart + Tedkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}" alt="{{ Tedkik.CoverAltText != "" ? Tedkik.CoverAltText : Tedkik.Name }}" title="{{ Tedkik.CoverTitle != "" ? Tedkik.CoverTitle : Tedkik.Name }}">
+                    </div>
+                    <div class="tedkik-detail__content">
+                        <h1 class="tedkik-detail__title">{{ Tedkik.Name != "" ? Tedkik.Name : "Tetkik" }}</h1>
+                        {{ if Tedkik.Description != "" }}
+                            <p class="tedkik-detail__desc">{{ Tedkik.Description }}</p>
+                        {{ else }}
+                            <p class="tedkik-detail__desc">Bu tetkik hakkında yakında detaylı bilgiler eklenecektir.</p>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

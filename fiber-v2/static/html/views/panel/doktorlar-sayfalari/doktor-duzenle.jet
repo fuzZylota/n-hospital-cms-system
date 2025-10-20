@@ -1,0 +1,536 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/doktor-duzenle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-user-md"></i>
+                    Doktor Bilgilerini Düzenle
+                </h1>
+                <p class="page-subtitle">{{ Doktor.FirstName }} {{ Doktor.LastName }} doktorunun bilgilerini düzenleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/doktorlar/{{ Doktor.Drid }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    Görüntüle
+                </a>
+                <a href="/panel/doktorlar" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="forms-container">
+            <!-- General Information Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Genel Bilgiler
+                    </h2>
+                    <p class="section-description">Doktorun temel bilgilerini düzenleyin</p>
+                </div>
+                <div class="section-content">
+                    <form id="generalForm" class="general-form" novalidate>
+                        <!-- Hidden inputs for old values -->
+                        <input type="hidden" name="old_title" value="{{ Doktor.Title }}">
+                        <input type="hidden" name="old_first_name" value="{{ Doktor.FirstName }}">
+                        <input type="hidden" name="old_last_name" value="{{ Doktor.LastName }}">
+                        <input type="hidden" name="old_url_name" value="{{ Doktor.UrlName }}">
+                        <input type="hidden" name="old_tc_kimlik" value="{{ Doktor.TcKimlik }}">
+                        <input type="hidden" name="old_diploma_no" value="{{ Doktor.DiplomaNo }}">
+                        <input type="hidden" name="old_phone" value="{{ Doktor.Phone }}">
+                        <input type="hidden" name="old_email" value="{{ Doktor.Email }}">
+                        <input type="hidden" name="old_biography" value="{{ Doktor.Biography }}">
+                        <input type="hidden" name="old_education" value="{{ Doktor.Education }}">
+                        <input type="hidden" name="old_experience_years" value="{{ Doktor.ExperienceYears }}">
+                        <input type="hidden" name="old_languages" value="{{ Doktor.Languages }}">
+                        <input type="hidden" name="old_birth_date" value="{{ Doktor.BirthDate }}">
+                        <input type="hidden" name="old_gender" value="{{ Doktor.Gender }}">
+                        <input type="hidden" name="old_brid" value="{{ Doktor.Brid }}">
+                        <input type="hidden" name="old_sid" value="{{ Doktor.Sid }}">
+                        <input type="hidden" name="old_room_number" value="{{ Doktor.RoomNumber }}">
+                        <input type="hidden" name="old_appointment_duration" value="{{ Doktor.AppointmentDuration }}">
+                        <input type="hidden" name="old_appointment_fee" value="{{ Doktor.AppointmentFee }}">
+                        <input type="hidden" name="old_working_hours" value="{{ Doktor.WorkingHours }}">
+                        <input type="hidden" name="old_vacation_dates" value="{{ Doktor.VacationDates }}">
+                        <input type="hidden" name="old_facebook_url" value="{{ Doktor.FacebookUrl }}">
+                        <input type="hidden" name="old_x_url" value="{{ Doktor.XUrl }}">
+                        <input type="hidden" name="old_instagram_url" value="{{ Doktor.InstagramUrl }}">
+                        <input type="hidden" name="old_linkedin_url" value="{{ Doktor.LinkedinUrl }}">
+                        <input type="hidden" name="old_personal_url" value="{{ Doktor.PersonalUrl }}">
+                        <input type="hidden" name="old_online_appointment" value="{{ Doktor.OnlineAppointment }}">
+                        <input type="hidden" name="old_is_active" value="{{ Doktor.IsActive }}">
+
+                        <!-- Basic Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Temel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="title" class="form-label">Unvan</label>
+                                    <select id="title" name="title" class="form-select">
+                                        <option value="Dr." {{ if Doktor.Title == "Dr." }}selected{{ end }}>Dr.</option>
+                                        <option value="Prof. Dr." {{ if Doktor.Title == "Prof. Dr." }}selected{{ end }}>Prof. Dr.</option>
+                                        <option value="Doç. Dr." {{ if Doktor.Title == "Doç. Dr." }}selected{{ end }}>Doç. Dr.</option>
+                                        <option value="Op. Dr." {{ if Doktor.Title == "Op. Dr." }}selected{{ end }}>Op. Dr.</option>
+                                        <option value="Uzm. Dr." {{ if Doktor.Title == "Uzm. Dr." }}selected{{ end }}>Uzm. Dr.</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="first_name" class="form-label required">Ad</label>
+                                    <input type="text" id="first_name" name="first_name" class="form-input" 
+                                           value="{{ Doktor.FirstName }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last_name" class="form-label required">Soyad</label>
+                                    <input type="text" id="last_name" name="last_name" class="form-input" 
+                                           value="{{ Doktor.LastName }}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="url_name" class="form-label">URL Adı</label>
+                                    <input type="text" id="url_name" name="url_name" class="form-input" 
+                                           value="{{ Doktor.UrlName }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tc_kimlik" class="form-label">TC Kimlik No</label>
+                                    <input type="text" id="tc_kimlik" name="tc_kimlik" class="form-input" 
+                                           value="{{ Doktor.TcKimlik }}" maxlength="11">
+                                </div>
+                                <div class="form-group">
+                                    <label for="diploma_no" class="form-label">Diploma No</label>
+                                    <input type="text" id="diploma_no" name="diploma_no" class="form-input" 
+                                           value="{{ Doktor.DiplomaNo }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Mesleki Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sid" class="form-label">Şube</label>
+                                    <select id="sid" name="sid" class="form-select">
+                                        <option value="">Şube Seçiniz</option>
+                                        {{ range Subeler }}
+                                        <option value="{{ .Sid }}" {{ if .Sid == Doktor.Sid }}selected{{ end }}>{{ .Name }}</option>
+                                        {{ end }}
+                                    </select>
+                                    <div class="form-help">Doktorlara şube eklemeniz tavsiye edilir. Eğer eklemezseniz, doktor admin paneli dışından görülemez olacaktır.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="brid" class="form-label">Bölüm</label>
+                                    <select id="brid" name="brid" class="form-select">
+                                        <option value="">Bölüm Seçin</option>
+                                        {{ range Branches }}
+                                        <option value="{{ .Brid }}" {{ if .Brid == Doktor.Brid }}selected{{ end }}>{{ .Name }}</option>
+                                        {{ end }}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="experience_years" class="form-label">Deneyim Yılı</label>
+                                    <input type="number" id="experience_years" name="experience_years" class="form-input" 
+                                           value="{{ Doktor.ExperienceYears }}" min="0" max="50">
+                                </div>
+                                <div class="form-group">
+                                    <label for="room_number" class="form-label">Oda Numarası</label>
+                                    <input type="text" id="room_number" name="room_number" class="form-input" 
+                                           value="{{ Doktor.RoomNumber }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="biography" class="form-label">Biyografi</label>
+                                <textarea id="biography" name="biography" class="form-textarea" 
+                                          rows="4">{{ Doktor.Biography }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="education" class="form-label">Eğitim</label>
+                                <textarea id="education" name="education" class="form-textarea" 
+                                          rows="3">{{ Doktor.Education }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">İletişim Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone" class="form-label">Telefon</label>
+                                    <input type="tel" id="phone" name="phone" class="form-input" 
+                                           value="{{ Doktor.Phone }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="form-label">E-posta</label>
+                                    <input type="email" id="email" name="email" class="form-input" 
+                                           value="{{ Doktor.Email }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Kişisel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="birth_date" class="form-label">Doğum Tarihi</label>
+                                    <input type="date" id="birth_date" name="birth_date" class="form-input" 
+                                           value="{{ ctdi(Doktor.BirthDate, User.Timezone) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender" class="form-label">Cinsiyet</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="">Seçin</option>
+                                        <option value="erkek" {{ if Doktor.Gender == "erkek" }}selected{{ end }}>Erkek</option>
+                                        <option value="kadın" {{ if Doktor.Gender == "kadın" }}selected{{ end }}>Kadın</option>
+                                        <option value="belirtmek istemiyorum" {{ if Doktor.Gender == "belirtmek istemiyorum" }}selected{{ end }}>Belirtmek İstemiyorum</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="languages" class="form-label">Diller</label>
+                                    <input type="text" id="languages" name="languages" class="form-input" 
+                                           value="{{ Doktor.Languages }}" placeholder="Türkçe, İngilizce">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Appointment Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Randevu Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="appointment_duration" class="form-label">Randevu Süresi (Dakika)</label>
+                                    <input type="number" id="appointment_duration" name="appointment_duration" class="form-input" 
+                                           value="{{ Doktor.AppointmentDuration }}" min="15" max="120" step="15">
+                                </div>
+                                <div class="form-group">
+                                    <label for="appointment_fee" class="form-label">Randevu Ücreti (TL)</label>
+                                    <input type="number" id="appointment_fee" name="appointment_fee" class="form-input" 
+                                           value="{{ Doktor.AppointmentFee }}" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="working_hours" class="form-label">Çalışma Saatleri</label>
+                                <textarea id="working_hours" name="working_hours" class="form-textarea" 
+                                          rows="3" placeholder="Örn: Pazartesi-Cuma: 08:00-18:00, Cumartesi: 09:00-13:00">{{ Doktor.WorkingHours }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="vacation_dates" class="form-label">Tatil Tarihleri</label>
+                                <textarea id="vacation_dates" name="vacation_dates" class="form-textarea" 
+                                          rows="2" placeholder="Örn: 15-30 Temmuz 2024">{{ Doktor.VacationDates }}</textarea>
+                            </div>
+                            
+                            <!-- Social Media URLs -->
+                            <div class="form-group-section">
+                                <h3 class="group-title">Sosyal Medya Linkleri</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="facebook_url" class="form-label">Facebook URL</label>
+                                        <input type="url" id="facebook_url" name="facebook_url" class="form-input" 
+                                               value="{{ Doktor.FacebookUrl }}" placeholder="https://facebook.com/username">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="x_url" class="form-label">X (Twitter) URL</label>
+                                        <input type="url" id="x_url" name="x_url" class="form-input" 
+                                               value="{{ Doktor.XUrl }}" placeholder="https://x.com/username">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="instagram_url" class="form-label">Instagram URL</label>
+                                        <input type="url" id="instagram_url" name="instagram_url" class="form-input" 
+                                               value="{{ Doktor.InstagramUrl }}" placeholder="https://instagram.com/username">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="linkedin_url" class="form-label">LinkedIn URL</label>
+                                        <input type="url" id="linkedin_url" name="linkedin_url" class="form-input" 
+                                               value="{{ Doktor.LinkedinUrl }}" placeholder="https://linkedin.com/in/username">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="personal_url" class="form-label">Kişisel Website URL</label>
+                                    <input type="url" id="personal_url" name="personal_url" class="form-input" 
+                                           value="{{ Doktor.PersonalUrl }}" placeholder="https://example.com">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="online_appointment" class="form-label">Online Randevu</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="online_appointment" name="online_appointment" {{ if Doktor.OnlineAppointment }}checked{{ end }}>
+                                    <label for="online_appointment" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">{{ if Doktor.OnlineAppointment }}Aktif{{ else }}Pasif{{ end }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="is_active" class="form-label">Aktif Durumu</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="is_active" name="is_active" {{ if Doktor.IsActive }}checked{{ end }}>
+                                    <label for="is_active" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">{{ if Doktor.IsActive }}Aktif{{ else }}Pasif{{ end }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="generalSubmitBtn">
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Bilgileri Güncelle</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Picture Management Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-image"></i>
+                        Doktor Fotoğrafı
+                    </h2>
+                    <p class="section-description">Doktor fotoğrafını yönetin</p>
+                </div>
+                <div class="section-content">
+                    <!-- Current Picture Display -->
+                    <div class="current-media-section">
+                        <h3 class="group-title">Mevcut Fotoğraf</h3>
+                        <div class="media-grid">
+                            <div class="media-item">
+                                <div class="media-header">
+                                    <h4 class="media-title">Doktor Fotoğrafı</h4>
+                                    {{ if Doktor.PhotoPath }}
+                                    <button type="button" class="btn-delete-media" data-drid="{{ Doktor.Drid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ end }}
+                                </div>
+                                <div class="media-preview">
+                                    {{ if Doktor.PhotoPath }}
+                                    <img src="{{ PathOnStart }}{{ Doktor.PhotoPath }}" alt="{{ Doktor.PhotoAltText }}" 
+                                         title="{{ Doktor.PhotoTitle }}" class="preview-image">
+                                    <div class="media-info">
+                                        <div class="info-item">
+                                            <strong>Alt Text:</strong> {{ Doktor.PhotoAltText }}
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Title:</strong> {{ Doktor.PhotoTitle }}
+                                        </div>
+                                    </div>
+                                    {{ else }}
+                                    <div class="no-media">
+                                        <i class="fas fa-user-md"></i>
+                                        <span>Doktor fotoğrafı yüklenmemiş</span>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Picture Upload Form -->
+                    <div class="media-upload-section">
+                        <h3 class="group-title">Fotoğrafı Güncelle</h3>
+                        <form id="pictureForm" class="picture-form" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="old_photo_alt_text" value="{{ Doktor.PhotoAltText }}">
+                            <input type="hidden" name="old_photo_title" value="{{ Doktor.PhotoTitle }}">
+                            
+                            <div class="form-group">
+                                <label for="photo_mid" class="form-label">Doktor Fotoğrafı</label>
+                                <div class="file-upload-area" data-target="photo_mid">
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-upload"></i>
+                                        <p class="file-upload-text">Fotoğraf dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                        <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                                    </div>
+                                    <input type="file" id="photo_mid" name="photo_mid" 
+                                           class="file-input" accept="image/*">
+                                    <div class="file-preview" style="display: none;">
+                                        <img class="preview-image" src="" alt="Preview">
+                                        <button type="button" class="file-remove">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="file-meta-inputs">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="photo_alt_text" class="form-label">Görsel Alt Metni</label>
+                                            <input type="text" id="photo_alt_text" name="photo_alt_text" 
+                                                   class="form-input" value="{{ Doktor.PhotoAltText }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="photo_title" class="form-label">Görsel Başlığı</label>
+                                            <input type="text" id="photo_title" name="photo_title" 
+                                                   class="form-input" value="{{ Doktor.PhotoTitle }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="pictureSubmitBtn">
+                                    <i class="fas fa-upload"></i>
+                                    <span class="btn-text">Fotoğrafı Güncelle</span>
+                                    <div class="btn-loader" style="display: none;">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CV Management Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-file-pdf"></i>
+                        Doktor CV'si
+                    </h2>
+                    <p class="section-description">Doktor CV'sini yönetin</p>
+                </div>
+                <div class="section-content">
+                    <!-- Current CV Display -->
+                    <div class="current-media-section">
+                        <h3 class="group-title">Mevcut CV</h3>
+                        <div class="media-grid">
+                            <div class="media-item">
+                                <div class="media-header">
+                                    <h4 class="media-title">Doktor CV'si</h4>
+                                    {{ if Doktor.CvFilePath }}
+                                    <button type="button" class="btn-delete-media" data-drid="{{ Doktor.Drid }}" data-type="cv">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ end }}
+                                </div>
+                                <div class="media-preview">
+                                    {{ if Doktor.CvFilePath }}
+                                    <div class="cv-preview">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>{{ Doktor.CvFilePath }}</span>
+                                    </div>
+                                    {{ else }}
+                                    <div class="no-media">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Doktor CV'si yüklenmemiş</span>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CV Upload Form -->
+                    <div class="media-upload-section">
+                        <h3 class="group-title">CV'yi Güncelle</h3>
+                        <form id="cvForm" class="cv-form" enctype="multipart/form-data" novalidate>
+                            <div class="form-group">
+                                <label for="cv_file_mid" class="form-label">Doktor CV'si</label>
+                                <div class="file-upload-area" data-target="cv_file_mid">
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-upload"></i>
+                                        <p class="file-upload-text">CV dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                        <p class="file-upload-hint">PDF, DOC, DOCX - Max 5MB</p>
+                                    </div>
+                                    <input type="file" id="cv_file_mid" name="cv_file_mid" 
+                                           class="file-input" accept=".pdf,.doc,.docx">
+                                    <div class="file-preview" style="display: none;">
+                                        <div class="cv-preview">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span class="file-name"></span>
+                                        </div>
+                                        <button type="button" class="file-remove">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="cvSubmitBtn">
+                                    <i class="fas fa-upload"></i>
+                                    <span class="btn-text">CV'yi Güncelle</span>
+                                    <div class="btn-loader" style="display: none;">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">İşlem başarıyla tamamlandı.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deletePictureModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Dosyayı Sil</h3>
+        <p class="modal-message">Bu dosyayı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deletePictureModal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeletePictureBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.pageData = {
+        drid: "{{ Doktor.Drid }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/doktor-duzenle.js"></script>

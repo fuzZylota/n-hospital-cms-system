@@ -1,0 +1,172 @@
+<!-- ana sayfa'da header arkaplan'ın şeffaf olmasını şununla sağla: 
+ 
+style="background-color: transparent !important;" 
+
+ayrıca tuşları da beyaz yap.
+
+ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı ayarla.-->
+
+<header class="main-header sticky-header sticky-header--normal transparent-bg-on-homepage">
+    <div class="container-fluid">
+        <div class="main-header__inner">
+            <div class="main-header__logo logo-retina">
+                <a href="/">
+                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
+                </a>
+            </div><!-- /.main-header__logo -->
+            <div class="main-header__right">
+                <div class="main-header__sidebar-btn sidebar-btn__toggler">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div><!-- /.sidebar-btn__toggler -->
+                <nav class="main-header__nav main-menu">
+                    <ul class="main-menu__list">
+                        {{ range index1, HeaderButtons := Options.HeaderButtons }}
+                            {{ if HeaderButtons.ButtonType == "anasayfa" && HeaderButtons.ParentId == "" }}
+                                <li>
+                                    <a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a>
+                                </li>
+                            {{ end }}
+
+                            {{ if HeaderButtons.ButtonType == "kurumsal" && HeaderButtons.ParentId == "" }}
+                                <li class="dropdown">
+                                    <a href="#">Kurumsal</a>
+                                    <ul>
+                                        {{ range index2, HeaderButtonsAgain := Options.HeaderButtons }}
+                                            {{ if HeaderButtonsAgain.ButtonType == "kurumsal" && HeaderButtonsAgain.Hbid == HeaderButtons.ParentId && HeaderButtonsAgain.ParentId != "" }}
+                                                <li><a href="{{ HeaderButtonsAgain.Url }}" target="{{ HeaderButtonsAgain.Target }}">{{ HeaderButtonsAgain.Title }}</a></li>
+                                            {{ end }}
+                                        {{ end}}
+                                    </ul>
+                                </li>
+                            {{ end }}
+
+                            {{ if HeaderButtons.ButtonType == "subeler" }}
+                                <li class="dropdown">
+                                    {{ breakRange := false }}
+                                    {{ range index2, HeaderButtonsAgain := Options.HeaderButtons }}
+                                        {{ if HeaderButtonsAgain.ButtonType == "subeler" && HeaderButtonsAgain.ParentId == "" && breakRange == false }}
+                                            <a href="{{ HeaderButtonsAgain.Url }}" target="{{ HeaderButtonsAgain.Target }}">{{ HeaderButtonsAgain.Title }}</a>
+                                            {{ breakRange = true }}
+                                        {{ end }}
+                                    {{ end }}
+                                    <ul>
+                                        {{ range index2, SubeLink := Options.SubelerLinks }}
+                                        <li>
+                                            <a href="/subelerimiz/{{ SubeLink.UrlName }}">{{ SubeLink.Name }}</a>
+                                            <ul>
+                                                <li><a href="/subelerimiz/{{ SubeLink.UrlName }}">Tarihçesi</a></li>
+                                                <li><a href="/subelerimiz/{{ SubeLink.UrlName }}/doktorlar">Doktorlar</a></li>
+                                                {{ range index3, Document := SubeLink.Documents }}
+                                                    <li><a href="{{ Document.FilePath }}" target="_blank">{{ Document.Data }}</a></li>
+                                                {{ end }}
+                                            </ul>
+                                        </li>
+                                        {{ end }}
+                                    </ul>
+                                </li>
+                            {{ end }}
+
+                            {{ if HeaderButtons.ButtonType == "tibbi_birimler" }}
+                                <li class="dropdown">
+                                    <a href="/tibbi-birimler">Tibbi Birimler</a>
+                                    <ul>
+                                        {{ range index2, TibbiBirimLink := Options.TibbiBirimlerLinks }}
+                                            <li><a href="/tibbi-birimler/{{ TibbiBirimLink.UrlName }}">{{ TibbiBirimLink.Name }}</a></li>
+                                        {{ end }}
+                                    </ul>
+                                </li>
+                            {{ end }}
+
+                            {{ if HeaderButtons.ButtonType == "tedkikler" }}
+                                <li class="dropdown">
+                                    <a href="/tedkikler">Tetkikler</a>
+                                    <ul>
+                                        {{ range index2, TedkikLink := Options.TedkiklerLinks }}
+                                            <li><a href="/tetkikler/{{ TedkikLink.UrlName }}">{{ TedkikLink.Name }}</a></li>
+                                        {{ end }}
+                                    </ul>
+                                </li>
+                            {{ end }}
+
+                            {{ if HeaderButtons.ButtonType == "diger" && HeaderButtons.ParentId == "" }}
+                                <li><a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a></li>
+                            {{ end }}
+                        {{ end }}
+                    </ul>
+                </nav><!-- /.main-header__nav -->
+                <div class="mobile-nav__btn mobile-nav__toggler">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div><!-- /.mobile-nav__toggler -->
+                <div class="main-header__call">
+                    <span class="main-header__call__icon">
+                        <i class="icon-telephone"></i>
+                    </span><!-- /.main-header__call__icon -->
+                    <div class="main-header__call__content">
+                        <p class="main-header__call__title">İletişim</p><!-- /.call__title -->
+                        <h4 class="main-header__call__number">
+                            <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
+                        </h4><!-- /.main-header__call__number -->
+                    </div><!-- /.main-header__call__content -->
+                </div><!-- /.main-header__call -->
+                <a href="/randevu" class="mediox-btn main-header__btn">
+                    <span>Randevu Al</span>
+                    <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                </a><!-- /.mediox-btn -->
+            </div><!-- /.main-header__right -->
+        </div><!-- /.main-header__inner -->
+    </div><!-- /.container-fluid -->
+</header><!-- /.main-header --> 
+
+<div class="mobile-nav__wrapper">
+    <div class="mobile-nav__overlay mobile-nav__toggler"></div>
+    <!-- /.mobile-nav__overlay -->
+    <div class="mobile-nav__content">
+        <span class="mobile-nav__close mobile-nav__toggler"><i class="icon-close"></i></span>
+
+        <div class="logo-box logo-retina">
+            <a href="/" aria-label="logo image"><img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="" /></a>
+        </div>
+        <!-- /.logo-box -->
+        <div class="mobile-nav__container"></div>
+        <!-- /.mobile-nav__container -->
+
+        <ul class="mobile-nav__contact list-unstyled">
+            <li>
+                <span class="mobile-nav__contact__icon">
+                    <i class="fa fa-envelope"></i>
+                </span>
+                <a href="mailto:{{ Options.Options.ContactEmail }}">{{ Options.Options.ContactEmail }}</a>
+            </li>
+            <li>
+                <span class="mobile-nav__contact__icon">
+                    <i class="fa fa-phone-alt"></i>
+                </span>
+                <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
+            </li>
+        </ul><!-- /.mobile-nav__contact -->
+        <div class="mobile-nav__social social-links">
+            <a href="https://{{ Options.Options.FacebookUrl }}">
+                <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                <span class="sr-only">Facebook</span>
+            </a>
+            <a href="https://{{ Options.Options.TwitterUrl }}">
+                <i class="fab fa-twitter" aria-hidden="true"></i>
+                <span class="sr-only">Twitter</span>
+            </a>
+            <a href="https://{{ Options.Options.InstagramUrl }}">
+                <i class="fab fa-instagram" aria-hidden="true"></i>
+                <span class="sr-only">Instagram</span>
+            </a>
+            <a href="https://{{ Options.Options.LinkedinUrl }}">
+                <i class="fab fa-youtube" aria-hidden="true"></i>
+                <span class="sr-only">Youtube</span>
+            </a>
+        </div><!-- /.mobile-nav__social -->
+    </div>
+    <!-- /.mobile-nav__content -->
+</div>
+<!-- /.mobile-nav__wrapper -->

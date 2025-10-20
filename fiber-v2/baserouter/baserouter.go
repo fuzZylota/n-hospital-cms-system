@@ -1,0 +1,261 @@
+package baserouter
+
+import (
+	"anlasmali_kurumlar"
+	"branslar"
+	"doctors"
+	"frontend"
+	"haberler"
+	"headerbuttons"
+	"models"
+	"options"
+	"panel"
+	"post"
+	"randevular"
+	"subeler"
+	"tedkikler"
+	"testimonials"
+	"tibbibirimler"
+	"users"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+func FrontendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
+	routes := server.Group("/")
+
+	routes.Get("/", frontend.HomePage(states, utilities))
+	routes.Get("/kurumsal/hakkimizda", frontend.AboutUsPage(states, utilities))
+	routes.Get("/kurumsal/misyon-vizyon", frontend.MissionVisionPage(states, utilities))
+	routes.Get("/giris", frontend.LoginPage(states, utilities))
+	routes.Get("/iletisim", frontend.ContactPage(states, utilities))
+	routes.Get("/kurumsal/anlasmali-kurumlar", frontend.AnlasmaliKurumlarPage(states, utilities))
+	routes.Get("/kurumsal/kvkk", frontend.KvkkPage(states, utilities))
+	routes.Get("/kurumsal/insan-kaynaklari", frontend.InsanKaynaklariPage(states, utilities))
+	routes.Get("/haberler", frontend.HaberlerPage(states, utilities))
+	routes.Get("/haberler/:haber", frontend.HaberPage(states, utilities))
+	routes.Get("/foto-galeri", frontend.FotoGaleriPage(states, utilities))
+	routes.Get("/video-galeri", frontend.VideoGaleriPage(states, utilities))
+	routes.Get("/tibbi-birimler", frontend.TibbiBirimlerPage(states, utilities))
+	routes.Get("/tibbi-birimler/:tibbibirim", frontend.TibbiBirimPage(states, utilities))
+	routes.Get("/tetkikler", frontend.TedkiklerPage(states, utilities))
+	routes.Get("/tetkikler/:tetkik", frontend.TedkikPage(states, utilities))
+	routes.Get("/subelerimiz", frontend.SubelerPage(states, utilities))
+	routes.Get("/subelerimiz/:sube", frontend.SubePage(states, utilities))
+	routes.Get("/subelerimiz/:sube/doktorlar", frontend.DoktorlarPage(states, utilities))
+	routes.Get("/subelerimiz/:sube/doktorlar/:doktor", frontend.DoktorPage(states, utilities))
+}
+
+func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
+	routes := server.Group("/panel")
+
+	routes.Get("/", panel.PanelPage(states, utilities))
+	routes.Get("/secenekler", panel.SeceneklerPage(states, utilities))
+	routes.Get("/secenek-ekle", panel.SecenekEklePage(states, utilities))
+	routes.Get("/secenekler/:secenek", panel.SecenekPage(states, utilities))
+	routes.Get("/secenekler/:secenek/duzenle", panel.SecenekDuzenlePage(states, utilities))
+
+	routes.Get("/kullanicilar", panel.KullanicilarPage(states, utilities))
+	routes.Get("/kullanici-ekle", panel.KullaniciEklePage(states, utilities))
+	routes.Get("/kullanicilar/:kullanici", panel.KullaniciPage(states, utilities))
+	routes.Get("/kullanicilar/:kullanici/duzenle", panel.KullaniciDuzenlePage(states, utilities))
+
+	routes.Get("/header-tuslari", panel.HeaderTuslariPage(states, utilities))
+	routes.Get("/header-tuslari/:hbid", panel.HeaderTusPage(states, utilities))
+	routes.Get("/header-tuslari/:hbid/duzenle", panel.HeaderTusDuzenlePage(states, utilities))
+	routes.Get("/header-tusu-ekle", panel.HeaderTusEklePage(states, utilities))
+
+	routes.Get("/musteri-yorumlari", panel.TestimonialsPage(states, utilities))
+	routes.Get("/musteri-yorumu-ekle", panel.TestimonialsEklePage(states, utilities))
+	routes.Get("/musteri-yorumu/:tid", panel.TestimonialPage(states, utilities))
+	routes.Get("/musteri-yorumu/:tid/duzenle", panel.TestimonialsDuzenlePage(states, utilities))
+
+	routes.Get("/subeler", panel.SubelerPage(states, utilities))
+	routes.Get("/subeler/sube-ekle", panel.SubelerEklePage(states, utilities))
+	routes.Get("/subeler/:sid", panel.SubePage(states, utilities))
+	routes.Get("/subeler/:sid/duzenle", panel.SubeDuzenlePage(states, utilities))
+
+	routes.Get("/anlasmali-kurumlar", panel.AnlasmaliKurumlarPage(states, utilities))
+	routes.Get("/anlasmali-kurumlar/anlasmali-kurumlar-ekle", panel.AnlasmaliKurumlarEklePage(states, utilities))
+	routes.Get("/anlasmali-kurumlar/:akid", panel.AnlasmaliKurumPage(states, utilities))
+	routes.Get("/anlasmali-kurumlar/:akid/duzenle", panel.AnlasmaliKurumlarDuzenlePage(states, utilities))
+
+	routes.Get("/uzmanliklar", panel.UzmanliklarPage(states, utilities))
+	routes.Get("/uzmanliklar/uzmanlik-ekle", panel.UzmanlikEklePage(states, utilities))
+	routes.Get("/uzmanliklar/:uzid", panel.UzmanlikPage(states, utilities))
+	routes.Get("/uzmanliklar/:uzid/duzenle", panel.UzmanlikDuzenlePage(states, utilities))
+
+	routes.Get("/branslar", panel.BranslarPage(states, utilities))
+	routes.Get("/branslar/brans-ekle", panel.BransEklePage(states, utilities))
+	routes.Get("/branslar/:brid", panel.BransPage(states, utilities))
+	routes.Get("/branslar/:brid/duzenle", panel.BransDuzenlePage(states, utilities))
+
+	routes.Get("/doktorlar", panel.DoktorlarPage(states, utilities))
+	routes.Get("/doktorlar/doktor-ekle", panel.DoktorEklePage(states, utilities))
+	routes.Get("/doktorlar/:doktor", panel.DoktorPage(states, utilities))
+	routes.Get("/doktorlar/:doktor/duzenle", panel.DoktorDuzenlePage(states, utilities))
+
+	routes.Get("/tibbi-birimler", panel.TibbiBirimlerPage(states, utilities))
+	routes.Get("/tibbi-birim-ekle", panel.TibbiBirimEklePage(states, utilities))
+	routes.Get("/tibbi-birimler/:tbid", panel.TibbiBirimPage(states, utilities))
+	routes.Get("/tibbi-birimler/:tbid/duzenle", panel.TibbiBirimDuzenlePage(states, utilities))
+
+	routes.Get("/anasayfa-icerikleri", panel.HomepageContentsPage(states, utilities))
+	routes.Get("/anasayfa-icerik-ekle", panel.HomepageContentEklePage(states, utilities))
+	routes.Get("/anasayfa-icerikleri/:hcid", panel.HomepageContentPage(states, utilities))
+	routes.Get("/anasayfa-icerikleri/:hcid/duzenle", panel.HomepageContentDuzenlePage(states, utilities))
+
+	routes.Get("/ozel-icerikler", panel.CustomContentsPage(states, utilities))
+	routes.Get("/ozel-icerik-ekle", panel.CustomContentEklePage(states, utilities))
+	routes.Get("/ozel-icerikler/:ccid", panel.CustomContentPage(states, utilities))
+	routes.Get("/ozel-icerikler/:ccid/duzenle", panel.CustomContentDuzenlePage(states, utilities))
+
+	routes.Get("/haberler", panel.HaberlerListPage(states, utilities))
+	routes.Get("/haber-ekle", panel.HaberEklePage(states, utilities))
+	routes.Get("/haberler/:haber", panel.HaberPage(states, utilities))
+	routes.Get("/haberler/:haber/duzenle", panel.HaberDuzenlePage(states, utilities))
+
+	routes.Get("/tedkikler", panel.TedkiklerPage(states, utilities))
+	routes.Get("/tedkik-ekle", panel.TedkikEklePage(states, utilities))
+	routes.Get("/tedkikler/:tid", panel.TedkikPage(states, utilities))
+	routes.Get("/tedkikler/:tid/duzenle", panel.TedkikDuzenlePage(states, utilities))
+
+	routes.Get("/randevu-talepleri", panel.RandevuTalepleriPage(states, utilities))
+	routes.Get("/randevu-talepleri/:rrid", panel.RandevuTalebiPage(states, utilities))
+	routes.Get("/randevular", panel.RandevularPage(states, utilities))
+	routes.Get("/randevular/:rid", panel.RandevuPage(states, utilities))
+	routes.Get("/randevular/:rid/duzenle", panel.RandevuDuzenlePage(states, utilities))
+
+	routes.Get("/iletisim-istekleri", panel.ContactRequestsPage(states, utilities))
+	routes.Get("/iletisim-istegi-cevapla", panel.RespondToContactRequestPage(states, utilities))
+	routes.Get("/iletisim-istekleri/:crid", panel.ContactRequestPage(states, utilities))
+
+	routes.Get("/is-basvurulari", panel.JobApplicationsPage(states, utilities))
+	routes.Get("/is-basvurusu-cevapla", panel.RespondToJobApplicationPage(states, utilities))
+	routes.Get("/is-basvurulari/:jaid", panel.JobApplicationPage(states, utilities))
+
+	routes.Get("/dosya-yukle", panel.AddFilePage(states, utilities))
+	routes.Get("/dosyalar", panel.ListFilesPage(states, utilities))
+	routes.Get("/dokumantasyon", panel.DocumentationPage(states, utilities))
+}
+
+func BackendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
+	routes := server.Group("/backend")
+
+	routes.Post("/greet", post.GreetPage(states, utilities))
+	routes.Post("/authenticate", post.AuthenticationController(states, utilities))
+	routes.Get("/logout", post.LogoutController(states, utilities))
+	routes.Post("/add-option", options.AddOption(states, utilities))
+	routes.Post("/option/:oid/edit", options.EditOption(states, utilities))
+	routes.Post("/option/:oid/delete", options.DeleteOption(states, utilities))
+	routes.Post("/option/:oid/delete-picture", options.DeleteOptionMedia(states, utilities))
+	routes.Post("/option/:oid/update-picture", options.UpdateOptionMedia(states, utilities))
+	routes.Post("/option/:oid/activate", options.ActivateOption(states, utilities))
+	routes.Post("/add-user", users.AddUser(states, utilities))
+	routes.Post("/user/:uid/edit", users.EditUser(states, utilities))
+	routes.Post("/user/:uid/change-password", users.ChangeUserPassword(states, utilities))
+	routes.Post("/user/:uid/delete", users.DeleteUser(states, utilities))
+	routes.Post("/user/:uid/ban-unban", users.BanUnbanUser(states, utilities))
+	routes.Post("/add-header-button", headerbuttons.AddHeaderButton(states, utilities))
+	routes.Post("/header-button/:hbid/edit", headerbuttons.EditHeaderButton(states, utilities))
+	routes.Post("/header-button/:hbid/delete", headerbuttons.DeleteHeaderButton(states, utilities))
+	routes.Post("/header-button/:hbid/change-order", headerbuttons.ChangeHeaderButtonOrder(states, utilities))
+	routes.Post("/header-buttons/parents", headerbuttons.GetMainHeaderButtons(states, utilities))
+	routes.Post("/add-testimonial", testimonials.AddTestimonial(states, utilities))
+	routes.Post("/testimonial/:tid/edit", testimonials.EditTestimonial(states, utilities))
+	routes.Post("/testimonial/:tid/delete", testimonials.DeleteTestimonial(states, utilities))
+	routes.Post("/testimonial/:tid/delete-picture", testimonials.DeleteTestimonialPicture(states, utilities))
+	routes.Post("/testimonial/:tid/update-picture", testimonials.UpdateTestimonialPicture(states, utilities))
+	routes.Post("/add-sube", subeler.AddSube(states, utilities))
+	routes.Post("/sube/:sid/edit", subeler.EditSube(states, utilities))
+	routes.Post("/sube/:sid/delete", subeler.DeleteSube(states, utilities))
+	routes.Post("/sube/:sid/update-picture", subeler.UpdateSubePicture(states, utilities))
+	routes.Post("/sube/:sid/delete-picture", subeler.DeleteSubePicture(states, utilities))
+	routes.Post("/sube/:sid/add-documents", subeler.AddSubeDocuments(states, utilities))
+	routes.Post("/sube/:sid/delete-document", subeler.DeleteSubeDocument(states, utilities))
+	routes.Post("/sube/:sid/edit-document", subeler.EditSubeDocument(states, utilities))
+	routes.Post("/sube/:sid/set-as-main", subeler.SetSubeAsMain(states, utilities))
+	routes.Post("/sube/:sid/get-branches", subeler.GetBranchesThatFitsIndividualSube(states, utilities))
+	routes.Post("/sube/:sid/get-doctors", subeler.GetSubeDoctors(states, utilities))
+	routes.Post("/get-all-subeler", subeler.GetAllSubeler(states, utilities))
+	routes.Post("/add-anlasmali-kurum", anlasmali_kurumlar.AddAnlasmaliKurum(states, utilities))
+	routes.Post("/anlasmali-kurum/:akid/edit", anlasmali_kurumlar.EditAnlasmaliKurum(states, utilities))
+	routes.Post("/anlasmali-kurum/:akid/delete", anlasmali_kurumlar.DeleteAnlasmaliKurum(states, utilities))
+	routes.Post("/anlasmali-kurum/:akid/update-picture", anlasmali_kurumlar.UpdateAnlasmaliKurumPicture(states, utilities))
+	routes.Post("/anlasmali-kurum/:akid/delete-picture", anlasmali_kurumlar.DeleteAnlasmaliKurumPicture(states, utilities))
+	routes.Post("/get-all-anlasmali-kurumlar", anlasmali_kurumlar.GetAllAnlasmaliKurumlar(states, utilities))
+	routes.Post("/add-expertise", post.AddExpertiseArea(states, utilities))
+	routes.Post("/expertise/:eid/edit", post.EditExpertiseArea(states, utilities))
+	routes.Post("/expertise/:eid/delete", post.DeleteExpertiseArea(states, utilities))
+	routes.Post("/doctor/get-all-expertises", post.GetAllExpertises(states, utilities))
+	routes.Post("/add-branch", branslar.AddBranch(states, utilities))
+	routes.Post("/branch/:brid/edit", branslar.EditBranch(states, utilities))
+	routes.Post("/branch/:brid/delete", branslar.DeleteBranch(states, utilities))
+	routes.Post("/branch/:brid/update-picture", branslar.UpdateBranchPicture(states, utilities))
+	routes.Post("/branch/:brid/delete-picture", branslar.DeleteBranchPicture(states, utilities))
+	routes.Post("/branch/:brid/change-head-doctor", branslar.ChangeHeadDoctorOfABranch(states, utilities))
+	routes.Post("/branch/:brid/get-doctors-for-adding-branch", branslar.GetDoctorsForAddingBranch(states, utilities))
+	routes.Post("/doctor/:did/add-to-a-branch", branslar.AddDoctorToABranch(states, utilities))
+	routes.Post("/doctor/:did/remove-from-a-branch", branslar.RemoveDoctorFromABranch(states, utilities))
+	routes.Post("/add-doctor", doctors.AddDoctor(states, utilities))
+	routes.Post("/doctor/:did/edit", doctors.EditDoctor(states, utilities))
+	routes.Post("/doctor/:did/delete", doctors.DeleteDoctor(states, utilities))
+	routes.Post("/doctor/:did/update-picture", doctors.UpdateDoctorPicture(states, utilities))
+	routes.Post("/doctor/:did/delete-picture", doctors.DeleteDoctorPicture(states, utilities))
+	routes.Post("/doctor/:did/update-cv", doctors.UpdateDoctorCv(states, utilities))
+	routes.Post("/doctor/:did/delete-cv", doctors.DeleteDoctorCv(states, utilities))
+	routes.Post("/doctor/:did/get-expertises", doctors.GetExpertiseForDoctors(states, utilities))
+	routes.Post("/doctor/:did/add-expertise", doctors.AddExpertiseToADoctor(states, utilities))
+	routes.Post("/doctor/:did/remove-expertise", doctors.RemoveExpertiseFromADoctor(states, utilities))
+	routes.Post("/doctor/:did/move-to-a-branch", doctors.MoveDoctorToABranch(states, utilities))
+	routes.Post("/doctor/:did/add-experience", doctors.AddDoctorExperience(states, utilities))
+	routes.Post("/doctor/:did/edit-experience", doctors.EditDoctorExperience(states, utilities))
+	routes.Post("/doctor/:did/delete-experience", doctors.DeleteDoctorExperience(states, utilities))
+	routes.Post("/doctor/:did/update-experience-picture", doctors.UpdateDoctorExperiencePicture(states, utilities))
+	routes.Post("/doctor/:did/delete-experience-picture", doctors.DeleteDoctorExperiencePicture(states, utilities))
+	routes.Post("/add-tibbi-birim", tibbibirimler.AddTibbiBirim(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/edit", tibbibirimler.EditTibbiBirim(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/delete", tibbibirimler.DeleteTibbiBirim(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/update-picture", tibbibirimler.UpdateTibbiBirimPicture(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/delete-picture", tibbibirimler.DeleteTibbiBirimPicture(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/update-video", tibbibirimler.UpdateTibbiBirimVideo(states, utilities))
+	routes.Post("/tibbi-birim/:tbid/delete-video", tibbibirimler.DeleteTibbiBirimVideo(states, utilities))
+	routes.Post("/get-all-tibbi-birimler", tibbibirimler.GetAllTibbiBirimler(states, utilities))
+	routes.Post("/add-homepage-content", post.AddHomepageContent(states, utilities))
+	routes.Post("/homepage-content/:hcid/edit", post.EditHomepageContent(states, utilities))
+	routes.Post("/homepage-content/:hcid/delete", post.DeleteHomepageContent(states, utilities))
+	routes.Post("/add-custom-content", post.AddCustomContent(states, utilities))
+	routes.Post("/custom-content/:ccid/edit", post.EditCustomContent(states, utilities))
+	routes.Post("/custom-content/:ccid/delete", post.DeleteCustomContent(states, utilities))
+	routes.Post("/add-news", haberler.AddNews(states, utilities))
+	routes.Post("/news/:hid/edit", haberler.EditNews(states, utilities))
+	routes.Post("/news/:hid/delete", haberler.DeleteNews(states, utilities))
+	routes.Post("/news/:hid/update-picture", haberler.UpdateNewsPicture(states, utilities))
+	routes.Post("/news/:hid/delete-picture", haberler.DeleteNewsPicture(states, utilities))
+	routes.Post("/add-tedkik", tedkikler.AddTedkik(states, utilities))
+	routes.Post("/tedkik/:tid/edit", tedkikler.EditTedkik(states, utilities))
+	routes.Post("/tedkik/:tid/delete", tedkikler.DeleteTedkik(states, utilities))
+	routes.Post("/tedkik/:tid/update-picture", tedkikler.UpdateTedkikPicture(states, utilities))
+	routes.Post("/tedkik/:tid/delete-picture", tedkikler.DeleteTedkikPicture(states, utilities))
+	routes.Post("/get-all-tedkikler", tedkikler.GetAllTedkikler(states, utilities))
+	routes.Post("/add-randevu", randevular.AddRandevu(states, utilities))
+	routes.Post("/randevu/:rid/edit", randevular.EditRandevu(states, utilities))
+	routes.Post("/randevu/:rid/delete", randevular.DeleteRandevu(states, utilities))
+	routes.Post("/add-randevu-request", randevular.AddRandevuRequest(states, utilities))
+	routes.Post("/randevu-request/:rrid/delete", randevular.DeleteRandevuRequest(states, utilities))
+	routes.Post("/add-contact-request", post.AddContactRequest(states, utilities))
+	routes.Post("/contact-request/:crid/delete", post.DeleteContactRequest(states, utilities))
+	routes.Post("/contact-request/:crid/respond", post.RespondToContactRequest(states, utilities))
+	routes.Post("/contact-request/:crid/set-as-read", post.SetAsReadAContactRequest(states, utilities))
+	routes.Post("/add-job-application", post.AddJobApplication(states, utilities))
+	routes.Post("/job-application/:jaid/delete", post.DeleteJobApplication(states, utilities))
+	routes.Post("/job-application/:jaid/respond", post.RespondToJobApplication(states, utilities))
+	routes.Post("/job-application/:jaid/set-as-read", post.SetAsReadAJobApplication(states, utilities))
+
+	routes.Post("/add-file", post.AddCustomMedia(states, utilities))
+	routes.Post("/delete-file", post.DeleteCustomMedia(states, utilities))
+	routes.Post("/modify-css", post.ModifyCss(states, utilities))
+	routes.Post("/modify-js", post.ModifyJs(states, utilities))
+
+	routes.Get("/notifications", post.NotificationWebsocket(states, utilities))
+}

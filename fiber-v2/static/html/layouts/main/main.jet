@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900|Roboto:100,200,300,400,500,600,700,800,900|Montserrat:100,200,300,400,500,600,700,800,900|Inter:100,200,300,400,500,600,700,800,900|Open+Sans:100,200,300,400,500,600,700,800,900|Oswald:100,200,300,400,500,600,700,800,900|Noto+Sans:100,200,300,400,500,600,700,800,900|Raleway:100,200,300,400,500,600,700,800,900|Ubuntu:100,200,300,400,500,600,700,800,900|Playfair+Display:100,200,300,400,500,600,700,800,900|Work+Sans:100,200,300,400,500,600,700,800,900|Outfit:100,200,300,400,500,600,700,800,900">
+    <style>
+        :root {
+            --theme-primary-color: {{ Options ? Options.Options.PrimaryColor : "rgba(40, 59, 106, 1)" }};
+            --theme-secondary-color: {{ Options ? Options.Options.SecondaryColor : "rgba(223, 0, 36, 1)" }};
+            --theme-accent-color: {{ Options ? Options.Options.AccentColor : "rgba(51, 193, 237, 1)" }};
+            --theme-background-color: {{ Options ? Options.Options.BackgroundColor : "rgba(255, 255, 255, 1)" }};
+            --theme-text-color: {{ Options ? Options.Options.FontColor : "rgba(51, 51, 51, 1)" }};
+            --theme-font-family: {{ Options ? Options.Options.FontFamily : "Poppins, sans-serif" }};
+        }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- favicons Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}{{ Options.Medias[1].FilePath != "" ? Options.Medias[1].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}{{ Options.Medias[1].FilePath != "" ? Options.Medias[1].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}{{ Options.Medias[1].FilePath != "" ? Options.Medias[1].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <title>{{ Title }}</title>
+    <meta name="description" content="{{ Description }}" />
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/animate/animate.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-ui/jquery-ui.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jarallax/jarallax.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-magnific-popup/jquery.magnific-popup.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/nouislider/nouislider.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/nouislider/nouislider.pips.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/tiny-slider/tiny-slider.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-dark.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-landing.css" />
+
+    {{ if Route == "/" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/transparent-bg-on-homepage.css">
+    {{ end }}
+
+    {{ if Route == "/kurumsal/anlasmali-kurumlar" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/anlasmali-kurumlar.css">
+    {{ end }}
+
+    {{ if Route == "/kurumsal/insan-kaynaklari" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/insan-kaynaklari.css">
+    {{ end }}
+
+    {{ if Route == "/iletisim" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/subeler.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz/:sube" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/sube.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz/:sube/doktorlar" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlar.css">
+    {{ end }}
+
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css">
+</head>
+<body class="custom-cursor">
+    {{ include "../../components/preloader" }}
+    
+    <div class="custom-cursor__cursor"></div>
+    <div class="custom-cursor__cursor-two"></div>
+
+    <a href="#" data-target="html" class="scroll-to-target scroll-to-top">
+        <span class="scroll-to-top__text">Yukarı Çık</span>
+        <span class="scroll-to-top__wrapper"><span class="scroll-to-top__inner"></span></span>
+    </a>
+
+    <div class="page-wrapper">
+        <!-- dahil edilen component'ler için izafi yol belirtmen lazım. -->
+         <div class="header-four">
+            {{ include "../../components/frontend-topbar" }}
+
+            {{ include "../../components/frontend-header" }}
+         </div>
+
+         {{ embed() }}
+
+         {{ include "../../components/frontend-sidebar" }}
+    
+         {{ include "../../components/frontend-footer" }}
+    </div>
+
+    <script src="{{ PathOnStart }}js/script.js"></script>
+
+    {{ if Route == "/" }}
+        <script src="{{ PathOnStart }}js/frontend/not-transparent-when-scrolled-down.js"></script>
+        <script src="{{ PathOnStart }}js/frontend/insert-randevu-talebi.js"></script>
+    {{ end }}
+
+    {{ if Route == "/kurumsal/insan-kaynaklari" }}
+        <script src="{{ PathOnStart }}js/frontend/insan-kaynaklari.js"></script>
+    {{ end }}
+
+    {{ if Route == "/iletisim" }}
+        <script src="{{ PathOnStart }}js/frontend/iletisim.js"></script>
+    {{ end }}
+
+    {{ if Route == "/doktorlar/:sube/doktorlar" }}
+        <script src="{{ PathOnStart }}js/frontend/doktorlar.js"></script>
+    {{ end }}
+
+    <script src="{{ PathOnStart }}assets/jquery/jquery-3.7.0.min.js"></script>
+    <script src="{{ PathOnStart }}assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jarallax/jarallax.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-ui/jquery-ui.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-ajaxchimp/jquery.ajaxchimp.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-appear/jquery.appear.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-circle-progress/jquery.circle-progress.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-magnific-popup/jquery.magnific-popup.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-validate/jquery.validate.min.js"></script>
+    <script src="{{ PathOnStart }}assets/nouislider/nouislider.min.js"></script>
+    <script src="{{ PathOnStart }}assets/tiny-slider/tiny-slider.js"></script>
+    <script src="{{ PathOnStart }}assets/wnumb/wNumb.min.js"></script>
+    <script src="{{ PathOnStart }}assets/owl-carousel/js/owl.carousel.min.js"></script>
+    <script src="{{ PathOnStart }}assets/slick/js/slick.min.js"></script>
+    <script src="{{ PathOnStart }}assets/wow/wow.js"></script>
+    <script src="{{ PathOnStart }}assets/imagesloaded/imagesloaded.min.js"></script>
+    <script src="{{ PathOnStart }}assets/isotope/isotope.js"></script>
+    <script src="{{ PathOnStart }}assets/countdown/countdown.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-circleType/jquery.circleType.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-lettering/jquery.lettering.min.js"></script>
+    <script src="{{ PathOnStart }}assets/mediox.js"></script>
+    <script src="{{ PathOnStart }}assets/mediox-landing.js"></script>
+
+</body>
+</html>

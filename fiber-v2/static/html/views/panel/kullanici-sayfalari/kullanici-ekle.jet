@@ -1,0 +1,263 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/kullanici-ekle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-user-plus"></i>
+                    Yeni Kullanıcı Ekle
+                </h1>
+                <p class="page-subtitle">Sistem için yeni bir kullanıcı hesabı oluşturun</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/kullanicilar" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <form id="userForm" class="user-form" novalidate action="/backend/add-user" method="post">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Kişisel Bilgiler
+                    </h2>
+                    <p class="section-description">Kullanıcının temel bilgilerini girin</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label required">Ad</label>
+                            <input type="text" id="name" name="name" class="form-input" 
+                                   placeholder="Kullanıcının adını girin" required minlength="2" maxlength="255">
+                            <div class="form-help">En az 2 karakter olmalıdır</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="surname" class="form-label required">Soyad</label>
+                            <input type="text" id="surname" name="surname" class="form-input" 
+                                   placeholder="Kullanıcının soyadını girin" required minlength="2" maxlength="255">
+                            <div class="form-help">En az 2 karakter olmalıdır</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-envelope"></i>
+                        İletişim Bilgileri
+                    </h2>
+                    <p class="section-description">E-posta ve telefon bilgileri</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email" class="form-label required">E-posta Adresi</label>
+                            <input type="email" id="email" name="email" class="form-input" 
+                                   placeholder="ornek@email.com" required maxlength="255">
+                            <div class="form-help">Geçerli bir e-posta adresi girin</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="form-label required">Telefon Numarası</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" 
+                                   placeholder="+90 555 000 00 00" required maxlength="255">
+                            <div class="form-help">Ülke kodu ile birlikte girin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-lock"></i>
+                        Güvenlik Ayarları
+                    </h2>
+                    <p class="section-description">Şifre ve güvenlik ayarları</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password" class="form-label required">Şifre</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="password" name="password" class="form-input" 
+                                       placeholder="Güçlü bir şifre girin" required minlength="6" maxlength="255">
+                                <button type="button" class="password-toggle" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-help">En az 6 karakter olmalıdır</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password_confirm" class="form-label required">Şifre Tekrarı</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="password_confirm" name="password_confirm" class="form-input" 
+                                       placeholder="Şifreyi tekrar girin" required minlength="6" maxlength="255">
+                                <button type="button" class="password-toggle" data-target="password_confirm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-help">Şifreler eşleşmelidir</div>
+                        </div>
+                    </div>
+                    <div class="password-strength" id="passwordStrength" style="display: none;">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <div class="strength-text">Şifre Gücü: <span class="strength-level">Zayıf</span></div>
+                        <div class="strength-requirements">
+                            <div class="requirement" data-requirement="length">
+                                <i class="fas fa-times"></i> En az 6 karakter
+                            </div>
+                            <div class="requirement" data-requirement="uppercase">
+                                <i class="fas fa-times"></i> Büyük harf
+                            </div>
+                            <div class="requirement" data-requirement="lowercase">
+                                <i class="fas fa-times"></i> Küçük harf
+                            </div>
+                            <div class="requirement" data-requirement="number">
+                                <i class="fas fa-times"></i> Rakam
+                            </div>
+                            <div class="requirement" data-requirement="special">
+                                <i class="fas fa-times"></i> Özel karakter
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-cogs"></i>
+                        Hesap Ayarları
+                    </h2>
+                    <p class="section-description">Rol ve hesap durumu ayarları</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="role" class="form-label required">Kullanıcı Rolü</label>
+                            <select id="role" name="role" class="form-select" required>
+                                <option value="">Rol seçin</option>
+                                <option value="admin">Admin</option>
+                                <option value="moderator">Moderatör</option>
+                            </select>
+                            <div class="form-help">Kullanıcının sistem yetkilerini belirler</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="timezone" class="form-label">Zaman Dilimi</label>
+                            <select id="timezone" name="timezone" class="form-select">
+                                <option value="UTC" selected>UTC</option>
+                                <option value="Europe/Istanbul">Europe/Istanbul</option>
+                                <option value="Europe/London">Europe/London</option>
+                                <option value="America/New_York">America/New_York</option>
+                                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                                <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                <option value="Australia/Sydney">Australia/Sydney</option>
+                            </select>
+                            <div class="form-help">Kullanıcının bulunduğu zaman dilimi</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="is_active" class="form-label">Hesap Durumu</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="is_active" name="is_active" checked>
+                                <label for="is_active" class="toggle-label">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Aktif</span>
+                                </label>
+                            </div>
+                            <div class="form-help">Hesap aktif olarak oluşturulsun mu?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Ek Bilgiler
+                    </h2>
+                    <p class="section-description">İsteğe bağlı ek ayarlar</p>
+                </div>
+                <div class="section-content">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Kullanıcı Hesabı Hakkında</h4>
+                            <ul>
+                                <li><strong>Admin:</strong> Tam sistem erişimi ve tüm yönetim yetkilerine sahiptir</li>
+                                <li><strong>Moderatör:</strong> Sınırlı yönetim yetkilerine sahiptir</li>
+                                <li>E-posta adresi ve telefon numarası benzersiz olmalıdır</li>
+                                <li>Güçlü şifre kullanımı önerilir</li>
+                                <li>Hesap oluşturulduktan sonra kullanıcı bilgileri düzenlenebilir</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                    <i class="fas fa-times"></i>
+                    İptal
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-check"></i>
+                    <span class="btn-text">Kullanıcıyı Oluştur</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message">Kullanıcı başarıyla oluşturuldu.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ PathOnStart }}js/panel/kullanici-ekle.js"></script>

@@ -1,0 +1,323 @@
+<aside class="admin-sidebar" id="adminSidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-hospital-alt"></i>
+        </div>
+        <div>
+            <div class="sidebar-brand">Hospital CMS</div>
+            <div class="sidebar-tagline">Yönetim Paneli</div>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <!-- Dashboard Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">Ana Menü</div>
+            
+            <a href="/panel" class="nav-single">
+                <div class="nav-group-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span class="nav-group-text">Dashboard</span>
+                <div class="nav-tooltip">Dashboard</div>
+            </a>
+        </div>
+        
+        <!-- Patient Management Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">Hasta Yönetimi</div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="appointments">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <span class="nav-group-text">Randevular</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Randevular</div>
+                </button>
+                <div class="nav-group-items" data-group-items="appointments">
+                    <a href="/panel/randevu-talepleri" class="nav-item">Randevu Talepleri</a>
+                    <a href="/panel/randevular" class="nav-item">Randevular</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Medical Staff Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">Tıbbi Personel</div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="doctors">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <span class="nav-group-text">Doktorlar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Doktorlar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="doctors">
+                    <a href="/panel/doktorlar" class="nav-item">Tüm Doktorlar</a>
+                    <a href="/panel/doktorlar/doktor-ekle" class="nav-item">Doktor Ekle</a>
+                    <a href="/panel/doctors/schedules" class="nav-item">Çalışma Saatleri</a>
+                    <a href="/panel/doctors/specializations" class="nav-item">Uzmanlık Alanları</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="branches">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <span class="nav-group-text">Bölümler</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Bölümler</div>
+                </button>
+                <div class="nav-group-items" data-group-items="branches">
+                    <a href="/panel/branslar" class="nav-item">Tüm Bölümler</a>
+                    <a href="/panel/branslar/brans-ekle" class="nav-item">Bölüm Ekle</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="tibbi-birimler">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-clinic-medical"></i>
+                    </div>
+                    <span class="nav-group-text">Tıbbi Birimler</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Tıbbi Birimler</div>
+                </button>
+                <div class="nav-group-items" data-group-items="tibbi-birimler">
+                    <a href="/panel/tibbi-birimler" class="nav-item">Tüm Tıbbi Birimler</a>
+                    <a href="/panel/tibbi-birim-ekle" class="nav-item">Tıbbi Birim Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="subeler">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <span class="nav-group-text">Şubeler</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Şubeler</div>
+                </button>
+                <div class="nav-group-items" data-group-items="subeler">
+                    <a href="/panel/subeler" class="nav-item">Tüm Şubeler</a>
+                    <a href="/panel/subeler/sube-ekle" class="nav-item">Şube Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="expertise">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <span class="nav-group-text">Uzmanlıklar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Uzmanlıklar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="expertise">
+                    <a href="/panel/uzmanliklar" class="nav-item">Tüm Uzmanlıklar</a>
+                    <a href="/panel/uzmanliklar/uzmanlik-ekle" class="nav-item">Uzmanlık Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="examinations">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <span class="nav-group-text">Tedkikler</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Tedkikler</div>
+                </button>
+                <div class="nav-group-items" data-group-items="examinations">
+                    <a href="/panel/tedkikler" class="nav-item">Tüm Tedkikler</a>
+                    <a href="/panel/tedkik-ekle" class="nav-item">Tedkik Ekle</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Management Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">İçerik Yönetimi</div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="content">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <span class="nav-group-text">Haberler</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Haberler</div>
+                </button>
+                <div class="nav-group-items" data-group-items="content">
+                    <a href="/panel/haberler" class="nav-item">Tüm Haberler</a>
+                    <a href="/panel/haber-ekle" class="nav-item">Haber Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="icerik-yonetimi">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <span class="nav-group-text">İçerik Yönetimi</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">İçerik Yönetimi</div>
+                </button>
+                <div class="nav-group-items" data-group-items="icerik-yonetimi">
+                    <a href="/panel/anasayfa-icerikleri" class="nav-item">Anasayfa İçerikleri</a>
+                    <a href="/panel/anasayfa-icerik-ekle" class="nav-item">Anasayfa İçerik Ekle</a>
+                    <a href="/panel/ozel-icerikler" class="nav-item">Diğer İçerikler</a>
+                    <a href="/panel/ozel-icerik-ekle" class="nav-item">Diğer İçerik Ekle</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="testimonials">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <span class="nav-group-text">Müşteri Yorumları</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Müşteri Yorumları</div>
+                </button>
+                <div class="nav-group-items" data-group-items="testimonials">
+                    <a href="/panel/musteri-yorumlari" class="nav-item">Yorumlar</a>
+                    <a href="/panel/musteri-yorumu-ekle" class="nav-item">Yorum Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="media">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <span class="nav-group-text">Medya</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Medya</div>
+                </button>
+                <div class="nav-group-items" data-group-items="media">
+                    <a href="/panel/dosyalar" class="nav-item">Medya Kütüphanesi</a>
+                    <a href="/panel/dosya-yukle" class="nav-item">Dosya Yükle</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Communications Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">İletişim</div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="communications">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <span class="nav-group-text">Mesajlar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Mesajlar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="communications">
+                    <a href="/panel/iletisim-istekleri" class="nav-item">İletişim Talepleri</a>
+                    <a href="/panel/iletisim-istegi-cevapla" class="nav-item">Cevapla</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="applications">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <span class="nav-group-text">İş Başvuruları</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">İş Başvuruları</div>
+                </button>
+                <div class="nav-group-items" data-group-items="applications">
+                    <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
+                    <a href="/panel/is-basvuru-cevapla" class="nav-item">Cevapla</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">Sistem</div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="institutions">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <span class="nav-group-text">Anlaşmalı Kurumlar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Anlaşmalı Kurumlar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="institutions">
+                    <a href="/panel/anlasmali-kurumlar" class="nav-item">Tüm Kurumlar</a>
+                    <a href="/panel/anlasmali-kurumlar/anlasmali-kurumlar-ekle" class="nav-item">Kurum Ekle</a>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="settings">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <span class="nav-group-text">Ayarlar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Ayarlar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="settings">
+                    <a href="/panel/secenekler" class="nav-item">Seçenekler</a>
+                    <a href="/panel/secenek-ekle" class="nav-item">Seçenek Ekle</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="header-buttons">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <span class="nav-group-text">Header Butonları</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Header Butonları</div>
+                </button>
+                <div class="nav-group-items" data-group-items="header-buttons">
+                    <a href="/panel/header-tuslari" class="nav-item">Butonlar</a>
+                    <a href="/panel/header-tusu-ekle" class="nav-item">Buton Ekle</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="users">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <span class="nav-group-text">Kullanıcılar</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">Kullanıcılar</div>
+                </button>
+                <div class="nav-group-items" data-group-items="users">
+                    <a href="/panel/kullanicilar" class="nav-item">Kullanıcılar</a>
+                    <a href="/panel/kullanici-ekle" class="nav-item">Kullanıcı Ekle</a>
+                </div>
+            </div>
+            
+            <a href="/panel/dokumantasyon" class="nav-single">
+                <div class="nav-group-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <span class="nav-group-text">Dokümantasyon</span>
+                <div class="nav-tooltip">Dokümantasyon</div>
+            </a>
+        </div>
+    </nav>
+</aside>

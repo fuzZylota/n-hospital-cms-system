@@ -1,0 +1,63 @@
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">{{ TibbiBirim.Name != "" ? TibbiBirim.Name : "Tıbbi Birim" }}</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-arrow-right"></i></span>
+                            <a href="/tibbi-birimler">Tıbbi Birimler</a>
+                        </li>
+                        <li><span>{{ TibbiBirim.Name != "" ? TibbiBirim.Name : "Tıbbi Birim" }}</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="tibbi-birim">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birim.css">
+    <div class="container">
+        <div class="row gutter-y-40 align-items-stretch">
+            <div class="col-12">
+                <div class="tibbi-birim__card">
+                    <div class="tibbi-birim__media">
+                        {{ if TibbiBirim.CoverPath != "" }}
+                            <div class="tibbi-birim__image-container">
+                                <img class="tibbi-birim__image" src="{{ PathOnStart }}{{ TibbiBirim.CoverPath }}" alt="{{ TibbiBirim.CoverAltText != "" ? TibbiBirim.CoverAltText : TibbiBirim.Name }}" title="{{ TibbiBirim.CoverTitle != "" ? TibbiBirim.CoverTitle : TibbiBirim.Name }}">
+                            </div>
+                        {{ else }}
+                            <div class="tibbi-birim__image-container">
+                                <img class="tibbi-birim__image" src="{{ PathOnStart }}files/defaults/tibbi-birim/tibbi-birim-resim.png" alt="{{ TibbiBirim.Name }}" title="{{ TibbiBirim.Name }}">
+                            </div>
+                        {{ end }}
+                        
+                        {{ if TibbiBirim.VideoPath != "" }}
+                            <div class="tibbi-birim__video-container">
+                                <video class="tibbi-birim__video" controls>
+                                    <source src="{{ PathOnStart }}{{ TibbiBirim.VideoPath }}" type="video/mp4">
+                                    Tarayıcınız video oynatmayı desteklemiyor.
+                                </video>
+                            </div>
+                        {{ end }}
+                    </div>
+                    <div class="tibbi-birim__content">
+                        <h1 class="tibbi-birim__title">{{ TibbiBirim.Name != "" ? TibbiBirim.Name : "Tıbbi Birim" }}</h1>
+                        {{ if TibbiBirim.Description != "" }}
+                            <p class="tibbi-birim__desc">{{ TibbiBirim.Description }}</p>
+                        {{ else }}
+                            <p class="tibbi-birim__desc">Bu tıbbi birim hakkında yakında detaylı bilgiler eklenecektir.</p>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

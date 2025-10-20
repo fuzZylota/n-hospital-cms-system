@@ -1,0 +1,93 @@
+<footer class="main-footer section-space-top">
+    <div class="main-footer__bg" style="background-image: url(assets/images/shapes/footer-bg.png);"></div>
+    <!-- /.main-footer__bg -->
+    <div class="container">
+        <div class="row gutter-y-40">
+            <div class="col-xl-4 col-lg-6 col-md-7 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                <div class="footer-widget footer-widget--about">
+                    <div class="footer-widget__logo logo-retina">
+                        <a href="index.php">
+                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="164">
+                        </a>
+                    </div><!-- /.footer-widget__logo -->
+                    <p class="footer-widget__about-text">{{ Options.Options.SiteDescription }}</p><!-- /.footer-widget__about-text -->
+                    <div class="social-links">
+                        <a href="https://{{ Options.Options.FacebookUrl }}">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                            <span class="sr-only">Facebook</span>
+                        </a>
+                        <a href="https://{{ Options.Options.TwitterUrl }}">
+                            <i class="fab fa-twitter" aria-hidden="true"></i>
+                            <span class="sr-only">Twitter</span>
+                        </a>
+                        <a href="https://{{ Options.Options.InstagramUrl }}">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                            <span class="sr-only">Instagram</span>
+                        </a>
+                        <a href="https://{{ Options.Options.LinkedinUrl }}">
+                            <i class="fab fa-youtube" aria-hidden="true"></i>
+                            <span class="sr-only">Youtube</span>
+                        </a>
+                    </div><!-- /.social-links -->
+                </div><!-- /.footer-widget -->
+            </div><!-- /.col-xl-4 -->
+            <div class="col-xl-2 col-lg-3 col-md-5 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
+                <div class="footer-widget footer-widget--links">
+                    <h2 class="footer-widget__title">Tetkiklerimiz</h2><!-- /.footer-widget__title -->
+                    <ul class="list-unstyled footer-widget__links">
+                        {{ range index, HeaderButtons := Options.HeaderButtons }}
+                            {{ if HeaderButtons.ParentId == "" }}
+                                <li><a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a></li>
+                            {{ end }}
+                        {{ end }}
+                        <li><a href="/giris">Panel Girişi</a></li>
+                    </ul><!-- /.list-unstyled footer-widget__links -->
+                </div><!-- /.footer-widget -->
+            </div><!-- /.col-xl-2 -->
+            <div class="col-xl-2 col-lg-3 col-md-5 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="200ms">
+                <div class="footer-widget footer-widget--links">
+                    <h2 class="footer-widget__title">Kullanışlı Linkler</h2><!-- /.footer-widget__title -->
+                    <ul class="list-unstyled footer-widget__links">
+                        {{ range index2, TedkikLink := Options.TedkiklerLinks }}
+                            <li><a href="/tetkikler/{{ TedkikLink.UrlName }}">{{ TedkikLink.Name }}</a></li>
+                        {{ end }}
+                    </ul><!-- /.list-unstyled footer-widget__links -->
+                </div><!-- /.footer-widget -->
+            </div><!-- /.col-xl-2 -->
+            {{ if len(Options.NewsLinks) > 0 }}
+                <div class="col-xl-4 col-lg-6 col-md-7 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="300ms">
+                    <div class="footer-widget footer-widget--blog">
+                        <h2 class="footer-widget__title">En Son <span>Haberler</span></h2><!-- /.footer-widget__title -->
+                        <ul class="footer-widget__posts list-unstyled">
+                            {{ range index, NewsLink := Options.NewsLinks }}
+                                <li class="footer-widget__posts__item">
+                                    <div class="footer-widget__posts__image">
+                                        <img src="{{ PathOnStart }}{{ NewsLink.CoverPath != "" ? NewsLink.CoverPath : "files/defaults/news/news-default.png" }}" alt="{{ NewsLink.CoverAltText != "" ? NewsLink.CoverAltText : "Haber Resmi" }}" title="{{ NewsLink.CoverTitle != "" ? NewsLink.CoverTitle : "Haber Resmi" }}">
+                                    </div><!-- /.footer-widget__posts__image -->
+                                    <div class="footer-widget__posts__content">
+                                        <div class="footer-widget__posts__meta">
+                                            <a href="/haberler/{{ NewsLink.UrlName }}">
+                                                <span class="footer-widget__posts__meta__icon">
+                                                    <i class="icon-user"></i>
+                                                </span><!-- /.footer-widget__posts__meta__icon -->
+                                                {{ NewsLink.Author }}
+                                            </a>
+                                        </div><!-- /.footer-widget__posts__meta -->
+                                        <h4 class="footer-widget__posts__title">
+                                            <a href="/haberler/{{ NewsLink.UrlName }}">{{ NewsLink.Title }}</a>
+                                        </h4><!-- /.footer-widget__posts__title -->
+                                    </div><!-- /.footer-widget__posts__content -->
+                                </li>
+                            {{ end }}
+                        </ul><!-- /.footer-widget__posts list-unstyled -->
+                    </div><!-- /.footer-widget -->
+                </div><!-- /.col-xl-4 -->
+            {{ end }}
+        </div><!-- /.row -->
+        <div class="main-footer__bottom">
+            <p class="main-footer__copyright">
+                &copy; Her Hakkı Saklıdır <span class="dynamic-year"></span>, {{ Options.Options.SiteName }}.
+            </p>
+        </div><!-- /.main-footer__bottom -->
+    </div><!-- /.container -->
+</footer><!-- /.main-footer section-space-top -->

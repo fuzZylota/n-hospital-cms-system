@@ -1,0 +1,134 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/uzmanlik-ekle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="icon-award"></i>
+                    Yeni Uzmanlık Ekle
+                </h1>
+                <p class="page-subtitle">Hastane uzmanlık alanı için yeni bir kategori oluşturun</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/uzmanliklar" class="btn btn-secondary">
+                    <i class="icon-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <form id="uzmanlikForm" class="uzmanlik-form" novalidate action="/backend/add-expertise" method="post" enctype="multipart/form-data">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-info-circle"></i>
+                        Temel Bilgiler
+                    </h2>
+                    <p class="section-description">Uzmanlık alanının temel bilgilerini girin</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label required">Uzmanlık Adı</label>
+                            <input type="text" id="name" name="name" class="form-input" 
+                                   placeholder="örn: Kardiyoloji, Nöroloji, Ortopedi" required>
+                            <div class="form-help">Uzmanlık alanının görüntülenecek adı</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="url_name" class="form-label">URL Adı</label>
+                            <input type="text" id="url_name" name="url_name" class="form-input" 
+                                   placeholder="kardiyoloji, noroloji, ortopedi">
+                            <div class="form-help">Boş bırakılırsa otomatik oluşturulur</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="is_active" class="form-label">Aktif Durumu</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="is_active" name="is_active" checked>
+                                <label for="is_active" class="toggle-label">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Aktif</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="form-label">Açıklama</label>
+                        <textarea id="description" name="description" class="form-textarea" 
+                                  rows="3" placeholder="Uzmanlık alanı hakkında detaylı açıklama yazın..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Icon Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-heart"></i>
+                        İkon Bilgileri
+                    </h2>
+                    <p class="section-description">Uzmanlık alanı için ikon seçin</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="icon" class="form-label">İkon</label>
+                        <input type="text" id="icon" name="icon" class="form-input" 
+                               placeholder="icon-heart, icon-stethoscope, icon-user-md">
+                        <div class="form-help">CSS sınıfı adı olarak ikon adını girin</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                    <i class="icon-x"></i>
+                    İptal
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="icon-check"></i>
+                    <span class="btn-text">Uzmanlığı Kaydet</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="icon-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message">Uzmanlık alanı başarıyla oluşturuldu.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ PathOnStart }}js/panel/uzmanlik-ekle.js"></script>

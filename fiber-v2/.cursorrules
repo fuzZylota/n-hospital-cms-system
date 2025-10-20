@@ -1,0 +1,14 @@
+rules:
+    - "don't write any backend code and take any incentive on backend unless explicitly told you so."
+    - "try to not change the files in the /static/assets, try to create additional javascript and css on /static/css and /static/css folders and if it's for front-end, put the files on frontend with the view file-based naming convention(for example, if that file will be added on 'Hakkimizda' page, than file names will be 'hakkimizda.css' and 'hakkimizda.js')"
+    - "admin panel and main page's logics are completely seperated from each other, don't use same css and js, use realm's own html and css. You can use liblaries on admin panel but later implemented styling must remain seperate."
+    - "You're a fron-end developer, your work is prettifying ui's or fit frontend to backend. focus on front-end stuff."
+    - "In Ajax requests, even if this is with FormData api or Content-Type: application/json header, you'll always check the success status by looking at the 'status' property of the response, if it's 200(if it's about only reading data) or 201(if it's about to make a write action to the database) there is success, otherwise failure."
+    - "Always put visual indicator for the backend requests are successful or not, but that indicators shouldn't be technical. That indicator's background shouldn't be more transparent than  0.7 or 70%, that makes them hard to see. If it's 500 or other server error status codes, just write 'Server Hatası: Lütfen daha sonra tekrar deneyin.'"
+    - "if you demanded to write backend code anyway, stick with the existing code examples and try to not introduce any new kind of code unless explicitly told so. For example, if you can do something with a function in the 'lib' module or is there any example of the same thing on the codebase, just write it's equivalent to the given tasks context. Don't summarize the error checks, write identical error checks."
+    - "we're using jet template engine on views, which are different from go's traditional html template engine. In that engine, synthax is more different:
+    
+    . you should put primitive values via {{ (Value) }} synthax rather that {{ (.Value) }}. Only put dots to the values if they are used in range and they are a member of a struct."
+    . only use, 'mthr' function to make time human readable, 'stj' function to turn struct into json."
+    - don't try to use extend, block or other unintroduced synthax from template engine.
+    - don't use {{ if eq Something "Something" }} kind of html template shit, use {{ if Something == "Something" }} synthax instead, jet supports to use traditional operators like ==, !=, >, <, >=, <=, etc."

@@ -1,0 +1,592 @@
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/secenek.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/secenekler" class="breadcrumb-link">
+                        <i class="fas fa-cogs"></i>
+                        Seçenek Setleri
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Option.OptionSetName }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Option.OptionSetName }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Option.OptionSetCreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Option.OptionSetUpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Option.OptionSetDescription}}
+                <p class="page-subtitle">{{ Option.OptionSetDescription }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Option.OptionSetIsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/secenekler/{{ Option.Oid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <button class="btn btn-danger" id="deleteOptionBtn" data-id="{{ Option.Oid }}" data-name="{{ Option.OptionSetName }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Site Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3 class="card-title">Site Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Site Adı</label>
+                        <div class="info-value">{{ Option.SiteName }}</div>
+                    </div>
+                    {{if Option.SiteDescription}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Site Açıklaması</label>
+                        <div class="info-value">{{ Option.SiteDescription }}</div>
+                    </div>
+                    {{end}}
+                    {{if Option.SiteLogoMid}}
+                    <div class="info-item">
+                        <label class="info-label">Site Logosu</label>
+                        <div class="info-value">
+                            <div class="image-preview" data-media-id="{{ Option.SiteLogoMid }}">
+                                <img src="{{ PathOnStart }}{{ Option.SiteLogoPath }}" alt="{{ Option.SiteLogoAltText }}" title="{{ Option.SiteLogoTitle }}" class="preview-image zoomable">
+                                <div class="image-overlay">
+                                    <i class="icon-maximize"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Option.FaviconMid}}
+                    <div class="info-item">
+                        <label class="info-label">Site Favicon</label>
+                        <div class="info-value">
+                            <div class="image-preview" data-media-id="{{ Option.FaviconMid }}">
+                                <img src="{{ PathOnStart }}{{ Option.SiteFaviconPath }}" class="preview-image zoomable">
+                                <div class="image-overlay">
+                                    <i class="icon-maximize"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Option.DefaultPageMid}}
+                    <div class="info-item">
+                        <label class="info-label">Varsayılan Sayfa</label>
+                        <div class="info-value">
+                            <span class="media-reference">Media ID: {{ Option.DefaultPageMid }}</span>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="card-title">İletişim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ Option.ContactEmail }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ Option.ContactEmail }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ Option.ContactPhone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ Option.ContactPhone }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <h3 class="card-title">Sosyal Medya</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Facebook</label>
+                        <div class="info-value">
+                            <a href="{{ Option.FacebookUrl }}" target="_blank" class="social-link facebook">
+                                <i class="icon-facebook"></i>
+                                {{ Option.FacebookUrl }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Twitter</label>
+                        <div class="info-value">
+                            <a href="{{ Option.TwitterUrl }}" target="_blank" class="social-link twitter">
+                                <i class="icon-twitter"></i>
+                                {{ Option.TwitterUrl }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Instagram</label>
+                        <div class="info-value">
+                            <a href="{{ Option.InstagramUrl }}" target="_blank" class="social-link instagram">
+                                <i class="icon-instagram"></i>
+                                {{ Option.InstagramUrl }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">LinkedIn</label>
+                        <div class="info-value">
+                            <a href="{{ Option.LinkedinUrl }}" target="_blank" class="social-link linkedin">
+                                <i class="icon-linkedin"></i>
+                                {{ Option.LinkedinUrl }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMTP Configuration Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3 class="card-title">SMTP Yapılandırması</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Option.SMTPHost}}
+                    <div class="info-item">
+                        <label class="info-label">SMTP Host</label>
+                        <div class="info-value">{{ Option.SMTPHost }}</div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">SMTP Port</label>
+                        <div class="info-value">{{ Option.SMTPPort }}</div>
+                    </div>
+                    {{if Option.SMTPUsername}}
+                    <div class="info-item">
+                        <label class="info-label">SMTP Kullanıcı Adı</label>
+                        <div class="info-value">{{ Option.SMTPUsername }}</div>
+                    </div>
+                    {{end}}
+                    {{if Option.SMTPPassword}}
+                    <div class="info-item">
+                        <label class="info-label">SMTP Şifre</label>
+                        <div class="info-value">
+                            <span class="password-hidden">••••••••</span>
+                            <button class="btn-icon" onclick="togglePassword(this)">
+                                <i class="icon-eye"></i>
+                            </button>
+                            <span class="password-revealed" style="display: none;">{{ Option.SMTPPassword }}</span>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">SMTP Şifreleme</label>
+                        <div class="info-value">
+                            <span class="encryption-badge {{ Option.SMTPEncryption }}">{{ Option.SMTPEncryption | upper }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="card-title">SEO Ayarları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <label class="info-label">Ana Sayfa Meta Başlık</label>
+                        <div class="info-value">{{ Option.MainPageMetaTitle }}</div>
+                    </div>
+                    <div class="info-item full-width">
+                        <label class="info-label">Ana Sayfa Meta Açıklama</label>
+                        <div class="info-value">{{ Option.MainPageMetaDescription }}</div>
+                    </div>
+                    {{if Option.GoogleAnalytics}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Google Analytics</label>
+                        <div class="info-value">
+                            <code class="code-block">{{ Option.GoogleAnalytics }}</code>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Design Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="card-title">Tasarım Ayarları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ana Renk</label>
+                        <div class="info-value">
+                            <div class="color-display">
+                                <div class="color-swatch" style="background-color: {{ Option.PrimaryColor }};"></div>
+                                <span class="color-code">{{ Option.PrimaryColor }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">İkincil Renk</label>
+                        <div class="info-value">
+                            <div class="color-display">
+                                <div class="color-swatch" style="background-color: {{ Option.SecondaryColor }};"></div>
+                                <span class="color-code">{{ Option.SecondaryColor }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Vurgu Rengi</label>
+                        <div class="info-value">
+                            <div class="color-display">
+                                <div class="color-swatch" style="background-color: {{ Option.AccentColor }};"></div>
+                                <span class="color-code">{{ Option.AccentColor }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Arkaplan Rengi</label>
+                        <div class="info-value">
+                            <div class="color-display">
+                                <div class="color-swatch" style="background-color: {{ Option.BackgroundColor }};"></div>
+                                <span class="color-code">{{ Option.BackgroundColor }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Yazı Rengi</label>
+                        <div class="info-value">
+                            <div class="color-display">
+                                <div class="color-swatch" style="background-color: {{ Option.FontColor }};"></div>
+                                <span class="color-code">{{ Option.FontColor }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Yazı Tipi</label>
+                        <div class="info-value">
+                            <span class="font-display" style="font-family: {{ Option.FontFamily }};">{{ Option.FontFamily }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3 class="card-title">Sistem Ayarları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Bakım Modu</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.MaintenanceMode}}active{{else}}inactive{{end}}">
+                                {{if Option.MaintenanceMode}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Güçlü Şifre Gerekli</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.RequireStrongPassword}}active{{else}}inactive{{end}}">
+                                {{if Option.RequireStrongPassword}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Sayfa Başına Öğe</label>
+                        <div class="info-value">{{ Option.ItemsPerPage }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Maksimum Yükleme Boyutu</label>
+                        <div class="info-value">{{ Option.MaxUploadSize }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Zaman Dilimi</label>
+                        <div class="info-value">{{ Option.Timezone }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Dil</label>
+                        <div class="info-value">
+                            <span class="language-badge">{{ Option.Language }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 class="card-title">Doktor Ayarları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Sadece Aynı Şehirdeki Doktorları Göster</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.ShowDoctorsOnSameCity}}active{{else}}inactive{{end}}">
+                                {{if Option.ShowDoctorsOnSameCity}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Sadece Aynı Ülkedeki Doktorları Göster</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.ShowDoctorsOnSameCountry}}active{{else}}inactive{{end}}">
+                                {{if Option.ShowDoctorsOnSameCountry}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="card-title">İçerik Ayarları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Referansları Etkinleştir</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.EnableTestimonials}}active{{else}}inactive{{end}}">
+                                {{if Option.EnableTestimonials}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Tarihçemizi Etkinleştir</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.EnableOurHistory}}active{{else}}inactive{{end}}">
+                                {{if Option.EnableOurHistory}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Maksimum Alt Menü Öğesi</label>
+                        <div class="info-value">{{ Option.MaximumSublinksOnAMenuItem }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Süresi Dolan Ortakları Otomatik Kaldır</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.AutoRemovePartnersWhenExpired}}active{{else}}inactive{{end}}">
+                                {{if Option.AutoRemovePartnersWhenExpired}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Seçenek Setini Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı seçenek setini silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="imageZoomModal" class="modal image-modal" style="display: none;">
+    <div class="modal-content image-content">
+        <button class="modal-close" onclick="closeImageModal()">
+            <i class="icon-x"></i>
+        </button>
+        <div class="image-container">
+            <img id="zoomedImage" src="" alt="Zoomed Image">
+        </div>
+        <div class="image-info">
+            <span id="imageTitle">Görsel</span>
+            <div class="image-actions">
+                <button class="btn btn-sm btn-secondary" onclick="downloadImage()">
+                    <i class="icon-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="openImageInNewTab()">
+                    <i class="icon-external-link"></i>
+                    Yeni Sekmede Aç
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.optionData = {
+        id: {{ Option.Oid }},
+        name: "{{ Option.OptionSetName }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/secenek.js"></script>

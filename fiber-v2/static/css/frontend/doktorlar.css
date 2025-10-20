@@ -1,0 +1,256 @@
+/* Doktorlar Page Styles */
+
+/* Title section styling */
+
+/* Enhanced team card styling */
+.team-card-three {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+}
+
+.team-card-three:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.team-card-three__image {
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.team-card-three:hover .team-card-three__image {
+    transform: scale(1.05);
+}
+
+.team-card-three__hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.team-card-three:hover .team-card-three__hover {
+    opacity: 1;
+}
+
+/* Social links styling */
+.social-links {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    color: var(--theme-primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.social-links a:hover {
+    background: var(--theme-primary-color);
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.social-links a i {
+    font-size: 16px;
+}
+
+/* Doctor identity styling */
+.team-card-three__identity {
+    text-align: center;
+    color: #ffffff;
+}
+
+.team-card-three__name {
+    margin-bottom: 8px;
+}
+
+.team-card-three__name a {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.team-card-three__name a:hover {
+    color: var(--theme-primary-color);
+}
+
+.team-card-three__designation {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state__icon {
+    margin-bottom: 24px;
+    opacity: 0.6;
+}
+
+.empty-state__title {
+    color: #374151;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.empty-state__description {
+    color: #6b7280;
+    font-size: 18px;
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .team-card-three__image {
+        height: 250px;
+    }
+    
+    .team-card-three__hover {
+        padding: 15px;
+    }
+    
+    .social-links {
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .social-links a {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .social-links a i {
+        font-size: 14px;
+    }
+    
+    .team-card-three__name a {
+        font-size: 18px;
+    }
+    
+    .team-card-three__designation {
+        font-size: 13px;
+    }
+    
+    .empty-state__title {
+        font-size: 24px;
+    }
+    
+    .empty-state__description {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-card-three__image {
+        height: 200px;
+    }
+    
+    .team-card-three__hover {
+        padding: 10px;
+    }
+    
+    .social-links {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .social-links a {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .social-links a i {
+        font-size: 12px;
+    }
+    
+    .team-card-three__name a {
+        font-size: 16px;
+    }
+    
+    .team-card-three__designation {
+        font-size: 12px;
+    }
+}
+
+/* Animation enhancements */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.team-card-three.wow.fadeInUp {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Hover effects for better UX */
+.team-card-three {
+    position: relative;
+}
+
+.team-card-three::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--theme-primary-color) 0%, rgba(59, 130, 246, 0.8) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.team-card-three:hover::before {
+    opacity: 0.1;
+}
+
+.team-card-three__hover {
+    z-index: 2;
+    position: relative;
+}

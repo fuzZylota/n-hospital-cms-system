@@ -1,0 +1,422 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/secenekler.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-cog"></i>
+                    Seçenek Setleri
+                </h1>
+                <p class="page-subtitle">Sistem ayarları ve seçenek setlerini yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+                <a href="/panel/secenek-ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Seçenek Seti
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" 
+                           placeholder="Seçenek seti adı, site adı veya e-posta ile ara...">
+                    <button class="search-clear" id="searchClear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="created_at">Oluşturma Tarihi</option>
+                    <option value="option_set_name">Seçenek Adı</option>
+                    <option value="site_name">Site Adı</option>
+                    <option value="updated_at">Güncelleme Tarihi</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="desc">Azalan</option>
+                    <option value="asc">Artan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Seçenek Seti</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeCount">-</div>
+                    <div class="stat-label">Aktif Setler</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="inactiveCount">-</div>
+                    <div class="stat-label">Pasif Setler</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon recent">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="recentCount">-</div>
+                    <div class="stat-label">Son 7 Gün</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Seçenek Setleri Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="optionsTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="option_set_name">
+                                <span>Seçenek Seti Adı</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="site_name">
+                                <span>Site Adı</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="contact_email">
+                                <span>E-posta</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="contact_phone">
+                                <span>Telefon</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="option_set_is_active">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="updated_at">
+                                <span>Son Güncelleme</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(OptionsToGet) > 0}}
+                            {{range OptionsToGet}}
+                            <tr data-id="{{ .Oid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .OptionSetName }}</div>
+                                        {{if .OptionSetDescription}}
+                                        <div class="secondary-text">{{ .OptionSetDescription }}</div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .SiteName }}</div>
+                                        {{if .SiteDescription}}
+                                        <div class="secondary-text truncate">{{ .SiteDescription }}</div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <a href="mailto:{{ .ContactEmail }}" class="email-link">{{ .ContactEmail }}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <a href="tel:{{ .ContactPhone }}" class="phone-link">{{ .ContactPhone }}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .OptionSetIsActive}}
+                                        <span class="status-badge active">
+                                            <i class="fas fa-check-circle"></i>
+                                            Aktif
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge inactive">
+                                            <i class="fas fa-pause-circle"></i>
+                                            Pasif
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ mthr(.OptionSetUpdatedAt, User.Timezone) }}</div>
+                                        <div class="secondary-text">{{ mthr(.OptionSetUpdatedAt, User.Timezone) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Oid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/secenekler/{{ .Oid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/secenekler/{{ .Oid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            <button class="action-item delete" data-id="{{ .Oid }}" data-name="{{ .OptionSetName }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-cog"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz seçenek seti bulunmuyor</div>
+                                        <div class="empty-description">İlk seçenek setinizi oluşturmak için "Yeni Seçenek Seti" butonuna tıklayın.</div>
+                                        <a href="/panel/secenek-ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Seçenek Seti Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="options-grid">
+                    {{if len(OptionsToGet) > 0}}
+                        {{range OptionsToGet}}
+                        <div class="option-card" data-id="{{ .Oid }}">
+                            <div class="card-header">
+                                <div class="card-title">{{ .OptionSetName }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Oid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/secenekler/{{ .Oid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/secenekler/{{ .Oid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        <button class="action-item delete" data-id="{{ .Oid }}" data-name="{{ .OptionSetName }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-field">
+                                    <div class="field-label">Site Adı</div>
+                                    <div class="field-value">{{ .SiteName }}</div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">E-posta</div>
+                                    <div class="field-value">
+                                        <a href="mailto:{{ .ContactEmail }}" class="email-link">{{ .ContactEmail }}</a>
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Telefon</div>
+                                    <div class="field-value">
+                                        <a href="tel:{{ .ContactPhone }}" class="phone-link">{{ .ContactPhone }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .OptionSetIsActive}}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Aktif
+                                    </span>
+                                    {{else}}
+                                    <span class="status-badge inactive">
+                                        <i class="fas fa-pause-circle"></i>
+                                        Pasif
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-date">{{ .OptionSetUpdatedAt }}</div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="empty-title">Henüz seçenek seti bulunmuyor</div>
+                            <div class="empty-description">İlk seçenek setinizi oluşturmak için "Yeni Seçenek Seti" butonuna tıklayın.</div>
+                            <a href="/panel/secenek-ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Seçenek Seti Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Seçenek Setini Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı seçenek setini silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+
+<script>
+    function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+      const escaped = '{{stj(OptionsToGet)}}'; // şablondan gelen escaped string
+        const decoded = decodeHtmlEntities(escaped);
+        const data = JSON.parse(decoded);
+
+    // Pass data to JavaScript
+    window.pageData = {
+        options: data,
+        count: {{Count}},
+        currentPage: {{Page ? Page : 1}},
+        perPage: {{ 10 }}
+    };
+
+    console.log(window.pageData.options);
+</script>
+<script src="{{ PathOnStart }}js/panel/secenekler.js"></script>
+
+

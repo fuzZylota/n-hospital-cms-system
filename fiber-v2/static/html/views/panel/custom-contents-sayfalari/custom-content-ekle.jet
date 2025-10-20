@@ -1,0 +1,217 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/custom-content-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="icon-file-text"></i>
+                    Yeni Özel İçerik Ekle
+                </h1>
+                <p class="page-subtitle">Özel içerik için yeni bir sayfa oluşturun</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/ozel-icerikler" class="btn btn-secondary">
+                    <i class="icon-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <form id="customContentForm" class="custom-content-form" novalidate action="/backend/add-custom-content" method="post" enctype="multipart/form-data">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-info-circle"></i>
+                        Temel Bilgiler
+                    </h2>
+                    <p class="section-description">İçeriğin temel bilgilerini girin</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label required">İçerik Adı</label>
+                            <input type="text" id="name" name="name" class="form-input" 
+                                   placeholder="örn: Hakkımızda, Gizlilik Politikası" required>
+                            <div class="form-help">İçeriğin görüntülenecek adı</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="url_name" class="form-label">URL Adı</label>
+                            <input type="text" id="url_name" name="url_name" class="form-input" 
+                                   placeholder="hakkimizda, gizlilik-politikasi">
+                            <div class="form-help">Boş bırakılırsa otomatik oluşturulur</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="content_type" class="form-label required">İçerik Tipi</label>
+                            <select id="content_type" name="content_type" class="form-select" required>
+                                <option value="">İçerik tipini seçin</option>
+                                <option value="history">Tarihçe</option>
+                                <option value="about-us">Hakkımızda</option>
+                                <option value="privacy-policy">Gizlilik Politikası</option>
+                                <option value="mission-vision">Misyon-Vizyon</option>
+                                <option value="main-page">Ana Sayfa</option>
+                                <option value="hr">İnsan Kaynakları</option>
+                                <option value="popup">Popup</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sort_order" class="form-label required">Sıralama</label>
+                            <input type="number" id="sort_order" name="sort_order" class="form-input" 
+                                   placeholder="1" min="1" required>
+                            <div class="form-help">Görüntülenme sırası</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="route" class="form-label">Route</label>
+                            <input type="text" id="route" name="route" class="form-input" 
+                                   placeholder="/hakkimizda, /gizlilik-politikasi">
+                            <div class="form-help">Bu route ile eşleşen isteklerde bu içerik gösterilir</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_active" class="form-label">Aktif Durumu</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="is_active" name="is_active" checked>
+                                <label for="is_active" class="toggle-label">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Aktif</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="form-label">Açıklama</label>
+                        <textarea id="description" name="description" class="form-textarea" 
+                                  rows="3" placeholder="İçerik hakkında kısa açıklama yazın..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTML Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-code"></i>
+                        HTML İçeriği
+                    </h2>
+                    <p class="section-description">Sayfanın HTML içeriğini yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="content_html" class="form-label">HTML Kodu</label>
+                        <textarea id="content_html" name="content_html" class="form-textarea code-editor" 
+                                  rows="10" placeholder="HTML kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-palette"></i>
+                        CSS Stilleri
+                    </h2>
+                    <p class="section-description">Sayfanın CSS stillerini yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="content_css" class="form-label">CSS Kodu</label>
+                        <textarea id="content_css" name="content_css" class="form-textarea code-editor" 
+                                  rows="10" placeholder="CSS kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-settings"></i>
+                        JavaScript Kodu
+                    </h2>
+                    <p class="section-description">Sayfanın JavaScript kodunu yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="content_javascript" class="form-label">JavaScript Kodu</label>
+                        <textarea id="content_javascript" name="content_javascript" class="form-textarea code-editor" 
+                                  rows="10" placeholder="JavaScript kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                    <i class="icon-x"></i>
+                    İptal
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="icon-check"></i>
+                    <span class="btn-text">İçeriği Kaydet</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="icon-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message">Özel içerik başarıyla oluşturuldu.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+<script src="{{ PathOnStart }}js/panel/custom-content-ekle.js"></script>

@@ -1,0 +1,524 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/brans.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/branslar" class="breadcrumb-link">
+                        <i class="fas fa-sitemap"></i>
+                        Bölümler
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Brans.Name }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Brans.Name }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Brans.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Brans.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Brans.Description}}
+                <p class="page-subtitle">{{ Brans.Description }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Brans.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/branslar/{{ Brans.Brid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    
+                    <!-- Doctor Actions Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="doctorActionsDropdown" aria-expanded="false" onclick="toggleDoctorDropdown()">
+                            <i class="fas fa-user-md"></i>
+                            Doktor İşlemleri
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="doctorActionsDropdown" style="display: none;">
+                            <li>
+                                <button class="dropdown-item" id="addDoctorBtn" data-id="{{ Brans.Brid }}" data-name="{{ Brans.Name }}">
+                                    <i class="fas fa-user-plus"></i>
+                                    Doktor Ekle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" id="removeDoctorBtn" data-id="{{ Brans.Brid }}" data-name="{{ Brans.Name }}">
+                                    <i class="fas fa-user-minus"></i>
+                                    Doktor Çıkar
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button class="dropdown-item" id="changeHeadDoctorBtn" data-id="{{ Brans.Brid }}" data-name="{{ Brans.Name }}">
+                                    <i class="fas fa-user-md"></i>
+                                    Başhekim Değiştir
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-danger" id="deleteBransBtn" data-id="{{ Brans.Brid }}" data-name="{{ Brans.Name }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Bölüm Adı</label>
+                        <div class="info-value">{{ Brans.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL Adı</label>
+                        <div class="info-value">{{ Brans.UrlName }}</div>
+                    </div>
+                    {{if Brans.Description}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Açıklama</label>
+                        <div class="info-value">{{ Brans.Description }}</div>
+                    </div>
+                    {{end}}
+                    {{if Brans.ShortDescription}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Kısa Açıklama</label>
+                        <div class="info-value">{{ Brans.ShortDescription }}</div>
+                    </div>
+                    {{end}}
+                    {{if Brans.Services}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Hizmetler</label>
+                        <div class="info-value">
+                            <div class="services-list">
+                                {{ range Brans.Services }}
+                                <div class="service-item">
+                                    <i class="fas fa-check-circle service-icon"></i>
+                                    <span class="service-name">{{ . }}</span>
+                                </div>
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Brans.Icon}}
+                    <div class="info-item">
+                        <label class="info-label">İkon</label>
+                        <div class="info-value">
+                            <i class="{{ Brans.Icon }}"></i>
+                            <span class="icon-display">{{ Brans.Icon }}</span>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Brans.BransMediaPath}}
+                    <div class="info-item">
+                        <label class="info-label">Bölüm Görseli</label>
+                        <div class="info-value">
+                            <div class="image-preview" data-media-id="{{ Brans.Mid }}">
+                                <img src="{{ PathOnStart }}{{ Brans.BransMediaPath }}" alt="{{ Brans.BransMediaAltText }}" title="{{ Brans.BransMediaTitle }}" class="preview-image zoomable">
+                                <div class="image-overlay">
+                                    <i class="icon-maximize"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Head Doctor Information Section -->
+        {{if Brans.HeadDoctorName}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 class="card-title">Başhekim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Başhekim</label>
+                        <div class="info-value">
+                            <div class="doctor-info">
+                                {{if Brans.HeadDoctorPhotoPath}}
+                                <div class="doctor-avatar">
+                                    <img src="{{ PathOnStart }}{{ Brans.HeadDoctorPhotoPath }}" alt="{{ Brans.HeadDoctorPhotoAltText }}" class="avatar-image">
+                                </div>
+                                {{end}}
+                                <div class="doctor-details">
+                                    <div class="doctor-name">{{ Brans.HeadDoctorTitle }} {{ Brans.HeadDoctorName }}</div>
+                                    {{if Brans.HeadDoctorPhone}}
+                                    <div class="doctor-contact">
+                                        <i class="fas fa-phone"></i>
+                                        {{ Brans.HeadDoctorPhone }}
+                                    </div>
+                                    {{end}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Branch Information Section -->
+        {{if Brans.BranchName}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="card-title">Şube Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Şube Adı</label>
+                        <div class="info-value">{{ Brans.BranchName }}</div>
+                    </div>
+                    {{if Brans.BranchCity}}
+                    <div class="info-item">
+                        <label class="info-label">Şehir</label>
+                        <div class="info-value">{{ Brans.BranchCity }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Contact Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="card-title">İletişim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Brans.Phone}}
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ Brans.Phone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ Brans.Phone }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Brans.Email}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ Brans.Email }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ Brans.Email }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Doctors Section -->
+        {{if len(Doktorlar) > 0}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 class="card-title">Bu Bölümdeki Doktorlar ({{ len(Doktorlar) }})</h3>
+            </div>
+            <div class="card-content">
+                <div class="related-list">
+                    {{range Doktorlar}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .Title }} {{ .FirstName }} {{ .LastName }}</div>
+                            <div class="related-details">
+                                {{if .Phone}}
+                                <span class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    {{ .Phone }}
+                                </span>
+                                {{end}}
+                                {{if .Email}}
+                                <span class="detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    {{ .Email }}
+                                </span>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <a href="/panel/doktorlar/{{ .Drid }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Related Appointments Section -->
+        {{if len(Randevular) > 0}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="card-title">Bu Bölüme Ait Randevular ({{ len(Randevular) }})</h3>
+            </div>
+            <div class="card-content">
+                <div class="related-list">
+                    {{range Randevular}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .PatientFirstName }} {{ .PatientLastName }}</div>
+                            <div class="related-details">
+                                <span class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ mthr(.AppointmentDate, User.Timezone) }}
+                                </span>
+                                <span class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    {{ .PatientPhone }}
+                                </span>
+                                <span class="detail-item status-{{ .Status }}">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ .Status }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <a href="/panel/randevular/{{ .Rid }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Bölümü Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı bölümü silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Doctor Modal -->
+<div id="addDoctorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h3 class="modal-title">Doktor Ekle</h3>
+        <p class="modal-message">Bu bölüme doktor eklemek için aşağıdaki listeden seçin:</p>
+        <div class="modal-content-body">
+            <div class="doctor-selection">
+                <select id="doctorToAdd" class="form-select">
+                    <option value="">Doktor Seçiniz</option>
+                    <!-- Doctors will be loaded via AJAX -->
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeAddDoctorModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmAddDoctorBtn">
+                <i class="fas fa-user-plus"></i>
+                <span class="btn-text">Doktor Ekle</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Doctor Modal -->
+<div id="removeDoctorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-user-minus"></i>
+        </div>
+        <h3 class="modal-title">Doktor Çıkar</h3>
+        <p class="modal-message">Bu bölümden doktor çıkarmak için aşağıdaki listeden seçin:</p>
+        <div class="modal-content-body">
+            <div class="doctor-selection">
+                <select id="doctorToRemove" class="form-select">
+                    <option value="">Doktor Seçiniz</option>
+                    {{range Doktorlar}}
+                    <option value="{{ .Drid }}">{{ .Title }} {{ .FirstName }} {{ .LastName }}</option>
+                    {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeRemoveDoctorModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmRemoveDoctorBtn">
+                <i class="fas fa-user-minus"></i>
+                <span class="btn-text">Doktor Çıkar</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Head Doctor Modal -->
+<div id="changeHeadDoctorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-user-md"></i>
+        </div>
+        <h3 class="modal-title">Başhekim Değiştir</h3>
+        <p class="modal-message">Bu bölümün başhekimini değiştirmek için aşağıdaki listeden seçin:</p>
+        <div class="modal-content-body">
+            <div class="doctor-selection">
+                <select id="newHeadDoctor" class="form-select">
+                    <option value="">Başhekim Seçiniz</option>
+                    {{range Doktorlar}}
+                    <option value="{{ .Drid }}">{{ .Title }} {{ .FirstName }} {{ .LastName }}</option>
+                    {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeChangeHeadDoctorModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmChangeHeadDoctorBtn">
+                <i class="fas fa-user-md"></i>
+                <span class="btn-text">Başhekim Değiştir</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="imageZoomModal" class="modal image-modal" style="display: none;">
+    <div class="modal-content image-content">
+        <button class="modal-close" onclick="closeImageModal()">
+            <i class="icon-x"></i>
+        </button>
+        <div class="image-container">
+            <img id="zoomedImage" src="" alt="Zoomed Image">
+        </div>
+        <div class="image-info">
+            <span id="imageTitle">Görsel</span>
+            <div class="image-actions">
+                <button class="btn btn-sm btn-secondary" onclick="downloadImage()">
+                    <i class="icon-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="openImageInNewTab()">
+                    <i class="icon-external-link"></i>
+                    Yeni Sekmede Aç
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.bransData = {
+        id: parseInt("{{ Brans.Brid }}"),
+        name: "{{ Brans.Name }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/brans.js"></script>

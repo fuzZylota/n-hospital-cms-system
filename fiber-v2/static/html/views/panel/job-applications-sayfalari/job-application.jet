@@ -1,0 +1,466 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/job-application.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/is-basvurulari" class="breadcrumb-link">
+                        <i class="fas fa-briefcase"></i>
+                        İş Başvuruları
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ JobApplication.FirstName }} {{ JobApplication.LastName }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ JobApplication.FirstName }} {{ JobApplication.LastName }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(JobApplication.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(JobApplication.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if JobApplication.PositionApplied}}
+                <p class="page-subtitle">{{ JobApplication.PositionApplied }} pozisyonu için başvuru</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if JobApplication.IsRead}}
+                    <span class="status-badge read">
+                        <i class="fas fa-check-circle"></i>
+                        Okundu
+                    </span>
+                    {{else}}
+                    <span class="status-badge unread">
+                        <i class="fas fa-circle"></i>
+                        Okunmadı
+                    </span>
+                    {{end}}
+                    <span class="status-badge status-{{ JobApplication.Status }}">
+                        <i class="fas fa-flag"></i>
+                        {{ JobApplication.Status }}
+                    </span>
+                </div>
+                <div class="action-buttons">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="jobApplicationOptionsDropdown" aria-expanded="false">
+                            <i class="fas fa-cog"></i>
+                            Başvuru Seçenekleri
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="jobApplicationOptionsDropdown">
+                            <li>
+                                <button class="dropdown-item" id="markAsReadBtn" data-id="{{ JobApplication.Jaid }}" data-name="{{ JobApplication.FirstName }} {{ JobApplication.LastName }}">
+                                    <i class="fas fa-check"></i>
+                                    {{if JobApplication.IsRead}}Okunmadı Olarak İşaretle{{else}}Okundu Olarak İşaretle{{end}}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-danger" id="deleteJobApplicationBtn" data-id="{{ JobApplication.Jaid }}" data-name="{{ JobApplication.FirstName }} {{ JobApplication.LastName }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Personal Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 class="card-title">Kişisel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ad Soyad</label>
+                        <div class="info-value">{{ JobApplication.FirstName }} {{ JobApplication.LastName }}</div>
+                    </div>
+                    {{if JobApplication.Email}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ JobApplication.Email }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ JobApplication.Email }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.Phone}}
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ JobApplication.Phone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ JobApplication.Phone }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.BirthDate}}
+                    <div class="info-item">
+                        <label class="info-label">Doğum Tarihi</label>
+                        <div class="info-value">{{ ctdf(JobApplication.BirthDate, User.Timezone) }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.Gender}}
+                    <div class="info-item">
+                        <label class="info-label">Cinsiyet</label>
+                        <div class="info-value">{{ JobApplication.Gender }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.City}}
+                    <div class="info-item">
+                        <label class="info-label">Şehir</label>
+                        <div class="info-value">{{ JobApplication.City }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="card-title">Eğitim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if JobApplication.University}}
+                    <div class="info-item">
+                        <label class="info-label">Üniversite</label>
+                        <div class="info-value">{{ JobApplication.University }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.Department}}
+                    <div class="info-item">
+                        <label class="info-label">Bölüm</label>
+                        <div class="info-value">{{ JobApplication.Department }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.GraduationYear}}
+                    <div class="info-item">
+                        <label class="info-label">Mezuniyet Yılı</label>
+                        <div class="info-value">{{ JobApplication.GraduationYear }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="card-title">Profesyonel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if JobApplication.PositionApplied}}
+                    <div class="info-item">
+                        <label class="info-label">Başvurulan Pozisyon</label>
+                        <div class="info-value">{{ JobApplication.PositionApplied }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.ExperienceYears}}
+                    <div class="info-item">
+                        <label class="info-label">Deneyim</label>
+                        <div class="info-value">{{ JobApplication.ExperienceYears }} yıl</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.SalaryExpectation}}
+                    <div class="info-item">
+                        <label class="info-label">Maaş Beklentisi</label>
+                        <div class="info-value">{{ JobApplication.SalaryExpectation }} TL</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.AvailableStartDate}}
+                    <div class="info-item">
+                        <label class="info-label">İşe Başlama Tarihi</label>
+                        <div class="info-value">{{ ctdf(JobApplication.AvailableStartDate, User.Timezone) }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills and Languages -->
+        {{if JobApplication.Skills || JobApplication.Languages}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3 class="card-title">Yetenekler ve Diller</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if JobApplication.Skills}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Yetenekler</label>
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.Skills }}</div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.Languages}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Diller</label>
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.Languages }}</div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Cover Letter -->
+        {{if JobApplication.CoverLetter}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="card-title">Ön Yazı</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.CoverLetter }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Work References -->
+        {{if JobApplication.WorkReferences}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="card-title">Referanslar</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.WorkReferences }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Files Section -->
+        {{if JobApplication.CvFilePath || JobApplication.DiplomaFilePath}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3 class="card-title">Dosyalar</h3>
+            </div>
+            <div class="card-content">
+                <div class="file-list">
+                    {{if JobApplication.CvFilePath}}
+                    <div class="file-item">
+                        <div class="file-info">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <div class="file-details">
+                                <div class="file-name">CV Dosyası</div>
+                                <div class="file-actions">
+                                    <a href="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                        Görüntüle
+                                    </a>
+                                    <a href="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" download class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-download"></i>
+                                        İndir
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.DiplomaFilePath}}
+                    <div class="file-item">
+                        <div class="file-info">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <div class="file-details">
+                                <div class="file-name">Diploma Dosyası</div>
+                                <div class="file-actions">
+                                    <a href="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                        Görüntüle
+                                    </a>
+                                    <a href="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" download class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-download"></i>
+                                        İndir
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Interview Information -->
+        {{if JobApplication.InterviewDate || JobApplication.InterviewNotes}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="card-title">Mülakat Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if JobApplication.InterviewDate}}
+                    <div class="info-item">
+                        <label class="info-label">Mülakat Tarihi</label>
+                        <div class="info-value">{{ ctdf(JobApplication.InterviewDate, User.Timezone) }}</div>
+                    </div>
+                    {{end}}
+                    {{if JobApplication.InterviewNotes}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Mülakat Notları</label>
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.InterviewNotes }}</div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- HR Notes -->
+        {{if JobApplication.Notes}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sticky-note"></i>
+                </div>
+                <h3 class="card-title">İK Notları</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.Notes }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Rejection Information -->
+        {{if JobApplication.RejectionReason}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <h3 class="card-title">Red Nedeni</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <div class="info-value">
+                            <div class="text-content">{{ JobApplication.RejectionReason }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">İş Başvurusunu Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı iş başvurusunu silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.jobApplicationData = {
+        id: "{{ JobApplication.Jaid }}",
+        name: "{{ JobApplication.FirstName }} {{ JobApplication.LastName }}",
+        isRead: {{ JobApplication.IsRead }}
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/job-application.js"></script>

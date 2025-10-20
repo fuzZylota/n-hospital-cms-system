@@ -1,0 +1,185 @@
+<section class="main-slider-three">
+    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{
+        "slidesToShow": 1,
+        "slidesToScroll": 1,
+        "fade": true,
+        "asNavFor": ".main-slider-three__carousel-counter",
+        "autoplay": true,
+        "autoplaySpeed": 4000,
+        "speed": 2000,
+        "infinite": true,
+        "dots": false,
+        "arrows": true,
+        "prevArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--prev\"><i class=\"icon-arrow-left\"></i></button>",
+        "nextArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--next\"><i class=\"icon-arrow-right\"></i></button>"
+        }'>
+        <div class="main-slider-three__item">
+            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-1.webp);">
+            </div><!-- /.main-slider-three__bg -->
+            <div class="main-slider-three__container container">
+                <div class="row">
+                    <div class="col-xxl-10 col-xl-9 mx-auto">
+                        <div class="main-slider-three__content">
+                            <div class="main-slider-three__top">
+                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                            </div><!-- /.main-slider-three__top -->
+                            <h2 class="main-slider-three__title">
+                                <span class="main-slider-three__title__inner">best paediatric care for <br> your <span class="main-slider-three__title__shape">little</span> one</span>
+                            </h2><!-- /.slider-title -->
+                            <div class="main-slider-three__button-group">
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--1">
+                                        <a href="appointment.php" class="mediox-btn">
+                                            <span>book a visit</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button__inner -->
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--2">
+                                        <a href="about.php" class="mediox-btn">
+                                            <span>learn more</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button-group__inner -->
+                            </div><!-- /.main-slider-three__button-group -->
+                        </div><!-- /.main-slider-three__content -->
+                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+        </div><!-- /.main-slider-three__item -->
+        <div class="main-slider-three__item">
+            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-2.webp);">
+            </div><!-- /.main-slider-three__bg -->
+            <div class="main-slider-three__container container">
+                <div class="row">
+                    <div class="col-xxl-10 col-xl-9 mx-auto">
+                        <div class="main-slider-three__content">
+                            <div class="main-slider-three__top">
+                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                            </div><!-- /.main-slider-three__top -->
+                            <h2 class="main-slider-three__title">
+                                <span class="main-slider-three__title__inner">Giving Children The <br> Care They <span class="main-slider-three__title__shape">Deserve</span></span>
+                            </h2><!-- /.slider-title -->
+                            <div class="main-slider-three__button-group">
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--1">
+                                        <a href="appointment.php" class="mediox-btn">
+                                            <span>book a visit</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button__inner -->
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--2">
+                                        <a href="about.php" class="mediox-btn">
+                                            <span>learn more</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button-group__inner -->
+                            </div><!-- /.main-slider-three__button-group -->
+                        </div><!-- /.main-slider-three__content -->
+                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+        </div><!-- /.main-slider-three__item -->
+        <div class="main-slider-three__item">
+            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-3.webp);">
+            </div><!-- /.main-slider-three__bg -->
+            <div class="main-slider-three__container container">
+                <div class="row">
+                    <div class="col-xxl-10 col-xl-9 mx-auto">
+                        <div class="main-slider-three__content">
+                            <div class="main-slider-three__top">
+                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVIC</p><!-- /.slider-sub-title -->
+                            </div><!-- /.main-slider-three__top -->
+                            <h2 class="main-slider-three__title">
+                                <span class="main-slider-three__title__inner">We Are Always Open For <br> your kids' <span class="main-slider-three__title__shape">healthcare</span></span>
+                            </h2><!-- /.slider-title -->
+                            <div class="main-slider-three__button-group">
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--1">
+                                        <a href="appointment.php" class="mediox-btn">
+                                            <span>book a visit</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button__inner -->
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--2">
+                                        <a href="about.php" class="mediox-btn">
+                                            <span>learn more</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button-group__inner -->
+                            </div><!-- /.main-slider-three__button-group -->
+                        </div><!-- /.main-slider-three__content -->
+                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+        </div><!-- /.main-slider-three__item -->
+        <div class="main-slider-three__item">
+            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-4.webp);">
+            </div><!-- /.main-slider-three__bg -->
+            <div class="main-slider-three__container container">
+                <div class="row">
+                    <div class="col-xxl-10 col-xl-9 mx-auto">
+                        <div class="main-slider-three__content">
+                            <div class="main-slider-three__top">
+                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                            </div><!-- /.main-slider-three__top -->
+                            <h2 class="main-slider-three__title">
+                                <span class="main-slider-three__title__inner">best paediatric care for <br> your <span class="main-slider-three__title__shape">little</span> one</span>
+                            </h2><!-- /.slider-title -->
+                            <div class="main-slider-three__button-group">
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--1">
+                                        <a href="appointment.php" class="mediox-btn">
+                                            <span>book a visit</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button__inner -->
+                                <div class="main-slider-three__button-group__inner">
+                                    <div class="main-slider-three__button main-slider-three__button--2">
+                                        <a href="about.php" class="mediox-btn">
+                                            <span>learn more</span>
+                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                        </a><!-- /.mediox-btn -->
+                                    </div><!-- /.main-slider-three__button -->
+                                </div><!-- /.main-slider-three__button-group__inner -->
+                            </div><!-- /.main-slider-three__button-group -->
+                        </div><!-- /.main-slider-three__content -->
+                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+        </div><!-- /.main-slider-three__item -->
+    </div><!-- /.main-slider-three__carousel -->
+    <div class="main-slider-three__carousel-counter mediox-slick__carousel" data-slick-options='{
+        "asNavFor": ".main-slider-three__carousel",
+        "slidesToShow": 3,
+        "slidesToScroll": 1,
+        "autoplay": true,
+        "autoplaySpeed": 4000,
+        "infinite": true,
+        "focusOnSelect": true,
+        "dots": false,
+        "arrows": false
+        }'>
+        <div>
+            <span class="main-slider-three__carousel-counter__text">01</span>
+        </div>
+        <div>
+            <span class="main-slider-three__carousel-counter__text">02</span>
+        </div>
+        <div>
+            <span class="main-slider-three__carousel-counter__text">03</span>
+        </div>
+        <div>
+            <span class="main-slider-three__carousel-counter__text">04</span>
+        </div>
+    </div><!-- /.main-slider-three__carousel-counter -->
+</section><!-- /.main-slider-three -->

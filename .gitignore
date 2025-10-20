@@ -1,0 +1,10 @@
+fiber-v2/.env
+fiber-v2/static/uploads
+fiber-v2/static/files/options
+fiber-v2/static/files/branches
+fiber-v2/static/files/tibbi_birimler
+fiber-v2/static/files/tedkikler
+fiber-v2/static/files/anlasmali_kurumlar
+fiber-v2/static/files/doctors
+fiber-v2/app.log
+fiber-v2/blabla.html

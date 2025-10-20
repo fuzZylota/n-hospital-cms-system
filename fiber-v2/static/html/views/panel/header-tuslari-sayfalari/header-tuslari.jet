@@ -1,0 +1,578 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/header-tuslari.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-bars"></i>
+                    Header Tuşları
+                </h1>
+                <p class="page-subtitle">Site header menü tuşlarını ve navigasyon bağlantılarını yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+                <a href="/panel/header-tuslari/ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Tuş Ekle
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" 
+                           placeholder="Başlık veya URL ile ara...">
+                    <button class="search-clear" id="searchClear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <select id="targetFilter" class="filter-select">
+                    <option value="">Tüm Hedefler</option>
+                    <option value="_self">Aynı Pencere (_self)</option>
+                    <option value="_blank">Yeni Pencere (_blank)</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="sort_order">Sıra Numarası</option>
+                    <option value="title">Başlık</option>
+                    <option value="created_at">Oluşturma Tarihi</option>
+                    <option value="updated_at">Güncelleme Tarihi</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="asc">Artan</option>
+                    <option value="desc">Azalan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Header Tuşu</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeCount">-</div>
+                    <div class="stat-label">Aktif Tuşlar</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="inactiveCount">-</div>
+                    <div class="stat-label">Pasif Tuşlar</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon parent">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="parentCount">-</div>
+                    <div class="stat-label">Ana Menü Öğeleri</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Header Tuşları Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="headerButtonsTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="title">
+                                <span>Başlık</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="url">
+                                <span>URL</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="target">
+                                <span>Hedef</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="sort_order">
+                                <span>Sıra</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="is_active">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="parent_id">
+                                <span>Ana Menü</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(HeaderButtons) > 0}}
+                            {{range HeaderButtons}}
+                            <tr data-id="{{ .Hbid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="button-info">
+                                            <div class="button-icon">
+                                                {{if .Icon}}
+                                                <i class="{{.Icon}}"></i>
+                                                {{else}}
+                                                <i class="fas fa-link"></i>
+                                                {{end}}
+                                            </div>
+                                            <div class="button-details">
+                                                <div class="primary-text">{{ .Title }}</div>
+                                                <div class="secondary-text">ID: {{ .Hbid }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .Url}}
+                                        <a href="{{ .Url }}" class="url-link" target="{{ .Target }}">
+                                            {{ .Url }}
+                                            {{if .Target == "_blank"}}
+                                            <i class="fas fa-external-link-alt"></i>
+                                            {{end}}
+                                        </a>
+                                        {{else}}
+                                        <span class="no-url">URL belirtilmemiş</span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <span class="target-badge {{ .Target }}">
+                                            {{if .Target == "_blank"}}
+                                            <i class="fas fa-external-link-alt"></i>
+                                            Yeni Pencere
+                                            {{else}}
+                                            <i class="fas fa-window-maximize"></i>
+                                            Aynı Pencere
+                                            {{end}}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="sort-order-badge">
+                                            <i class="fas fa-sort-numeric-up"></i>
+                                            {{ .SortOrder }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .IsActive}}
+                                        <span class="status-badge active">
+                                            <i class="fas fa-check-circle"></i>
+                                            Aktif
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge inactive">
+                                            <i class="fas fa-pause-circle"></i>
+                                            Pasif
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .ParentId}}
+                                        <span class="parent-badge child">
+                                            <i class="fas fa-level-down-alt"></i>
+                                            Alt Menü
+                                        </span>
+                                        {{else}}
+                                        <span class="parent-badge parent">
+                                            <i class="fas fa-home"></i>
+                                            Ana Menü
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Hbid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/header-tuslari/{{ .Hbid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/header-tuslari/{{ .Hbid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            {{if .IsActive}}
+                                            <button class="action-item deactivate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                                <i class="fas fa-pause"></i>
+                                                <span>Pasifleştir</span>
+                                            </button>
+                                            {{else}}
+                                            <button class="action-item activate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                                <i class="fas fa-play"></i>
+                                                <span>Aktifleştir</span>
+                                            </button>
+                                            {{end}}
+                                            <div class="action-divider"></div>
+                                            <button class="action-item reorder" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                                <i class="fas fa-arrows-alt-v"></i>
+                                                <span>Sıra Değiştir</span>
+                                            </button>
+                                            <button class="action-item delete" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-bars"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz header tuşu bulunmuyor</div>
+                                        <div class="empty-description">İlk header tuşunu oluşturmak için "Yeni Tuş Ekle" butonuna tıklayın.</div>
+                                        <a href="/panel/header-tuslari/ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Header Tuşu Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="buttons-grid">
+                    {{if len(HeaderButtons) > 0}}
+                        {{range HeaderButtons}}
+                        <div class="button-card" data-id="{{ .Hbid }}">
+                            <div class="card-header">
+                                <div class="button-icon">
+                                    {{if .Icon}}
+                                    <i class="{{.Icon}}"></i>
+                                    {{else}}
+                                    <i class="fas fa-link"></i>
+                                    {{end}}
+                                </div>
+                                <div class="card-title">{{ .Title }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Hbid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/header-tuslari/{{ .Hbid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/header-tuslari/{{ .Hbid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        {{if .IsActive}}
+                                        <button class="action-item deactivate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                            <i class="fas fa-pause"></i>
+                                            <span>Pasifleştir</span>
+                                        </button>
+                                        {{else}}
+                                        <button class="action-item activate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                            <i class="fas fa-play"></i>
+                                            <span>Aktifleştir</span>
+                                        </button>
+                                        {{end}}
+                                        <div class="action-divider"></div>
+                                        <button class="action-item reorder" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                            <i class="fas fa-arrows-alt-v"></i>
+                                            <span>Sıra Değiştir</span>
+                                        </button>
+                                        <button class="action-item delete" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-field">
+                                    <div class="field-label">URL</div>
+                                    <div class="field-value">
+                                        {{if .Url}}
+                                        <a href="{{ .Url }}" class="url-link" target="{{ .Target }}">
+                                            {{ .Url }}
+                                            {{if .Target == "_blank"}}
+                                            <i class="fas fa-external-link-alt"></i>
+                                            {{end}}
+                                        </a>
+                                        {{else}}
+                                        <span class="no-url">URL belirtilmemiş</span>
+                                        {{end}}
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Hedef</div>
+                                    <div class="field-value">
+                                        <span class="target-badge {{ .Target }}">
+                                            {{if .Target == "_blank"}}
+                                            <i class="fas fa-external-link-alt"></i>
+                                            Yeni Pencere
+                                            {{else}}
+                                            <i class="fas fa-window-maximize"></i>
+                                            Aynı Pencere
+                                            {{end}}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Sıra</div>
+                                    <div class="field-value">
+                                        <div class="sort-order-badge">
+                                            <i class="fas fa-sort-numeric-up"></i>
+                                            {{ .SortOrder }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .IsActive}}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Aktif
+                                    </span>
+                                    {{else}}
+                                    <span class="status-badge inactive">
+                                        <i class="fas fa-pause-circle"></i>
+                                        Pasif
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-hierarchy">
+                                    {{if .ParentId}}
+                                    <span class="parent-badge child">
+                                        <i class="fas fa-level-down-alt"></i>
+                                        Alt Menü
+                                    </span>
+                                    {{else}}
+                                    <span class="parent-badge parent">
+                                        <i class="fas fa-home"></i>
+                                        Ana Menü
+                                    </span>
+                                    {{end}}
+                                </div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-bars"></i>
+                            </div>
+                            <div class="empty-title">Henüz header tuşu bulunmuyor</div>
+                            <div class="empty-description">İlk header tuşunu oluşturmak için "Yeni Tuş Ekle" butonuna tıklayın.</div>
+                            <a href="/panel/header-tuslari/ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Header Tuşu Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Header Tuşunu Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı header tuşunu silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div id="statusModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-question-circle"></i>
+        </div>
+        <h3 class="modal-title" id="statusModalTitle">Header Tuşu Durumunu Değiştir</h3>
+        <p class="modal-message" id="statusModalMessage">
+            Bu header tuşunun durumunu değiştirmek istediğinizden emin misiniz?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmStatusBtn">
+                <i class="fas fa-check"></i>
+                <span class="btn-text">Onayla</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reorder Modal -->
+<div id="reorderModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-arrows-alt-v"></i>
+        </div>
+        <h3 class="modal-title">Sıra Değiştir</h3>
+        <p class="modal-message">
+            "<span id="reorderItemName"></span>" için yeni sıra numarası girin:
+        </p>
+        <div class="modal-form">
+            <input type="number" id="newSortOrder" class="form-input" min="1" placeholder="Sıra numarası">
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeReorderModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmReorderBtn">
+                <i class="fas fa-check"></i>
+                <span class="btn-text">Güncelle</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+            function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+      const escaped = '{{stj(HeaderButtons)}}'; // şablondan gelen escaped string
+        const decoded = decodeHtmlEntities(escaped);
+        const data = JSON.parse(decoded);
+
+    // Pass data to JavaScript
+    window.pageData = {};
+    window.pageData.headerButtons = data;
+    window.pageData.count = {{ Count ? Count : 0 }};
+    window.pageData.currentPage = {{ Page ? Page : 1 }};
+    window.pageData.perPage = 10;
+</script>
+<script src="{{ PathOnStart }}js/panel/header-tuslari.js"></script>

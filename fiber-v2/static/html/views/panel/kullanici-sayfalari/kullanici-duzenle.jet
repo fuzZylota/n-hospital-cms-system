@@ -1,0 +1,281 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/kullanici-duzenle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-user-edit"></i>
+                    Kullanıcıyı Düzenle
+                </h1>
+                <p class="page-subtitle">{{ IndividualUser.Name }} {{ IndividualUser.Surname }} kullanıcısının bilgilerini düzenleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/kullanicilar/{{ IndividualUser.Uid }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    Görüntüle
+                </a>
+                <a href="/panel/kullanicilar" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="forms-container">
+            <!-- User Information Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-user-cog"></i>
+                        Kullanıcı Bilgileri
+                    </h2>
+                    <p class="section-description">Kullanıcının genel bilgilerini düzenleyin</p>
+                </div>
+                <div class="section-content">
+                    <form id="userForm" class="user-form" novalidate>
+                        <!-- Hidden inputs for old values -->
+                        <input type="hidden" name="old_email" value="{{ IndividualUser.Email }}">
+                        <input type="hidden" name="old_phone" value="{{ IndividualUser.Phone }}">
+                        <input type="hidden" name="old_name" value="{{ IndividualUser.Name }}">
+                        <input type="hidden" name="old_surname" value="{{ IndividualUser.Surname }}">
+                        <input type="hidden" name="old_role" value="{{ IndividualUser.Role }}">
+                        <input type="hidden" name="old_is_active" value="{{ IndividualUser.IsActive }}">
+                        <input type="hidden" name="old_timezone" value="{{ IndividualUser.Timezone }}">
+                        <input type="hidden" name="uid" value="{{ IndividualUser.Uid }}">
+
+                        <!-- Personal Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Kişisel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name" class="form-label required">Ad</label>
+                                    <input type="text" id="name" name="name" class="form-input" 
+                                           value="{{ IndividualUser.Name }}" required minlength="2" maxlength="255">
+                                    <div class="form-help">En az 2 karakter olmalıdır</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="surname" class="form-label required">Soyad</label>
+                                    <input type="text" id="surname" name="surname" class="form-input" 
+                                           value="{{ IndividualUser.Surname }}" required minlength="2" maxlength="255">
+                                    <div class="form-help">En az 2 karakter olmalıdır</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">İletişim Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email" class="form-label required">E-posta Adresi</label>
+                                    <input type="email" id="email" name="email" class="form-input" 
+                                           value="{{ IndividualUser.Email }}" required maxlength="255">
+                                    <div class="form-help">Geçerli bir e-posta adresi girin</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="form-label required">Telefon Numarası</label>
+                                    <input type="tel" id="phone" name="phone" class="form-input" 
+                                           value="{{ IndividualUser.Phone }}" required maxlength="255">
+                                    <div class="form-help">Ülke kodu ile birlikte girin</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Settings -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Hesap Ayarları</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="role" class="form-label required">Kullanıcı Rolü</label>
+                                    <select id="role" name="role" class="form-select" required>
+                                        <option value="">Rol seçin</option>
+                                        <option value="admin" {{ if IndividualUser.Role == "admin" }}selected{{ end }}>Admin</option>
+                                        <option value="moderator" {{ if IndividualUser.Role == "moderator" }}selected{{ end }}>Moderatör</option>
+                                    </select>
+                                    <div class="form-help">Kullanıcının sistem yetkilerini belirler</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone" class="form-label">Zaman Dilimi</label>
+                                    <select id="timezone" name="timezone" class="form-select">
+                                        <option value="UTC" {{ if IndividualUser.Timezone == "UTC" }}selected{{ end }}>UTC</option>
+                                        <option value="Europe/Istanbul" {{ if IndividualUser.Timezone == "Europe/Istanbul" }}selected{{ end }}>Europe/Istanbul</option>
+                                        <option value="Europe/London" {{ if IndividualUser.Timezone == "Europe/London" }}selected{{ end }}>Europe/London</option>
+                                        <option value="America/New_York" {{ if IndividualUser.Timezone == "America/New_York" }}selected{{ end }}>America/New_York</option>
+                                        <option value="America/Los_Angeles" {{ if IndividualUser.Timezone == "America/Los_Angeles" }}selected{{ end }}>America/Los_Angeles</option>
+                                        <option value="Asia/Tokyo" {{ if IndividualUser.Timezone == "Asia/Tokyo" }}selected{{ end }}>Asia/Tokyo</option>
+                                        <option value="Australia/Sydney" {{ if IndividualUser.Timezone == "Australia/Sydney" }}selected{{ end }}>Australia/Sydney</option>
+                                    </select>
+                                    <div class="form-help">Kullanıcının bulunduğu zaman dilimi</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="is_active" class="form-label">Hesap Durumu</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="is_active" name="is_active" {{ if IndividualUser.IsActive }}checked{{ end }}>
+                                        <label for="is_active" class="toggle-label">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">{{ if IndividualUser.IsActive }}Aktif{{ else }}Pasif{{ end }}</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-help">Hesabın aktif/pasif durumu</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Information Card -->
+                        <div class="form-group-section">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Kullanıcı Düzenleme Hakkında</h4>
+                                    <ul>
+                                        <li><strong>E-posta ve Telefon:</strong> Bu alanlar benzersiz olmalıdır</li>
+                                        <li><strong>Rol Değişiklikleri:</strong> Admin rolü tüm yetkilere sahiptir</li>
+                                        <li><strong>Hesap Durumu:</strong> Pasif hesaplar sisteme giriş yapamaz</li>
+                                        <li><strong>Zaman Dilimi:</strong> Kullanıcının tarih/saat görünümünü etkiler</li>
+                                        <li><strong>Şifre Değişikliği:</strong> Şifre değişiklikleri ayrı formdan yapılır</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="userSubmitBtn">
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Kullanıcı Bilgilerini Kaydet</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Hesap İstatistikleri
+                    </h2>
+                    <p class="section-description">Kullanıcının hesap bilgileri ve aktivite durumu</p>
+                </div>
+                <div class="section-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Hesap Oluşturma</div>
+                                <div class="stat-value">{{ mthr(IndividualUser.CreatedAt, IndividualUser.Timezone) }}</div>
+                                <div class="stat-secondary">{{ mthr(IndividualUser.CreatedAt, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Son Güncelleme</div>
+                                <div class="stat-value">{{ mthr(IndividualUser.UpdatedAt, IndividualUser.Timezone) }}</div>
+                                <div class="stat-secondary">{{ mthr(IndividualUser.UpdatedAt, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Son Giriş</div>
+                                <div class="stat-value">{{ mthr(IndividualUser.LastLogin, IndividualUser.Timezone) }}</div>
+                                <div class="stat-secondary">{{ mthr(IndividualUser.LastLogin, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Kullanıcı ID</div>
+                                <div class="stat-value">#{{ IndividualUser.Uid }}</div>
+                                <div class="stat-secondary">{{ IndividualUser.Role }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="account-status-card">
+                        <div class="status-header">
+                            <h4>Hesap Durumu</h4>
+                            <span class="status-badge {{ if IndividualUser.IsActive }}active{{ else }}inactive{{ end }}">
+                                <i class="fas fa-{{ if IndividualUser.IsActive }}check-circle{{ else }}pause-circle{{ end }}"></i>
+                                {{ if IndividualUser.IsActive }}Aktif{{ else }}Pasif{{ end }}
+                            </span>
+                        </div>
+                        <div class="status-details">
+                            <div class="detail-item">
+                                <span class="detail-label">E-posta:</span>
+                                <span class="detail-value">{{ IndividualUser.Email }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Telefon:</span>
+                                <span class="detail-value">{{ IndividualUser.Phone }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Zaman Dilimi:</span>
+                                <span class="detail-value">{{ IndividualUser.Timezone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">İşlem başarıyla tamamlandı.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.pageData = {
+        uid: {{ IndividualUser.Uid }}
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/kullanici-duzenle.js"></script>

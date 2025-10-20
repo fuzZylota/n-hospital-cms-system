@@ -1,0 +1,111 @@
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">Şubelerimiz</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li><span>Şubelerimiz</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="section-space" style="padding-top: 40px; padding-bottom: 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="sec-title text-center">
+                    <div class="sec-title__top">
+                        <span class="sec-title__img subeler-icon spin" aria-label="şubeler">
+                            <svg id="Capa_1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" role="img" focusable="false">
+                                <g id="XMLID_799_">
+                                    <path id="XMLID_824_" d="m441.755 170.693c-24.396 0-44.769 17.509-49.241 40.618-45.559 4.567-81.248 43.13-81.248 89.872v115.47c0 41.546-33.801 75.347-75.347 75.347s-75.347-33.801-75.347-75.347v-66.391c22.885-4.648 40.163-24.924 40.163-49.16v-10.073c47.124-19.699 80.325-66.271 80.325-120.457v-100.327c0-24.75-18.021-45.356-41.626-49.422-3.914-12.069-15.261-20.823-28.618-20.823-16.587 0-30.081 13.495-30.081 30.082s13.494 30.081 30.081 30.081c12.685 0 23.553-7.896 27.969-19.028 12.818 3.477 22.275 15.207 22.275 29.11v100.326c0 60.925-49.564 110.49-110.488 110.49-60.925 0-110.49-49.565-110.49-110.49v-100.326c0-13.903 9.458-25.633 22.276-29.11 4.415 11.132 15.284 19.028 27.969 19.028 16.587 0 30.081-13.494 30.081-30.081s-13.494-30.082-30.081-30.082c-13.357 0-24.703 8.754-28.618 20.823-23.606 4.066-41.627 24.672-41.627 49.422v100.326c0 54.186 33.201 100.758 80.326 120.457v10.073c0 24.237 17.279 44.512 40.164 49.16v66.391c0 52.574 42.772 95.347 95.347 95.347 52.574 0 95.347-42.772 95.347-95.347v-115.47c0-35.773 26.854-65.371 61.459-69.747 4.871 22.595 25 39.584 49.031 39.584 27.66 0 50.163-22.503 50.163-50.163-.001-27.659-22.504-50.163-50.164-50.163zm-230.939-130.53c-5.559 0-10.081-4.523-10.081-10.081 0-5.56 4.522-10.082 10.081-10.082 5.56 0 10.082 4.522 10.082 10.082 0 5.559-4.522 10.081-10.082 10.081zm-120.489-20.163c5.559 0 10.081 4.522 10.081 10.082 0 5.559-4.523 10.081-10.081 10.081-5.56 0-10.082-4.523-10.082-10.081 0-5.56 4.523-10.082 10.082-10.082zm30.081 281.102v-3.566c19.597 4.655 40.336 4.749 60.327 0v3.566c0 16.633-13.531 30.164-30.163 30.164-16.633 0-30.164-13.532-30.164-30.164zm321.347-50.082c-16.632 0-30.163-13.531-30.163-30.163 0-16.633 13.531-30.164 30.163-30.164s30.163 13.531 30.163 30.164c0 16.632-13.531 30.163-30.163 30.163z"/>
+                                    <path id="XMLID_56_" d="m441.753 210.86c-5.535 0-10 4.501-10 10 0 5.512 4.489 10 10 10 5.497 0 10-4.475 10-10 0-5.517-4.479-10-10-10z"/>
+                                </g>
+                            </svg>
+                        </span>
+                        <h6 class="sec-title__tagline">şubelerimiz</h6>
+                    </div>
+                    <h3 class="sec-title__title">Hastanemizin <span>Şubeleri</span></h3>
+                    <p class="mt-3" style="max-width: 800px; margin: 10px auto 0; color: #6b7280; font-size: 16px;">
+                        Hastanemiz bünyesinde yer alan şubelerimizi görüntüleyebilir, her bir şubenin iletişim ve konum bilgilerini
+                        inceleyebilir ve ilgili şubenin doktorlarını görüntüleyebilirsiniz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+ </section>
+
+<section class="portfolio-page section-space">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/subeler.css">
+    <div class="container">
+        <div class="row gutter-y-30">
+            {{ if len(Subeler) > 0 }}
+                {{ range Subeler }}
+                <div class="col-xl-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
+                    <div class="sube-card">
+                        <div class="sube-card__image">
+                            {{ if .MediaPath }}
+                                <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
+                            {{ else }}
+                                <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ .Name }}" class="sube-card__img">
+                            {{ end }}
+                        </div>
+                        <div class="sube-card__header">
+                            <h4 class="sube-card__title">{{ .Name }}</h4>
+                            {{ if .IsMain }}
+                                <span class="sube-card__badge">Ana Şube</span>
+                            {{ end }}
+                        </div>
+                        <div class="sube-card__content">
+                            <div class="sube-card__info">
+                                {{ if .City != "" }}
+                                    <div class="sube-card__info-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ .City }}, {{ .District }}</span>
+                                    </div>
+                                {{ end }}
+                                {{ if .Phone != "" }}
+                                    <div class="sube-card__info-item">
+                                        <i class="fas fa-phone"></i>
+                                        <a href="tel:{{ .Phone }}">{{ .Phone }}</a>
+                                    </div>
+                                {{ end }}
+                                {{ if .Email != "" }}
+                                    <div class="sube-card__info-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <a href="mailto:{{ .Email }}">{{ .Email }}</a>
+                                    </div>
+                                {{ end }}
+                                {{ if .TransportationInfo != "" }}
+                                    <div class="sube-card__info-item">
+                                        <i class="fas fa-bus"></i>
+                                        <span>{{ .TransportationInfo }}</span>
+                                    </div>
+                                {{ end }}
+                            </div>
+                            <div class="d-flex" style="gap:10px;">
+                                <a href="/subelerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
+                                <a href="/subelerimiz/{{ .UrlName }}/doktorlar" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            {{ else }}
+                <div class="col-12">
+                    <div class="alert alert-info">Şube bulunamadı.</div>
+                </div>
+            {{ end }}
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</section><!-- /.portfolio-page section-space -->

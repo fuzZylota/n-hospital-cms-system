@@ -1,0 +1,387 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/tedkikler.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-microscope"></i>
+                    Tedkikler
+                </h1>
+                <p class="page-subtitle">Hastane tedkiklerini ve incelemelerini yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+                <a href="/panel/tedkik-ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Tedkik
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" 
+                           placeholder="Tedkik adı veya açıklama ile ara...">
+                    <button class="search-clear" id="searchClear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="created_at">Oluşturma Tarihi</option>
+                    <option value="name">Tedkik Adı</option>
+                    <option value="updated_at">Güncelleme Tarihi</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="desc">Azalan</option>
+                    <option value="asc">Artan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-microscope"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Tedkik</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeCount">-</div>
+                    <div class="stat-label">Aktif Tedkikler</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="inactiveCount">-</div>
+                    <div class="stat-label">Pasif Tedkikler</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Tedkikler Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="tedkiklerTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="name">
+                                <span>Tedkik Adı</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th>
+                                <span>Açıklama</span>
+                            </th>
+                            <th class="sortable" data-column="is_active">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="updated_at">
+                                <span>Son Güncelleme</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(Tedkikler) > 0}}
+                            {{range Tedkikler}}
+                            <tr data-id="{{ .Tid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .Name }}</div>
+                                        {{if .UrlName}}
+                                        <div class="secondary-text">{{ .UrlName }}</div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .Description}}
+                                        <div class="primary-text truncate">{{ .Description }}</div>
+                                        {{else}}
+                                        <span class="text-muted">Açıklama yok</span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .IsActive}}
+                                        <span class="status-badge active">
+                                            <i class="fas fa-check-circle"></i>
+                                            Aktif
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge inactive">
+                                            <i class="fas fa-pause-circle"></i>
+                                            Pasif
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ mthr(.UpdatedAt, User.Timezone) }}</div>
+                                        <div class="secondary-text">{{ mthr(.CreatedAt, User.Timezone) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Tid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/tedkikler/{{ .Tid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/tedkikler/{{ .Tid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            <button class="action-item delete" data-id="{{ .Tid }}" data-name="{{ .Name }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-microscope"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz tedkik bulunmuyor</div>
+                                        <div class="empty-description">İlk tedkikinizi oluşturmak için "Yeni Tedkik" butonuna tıklayın.</div>
+                                        <a href="/panel/tedkik-ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Tedkik Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="tedkikler-grid">
+                    {{if len(Tedkikler) > 0}}
+                        {{range Tedkikler}}
+                        <div class="tedkik-card" data-id="{{ .Tid }}">
+                            <div class="card-header">
+                                <div class="card-title">{{ .Name }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Tid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/tedkikler/{{ .Tid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/tedkikler/{{ .Tid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        <button class="action-item delete" data-id="{{ .Tid }}" data-name="{{ .Name }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                {{if .Description}}
+                                <div class="card-field">
+                                    <div class="field-label">Açıklama</div>
+                                    <div class="field-value truncate">{{ .Description }}</div>
+                                </div>
+                                {{end}}
+                                {{if .CoverPath}}
+                                <div class="card-field">
+                                    <div class="field-label">Kapak Görseli</div>
+                                    <div class="field-value">
+                                        <div class="card-image">
+                                            <img src="{{ PathOnStart }}{{ .CoverPath }}" alt="{{ .CoverAltText }}" title="{{ .CoverTitle }}" class="preview-image">
+                                        </div>
+                                    </div>
+                                </div>
+                                {{end}}
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .IsActive}}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Aktif
+                                    </span>
+                                    {{else}}
+                                    <span class="status-badge inactive">
+                                        <i class="fas fa-pause-circle"></i>
+                                        Pasif
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-date">{{ mthr(.UpdatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                            <div class="empty-title">Henüz tedkik bulunmuyor</div>
+                            <div class="empty-description">İlk tedkikinizi oluşturmak için "Yeni Tedkik" butonuna tıklayın.</div>
+                            <a href="/panel/tedkik-ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Tedkik Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Tedkiki Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı tedkiki silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+    const escaped = '{{stj(Tedkikler)}}';
+    const decoded = decodeHtmlEntities(escaped);
+    const data = decoded ? JSON.parse(decoded) : [];
+    window.pageData = {
+        tedkikler: data,
+        count: parseInt("{{ Count ? Count : 0 }}"),
+        currentPage: parseInt("{{ Page ? Page : 1 }}"),
+        perPage: parseInt("{{ 10 }}")
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/tedkikler.js"></script>

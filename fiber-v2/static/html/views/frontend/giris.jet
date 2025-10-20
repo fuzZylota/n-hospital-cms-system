@@ -1,0 +1,66 @@
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">Giriş Sayfası</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li><span>Giriş Yap</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="login-page section-space">
+    <div class="container">
+        <div class="row gutter-y-60 align-items-center">
+            <div class="col-lg-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                <div class="login-page__image">
+                    <div class="login-page__image__inner">
+                        <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
+                    </div><!-- /.login-page__image__inner -->
+                </div><!-- /.login-page__image -->
+            </div><!-- /.col-lg-6 -->
+            <div class="col-lg-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
+                <form class="login-page__form" action="/backend/authenticate" method="post">
+                    <div class="login-page__form__inner">
+                        <div class="login-page__form__top">
+                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="164" class="login-page__form__logo">
+                            <h3 class="login-page__form__title">Hoşgeldiniz</h3>
+                        </div><!-- /.login-page__form__top -->
+                        <div class="login-page__form__wrapp">
+                            <div class="login-page__form__input-box">
+                                <label for="login_email_or_phone" class="login-page__form__label">E-Posta Ya Da Telefon</label>
+                                <input type="text" id="login_email_or_phone" placeholder="E-Posta ya da Telefon Giriniz" name="email_or_phone">
+                            </div>
+                            <div class="login-page__form__input-box">
+                                <label for="login_password" class="login-page__form__label">Şifre</label>
+                                <div class="login-page__form__input-box__inner">
+                                    <input type="password" id="login_password" placeholder="Şifrenizi Giriniz..." class="toggle-password-input" name="password">
+                                    <i class="toggle-password-icon fa fa-fw fa-eye-slash"></i>
+                                </div>
+                            </div>
+                            <div class="login-page__form__input-box login-page__form__input-box--3">
+                                <label class="login-page__form__checked-box" for="remember-policy">
+                                    <input type="checkbox" name="remember-policy" id="remember-policy" name="remember-policy">
+                                    <span></span>
+                                    Beni Hatırla
+                                </label>
+                            </div>
+                            <div class="login-page__form__input-box login-page__form__input-box--4">
+                                <button type="submit" class="login-page__form__btn mediox-btn">Giriş Yap.</button>
+                            </div>
+                        </div><!-- /.login-page__form__wrapp -->
+                    </div><!-- /.login-page__form__inner -->
+                </form><!-- /.login-page__form -->
+            </div><!-- /.col-lg-6 -->
+        </div><!-- /.row gutter-y-60 -->
+    </div><!-- /.container -->
+</section><!-- /.login-page section-space -->

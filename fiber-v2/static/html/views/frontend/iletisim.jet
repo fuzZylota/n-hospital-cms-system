@@ -1,0 +1,219 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">İletişim</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li><span>İletişim</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<!-- Şubeler Information Section -->
+{{ if len(Subeler) > 0 }}
+<section class="subeler-info section-space">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="sec-title text-center">
+                    <div class="sec-title__top">
+                        <span class="sec-title__img iletisim-icon spin" aria-label="şubeler">
+                            <svg height="512" viewBox="0 0 64 64" width="512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" role="img" focusable="false">
+                                <g id="Pin">
+                                    <path d="m32 0a24.0319 24.0319 0 0 0 -24 24c0 17.23 22.36 38.81 23.31 39.72a.99.99 0 0 0 1.38 0c.95-.91 23.31-22.49 23.31-39.72a24.0319 24.0319 0 0 0 -24-24zm0 35a11 11 0 1 1 11-11 11.0066 11.0066 0 0 1 -11 11z"/>
+                                </g>
+                            </svg>
+                        </span>
+                    </div>
+                    <h3 class="sec-title__title">Tüm <span>Şubelerimiz</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="row gutter-y-30">
+            {{ range Subeler }}
+            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
+                <div class="sube-card">
+                    <div class="sube-card__image">
+                        {{ if .MediaPath }}
+                            <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
+                        {{ else }}
+                            <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ .Name }}" class="sube-card__img">
+                        {{ end }}
+                    </div>
+                    <div class="sube-card__header">
+                        <h4 class="sube-card__title">{{ .Name }}</h4>
+                        {{ if .IsMain }}
+                            <span class="sube-card__badge">Ana Şube</span>
+                        {{ end }}
+                    </div>
+                    <div class="sube-card__content">
+                        <div class="sube-card__info">
+                            {{ if .City != "" }}
+                                <div class="sube-card__info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ .City }}, {{ .District }}</span>
+                                </div>
+                            {{ end }}
+                            {{ if .Phone != "" }}
+                                <div class="sube-card__info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <a href="tel:{{ .Phone }}">{{ .Phone }}</a>
+                                </div>
+                            {{ end }}
+                            {{ if .Email != "" }}
+                                <div class="sube-card__info-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <a href="mailto:{{ .Email }}">{{ .Email }}</a>
+                                </div>
+                            {{ end }}
+                            {{ if .TransportationInfo != "" }}
+                                <div class="sube-card__info-item">
+                                    <i class="fas fa-bus"></i>
+                                    <span>{{ .TransportationInfo }}</span>
+                                </div>
+                            {{ end }}
+                        </div>
+                        <div class="d-flex" style="gap:10px; margin-top: 15px;">
+                            <a href="/subelerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
+                            <a href="/subelerimiz/{{ .UrlName }}/doktorlar" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+{{ end }}
+
+<section class="contact-page section-space-top">
+    <div class="contact-page__inner section-space">
+        <div class="container">
+            <div class="row gutter-y-40 align-items-center">
+                <div class="col-xl-7 col-lg-6 order-1 order-lg-0 wow fadeInUp" data-wow-duration="1500ms">
+                    <div class="contact-page__form">
+                        <form id="contactForm" class="contact-form-validated form-one">
+                            <div class="form-one__group">
+                                <div class="form-one__control form-one__control">
+                                    <input type="text" name="first_name" id="contactName" placeholder="Ad" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control">
+                                    <input type="text" name="last_name" id="contactSurname" placeholder="Soyad" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="email" name="email" id="contactEmail" placeholder="E-posta Adresi" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="text" name="subject" id="contactSubject" placeholder="Konu" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="tel" name="phone" id="contactPhone" placeholder="Telefon Numarası">
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <textarea name="message" id="contactMessage" placeholder="Mesajınızı yazın..." required></textarea>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <div class="checkbox-group">
+                                        <label for="kvkk_approval" class="checkbox-label" style="display: block; position: relative; padding-left: 25px; cursor: pointer; line-height: 1.4; margin-bottom: 10px;">
+                                            <input type="checkbox" id="kvkk_approval" name="kvkk_approval" class="form-checkbox" required style="position: absolute !important; left: 0 !important; top: 2px !important; margin: 0 !important; width: 16px !important; height: 16px !important; float: none !important; display: block !important;">
+                                            <a href="/kurumsal/kvkk" target="_blank" class="kvkk-link">Kişisel Verilerin Korunması Kanunu (KVKK)</a> kapsamında kişisel verilerimin işlenmesini kabul ediyorum.
+                                        </label>
+                                    </div>
+                                    <div class="form-help">Bu onay olmadan mesaj gönderilemez.</div>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <button type="submit" class="mediox-btn" id="contactSubmitBtn">
+                                        <span>Mesaj Gönder</span>
+                                        <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                    </button>
+                                    <!-- /.mediox-btn -->
+                                </div><!-- /.form-one__control -->
+                            </div><!-- /.form-one__group -->
+                        </form><!-- /.form-one -->
+                        <div class="result" id="contactResult"></div><!-- /.result -->
+                    </div><!-- /.contact-page__form -->
+                </div><!-- /.col-xl-7 col-lg-6 -->
+                <div class="col-xl-5 col-lg-6 order-0 order-lg-1">
+                    <div class="contact-page__info">
+                        <div class="sec-title @@extraClassName wow fadeInUp" data-wow-duration="1500ms">
+                            <div class="sec-title__top">
+                                <span class="sec-title__img contact-info-icon spin" aria-label="iletişim">
+                                    <svg height="512" viewBox="0 0 64 64" width="512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" role="img" focusable="false">
+                                        <g id="Pin">
+                                            <path d="m32 0a24.0319 24.0319 0 0 0 -24 24c0 17.23 22.36 38.81 23.31 39.72a.99.99 0 0 0 1.38 0c.95-.91 23.31-22.49 23.31-39.72a24.0319 24.0319 0 0 0 -24-24zm0 35a11 11 0 1 1 11-11 11.0066 11.0066 0 0 1 -11 11z"/>
+                                        </g>
+                                    </svg>
+                                </span>
+                            </div><!-- /.sec-title__top -->
+                            <h3 class="sec-title__title">Bizimle <span>İletişime Geçin!</span></h3><!-- /.sec-title__title -->
+                        </div><!-- /.sec-title -->
+                        <div class="contact-page__info__inner wow fadeInUp" data-wow-duration="1500ms">
+                            {{ if len(Subeler) > 0 }}
+                                {{ range Subeler }}
+                                    {{ if .IsMain }}
+                                    <div class="contact-page__info__item">
+                                        <span class="contact-page__info__icon">
+                                            <i class="fas fa-phone"></i>
+                                        </span><!-- /.contact-page__info__icon -->
+                                        <div class="contact-page__info__content">
+                                            <h4 class="contact-page__info__title">Telefon</h4>
+                                            <a href="tel:{{ .Phone }}" class="contact-page__info__link">{{ .Phone }}</a>
+                                        </div><!-- /.contact-page__info__content -->
+                                    </div><!-- /.contact-page__info__item -->
+                                    <div class="contact-page__info__item">
+                                        <span class="contact-page__info__icon">
+                                            <i class="fas fa-envelope"></i>
+                                        </span><!-- /.contact-page__info__icon -->
+                                        <div class="contact-page__info__content">
+                                            <h4 class="contact-page__info__title">E-posta</h4>
+                                            <a href="mailto:{{ .Email }}" class="contact-page__info__link">{{ .Email }}</a>
+                                        </div><!-- /.contact-page__info__content -->
+                                    </div><!-- /.contact-page__info__item -->
+                                    <div class="contact-page__info__item">
+                                        <span class="contact-page__info__icon">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span><!-- /.contact-page__info__icon -->
+                                        <div class="contact-page__info__content">
+                                            <h4 class="contact-page__info__title">Adres</h4>
+                                            <span class="contact-page__info__link">{{ .City }}, {{ .District }}</span>
+                                        </div><!-- /.contact-page__info__content -->
+                                    </div><!-- /.contact-page__info__item -->
+                                    {{ end }}
+                                {{ end }}
+                            {{ else }}
+                            <div class="contact-page__info__item">
+                                <span class="contact-page__info__icon">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <div class="contact-page__info__content">
+                                    <h4 class="contact-page__info__title">Telefon</h4>
+                                    <span class="contact-page__info__link">+90 (212) 555 0123</span>
+                                </div>
+                            </div>
+                            <div class="contact-page__info__item">
+                                <span class="contact-page__info__icon">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <div class="contact-page__info__content">
+                                    <h4 class="contact-page__info__title">E-posta</h4>
+                                    <span class="contact-page__info__link">info@nhospital.com</span>
+                                </div>
+                            </div>
+                            {{ end }}
+                        </div><!-- /.contact-page__info__inner -->
+                    </div><!-- /.contact-page__info -->
+                </div><!-- /.col-xl-5 col-lg-6 -->
+            </div><!-- /.row -->
+        </div><!-- /.container -->
+    </div><!-- /.contact-page__inner section-space -->
+</section><!-- /.contact-page section-space-top -->

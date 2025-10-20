@@ -1,0 +1,245 @@
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li><span>Doktor</span></li>
+                        <li><span>{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="team-details section-space-top">
+    <div class="container">
+        <div class="team-details__inner">
+            <div class="team-details__image wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                <img src="{{ Doktor.PhotoPath != "" ? PathOnStart + Doktor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}" alt="{{ Doktor.PhotoAltText != "" ? Doktor.PhotoAltText : (Doktor.FirstName + " " + Doktor.LastName) }}" title="{{ Doktor.PhotoTitle != "" ? Doktor.PhotoTitle : (Doktor.FirstName + " " + Doktor.LastName) }}">
+                {{ if Options.Options.ShowDoctorSocialMedia }}
+                    <div class="social-links">
+                        {{ if Doktor.FacebookUrl != "" }}
+                            <a href="{{ Doktor.FacebookUrl }}" target="_blank" rel="noopener">
+                                <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                        {{ end }}
+                        {{ if Doktor.InstagramUrl != "" }}
+                            <a href="{{ Doktor.InstagramUrl }}" target="_blank" rel="noopener">
+                                <i class="fab fa-instagram" aria-hidden="true"></i>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                        {{ end }}
+                        {{ if Doktor.XUrl != "" }}
+                            <a href="{{ Doktor.XUrl }}" target="_blank" rel="noopener">
+                                <i class="fab fa-twitter" aria-hidden="true"></i>
+                                <span class="sr-only">Twitter</span>
+                            </a>
+                        {{ end }}
+                        {{ if Doktor.LinkedinUrl != "" }}
+                            <a href="{{ Doktor.LinkedinUrl }}" target="_blank" rel="noopener">
+                                <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                                <span class="sr-only">Linkedin</span>
+                            </a>
+                        {{ end }}
+                        {{ if Doktor.PersonalUrl != "" }}
+                            <a href="https://{{ Doktor.PersonalUrl }}" target="_blank" rel="noopener">
+                                <i class="fa fa-globe" aria-hidden="true"></i>
+                                <span class="sr-only">Website</span>
+                            </a>
+                        {{ end }}
+                    </div><!-- /.social-links -->
+                {{ end }}
+                <div class="team-details__identity">
+                    <h3 class="team-details__name">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</h3><!-- /.team-details__name -->
+                    <p class="team-details__designation">{{ Doktor.BranchName }}</p>
+                </div><!-- /.team-details__identity -->
+            </div><!-- /.team-details__image -->
+            <div class="team-details__about wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
+                <div class="team-details__about__inner">
+                    <h3 class="team-details__about__title">Hakkında</h3><!-- /.team-details__about__title -->
+                    <p class="team-details__about__description">{{ Doktor.Biography != "" ? Doktor.Biography : "Doktor hakkında yakında detaylı bilgiler eklenecektir." }}</p><!-- /.team-details__about__description -->
+                </div><!-- /.team-details__about__inner -->
+                <ul class="team-details__contact list-unstyled">
+                    <li>
+                        <span class="team-details__contact__icon">
+                            <i class="icon-location"></i>
+                        </span>
+                        <div class="team-details__contact__content">
+                            <h3 class="team-details__contact__title">Çalıştığı Şube</h3>
+                            <span class="team-details__contact__link">{{ Doktor.SubeName }}</span>
+                        </div>
+                    </li><!-- /.item -->
+                    {{ if Options.Options.ShowDoctorSocialMedia }}
+                        <li>
+                            <span class="team-details__contact__icon">
+                                <i class="icon-telephone"></i>
+                            </span>
+                            <div class="team-details__contact__content">
+                                <h3 class="team-details__contact__title">Telefon</h3>
+                                <a href="tel:{{ Doktor.Phone }}" class="team-details__contact__link">{{ Doktor.Phone }}</a>
+                            </div>
+                        </li><!-- /.item -->
+                    {{ end }}
+                    {{ if Options.Options.ShowDoctorSocialMedia }}
+                        <li>
+                            <span class="team-details__contact__icon">
+                                <i class="icon-email"></i>
+                            </span>
+                            <div class="team-details__contact__content">
+                                <h3 class="team-details__contact__title">E-posta</h3>
+                                <a href="mailto:{{ Doktor.Email }}" class="team-details__contact__link">{{ Doktor.Email }}</a>
+                            </div>
+                        </li><!-- /.item -->
+                    {{ end }}
+                </ul><!-- /.team-details__contact -->
+            </div><!-- /.team-details__about -->
+        </div><!-- /.team-details__inner -->
+    </div><!-- /.container -->
+</section><!-- /.team-details section-space-top -->
+
+<section class="team-skills-one">
+    <div class="container">
+        <div class="row gutter-y-40">
+            <div class="col-lg-6">
+                <h3 class="team-skills-one__title">Eğitim ve Diller</h3>
+                <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                    <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
+                    <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
+                    <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> {{ Doktor.WorkingHours != "" ? "" : "-" }}<span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours }}</span></p>
+                </div>
+            </div>
+            {{ if Options.Options.ShowDoctorAppointmentFee }}
+            <div class="col-lg-6">
+                <h3 class="team-skills-one__title">Ücret Bilgisi</h3>
+                <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                    <p class="team-skills-one__text"><strong>Muayene Ücreti:</strong> {{ Doktor.AppointmentFee != 0.0 ? Doktor.AppointmentFee : "Bilgi yok" }}{{ Doktor.AppointmentFee != 0.0 ? " TL" : "" }}</p>
+                    <p class="team-skills-one__text"><strong>Branş:</strong> {{ Doktor.BranchName }}</p>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div><!-- /.container -->
+</section><!-- /.team-skills-one -->
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css">
+<section class="section-space">
+    <div class="container">
+        <div class="row gutter-y-30">
+            <div class="col-lg-6">
+                <h3 class="team-skills-one__title doc-section-title">Deneyimler</h3>
+                {{ if len(Doktor.Experiences) > 0 }}
+                <div>
+                    {{ range index, Exp := Doktor.Experiences }}
+                    <div class="doc-card">
+                        <div class="doc-card__thumb {{ Exp.CoverPath == "" ? "doc-card__thumb--primary" : "" }}">
+                            {{ if Exp.CoverPath != "" }}
+                                <img class="doc-card__media" src="{{ PathOnStart + Exp.CoverPath }}" alt="{{ Exp.CoverAltText != "" ? Exp.CoverAltText : Exp.Name }}" title="{{ Exp.CoverTitle != "" ? Exp.CoverTitle : Exp.Name }}">
+                            {{ else }}
+                                <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/experience/experience-default.svg" alt="Experience">
+                            {{ end }}
+                        </div>
+                        <div class="doc-card__body">
+                            <h4 class="doc-card__title">{{ Exp.Name }}</h4>
+                            <div class="doc-card__meta">{{ ctdf(Exp.StartDate) }} - {{ Exp.EndDate != nil ? ctdf(Exp.EndDate) : "Devam Ediyor" }}</div>
+                            {{ if Exp.Description != "" }}<div class="doc-card__desc">{{ Exp.Description }}</div>{{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+                {{ else }}
+                <p style="color:#6b7280;">Deneyim bilgisi bulunamadı.</p>
+                {{ end }}
+            </div>
+            <div class="col-lg-6">
+                <h3 class="team-skills-one__title doc-section-title">Uzmanlıklar</h3>
+                {{ if len(Doktor.Expertises) > 0 }}
+                <div>
+                    {{ range Uz := Doktor.Expertises }}
+                    <div class="doc-card">
+                        <div class="doc-card__thumb doc-card__thumb--primary">
+                            <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/expertise/expertise-default.svg" alt="Expertise">
+                        </div>
+                        <div class="doc-card__body">
+                            <h4 class="doc-card__title">{{ Uz.UzmanlikName }} {{ if Uz.IsPrimary }}<span style="background: var(--theme-primary-color); color:#fff; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">Birincil</span>{{ end }}</h4>
+                            <div class="doc-card__meta">{{ Uz.CertificationInstitution }} {{ Uz.CertificationDate }}</div>
+                            {{ if Uz.UzmanlikDescription != "" }}<div class="doc-card__desc">{{ Uz.UzmanlikDescription }}</div>{{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+                {{ else }}
+                <p style="color:#6b7280;">Uzmanlık bilgisi bulunamadı.</p>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function decodeHtmlEntities(encoded) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = encoded;
+    return txt.value;
+}
+
+function formatWorkingHours(workingHoursJson, element) {
+    if (workingHoursJson && typeof workingHoursJson === 'object') {
+        let formattedHours = '';
+        for (const [day, hours] of Object.entries(workingHoursJson)) {
+            if (hours && ('' + hours).trim() !== '') {
+                formattedHours += day + ': ' + hours + '<br>';
+            }
+        }
+        if (formattedHours) {
+            element.innerHTML = formattedHours;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.doctor-working-hours');
+    elements.forEach(function(element) {
+        try {
+            const escaped = '{{ stj(Doktor.WorkingHours) }}';
+            const decoded = decodeHtmlEntities(escaped);
+            if (decoded && decoded.trim() !== '' && decoded !== 'null' && decoded !== 'undefined') {
+                let cleanJson = decoded.trim()
+                    .replace(/&quot;/g, '"')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>');
+
+                if (cleanJson.startsWith('{') && cleanJson.endsWith('}')) {
+                    const jsonObj = JSON.parse(cleanJson);
+                    formatWorkingHours(jsonObj, element);
+                } else if (cleanJson.startsWith('"{') && cleanJson.endsWith('}"')) {
+                    const unwrapped = cleanJson.slice(1, -1);
+                    const jsonObj = JSON.parse(unwrapped);
+                    formatWorkingHours(jsonObj, element);
+                } else {
+                    element.innerHTML = decoded;
+                }
+            } else {
+                const raw = element.getAttribute('data-raw-hours') || element.textContent;
+                if (raw && raw.trim() !== '') {
+                    element.innerHTML = raw;
+                }
+            }
+        } catch (e) {
+            const raw = element.getAttribute('data-raw-hours') || element.textContent;
+            if (raw && raw.trim() !== '') {
+                element.innerHTML = raw;
+            }
+        }
+    });
+});
+</script>

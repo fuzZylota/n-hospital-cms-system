@@ -1,0 +1,414 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/kullanici.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/kullanicilar" class="breadcrumb-link">
+                        <i class="fas fa-users"></i>
+                        Kullanıcılar
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ IndividualUser.Name }} {{ IndividualUser.Surname }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ IndividualUser.Name }} {{ IndividualUser.Surname }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(IndividualUser.CreatedAt, IndividualUser.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son giriş: {{ mthr(IndividualUser.LastLogin, IndividualUser.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                <p class="page-subtitle">Kullanıcı ID: {{ IndividualUser.Uid }} • {{ IndividualUser.Email }}</p>
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if IndividualUser.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                {{ if User.Role == "admin" }}
+                    <div class="action-buttons">
+                        <a href="/panel/kullanicilar/{{ IndividualUser.Uid }}/duzenle" class="btn btn-primary">
+                            <i class="fas fa-edit"></i>
+                            Düzenle
+                        </a>
+                        <button class="btn btn-warning" id="changePasswordBtn">
+                            <i class="fas fa-key"></i>
+                            Şifre Değiştir
+                        </button>
+                        <button class="btn btn-danger" id="deleteIndividualUserBtn" data-id="{{ IndividualUser.Uid }}" data-name="{{ IndividualUser.Name }} {{ IndividualUser.Surname }}">
+                            <i class="fas fa-trash"></i>
+                            <span class="btn-text">Sil</span>
+                            <div class="btn-loader" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Personal Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 class="card-title">Kişisel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ad</label>
+                        <div class="info-value">{{ IndividualUser.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Soyad</label>
+                        <div class="info-value">{{ IndividualUser.Surname }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Tam Ad</label>
+                        <div class="info-value">
+                            <div class="user-display">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span>{{ IndividualUser.Name }} {{ IndividualUser.Surname }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Kullanıcı ID</label>
+                        <div class="info-value">
+                            <span class="user-id">#{{ IndividualUser.Uid }}</span>
+                            <button class="copy-btn" data-copy="{{ IndividualUser.Uid }}" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3 class="card-title">İletişim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">E-posta Adresi</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ IndividualUser.Email }}" class="contact-link">
+                                <i class="fas fa-envelope"></i>
+                                {{ IndividualUser.Email }}
+                            </a>
+                            <button class="copy-btn" data-copy="{{ IndividualUser.Email }}" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Telefon Numarası</label>
+                        <div class="info-value">
+                            <a href="tel:{{ IndividualUser.Phone }}" class="contact-link">
+                                <i class="fas fa-phone"></i>
+                                {{ IndividualUser.Phone }}
+                            </a>
+                            <button class="copy-btn" data-copy="{{ IndividualUser.Phone }}" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="card-title">Hesap Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Kullanıcı Rolü</label>
+                        <div class="info-value">
+                            <span class="role-badge {{ IndividualUser.Role }}">
+                                {{if IndividualUser.Role == "admin"}}
+                                <i class="fas fa-user-shield"></i>
+                                Admin
+                                {{else if IndividualUser.Role == "moderator"}}
+                                <i class="fas fa-user-cog"></i>
+                                Moderatör
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Hesap Durumu</label>
+                        <div class="info-value">
+                            <span class="status-indicator {{if IndividualUser.IsActive}}active{{else}}inactive{{end}}">
+                                {{if IndividualUser.IsActive}}
+                                <i class="fas fa-check-circle"></i>
+                                Aktif
+                                {{else}}
+                                <i class="fas fa-pause-circle"></i>
+                                Pasif
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Zaman Dilimi</label>
+                        <div class="info-value">
+                            <span class="timezone-badge">
+                                <i class="fas fa-clock"></i>
+                                {{ IndividualUser.Timezone }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="card-title">Aktivite Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Hesap Oluşturma</label>
+                        <div class="info-value">
+                            <div class="date-display">
+                                <div class="date-primary">{{ mthr(IndividualUser.CreatedAt, IndividualUser.Timezone) }}</div>
+                                <div class="date-secondary">{{ mthr(IndividualUser.CreatedAt, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Son Güncelleme</label>
+                        <div class="info-value">
+                            <div class="date-display">
+                                <div class="date-primary">{{ mthr(IndividualUser.UpdatedAt, IndividualUser.Timezone) }}</div>
+                                <div class="date-secondary">{{ mthr(IndividualUser.UpdatedAt, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Son Giriş</label>
+                        <div class="info-value">
+                            <div class="date-display">
+                                <div class="date-primary">{{ mthr(IndividualUser.LastLogin, IndividualUser.Timezone) }}</div>
+                                <div class="date-secondary">{{ mthr(IndividualUser.LastLogin, IndividualUser.Timezone) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="card-title">Güvenlik</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Şifre Durumu</label>
+                        <div class="info-value">
+                            <span class="security-badge">
+                                <i class="fas fa-lock"></i>
+                                Şifrelenmiş
+                            </span>
+                        </div>
+                    </div>
+                    {{ if User.Role == "admin" }}
+                        <div class="info-item">
+                            <label class="info-label">Güvenlik İşlemleri</label>
+                            <div class="info-value">
+                                <button class="btn btn-sm btn-warning" id="changePasswordBtnInline">
+                                    <i class="fas fa-key"></i>
+                                    Şifre Değiştir
+                                </button>
+                            </div>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Password Change Modal -->
+<div id="passwordChangeModal" class="modal" style="display: none;">
+    <div class="modal-content password-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-key"></i>
+                Şifre Değiştir
+            </h3>
+            <button class="modal-close" onclick="closePasswordModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="passwordChangeForm" class="password-form">
+                <div class="form-group">
+                    <label for="new_password" class="form-label">Yeni Şifre</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="new_password" name="password" class="form-input" 
+                               placeholder="Yeni şifreyi girin" required minlength="6">
+                        <button type="button" class="password-toggle" data-target="new_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-help">En az 6 karakter olmalıdır</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Şifre Tekrarı</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirm_password" name="password_confirm" class="form-input" 
+                               placeholder="Şifreyi tekrar girin" required minlength="6">
+                        <button type="button" class="password-toggle" data-target="confirm_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-help">Şifreler eşleşmelidir</div>
+                </div>
+
+                <!-- Password Strength Indicator -->
+                <div class="password-strength" id="passwordStrengthModal" style="display: none;">
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <div class="strength-text">Şifre Gücü: <span class="strength-level">Zayıf</span></div>
+                    <div class="strength-requirements">
+                        <div class="requirement" data-requirement="length">
+                            <i class="fas fa-times"></i> En az 6 karakter
+                        </div>
+                        <div class="requirement" data-requirement="uppercase">
+                            <i class="fas fa-times"></i> Büyük harf
+                        </div>
+                        <div class="requirement" data-requirement="lowercase">
+                            <i class="fas fa-times"></i> Küçük harf
+                        </div>
+                        <div class="requirement" data-requirement="number">
+                            <i class="fas fa-times"></i> Rakam
+                        </div>
+                        <div class="requirement" data-requirement="special">
+                            <i class="fas fa-times"></i> Özel karakter
+                        </div>
+                    </div>
+                </div>
+
+                <div class="password-match-indicator" id="passwordMatchIndicator" style="display: none;">
+                    <i class="fas fa-times"></i>
+                    <span>Şifreler eşleşmiyor</span>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">İptal</button>
+            <button type="button" class="btn btn-warning" id="confirmPasswordChangeBtn">
+                <i class="fas fa-key"></i>
+                <span class="btn-text">Şifreyi Değiştir</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Kullanıcıyı Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı kullanıcıyı silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.userData = {
+        id: {{ IndividualUser.Uid }},
+        name: "{{ IndividualUser.Name }} {{ IndividualUser.Surname }}",
+        email: "{{ IndividualUser.Email }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/kullanici.js"></script>

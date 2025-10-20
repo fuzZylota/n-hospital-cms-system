@@ -1,0 +1,122 @@
+/* Subeler page specific styles */
+
+.sube-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sube-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.sube-card__image {
+    width: 100%;
+    height: 160px; /* smaller visuals */
+    overflow: hidden;
+    position: relative;
+}
+
+.sube-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.sube-card:hover .sube-card__img {
+    transform: scale(1.04);
+}
+
+.sube-card__header {
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+}
+
+.sube-card__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.sube-card__badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    color: var(--theme-primary-color);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.sube-card__content {
+    padding: 18px 20px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sube-card__info {
+    margin-bottom: 14px;
+}
+
+.sube-card__info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 6px 0;
+}
+
+.sube-card__info-item:last-child { margin-bottom: 0; }
+
+.sube-card__info-item i {
+    width: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-primary-color);
+    margin-right: 10px;
+    font-size: 15px;
+}
+
+.sube-card__info-item span,
+.sube-card__info-item a {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    flex: 1;
+}
+
+.sube-card__info-item a:hover { color: var(--theme-primary-color); text-decoration: underline; }
+
+.sube-card .mediox-btn { padding: 10px 14px; font-size: 14px; }
+
+/* Intro icon color + spin */
+.subeler-icon { color: var(--theme-primary-color); display: inline-flex; height: 40px; width: 40px; }
+.subeler-icon svg { height: 100%; width: 100%; display: block; }
+.spin { animation: sube-rotate 3s linear infinite; }
+@keyframes sube-rotate { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+@media (max-width: 992px) {
+    .sube-card__image { height: 150px; }
+}
+
+@media (max-width: 576px) {
+    .sube-card__image { height: 130px; }
+    .sube-card__title { font-size: 16px; }
+}
+
+

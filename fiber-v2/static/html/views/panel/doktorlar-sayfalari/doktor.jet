@@ -1,0 +1,789 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/doktor.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/doktorlar" class="breadcrumb-link">
+                        <i class="fas fa-user-md"></i>
+                        Doktorlar
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Doktor.Title }} {{ Doktor.FirstName }} {{ Doktor.LastName }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Doktor.Title }} {{ Doktor.FirstName }} {{ Doktor.LastName }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Doktor.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Doktor.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Doktor.Biography}}
+                <p class="page-subtitle">{{ Doktor.Biography }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Doktor.OnlineAppointment}}
+                    <span class="status-badge online">
+                        <i class="fas fa-globe"></i>
+                        Online Randevu
+                    </span>
+                    {{end}}
+                    {{if Doktor.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/doktorlar/{{ Doktor.Drid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="doctorOptionsDropdown" aria-expanded="false">
+                            <i class="fas fa-cog"></i>
+                            Doktor Seçenekleri
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="doctorOptionsDropdown">
+                            <li>
+                                <button class="dropdown-item" id="addExpertiseBtn" data-id="{{ Doktor.Drid }}" data-name="{{ Doktor.FirstName }} {{ Doktor.LastName }}">
+                                    <i class="fas fa-plus"></i>
+                                    Uzmanlık Ekle
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" id="addExperienceBtn" data-id="{{ Doktor.Drid }}" data-name="{{ Doktor.FirstName }} {{ Doktor.LastName }}">
+                                    <i class="fas fa-briefcase"></i>
+                                    Deneyim Ekle
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-danger" id="deleteDoctorBtn" data-id="{{ Doktor.Drid }}" data-name="{{ Doktor.Title }} {{ Doktor.FirstName }} {{ Doktor.LastName }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Doctor Photo and Basic Info -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 class="card-title">Doktor Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="doctor-profile">
+                    {{if Doktor.PhotoPath}}
+                    <div class="doctor-photo">
+                        <img src="{{ PathOnStart }}{{ Doktor.PhotoPath }}" alt="{{ Doktor.PhotoAltText }}" title="{{ Doktor.PhotoTitle }}" class="profile-image zoomable">
+                        <div class="image-overlay">
+                            <i class="icon-maximize"></i>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="doctor-photo no-photo">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    {{end}}
+                    <div class="doctor-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label class="info-label">Ad Soyad</label>
+                                <div class="info-value">{{ Doktor.Title }} {{ Doktor.FirstName }} {{ Doktor.LastName }}</div>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">URL Adı</label>
+                                <div class="info-value">{{ Doktor.UrlName }}</div>
+                            </div>
+                            {{if Doktor.TcKimlik}}
+                            <div class="info-item">
+                                <label class="info-label">TC Kimlik</label>
+                                <div class="info-value">{{ Doktor.TcKimlik }}</div>
+                            </div>
+                            {{end}}
+                            {{if Doktor.DiplomaNo}}
+                            <div class="info-item">
+                                <label class="info-label">Diploma No</label>
+                                <div class="info-value">{{ Doktor.DiplomaNo }}</div>
+                            </div>
+                            {{end}}
+                            {{if Doktor.ExperienceYears > 0}}
+                            <div class="info-item">
+                                <label class="info-label">Deneyim</label>
+                                <div class="info-value">{{ Doktor.ExperienceYears }} yıl</div>
+                            </div>
+                            {{end}}
+                            {{if Doktor.Gender}}
+                            <div class="info-item">
+                                <label class="info-label">Cinsiyet</label>
+                                <div class="info-value">{{ Doktor.Gender }}</div>
+                            </div>
+                            {{end}}
+                            {{if Doktor.Languages}}
+                            <div class="info-item">
+                                <label class="info-label">Diller</label>
+                                <div class="info-value">{{ Doktor.Languages }}</div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="card-title">İletişim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Doktor.Phone}}
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ Doktor.Phone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ Doktor.Phone }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Doktor.Email}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ Doktor.Email }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ Doktor.Email }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Doktor.RoomNumber}}
+                    <div class="info-item">
+                        <label class="info-label">Oda Numarası</label>
+                        <div class="info-value">{{ Doktor.RoomNumber }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Branch and Sube Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="card-title">Branş ve Şube Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Doktor.BranchName}}
+                    <div class="info-item">
+                        <label class="info-label">Branş</label>
+                        <div class="info-value">
+                            <a href="/panel/branslar/{{ Doktor.Brid }}" class="link">{{ Doktor.BranchName }}</a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Doktor.SubeName}}
+                    <div class="info-item">
+                        <label class="info-label">Şube</label>
+                        <div class="info-value">
+                            <a href="/panel/subeler/{{ Doktor.Sid }}" class="link">{{ Doktor.SubeName }}</a>
+                            {{if Doktor.SubeCity}} - {{ Doktor.SubeCity }}{{end}}
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="card-title">Randevu Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Doktor.AppointmentDuration > 0}}
+                    <div class="info-item">
+                        <label class="info-label">Randevu Süresi</label>
+                        <div class="info-value">{{ Doktor.AppointmentDuration }} dakika</div>
+                    </div>
+                    {{end}}
+                    {{if Doktor.AppointmentFee > 0}}
+                    <div class="info-item">
+                        <label class="info-label">Randevu Ücreti</label>
+                        <div class="info-value">{{ Doktor.AppointmentFee }} TL</div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Online Randevu</label>
+                        <div class="info-value">
+                            {{if Doktor.OnlineAppointment}}
+                            <span class="status-badge active">
+                                <i class="fas fa-check"></i>
+                                Aktif
+                            </span>
+                            {{else}}
+                            <span class="status-badge inactive">
+                                <i class="fas fa-times"></i>
+                                Pasif
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education and Biography -->
+        {{if Doktor.Education || Doktor.Biography}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="card-title">Eğitim ve Biyografi</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if Doktor.Education}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Eğitim</label>
+                        <div class="info-value">
+                            <div class="text-content">{{ Doktor.Education }}</div>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if Doktor.Biography}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Biyografi</label>
+                        <div class="info-value">
+                            <div class="text-content">{{ Doktor.Biography }}</div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Doctor Expertises Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3 class="card-title">Uzmanlık Alanları ({{ len(DoctorExpertises) }})</h3>
+            </div>
+            <div class="card-content">
+                {{if len(DoctorExpertises) > 0}}
+                <div class="related-list">
+                    {{range DoctorExpertises}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .UzmanlikName }}</div>
+                            <div class="related-details">
+                                {{if .CertificationDate}}
+                                <span class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    Sertifika Tarihi: {{ mthr(.CertificationDate, User.Timezone) }}
+                                </span>
+                                {{end}}
+                                {{if .CertificationInstitution}}
+                                <span class="detail-item">
+                                    <i class="fas fa-university"></i>
+                                    {{ .CertificationInstitution }}
+                                </span>
+                                {{end}}
+                                {{if .IsPrimary}}
+                                <span class="status-badge primary">
+                                    <i class="fas fa-star"></i>
+                                    Ana Uzmanlık
+                                </span>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <button class="btn btn-sm btn-danger delete-expertise-btn" data-duid="{{ .Duid }}" data-name="{{ .UzmanlikName }}">
+                                <i class="fas fa-trash"></i>
+                                Sil
+                            </button>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+                {{else}}
+                <div class="empty-state">
+                    <i class="fas fa-certificate"></i>
+                    <p>Henüz uzmanlık alanı eklenmemiş.</p>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Doctor Experiences Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="card-title">Deneyimler ({{ len(DoctorExperiences) }})</h3>
+            </div>
+            <div class="card-content">
+                {{if len(DoctorExperiences) > 0}}
+                <div class="related-list">
+                    {{range index, experience := DoctorExperiences}}
+                    <div class="related-item {{ if experience.CoverPath }}has-cover{{ end }}">
+                        {{ if experience.CoverPath }}
+                        <div class="experience-cover">
+                            <img src="{{ PathOnStart }}{{ experience.CoverPath }}" alt="{{ experience.CoverAltText }}" title="{{ experience.CoverTitle }}">
+                        </div>
+                        {{ end }}
+                        <div class="related-info">
+                            <div class="related-title">{{ experience.Name }}</div>
+                            <div class="related-details">
+                                {{if experience.StartDate}}
+                                <span class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ mthr(experience.StartDate, User.Timezone) }}
+                                    {{if experience.EndDate}} - {{ mthr(experience.EndDate, User.Timezone) }}{{else}} - Devam Ediyor{{end}}
+                                </span>
+                                {{end}}
+                                {{if experience.Description}}
+                                <span class="detail-item full-width">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ experience.Description }}
+                                </span>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <button class="btn btn-sm btn-primary edit-experience-btn" data-dtid="{{ experience.Dtid }}" data-name="{{ experience.Name }}" data-start-date="{{ experience.StartDate }}" data-end-date="{{ experience.EndDate }}" data-description="{{ experience.Description }}" data-cover-path="{{ experience.CoverPath }}" data-cover-alt-text="{{ experience.CoverAltText }}" data-cover-title="{{ experience.CoverTitle }}">
+                                <i class="fas fa-edit"></i>
+                                Düzenle
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-experience-btn" data-dtid="{{ experience.Dtid }}" data-name="{{ experience.Name }}">
+                                <i class="fas fa-trash"></i>
+                                Sil
+                            </button>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+                {{else}}
+                <div class="empty-state">
+                    <i class="fas fa-briefcase"></i>
+                    <p>Henüz deneyim eklenmemiş.</p>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- CV File Section -->
+        {{if Doktor.CvFilePath}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3 class="card-title">CV Dosyası</h3>
+            </div>
+            <div class="card-content">
+                <div class="file-preview">
+                    <div class="file-info">
+                        <i class="fas fa-file-pdf file-icon"></i>
+                        <div class="file-details">
+                            <div class="file-name">CV Dosyası</div>
+                            <div class="file-actions">
+                                <a href="{{ PathOnStart }}{{ Doktor.CvFilePath }}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                    Görüntüle
+                                </a>
+                                <a href="{{ PathOnStart }}{{ Doktor.CvFilePath }}" download class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-download"></i>
+                                    İndir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Add Expertise Modal -->
+<div id="addExpertiseModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Uzmanlık Alanı Ekle</h3>
+            <button class="modal-close" onclick="closeAddExpertiseModal()">
+                <i class="icon-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addExpertiseForm">
+                <div class="form-group">
+                    <label for="expertise_select">Uzmanlık Alanı</label>
+                    <select id="expertise_select" name="uzid" required>
+                        <option value="">Uzmanlık alanı seçin...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="certification_date">Sertifika Tarihi</label>
+                    <input type="date" id="certification_date" name="certification_date">
+                </div>
+                <div class="form-group">
+                    <label for="certification_institution">Sertifika Kurumu</label>
+                    <input type="text" id="certification_institution" name="certification_institution" placeholder="Sertifika veren kurum">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="is_primary" name="is_primary">
+                        <span class="checkmark"></span>
+                        Ana uzmanlık alanı
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeAddExpertiseModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="saveExpertiseBtn">
+                <i class="fas fa-save"></i>
+                <span class="btn-text">Kaydet</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Experience Modal -->
+<div id="addExperienceModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Deneyim Ekle</h3>
+            <button class="modal-close" onclick="closeAddExperienceModal()">
+                <i class="icon-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addExperienceForm">
+                <div class="form-group">
+                    <label for="experience_name">Deneyim Adı</label>
+                    <input type="text" id="experience_name" name="name" required placeholder="Deneyim adı">
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Başlangıç Tarihi</label>
+                    <input type="date" id="start_date" name="start_date">
+                </div>
+                <div class="form-group">
+                    <label for="end_date">Bitiş Tarihi</label>
+                    <input type="date" id="end_date" name="end_date">
+                    <small class="form-help">Boş bırakırsanız "Devam Ediyor" olarak gösterilir</small>
+                </div>
+                <div class="form-group">
+                    <label for="experience_description">Açıklama</label>
+                    <textarea id="experience_description" name="description" rows="4" placeholder="Deneyim açıklaması"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="experience_cover">Kapak Görseli (Opsiyonel)</label>
+                    <div class="file-upload-area" id="experienceCoverArea">
+                        <div class="file-upload-content">
+                            <i class="fas fa-upload"></i>
+                            <p class="file-upload-text">Görseli sürükleyin veya <span class="file-browse">göz atın</span></p>
+                            <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                        </div>
+                        <input type="file" id="experience_cover" name="experience_cover" class="file-input" accept="image/*">
+                        <div class="file-preview" style="display: none;">
+                            <img class="preview-image" src="" alt="Preview">
+                            <button type="button" class="file-remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cover_experience_alt_text">Görsel Alt Metni</label>
+                        <input type="text" id="cover_experience_alt_text" name="cover_alt_text" placeholder="Örn: Şirket etkinliği">
+                    </div>
+                    <div class="form-group">
+                        <label for="cover_experience_title">Görsel Başlığı</label>
+                        <input type="text" id="cover_experience_title" name="cover_title" placeholder="Örn: Deneyim Kapak Görseli">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeAddExperienceModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="saveExperienceBtn">
+                <i class="fas fa-save"></i>
+                <span class="btn-text">Kaydet</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Experience Modal -->
+<div id="editExperienceModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Deneyim Düzenle</h3>
+            <button class="modal-close" onclick="closeEditExperienceModal()">
+                <i class="icon-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="forms-container">
+                <!-- Experience Text Information Form -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h4 class="section-title">
+                            <i class="fas fa-edit"></i>
+                            Deneyim Bilgileri
+                        </h4>
+                        <p class="section-description">Deneyimin temel bilgilerini düzenleyin</p>
+                    </div>
+                    <div class="section-content">
+                        <form id="editExperienceTextForm" class="experience-text-form" novalidate>
+                            <input type="hidden" id="edit_dtid" name="dtid">
+                            <input type="hidden" name="old_name" id="edit_old_name">
+                            <input type="hidden" name="old_start_date" id="edit_old_start_date">
+                            <input type="hidden" name="old_end_date" id="edit_old_end_date">
+                            <input type="hidden" name="old_description" id="edit_old_description">
+
+                            <div class="form-group">
+                                <label for="edit_experience_name">Deneyim Adı</label>
+                                <input type="text" id="edit_experience_name" name="name" required placeholder="Deneyim adı">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_start_date">Başlangıç Tarihi</label>
+                                <input type="date" id="edit_start_date" name="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_end_date">Bitiş Tarihi</label>
+                                <input type="date" id="edit_end_date" name="end_date">
+                                <small class="form-help">Boş bırakırsanız "Devam Ediyor" olarak gösterilir</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_experience_description">Açıklama</label>
+                                <textarea id="edit_experience_description" name="description" rows="4" placeholder="Deneyim açıklaması"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Experience Picture Management Form -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h4 class="section-title">
+                            <i class="fas fa-image"></i>
+                            Kapak Görseli
+                        </h4>
+                        <p class="section-description">Deneyim kapak görselini yönetin</p>
+                    </div>
+                    <div class="section-content">
+                        <!-- Current Picture Display -->
+                        <div class="current-media-section">
+                            <h5 class="group-title">Mevcut Görsel</h5>
+                            <div class="media-grid">
+                                <div class="media-item">
+                                    <div class="media-header">
+                                        <h6 class="media-title">Deneyim Görseli</h6>
+                                        <button type="button" class="btn-delete-media" data-dtid="" data-type="experience">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="media-preview">
+                                        <div class="experience-cover-preview" id="currentExperienceCover">
+                                            <!-- Current cover image will be shown here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Picture Upload Form -->
+                        <div class="media-upload-section">
+                            <h5 class="group-title">Görseli Güncelle</h5>
+                            <form id="editExperiencePictureForm" class="experience-picture-form" enctype="multipart/form-data" novalidate>
+                                <input type="hidden" name="old_experience_cover_alt_text" id="edit_old_experience_cover_alt_text">
+                                <input type="hidden" name="old_experience_cover_title" id="edit_old_experience_cover_title">
+
+                                <div class="form-group">
+                                    <label for="edit_experience_cover" class="form-label">Kapak Görseli</label>
+                                    <div class="file-upload-area" id="editExperienceCoverArea">
+                                        <div class="file-upload-content">
+                                            <i class="fas fa-upload"></i>
+                                            <p class="file-upload-text">Görseli sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                            <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                                        </div>
+                                        <input type="file" id="edit_experience_cover" name="cover_mid" class="file-input" accept="image/*">
+                                        <div class="file-preview" style="display: none;">
+                                            <img class="preview-image" src="" alt="Preview">
+                                            <button type="button" class="file-remove">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="file-meta-inputs">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="edit_cover_experience_alt_text">Görsel Alt Metni</label>
+                                            <input type="text" id="edit_cover_experience_alt_text" name="experience_cover_alt_text" placeholder="Örn: Şirket etkinliği">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="edit_cover_experience_title">Görsel Başlığı</label>
+                                            <input type="text" id="edit_cover_experience_title" name="experience_cover_title" placeholder="Örn: Deneyim Kapak Görseli">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeEditExperienceModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="updateExperienceTextBtn">
+                <i class="fas fa-save"></i>
+                <span class="btn-text">Bilgileri Güncelle</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+            <button type="button" class="btn btn-success" id="updateExperiencePictureBtn">
+                <i class="fas fa-upload"></i>
+                <span class="btn-text">Görseli Güncelle</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Doktoru Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı doktoru silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="imageZoomModal" class="modal image-modal" style="display: none;">
+    <div class="modal-content image-content">
+        <button class="modal-close" onclick="closeImageModal()">
+            <i class="icon-x"></i>
+        </button>
+        <div class="image-container">
+            <img id="zoomedImage" src="" alt="Zoomed Image">
+        </div>
+        <div class="image-info">
+            <span id="imageTitle">Görsel</span>
+            <div class="image-actions">
+                <button class="btn btn-sm btn-secondary" onclick="downloadImage()">
+                    <i class="icon-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="openImageInNewTab()">
+                    <i class="icon-external-link"></i>
+                    Yeni Sekmede Aç
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.doktorData = {
+        id: parseInt("{{ Doktor.Drid }}"),
+        name: "{{ Doktor.Title }} {{ Doktor.FirstName }} {{ Doktor.LastName }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/doktor.js"></script>

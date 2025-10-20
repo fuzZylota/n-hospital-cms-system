@@ -1,0 +1,490 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/kullanicilar.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-users"></i>
+                    Kullanıcılar
+                </h1>
+                <p class="page-subtitle">Sistem kullanıcılarını ve yetkililerini yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+                <a href="/panel/kullanici-ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Kullanıcı
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" 
+                           placeholder="Ad, soyad, e-posta veya telefon ile ara...">
+                    <button class="search-clear" id="searchClear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <select id="roleFilter" class="filter-select">
+                    <option value="">Tüm Roller</option>
+                    <option value="admin">Admin</option>
+                    <option value="moderator">Moderatör</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="created_at">Oluşturma Tarihi</option>
+                    <option value="name">Ad</option>
+                    <option value="email">E-posta</option>
+                    <option value="last_login">Son Giriş</option>
+                    <option value="updated_at">Güncelleme Tarihi</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="desc">Azalan</option>
+                    <option value="asc">Artan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Kullanıcı</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeCount">-</div>
+                    <div class="stat-label">Aktif Kullanıcılar</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon inactive">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="inactiveCount">-</div>
+                    <div class="stat-label">Pasif Kullanıcılar</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon admin">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="adminCount">-</div>
+                    <div class="stat-label">Adminler</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Kullanıcılar Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="name">
+                                <span>Ad Soyad</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="email">
+                                <span>E-posta</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="phone">
+                                <span>Telefon</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="role">
+                                <span>Rol</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="is_active">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="last_login">
+                                <span>Son Giriş</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(Users) > 0}}
+                            {{range Users}}
+                            <tr data-id="{{ .Uid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div class="user-details">
+                                                <div class="primary-text">{{ .Name }} {{ .Surname }}</div>
+                                                <div class="secondary-text">ID: {{ .Uid }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <a href="mailto:{{ .Email }}" class="email-link">{{ .Email }}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <a href="tel:{{ .Phone }}" class="phone-link">{{ .Phone }}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <span class="role-badge {{ .Role }}">
+                                            {{if .Role == "admin"}}
+                                            <i class="fas fa-user-shield"></i>
+                                            Admin
+                                            {{else if .Role == "moderator"}}
+                                            <i class="fas fa-user-cog"></i>
+                                            Moderatör
+                                            {{end}}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .IsActive}}
+                                        <span class="status-badge active">
+                                            <i class="fas fa-check-circle"></i>
+                                            Aktif
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge inactive">
+                                            <i class="fas fa-pause-circle"></i>
+                                            Pasif
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ mthr(.LastLogin, User.Timezone) }}</div>
+                                        <div class="secondary-text">{{ mthr(.LastLogin, User.Timezone) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Uid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/kullanicilar/{{ .Uid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/kullanicilar/{{ .Uid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            {{if .IsActive}}
+                                            <button class="action-item deactivate" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                                <i class="fas fa-pause"></i>
+                                                <span>Pasifleştir</span>
+                                            </button>
+                                            {{else}}
+                                            <button class="action-item activate" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                                <i class="fas fa-play"></i>
+                                                <span>Aktifleştir</span>
+                                            </button>
+                                            {{end}}
+                                            <button class="action-item delete" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz kullanıcı bulunmuyor</div>
+                                        <div class="empty-description">İlk kullanıcıyı oluşturmak için "Yeni Kullanıcı" butonuna tıklayın.</div>
+                                        <a href="/panel/kullanici-ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Kullanıcı Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="users-grid">
+                    {{if len(Users) > 0}}
+                        {{range Users}}
+                        <div class="user-card" data-id="{{ .Uid }}">
+                            <div class="card-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="card-title">{{ .Name }} {{ .Surname }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Uid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/kullanicilar/{{ .Uid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/kullanicilar/{{ .Uid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        {{if .IsActive}}
+                                        <button class="action-item deactivate" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                            <i class="fas fa-pause"></i>
+                                            <span>Pasifleştir</span>
+                                        </button>
+                                        {{else}}
+                                        <button class="action-item activate" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                            <i class="fas fa-play"></i>
+                                            <span>Aktifleştir</span>
+                                        </button>
+                                        {{end}}
+                                        <button class="action-item delete" data-id="{{ .Uid }}" data-name="{{ .Name }} {{ .Surname }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-field">
+                                    <div class="field-label">E-posta</div>
+                                    <div class="field-value">
+                                        <a href="mailto:{{ .Email }}" class="email-link">{{ .Email }}</a>
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Telefon</div>
+                                    <div class="field-value">
+                                        <a href="tel:{{ .Phone }}" class="phone-link">{{ .Phone }}</a>
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Rol</div>
+                                    <div class="field-value">
+                                        <span class="role-badge {{ .Role }}">
+                                            {{if .Role == "admin"}}
+                                            <i class="fas fa-user-shield"></i>
+                                            Admin
+                                            {{else if .Role == "moderator"}}
+                                            <i class="fas fa-user-cog"></i>
+                                            Moderatör
+                                            {{end}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .IsActive}}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Aktif
+                                    </span>
+                                    {{else}}
+                                    <span class="status-badge inactive">
+                                        <i class="fas fa-pause-circle"></i>
+                                        Pasif
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-date">{{ .LastLogin }}</div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="empty-title">Henüz kullanıcı bulunmuyor</div>
+                            <div class="empty-description">İlk kullanıcıyı oluşturmak için "Yeni Kullanıcı" butonuna tıklayın.</div>
+                            <a href="/panel/kullanici-ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Kullanıcı Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Kullanıcıyı Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı kullanıcıyı silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div id="statusModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-question-circle"></i>
+        </div>
+        <h3 class="modal-title" id="statusModalTitle">Kullanıcı Durumunu Değiştir</h3>
+        <p class="modal-message" id="statusModalMessage">
+            Bu kullanıcının durumunu değiştirmek istediğinizden emin misiniz?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">İptal</button>
+            <button type="button" class="btn btn-primary" id="confirmStatusBtn">
+                <i class="fas fa-check"></i>
+                <span class="btn-text">Onayla</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+        function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+      const escaped = '{{stj(Users)}}'; // şablondan gelen escaped string
+        const decoded = decodeHtmlEntities(escaped);
+        const data = JSON.parse(decoded);
+    // Pass data to JavaScript
+    window.pageData = {
+        users: data,
+        count: {{Count}},
+        currentPage: {{Page ? Page : 1}},
+        perPage: {{ 10 }}
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/kullanicilar.js"></script>
