@@ -413,7 +413,12 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		if inputs.WorkingHours != inputs.OldWorkingHours {
-			updateSube.Set("working_hours", inputs.WorkingHours)
+			if inputs.WorkingHours == "" {
+				updateSube.Set("working_hours", nil)
+			} else {
+				updateSube.Set("working_hours", inputs.WorkingHours)
+			}
+
 			SomethingSet = true
 		}
 
@@ -746,18 +751,10 @@ func DeleteSube(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			log.Printf("Cannot unmain sube: %v\n", err)
 		}
 
-		rows, err := UnmainSube.Rows()
+		_, err = UnmainSube.Rows()
 		if err != nil {
 			Orm.Rollback()
 			log.Printf("Cannot get rows: %v\n", err)
-		}
-
-		if rows[0]["result"] == false {
-			Orm.Rollback()
-			return c.JSON(fiber.Map{
-				"status":  400,
-				"message": "Şube bulunamadı.",
-			})
 		}
 
 		// Commit transaction
