@@ -592,12 +592,21 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		if inputs.WorkingHours != inputs.OldWorkingHours {
-			updateDoktor.Set("working_hours", inputs.WorkingHours)
+			if inputs.WorkingHours == "" {
+				updateDoktor.Set("working_hours", nil)
+			} else {
+				updateDoktor.Set("working_hours", inputs.WorkingHours)
+			}
 			SomethingSet = true
 		}
 
 		if inputs.VacationDates != inputs.OldVacationDates {
-			updateDoktor.Set("vacation_dates", inputs.VacationDates)
+			if inputs.VacationDates == "" {
+				updateDoktor.Set("vacation_dates", nil)
+			} else {
+				updateDoktor.Set("vacation_dates", inputs.VacationDates)
+			}
+
 			SomethingSet = true
 		}
 
