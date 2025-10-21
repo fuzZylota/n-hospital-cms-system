@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
-<section class="appointment-one section-space-bottom">
+<section class="appointment-one section-space-bottom" id="randevu">
     <div class="appointment-one__bg mediox-jarallax" data-jarallax data-speed="0.3s" style="background-image: url(files/defaults/other/randevu-bg.webp);">
         <div class="appointment-one__bg__inner" style="background-image: url(assets/images/shapes/appointment-shape-bg.png);"></div>
         <div class="appointment-one__bg__shape">

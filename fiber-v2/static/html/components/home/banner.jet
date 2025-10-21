@@ -21,24 +21,24 @@
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                                <p class="main-slider-three__sub-title">KALICI ETKİ</p><!-- /.slider-sub-title -->
                             </div><!-- /.main-slider-three__top -->
                             <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">best paediatric care for <br> your <span class="main-slider-three__title__shape">little</span> one</span>
+                                <span class="main-slider-three__title__inner">Kalıcı <br> lens <span class="main-slider-three__title__shape">cerrahisi</span></span>
                             </h2><!-- /.slider-title -->
                             <div class="main-slider-three__button-group">
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="appointment.php" class="mediox-btn">
-                                            <span>book a visit</span>
+                                        <a href="/tibbi-birimler/trikofal-lens-cerrahisi" class="mediox-btn">
+                                            <span>İncele</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
                                 </div><!-- /.main-slider-three__button__inner -->
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="about.php" class="mediox-btn">
-                                            <span>learn more</span>
+                                        <a href="#randevu" class="mediox-btn">
+                                            <span>Randevu Al</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
@@ -57,24 +57,24 @@
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                                <p class="main-slider-three__sub-title">Retina'nız Emin Ellerde</p><!-- /.slider-sub-title -->
                             </div><!-- /.main-slider-three__top -->
                             <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">Giving Children The <br> Care They <span class="main-slider-three__title__shape">Deserve</span></span>
+                                <span class="main-slider-three__title__inner">Retina <br><span class="main-slider-three__title__shape">Cerrahisi</span></span>
                             </h2><!-- /.slider-title -->
                             <div class="main-slider-three__button-group">
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="appointment.php" class="mediox-btn">
-                                            <span>book a visit</span>
+                                        <a href="/tibbi-birimler/retina-tedavisi" class="mediox-btn">
+                                            <span>İncele</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
                                 </div><!-- /.main-slider-three__button__inner -->
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="about.php" class="mediox-btn">
-                                            <span>learn more</span>
+                                        <a href="#randevu" class="mediox-btn">
+                                            <span>Randevu Al</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
@@ -92,25 +92,25 @@
                 <div class="row">
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
-                            <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVIC</p><!-- /.slider-sub-title -->
-                            </div><!-- /.main-slider-three__top -->
+                                <div class="main-slider-three__top">
+                                    <p class="main-slider-three__sub-title">Gözünüzdeki Sorunlarımızı Çözüyoruz</p><!-- /.slider-sub-title -->
+                                </div><!-- /.main-slider-three__top -->
                             <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">We Are Always Open For <br> your kids' <span class="main-slider-three__title__shape">healthcare</span></span>
+                                <span class="main-slider-three__title__inner">Glokom <br> <span class="main-slider-three__title__shape">Tedavisi</span></span>
                             </h2><!-- /.slider-title -->
                             <div class="main-slider-three__button-group">
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="appointment.php" class="mediox-btn">
-                                            <span>book a visit</span>
+                                        <a href="/tibbi-birimler/glokom-tedavisi" class="mediox-btn">
+                                            <span>İncele</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
                                 </div><!-- /.main-slider-three__button__inner -->
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="about.php" class="mediox-btn">
-                                            <span>learn more</span>
+                                        <a href="#randevu" class="mediox-btn">
+                                            <span>Randevu Al</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
@@ -129,24 +129,24 @@
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">24/7 EMERGENCY SERVICE</p><!-- /.slider-sub-title -->
+                                <p class="main-slider-three__sub-title">Çocuklarımız İçin En İyi Bakım</p><!-- /.slider-sub-title -->
                             </div><!-- /.main-slider-three__top -->
                             <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">best paediatric care for <br> your <span class="main-slider-three__title__shape">little</span> one</span>
+                                <span class="main-slider-three__title__inner">Şaşılık <br> <span class="main-slider-three__title__shape">Tedavisi</span></span>
                             </h2><!-- /.slider-title -->
                             <div class="main-slider-three__button-group">
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="appointment.php" class="mediox-btn">
-                                            <span>book a visit</span>
+                                        <a href="/tibbi-birimler/sasilik-tedavisi" class="mediox-btn">
+                                            <span>İncele</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
                                 </div><!-- /.main-slider-three__button__inner -->
                                 <div class="main-slider-three__button-group__inner">
                                     <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="about.php" class="mediox-btn">
-                                            <span>learn more</span>
+                                        <a href="#randevu" class="mediox-btn">
+                                            <span>Randevu Al</span>
                                             <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                                         </a><!-- /.mediox-btn -->
                                     </div><!-- /.main-slider-three__button -->
