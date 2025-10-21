@@ -85,7 +85,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		Doctors := []models.DoktorForHomePage{}
-		GetDoctors := Orm.Select([]string{"d.drid", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoctors := Orm.Select([]string{"d.drid", "d.title", "d.url_name", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
 		GetDoctors.Table("doktorlar d")
 		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
@@ -113,6 +113,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 				Title:        lib.String(row["title"]),
 				FirstName:    lib.String(row["first_name"]),
 				LastName:     lib.String(row["last_name"]),
+				UrlName:      lib.String(row["url_name"]),
 				PhotoPath:    lib.String(row["photo_path"]),
 				PhotoAltText: lib.String(row["photo_alt_text"]),
 				PhotoTitle:   lib.String(row["photo_title"]),
