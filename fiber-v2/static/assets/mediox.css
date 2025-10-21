@@ -509,6 +509,7 @@ h6 {
   -ms-transform: translateZ(0);
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  max-width: 40vw;
 }
 
 /* section title */
@@ -3511,6 +3512,12 @@ h6 {
   }
 }
 
+@media (max-width: 600px) {
+  .main-header__btn {
+    display: none !important;
+  }
+}
+
 .header-four {
   width: 100%;
   position: absolute;
@@ -3787,6 +3794,10 @@ body.megamenu-popup-active .mobile-nav__content {
   padding-left: 15px;
   padding-right: 15px;
 }
+
+/*.mobile-nav__content .logo-retina .logo img {
+  max-width: 40vw;
+}*/
 
 .megamenu-popup {
   position: relative;
