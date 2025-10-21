@@ -91,7 +91,7 @@
                             {{ end }}
                             <div class="team-card-three__identity">
                                 <h3 class="team-card-three__name">
-                                    <a href="/doktorlar/{{ Doctor.SubeUrlName }}/doktorlar/{{ Doctor.UrlName }}">{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</a>
+                                    <a href="/subelerimiz/{{ Doctor.SubeUrlName }}/doktorlar/{{ Doctor.UrlName }}">{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</a>
                                 </h3><!-- /.team-card-three__name -->
                                 <p class="team-card-three__designation">{{ Doctor.BransName }}</p><!-- /.team-card-three__designation -->
                             </div><!-- /.team-card-three__identity -->
