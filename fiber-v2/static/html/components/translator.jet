@@ -36,8 +36,42 @@
   
   function setLang(lang) {
     const domain = window.location.hostname;
+    
+    // Clear all existing googtrans cookies
+    clearAllGoogtransCookies();
+    
+    // Set the new googtrans cookie
     document.cookie = `googtrans=/tr/${lang};path=/;domain=${domain}`;
     location.reload();
+  }
+  
+  function clearAllGoogtransCookies() {
+    const domain = window.location.hostname;
+    const path = '/';
+    
+    // Clear googtrans cookies with different domain/path combinations
+    const cookieVariations = [
+      `googtrans=;path=${path};domain=${domain};expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `googtrans=;path=${path};expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `googtrans=;path=/;domain=${domain};expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `googtrans=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `googtrans=;path=${path};domain=.${domain};expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `googtrans=;path=/;domain=.${domain};expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    ];
+    
+    cookieVariations.forEach(cookie => {
+      document.cookie = cookie;
+    });
+    
+    // Also clear any googtrans cookies from the current document
+    const cookies = document.cookie.split(';');
+    cookies.forEach(cookie => {
+      const cookieName = cookie.trim().split('=')[0];
+      if (cookieName === 'googtrans') {
+        document.cookie = `${cookieName}=;path=${path};expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        document.cookie = `${cookieName}=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      }
+    });
   }
 
   // Language selector functionality

@@ -2293,9 +2293,9 @@ func AnlasmaliKurumPage(states *models.AppState, utilities *models.Utilities) fi
 			LogoMid:           lib.Int64(rows[0]["logo_mid"]),
 			LogoAltText:       lib.String(rows[0]["logo_alt_text"]),
 			LogoTitle:         lib.String(rows[0]["logo_title"]),
-			IsActive:          rows[0]["is_active"].(bool),
-			CreatedAt:         rows[0]["created_at"].(time.Time),
-			UpdatedAt:         rows[0]["updated_at"].(time.Time),
+			IsActive:          lib.Bool(rows[0]["is_active"]),
+			CreatedAt:         lib.Time(rows[0]["created_at"]),
+			UpdatedAt:         lib.Time(rows[0]["updated_at"]),
 			LogoPath:          lib.String(rows[0]["logo_path"]),
 		}
 
