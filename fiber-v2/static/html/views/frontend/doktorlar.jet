@@ -1,7 +1,7 @@
 <section class="page-header" style="margin-top: 200px;">
     <div class="container-fluid">
         <div class="page-header__inner">
-            <div class="page-header__bg" style='background-image: url("{{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }}");'></div><!-- /.page-header__bg -->
+            <div class="page-header__bg" style='background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});'></div><!-- /.page-header__bg -->
             <div class="container">
                 <div class="page-header__content">
                     <h2 class="page-header__title">Doktorlarımız</h2>
@@ -41,7 +41,7 @@
                 {{ range index, Doctor := Doctors }}
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card-three wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='{{ index * 100 }}ms'>
-                        <div class="team-card-three__image" style='background-image: url({{ Doctor.PhotoPath != "" ? PathOnStart + Doctor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }})'></div><!-- /.team-card-three__image -->
+                        <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? PathOnStart + Doctor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}")'></div><!-- /.team-card-three__image -->
                         <div class="team-card-three__hover">
                             {{ if Options.Options.ShowDoctorSocialMedia }}
                                 <div class="social-links">
