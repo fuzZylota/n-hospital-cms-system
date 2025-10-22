@@ -28,36 +28,42 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="Ad, soyad, e-posta veya telefon ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Ad, soyad, e-posta veya telefon ile ara..."
+                               autocomplete="off" spellcheck="false">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="roleFilter" class="filter-select">
-                    <option value="">Tüm Roller</option>
-                    <option value="admin">Admin</option>
-                    <option value="moderator">Moderatör</option>
+                    <option value="all"{{if Role == "all"}} selected{{end}}>Tüm Roller</option>
+                    <option value="admin"{{if Role == "admin"}} selected{{end}}>Admin</option>
+                    <option value="moderator"{{if Role == "moderator"}} selected{{end}}>Moderatör</option>
                 </select>
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all"{{if Status == "all"}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
+                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="name">Ad</option>
-                    <option value="email">E-posta</option>
-                    <option value="last_login">Son Giriş</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="name"{{if SortBy == "name"}} selected{{end}}>Ad</option>
+                    <option value="surname"{{if SortBy == "surname"}} selected{{end}}>Soyad</option>
+                    <option value="email"{{if SortBy == "email"}} selected{{end}}>E-posta</option>
+                    <option value="phone"{{if SortBy == "phone"}} selected{{end}}>Telefon</option>
+                    <option value="last_login"{{if SortBy == "last_login"}} selected{{end}}>Son Giriş</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="desc">Azalan</option>
-                    <option value="asc">Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC"}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -486,5 +492,66 @@
         currentPage: {{Page ? Page : 1}},
         perPage: {{ 10 }}
     };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const role = roleFilter.value;
+            const status = statusFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (role && role !== 'all') {
+                params.append('role', role);
+            }
+            if (status && status !== 'all') {
+                params.append('status', status);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/kullanicilar.js"></script>

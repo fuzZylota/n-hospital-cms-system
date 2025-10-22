@@ -613,6 +613,10 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 			"Count":        len(OptionsArray),
 			"User":         ourUser,
 			"Options":      GetOptions,
+			"Query":        Query,
+			"Status":       Status,
+			"SortBy":       SortBy,
+			"SortOrder":    SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
@@ -884,11 +888,53 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 			return c.Redirect("/giris")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+		Role := c.Query("role", "all")
+
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		Users := utilities.Orm.Select([]string{"uid", "name", "surname", "email", "phone", "role", "is_active", "last_login"})
 		Users.Table("users")
+
+		if Query != "" {
+			Users.OpenParenthesis("WHERE")
+			Users.Like("WHERE", "name", Query, "contains")
+			Users.Like("OR", "surname", Query, "contains")
+			Users.Like("OR", "email", Query, "contains")
+			Users.Like("OR", "phone", Query, "contains")
+			Users.CloseParenthesis()
+
+			if Status != "all" {
+				Users.And("is_active", "=", Status == "active")
+			}
+
+			if Role != "all" {
+				Users.And("role", "=", Role)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Users.Query, "WHERE") {
+				Users.And("is_active", "=", Status == "active")
+			} else {
+				Users.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		if Role != "all" {
+			if strings.Contains(Users.Query, "WHERE") {
+				Users.And("role", "=", Role)
+			} else {
+				Users.Where("role", "=", Role)
+			}
+		}
+
+		Users.OrderBy(SortBy, SortOrder)
+
 		Users.Limit(int(itemsPerPage))
 		Users.Offset(offset)
 		Users.Finish()
@@ -927,6 +973,11 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 			"Count":       len(UsersArray),
 			"User":        ourUser,
 			"Options":     BackendOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"Role":        Role,
 		}, "layouts/panel/panel")
 	}
 }

@@ -70,12 +70,46 @@
 .search-group {
     flex: 1;
     max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-form {
+    flex: 1;
+    display: flex;
 }
 
 .search-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    flex: 1;
+}
+
+.search-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.search-filter-btn:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+.search-filter-btn:active {
+    transform: translateY(0);
 }
 
 .search-icon {

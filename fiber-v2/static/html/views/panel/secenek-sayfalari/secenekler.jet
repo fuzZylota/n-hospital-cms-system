@@ -45,20 +45,20 @@
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="all">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all"{{if Status == "all"}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
+                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="site_name">Site Adı</option>
-                    <option value="site_description">Site Açıklaması</option>
-                    <option value="option_set_name">Seçenek Adı</option>
-                    <option value="option_set_description">Seçenek Açıklaması</option>
-                    <option value="smtp_username">SMTP Kullanıcı Adı</option>
+                    <option value="site_name"{{if SortBy == "site_name"}} selected{{end}}>Site Adı</option>
+                    <option value="site_description"{{if SortBy == "site_description"}} selected{{end}}>Site Açıklaması</option>
+                    <option value="option_set_name"{{if SortBy == "option_set_name"}} selected{{end}}>Seçenek Adı</option>
+                    <option value="option_set_description"{{if SortBy == "option_set_description"}} selected{{end}}>Seçenek Açıklaması</option>
+                    <option value="smtp_username"{{if SortBy == "smtp_username"}} selected{{end}}>SMTP Kullanıcı Adı</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="ASC">Artan</option>
-                    <option value="DESC">Azalan</option>
+                    <option value="ASC"{{if SortOrder == "ASC"}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
