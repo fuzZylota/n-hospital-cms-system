@@ -2885,73 +2885,73 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		// Create professional HTML email template for job application response
 		{
 			Html = `<!DOCTYPE html>
-					<html lang="tr">
-					<head>
-						<meta charset="UTF-8">
-						<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="tr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 						<title>` + inputs.Title + `</title>
-						<style>
-							body {
-								margin: 0;
-								padding: 0;
-								font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-								background-color: #f4f7fa;
-								color: #333333;
-							}
-							.email-container {
-								max-width: 600px;
-								margin: 40px auto;
-								background-color: #ffffff;
-								border-radius: 12px;
-								overflow: hidden;
-								box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-							}
-							.header {
-								padding: 40px 30px;
-								text-align: center;
-								color: #ffffff;
-							}
-							.header img {
-								max-width: 180px;
-								height: auto;
-								margin-bottom: 20px;
-								filter: brightness(0) invert(1);
-							}
-							.header h1 {
-								margin: 0;
-								font-size: 28px;
-								font-weight: 600;
-								letter-spacing: -0.5px;
-								color: #252525 !important;
-							}
-							.content {
-								padding: 40px 30px;
-							}
-							.greeting {
-								font-size: 18px;
-								color: #283b6a;
-								margin-bottom: 20px;
-								font-weight: 600;
-							}
-							.message {
-								font-size: 16px;
-								line-height: 1.8;
-								color: #555555;
-								margin-bottom: 25px;
-							}
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f4f7fa;
+			color: #333333;
+		}
+		.email-container {
+			max-width: 600px;
+			margin: 40px auto;
+			background-color: #ffffff;
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+		.header {
+			padding: 40px 30px;
+			text-align: center;
+			color: #ffffff;
+		}
+		.header img {
+			max-width: 180px;
+			height: auto;
+			margin-bottom: 20px;
+			filter: brightness(0) invert(1);
+		}
+		.header h1 {
+			margin: 0;
+			font-size: 28px;
+			font-weight: 600;
+			letter-spacing: -0.5px;
+			color: #252525 !important;
+		}
+		.content {
+			padding: 40px 30px;
+		}
+		.greeting {
+			font-size: 18px;
+			color: #283b6a;
+			margin-bottom: 20px;
+			font-weight: 600;
+		}
+		.message {
+			font-size: 16px;
+			line-height: 1.8;
+			color: #555555;
+			margin-bottom: 25px;
+		}
 							.response-box {
-								background-color: #f8f9fc;
+			background-color: #f8f9fc;
 								border-left: 4px solid ` + GetOptions.Options.PrimaryColor + `;
-								padding: 20px 25px;
-								margin: 25px 0;
-								border-radius: 6px;
-							}
+			padding: 20px 25px;
+			margin: 25px 0;
+			border-radius: 6px;
+		}
 							.response-box h3 {
-								margin: 0 0 15px 0;
-								color: #283b6a;
-								font-size: 18px;
-								font-weight: 600;
-							}
+			margin: 0 0 15px 0;
+			color: #283b6a;
+			font-size: 18px;
+			font-weight: 600;
+		}
 							.response-text {
 								background-color: #ffffff;
 								padding: 20px;
@@ -2962,152 +2962,152 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 							}
 							.responder-info {
 								background-color: #f0f4ff;
-								border-radius: 8px;
-								padding: 20px;
-								margin: 25px 0;
+			border-radius: 8px;
+			padding: 20px;
+			margin: 25px 0;
 								text-align: center;
-							}
+		}
 							.responder-info h3 {
-								color: #283b6a;
-								margin-top: 0;
-								font-size: 18px;
-							}
+			color: #283b6a;
+			margin-top: 0;
+			font-size: 18px;
+		}
 							.responder-info p {
 								margin: 5px 0;
-								color: #555555;
-							}
-							.contact-info {
-								background-color: #f0f4ff;
-								border-radius: 8px;
-								padding: 20px;
-								margin: 25px 0;
-								text-align: center;
-							}
-							.contact-info h3 {
-								color: #283b6a;
-								margin-top: 0;
-								font-size: 18px;
-							}
-							.contact-info p {
-								margin: 5px 0;
-								color: #555555;
-							}
-							.contact-info a {
-								color: ` + GetOptions.Options.PrimaryColor + `;
-								text-decoration: none;
-								font-weight: 600;
-							}
-							.footer {
-								background-color: #f8f9fc;
-								padding: 30px;
-								text-align: center;
-								font-size: 13px;
-								color: #888888;
-								border-top: 1px solid #e1e8ed;
-							}
-							.footer p {
-								margin: 5px 0;
-							}
-							.footer a {
-								color: ` + GetOptions.Options.PrimaryColor + `;
-								text-decoration: none;
-							}
-							.social-links {
-								margin: 20px 0 10px;
-							}
-							.social-links a {
-								display: inline-block;
-								margin: 0 8px;
-								color: #888888;
-								text-decoration: none;
-								font-size: 12px;
-							}
-							@media only screen and (max-width: 600px) {
-								.email-container {
-									margin: 0;
-									border-radius: 0;
-								}
-								.header, .content, .footer {
-									padding: 25px 20px;
-								}
-								.header h1 {
-									font-size: 24px;
-								}
-							}
-						</style>
-					</head>
-					<body>
-						<div class="email-container">
-							<div class="header">
-								<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+			color: #555555;
+		}
+		.contact-info {
+			background-color: #f0f4ff;
+			border-radius: 8px;
+			padding: 20px;
+			margin: 25px 0;
+			text-align: center;
+		}
+		.contact-info h3 {
+			color: #283b6a;
+			margin-top: 0;
+			font-size: 18px;
+		}
+		.contact-info p {
+			margin: 5px 0;
+			color: #555555;
+		}
+		.contact-info a {
+			color: ` + GetOptions.Options.PrimaryColor + `;
+			text-decoration: none;
+			font-weight: 600;
+		}
+		.footer {
+			background-color: #f8f9fc;
+			padding: 30px;
+			text-align: center;
+			font-size: 13px;
+			color: #888888;
+			border-top: 1px solid #e1e8ed;
+		}
+		.footer p {
+			margin: 5px 0;
+		}
+		.footer a {
+			color: ` + GetOptions.Options.PrimaryColor + `;
+			text-decoration: none;
+		}
+		.social-links {
+			margin: 20px 0 10px;
+		}
+		.social-links a {
+			display: inline-block;
+			margin: 0 8px;
+			color: #888888;
+			text-decoration: none;
+			font-size: 12px;
+		}
+		@media only screen and (max-width: 600px) {
+			.email-container {
+				margin: 0;
+				border-radius: 0;
+			}
+			.header, .content, .footer {
+				padding: 25px 20px;
+			}
+			.header h1 {
+				font-size: 24px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
 								<h1>` + inputs.Title + `</h1>
-							</div>
-							
-							<div class="content">
-								<div class="greeting">
+		</div>
+		
+		<div class="content">
+			<div class="greeting">
 									Sayın ` + ContactRequestData.FirstName + ` ` + ContactRequestData.LastName + `,
-								</div>
-								
-								<div class="message">
+			</div>
+			
+			<div class="message">
 									<strong>` + GetOptions.Options.SiteName + `</strong> İletişim ekibimiz tarafından size aşağıdaki gibi cevap verilmiştir.
-								</div>
-								
+			</div>
+			
 								<div class="response-box">
 									<h3>📧 Cevabımız</h3>
 									<div class="response-text">
 										` + inputs.ResponseText + `
-									</div>
-								</div>
+			</div>
+				</div>
 								
 								<div class="responder-info">
 									<h3>👤 Cevap Veren</h3>
 									<p><strong>` + inputs.ResponderName + `</strong></p>
 									<p>` + GetOptions.Options.SiteName + ` İletişim Ekibi</p>
-								</div>
-								
-								<div class="contact-info">
-									<h3>📞 Bize Ulaşın</h3>
-									<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-									<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
-								</div>
-								
-								<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
+			</div>
+			
+			<div class="contact-info">
+				<h3>📞 Bize Ulaşın</h3>
+				<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
+				<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+			</div>
+			
+			<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
 									Bu e-posta ` + GetOptions.Options.SiteName + ` İletişim ekibi tarafından gönderilmiştir. 
-									Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
-								</div>
-							</div>
-							
-							<div class="footer">
-								<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-								<p>` + GetOptions.Options.SiteDescription + `</p>
-								
-								<div class="social-links">`
+				Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
+			</div>
+		</div>
+		
+		<div class="footer">
+			<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
+			<p>` + GetOptions.Options.SiteDescription + `</p>
+			
+			<div class="social-links">`
 
 			if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+				<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
 			}
 			if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+				<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
 			}
 			if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+				<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
 			}
 			if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+				<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
 			}
 
 			Html += `
-								</div>
-								
+			</div>
+			
 								<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
-							</div>
-						</div>
-					</body>
-					</html>`
+		</div>
+	</div>
+</body>
+</html>`
 		}
 
 		CreateEmailInfos := models.EmailInfos{
@@ -3141,11 +3141,11 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		err = UpdateContactRequest.Execute()
 		if err != nil {
 			log.Printf("Cannot update contact request: %v\n", err)
-			return c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
+		})
+}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -3400,349 +3400,349 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.Email != "" {
-			GetLogo := ""
+		GetLogo := ""
 
-			if (*GetOptions.Medias)[0].FilePath != "" {
-				GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
-			} else {
-				GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
+		if (*GetOptions.Medias)[0].FilePath != "" {
+			GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+		} else {
+			GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
+		}
+
+		LogoName := filepath.Base(GetLogo)
+
+		Html := ""
+		// Create professional HTML email template
+		{
+			Html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>İş Başvurunuz Alındı</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f4f7fa;
+			color: #333333;
+		}
+		.email-container {
+			max-width: 600px;
+			margin: 40px auto;
+			background-color: #ffffff;
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+		.header {
+			padding: 40px 30px;
+			text-align: center;
+			color: #ffffff;
+		}
+		.header img {
+			max-width: 180px;
+			height: auto;
+			margin-bottom: 20px;
+			filter: brightness(0) invert(1);
+		}
+		.header h1 {
+			margin: 0;
+			font-size: 28px;
+			font-weight: 600;
+			letter-spacing: -0.5px;
+			color: #252525 !important;
+		}
+		.content {
+			padding: 40px 30px;
+		}
+		.greeting {
+			font-size: 18px;
+			color: #283b6a;
+			margin-bottom: 20px;
+			font-weight: 600;
+		}
+		.message {
+			font-size: 16px;
+			line-height: 1.8;
+			color: #555555;
+			margin-bottom: 25px;
+		}
+		.info-box {
+			background-color: #f8f9fc;
+			border-left: 4px solid ` + GetOptions.Options.AccentColor + `;
+			padding: 20px 25px;
+			margin: 25px 0;
+			border-radius: 6px;
+		}
+		.info-box h3 {
+			margin: 0 0 15px 0;
+			color: #283b6a;
+			font-size: 18px;
+			font-weight: 600;
+		}
+		.info-row {
+			display: flex;
+			justify-content: space-between;
+			padding: 10px 0;
+			border-bottom: 1px solid #e1e8ed;
+			flex-wrap: wrap;
+		}
+		.info-row:last-child {
+			border-bottom: none;
+		}
+		.info-label {
+			font-weight: 600;
+			color: #283b6a;
+			margin-right: 15px;
+		}
+		.info-value {
+			color: #555555;
+			text-align: right;
+			flex: 1;
+		}
+		.status-badge {
+			display: inline-block;
+			background-color: #4CAF50;
+			color: #ffffff;
+			padding: 10px 20px;
+			border-radius: 25px;
+			font-size: 14px;
+			font-weight: 600;
+			margin: 20px 0;
+		}
+		.next-steps {
+			background-color: #fff9e6;
+			border-radius: 8px;
+			padding: 20px;
+			margin: 25px 0;
+		}
+		.next-steps h3 {
+			color: #283b6a;
+			margin-top: 0;
+			font-size: 18px;
+		}
+		.next-steps ul {
+			margin: 10px 0;
+			padding-left: 20px;
+		}
+		.next-steps li {
+			color: #555555;
+			margin: 8px 0;
+			line-height: 1.6;
+		}
+		.contact-info {
+			background-color: #f0f4ff;
+			border-radius: 8px;
+			padding: 20px;
+			margin: 25px 0;
+			text-align: center;
+		}
+		.contact-info h3 {
+			color: #283b6a;
+			margin-top: 0;
+			font-size: 18px;
+		}
+		.contact-info p {
+			margin: 5px 0;
+			color: #555555;
+		}
+		.contact-info a {
+			color: ` + GetOptions.Options.PrimaryColor + `;
+			text-decoration: none;
+			font-weight: 600;
+		}
+		.footer {
+			background-color: #f8f9fc;
+			padding: 30px;
+			text-align: center;
+			font-size: 13px;
+			color: #888888;
+			border-top: 1px solid #e1e8ed;
+		}
+		.footer p {
+			margin: 5px 0;
+		}
+		.footer a {
+			color: ` + GetOptions.Options.PrimaryColor + `;
+			text-decoration: none;
+		}
+		.social-links {
+			margin: 20px 0 10px;
+		}
+		.social-links a {
+			display: inline-block;
+			margin: 0 8px;
+			color: #888888;
+			text-decoration: none;
+			font-size: 12px;
+		}
+		@media only screen and (max-width: 600px) {
+			.email-container {
+				margin: 0;
+				border-radius: 0;
+			}
+			.header, .content, .footer {
+				padding: 25px 20px;
+			}
+			.header h1 {
+				font-size: 24px;
+			}
+			.info-row {
+				flex-direction: column;
+			}
+			.info-value {
+				text-align: left;
+				margin-top: 5px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+			<h1>İş Başvurunuz Alındı</h1>
+		</div>
+		
+		<div class="content">
+			<div class="greeting">
+				Sayın ` + inputs.FirstName + ` ` + inputs.LastName + `,
+			</div>
+			
+			<div class="message">
+				<strong>` + GetOptions.Options.SiteName + `</strong> ailesine gösterdiğiniz ilgi için teşekkür ederiz. 
+				İş başvurunuz başarıyla tarafımıza ulaşmıştır ve insan kaynakları departmanımız tarafından 
+				titizlikle değerlendirilecektir.
+			</div>
+			
+			<div class="status-badge">
+				✓ Başvuru Alındı
+			</div>
+			
+			<div class="info-box">
+				<h3>📋 Başvuru Bilgileriniz</h3>
+				<div class="info-row">
+					<span class="info-label">Ad Soyad:</span>
+					<span class="info-value">` + inputs.FirstName + ` ` + inputs.LastName + `</span>
+				</div>
+				<div class="info-row">
+					<span class="info-label">E-posta:</span>
+					<span class="info-value">` + inputs.Email + `</span>
+				</div>`
+
+			if inputs.Phone != "" {
+				Html += `
+				<div class="info-row">
+					<span class="info-label">Telefon:</span>
+					<span class="info-value">` + inputs.Phone + `</span>
+				</div>`
 			}
 
-			LogoName := filepath.Base(GetLogo)
+			Html += `
+				<div class="info-row">
+					<span class="info-label">Şehir:</span>
+					<span class="info-value">` + inputs.City + `</span>
+				</div>`
 
-			Html := ""
-			// Create professional HTML email template
-			{
-				Html = `<!DOCTYPE html>
-						<html lang="tr">
-						<head>
-							<meta charset="UTF-8">
-							<meta name="viewport" content="width=device-width, initial-scale=1.0">
-							<title>İş Başvurunuz Alındı</title>
-							<style>
-								body {
-									margin: 0;
-									padding: 0;
-									font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-									background-color: #f4f7fa;
-									color: #333333;
-								}
-								.email-container {
-									max-width: 600px;
-									margin: 40px auto;
-									background-color: #ffffff;
-									border-radius: 12px;
-									overflow: hidden;
-									box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-								}
-								.header {
-									padding: 40px 30px;
-									text-align: center;
-									color: #ffffff;
-								}
-								.header img {
-									max-width: 180px;
-									height: auto;
-									margin-bottom: 20px;
-									filter: brightness(0) invert(1);
-								}
-								.header h1 {
-									margin: 0;
-									font-size: 28px;
-									font-weight: 600;
-									letter-spacing: -0.5px;
-									color: #252525 !important;
-								}
-								.content {
-									padding: 40px 30px;
-								}
-								.greeting {
-									font-size: 18px;
-									color: #283b6a;
-									margin-bottom: 20px;
-									font-weight: 600;
-								}
-								.message {
-									font-size: 16px;
-									line-height: 1.8;
-									color: #555555;
-									margin-bottom: 25px;
-								}
-								.info-box {
-									background-color: #f8f9fc;
-									border-left: 4px solid ` + GetOptions.Options.AccentColor + `;
-									padding: 20px 25px;
-									margin: 25px 0;
-									border-radius: 6px;
-								}
-								.info-box h3 {
-									margin: 0 0 15px 0;
-									color: #283b6a;
-									font-size: 18px;
-									font-weight: 600;
-								}
-								.info-row {
-									display: flex;
-									justify-content: space-between;
-									padding: 10px 0;
-									border-bottom: 1px solid #e1e8ed;
-									flex-wrap: wrap;
-								}
-								.info-row:last-child {
-									border-bottom: none;
-								}
-								.info-label {
-									font-weight: 600;
-									color: #283b6a;
-									margin-right: 15px;
-								}
-								.info-value {
-									color: #555555;
-									text-align: right;
-									flex: 1;
-								}
-								.status-badge {
-									display: inline-block;
-									background-color: #4CAF50;
-									color: #ffffff;
-									padding: 10px 20px;
-									border-radius: 25px;
-									font-size: 14px;
-									font-weight: 600;
-									margin: 20px 0;
-								}
-								.next-steps {
-									background-color: #fff9e6;
-									border-radius: 8px;
-									padding: 20px;
-									margin: 25px 0;
-								}
-								.next-steps h3 {
-									color: #283b6a;
-									margin-top: 0;
-									font-size: 18px;
-								}
-								.next-steps ul {
-									margin: 10px 0;
-									padding-left: 20px;
-								}
-								.next-steps li {
-									color: #555555;
-									margin: 8px 0;
-									line-height: 1.6;
-								}
-								.contact-info {
-									background-color: #f0f4ff;
-									border-radius: 8px;
-									padding: 20px;
-									margin: 25px 0;
-									text-align: center;
-								}
-								.contact-info h3 {
-									color: #283b6a;
-									margin-top: 0;
-									font-size: 18px;
-								}
-								.contact-info p {
-									margin: 5px 0;
-									color: #555555;
-								}
-								.contact-info a {
-									color: ` + GetOptions.Options.PrimaryColor + `;
-									text-decoration: none;
-									font-weight: 600;
-								}
-								.footer {
-									background-color: #f8f9fc;
-									padding: 30px;
-									text-align: center;
-									font-size: 13px;
-									color: #888888;
-									border-top: 1px solid #e1e8ed;
-								}
-								.footer p {
-									margin: 5px 0;
-								}
-								.footer a {
-									color: ` + GetOptions.Options.PrimaryColor + `;
-									text-decoration: none;
-								}
-								.social-links {
-									margin: 20px 0 10px;
-								}
-								.social-links a {
-									display: inline-block;
-									margin: 0 8px;
-									color: #888888;
-									text-decoration: none;
-									font-size: 12px;
-								}
-								@media only screen and (max-width: 600px) {
-									.email-container {
-										margin: 0;
-										border-radius: 0;
-									}
-									.header, .content, .footer {
-										padding: 25px 20px;
-									}
-									.header h1 {
-										font-size: 24px;
-									}
-									.info-row {
-										flex-direction: column;
-									}
-									.info-value {
-										text-align: left;
-										margin-top: 5px;
-									}
-								}
-							</style>
-						</head>
-						<body>
-							<div class="email-container">
-								<div class="header">
-									<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
-									<h1>İş Başvurunuz Alındı</h1>
-								</div>
-								
-								<div class="content">
-									<div class="greeting">
-										Sayın ` + inputs.FirstName + ` ` + inputs.LastName + `,
-									</div>
-									
-									<div class="message">
-										<strong>` + GetOptions.Options.SiteName + `</strong> ailesine gösterdiğiniz ilgi için teşekkür ederiz. 
-										İş başvurunuz başarıyla tarafımıza ulaşmıştır ve insan kaynakları departmanımız tarafından 
-										titizlikle değerlendirilecektir.
-									</div>
-									
-									<div class="status-badge">
-										✓ Başvuru Alındı
-									</div>
-									
-									<div class="info-box">
-										<h3>📋 Başvuru Bilgileriniz</h3>
-										<div class="info-row">
-											<span class="info-label">Ad Soyad:</span>
-											<span class="info-value">` + inputs.FirstName + ` ` + inputs.LastName + `</span>
-										</div>
-										<div class="info-row">
-											<span class="info-label">E-posta:</span>
-											<span class="info-value">` + inputs.Email + `</span>
-										</div>`
-
-				if inputs.Phone != "" {
-					Html += `
-										<div class="info-row">
-											<span class="info-label">Telefon:</span>
-											<span class="info-value">` + inputs.Phone + `</span>
-										</div>`
-				}
-
+			if inputs.PositionApplied != "" {
 				Html += `
-										<div class="info-row">
-											<span class="info-label">Şehir:</span>
-											<span class="info-value">` + inputs.City + `</span>
-										</div>`
+				<div class="info-row">
+					<span class="info-label">Başvurulan Pozisyon:</span>
+					<span class="info-value">` + inputs.PositionApplied + `</span>
+				</div>`
+			}
 
-				if inputs.PositionApplied != "" {
-					Html += `
-										<div class="info-row">
-											<span class="info-label">Başvurulan Pozisyon:</span>
-											<span class="info-value">` + inputs.PositionApplied + `</span>
-										</div>`
-				}
-
-				if inputs.University != "" {
-					Html += `
-										<div class="info-row">
-											<span class="info-label">Üniversite:</span>
-											<span class="info-value">` + inputs.University + `</span>
-										</div>`
-				}
-
-				if inputs.Languages != "" {
-					Html += `
-										<div class="info-row">
-											<span class="info-label">Diller:</span>
-											<span class="info-value">` + inputs.Languages + `</span>
-										</div>`
-				}
-
+			if inputs.University != "" {
 				Html += `
-									</div>
-									
-									<div class="next-steps">
-										<h3>🎯 Sonraki Adımlar</h3>
-										<ul>
-											<li>Başvurunuz insan kaynakları departmanımız tarafından değerlendirilecektir</li>
-											<li>Uygun görülmeniz halinde tarafınıza dönüş yapılacaktır</li>
-											<li>Mülakat süreciyle ilgili detaylı bilgi e-posta veya telefon ile paylaşılacaktır</li>
-										</ul>
-									</div>
-									
-									<div class="contact-info">
-										<h3>📞 İletişim</h3>
-										<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-										<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
-									</div>
-									
-									<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
-										Bu e-posta otomatik olarak oluşturulmuştur. Lütfen bu e-postaya cevap vermeyiniz. 
-										Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
-									</div>
-								</div>
-								
-								<div class="footer">
-									<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-									<p>` + GetOptions.Options.SiteDescription + `</p>
-									
-									<div class="social-links">`
+				<div class="info-row">
+					<span class="info-label">Üniversite:</span>
+					<span class="info-value">` + inputs.University + `</span>
+				</div>`
+			}
 
-				if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
-					Html += `
-										<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
-				}
-				if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
-					Html += `
-										<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
-				}
-				if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
-					Html += `
-										<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
-				}
-				if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
-					Html += `
-										<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
-				}
-
+			if inputs.Languages != "" {
 				Html += `
-									</div>
-									
+				<div class="info-row">
+					<span class="info-label">Diller:</span>
+					<span class="info-value">` + inputs.Languages + `</span>
+				</div>`
+			}
+
+			Html += `
+			</div>
+			
+			<div class="next-steps">
+				<h3>🎯 Sonraki Adımlar</h3>
+				<ul>
+					<li>Başvurunuz insan kaynakları departmanımız tarafından değerlendirilecektir</li>
+					<li>Uygun görülmeniz halinde tarafınıza dönüş yapılacaktır</li>
+					<li>Mülakat süreciyle ilgili detaylı bilgi e-posta veya telefon ile paylaşılacaktır</li>
+				</ul>
+			</div>
+			
+			<div class="contact-info">
+				<h3>📞 İletişim</h3>
+				<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
+				<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+			</div>
+			
+			<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
+				Bu e-posta otomatik olarak oluşturulmuştur. Lütfen bu e-postaya cevap vermeyiniz. 
+				Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
+			</div>
+		</div>
+		
+		<div class="footer">
+			<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
+			<p>` + GetOptions.Options.SiteDescription + `</p>
+			
+			<div class="social-links">`
+
+			if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+				Html += `
+				<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+			}
+			if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+				Html += `
+				<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+			}
+			if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+				Html += `
+				<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+			}
+			if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+				Html += `
+				<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+			}
+
+			Html += `
+			</div>
+			
 									<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
-								</div>
-							</div>
-						</body>
-						</html>`
-			}
+		</div>
+	</div>
+</body>
+</html>`
+		}
 
-			CreateEmailInfos := models.EmailInfos{
-				From:        GetOptions.Options.SiteName,
-				To:          []string{inputs.Email},
-				Username:    GetOptions.Options.SMTPUsername,
-				Password:    GetOptions.Options.SMTPPassword,
-				Host:        GetOptions.Options.SMTPHost,
-				Port:        lib.Int64(GetOptions.Options.SMTPPort),
-				Subject:     "İş Başvurunuz Alındı - " + GetOptions.Options.SiteName,
-				PlainText:   "Sayın " + inputs.FirstName + " " + inputs.LastName + ", iş başvurunuz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
-				Body:        Html,
-				Attachments: []string{GetLogo},
-			}
+		CreateEmailInfos := models.EmailInfos{
+			From:        GetOptions.Options.SiteName,
+			To:          []string{inputs.Email},
+			Username:    GetOptions.Options.SMTPUsername,
+			Password:    GetOptions.Options.SMTPPassword,
+			Host:        GetOptions.Options.SMTPHost,
+			Port:        lib.Int64(GetOptions.Options.SMTPPort),
+			Subject:     "İş Başvurunuz Alındı - " + GetOptions.Options.SiteName,
+			PlainText:   "Sayın " + inputs.FirstName + " " + inputs.LastName + ", iş başvurunuz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
+			Body:        Html,
+			Attachments: []string{GetLogo},
+		}
 
-			err = lib.SendEmail(&CreateEmailInfos)
+		err = lib.SendEmail(&CreateEmailInfos)
 
-			if err != nil {
-				log.Printf("Cannot send email: %v\n", err)
+		if err != nil {
+			log.Printf("Cannot send email: %v\n", err)
 			}
 		}
 

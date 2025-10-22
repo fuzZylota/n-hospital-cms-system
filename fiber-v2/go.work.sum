@@ -1,5 +1,3 @@
-github.com/Necoo33/fiber-ws-broadcaster v0.2.0 h1:4e8ht9B5JcQLHBcp3/M4Q+swq4qyyQmm5V8xYPw9xPs=
-github.com/Necoo33/fiber-ws-broadcaster v0.2.0/go.mod h1:i28HNdn8vP6m/VExAedNZSsoSQ6ugdKIHacCV6rPJ8c=
 github.com/Necoo33/neormgo v1.1.3 h1:gpkRFTFVwi1nqsRKgcKSdxUrnaOw9DkT82VVJe+Gwxc=
 github.com/Necoo33/neormgo v1.1.3/go.mod h1:XF8nerh9zuMbioKhWcxsOcESS4oDIlFf0r5xmMKGY0Y=
 github.com/Necoo33/neormgo v1.3.1 h1:ApaYwrLPfDPY4VsFiveXq3m88eB39n3XRTxdGGtAICA=
@@ -21,7 +19,8 @@ github.com/Necoo33/neormgo v1.8.0 h1:mm5w7HKx/x+W5ewx3DZLqtX3VIKZTs3jug/DTIbyvZQ
 github.com/Necoo33/neormgo v1.8.1 h1:7K/rcccq38xlKBzP/YLqxdbaWomtUpvryWQTsjgPR88=
 github.com/Necoo33/neormgo v1.9.0 h1:1fcITF9hhyeOgy3YXadPaCltmijQJZQRlMASuU5qK1U=
 github.com/Necoo33/neormgo v1.9.0/go.mod h1:XF8nerh9zuMbioKhWcxsOcESS4oDIlFf0r5xmMKGY0Y=
-github.com/Necoo33/neormgo/v2 v2.0.2/go.mod h1:t7Kpx4HSieG9nlEPBt1v/XJBqjB31dhg10bSQ/23nmA=
+github.com/Necoo33/neormgo/v2 v2.1.0 h1:AqnVFtD5LRNISIL3AceoY/ezPIacc4DIHt6PPdWLvs4=
+github.com/Necoo33/neormgo/v2 v2.1.0/go.mod h1:t7Kpx4HSieG9nlEPBt1v/XJBqjB31dhg10bSQ/23nmA=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/klauspost/compress v1.17.6/go.mod h1:/dCuZOvVtNoHsyb+cuJD3itjs3NbnF6KH9zAO4BDxPM=
 github.com/klauspost/compress v1.17.7/go.mod h1:Di0epgTjJY877eYKx5yC51cX2A2Vl2ibi7bDH9ttBbw=
@@ -29,7 +28,6 @@ github.com/philhofer/fwd v1.1.2/go.mod h1:qkPdfjR2SIEbspLqpe1tO4n5yICnr2DY7mqEx2
 github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c/go.mod h1:RqIHx9QI14HlwKwm98g9Re5prTQ6LdeRQn+gXJFxsJM=
 github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94/go.mod h1:90zrgN3D/WJsDd1iXHT96alCoN2KJo6/4x1DZC3wZs8=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tinylib/msgp v1.1.8/go.mod h1:qkpG+2ldGg4xRFmx+jfTvZPxfGFhi64BcnL9vkCm/Tw=
 github.com/tinylib/msgp v1.2.5/go.mod h1:ykjzy2wzgrlvpDCRc4LA8UXy6D8bzMSuAF3WD57Gok0=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
@@ -54,4 +52,3 @@ golang.org/x/text v0.28.0/go.mod h1:U8nCwOR8jO/marOQ0QbDiOngZVEBB7MAiitBuMjXiNU=
 golang.org/x/text v0.29.0/go.mod h1:7MhJOA9CD2qZyOKYazxdYMF85OwPdEr9jTtBpO7ydH4=
 golang.org/x/tools v0.22.0/go.mod h1:aCwcsjqvq7Yqt6TNyX7QMU2enbQ/Gt0bo6krSeEri+c=
 golang.org/x/tools v0.36.0/go.mod h1:WBDiHKJK8YgLHlcQPYQzNCkUxUypCaa5ZegCVutKm+s=
-gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

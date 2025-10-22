@@ -3,7 +3,7 @@ module lib
 go 1.25.1
 
 require (
-	github.com/Necoo33/neormgo/v2 v2.0.2
+	github.com/Necoo33/neormgo/v2 v2.1.0
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/gofiber/contrib/websocket v1.3.4
 	github.com/gofiber/fiber/v2 v2.52.9

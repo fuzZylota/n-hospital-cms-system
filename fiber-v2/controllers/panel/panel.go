@@ -538,14 +538,44 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 			return c.Redirect("/giris")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "option_set_updated_at")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		Options := Orm.Select([]string{"oid", "option_set_name", "option_set_description", "option_set_is_active", "option_set_updated_at", "option_set_created_at", "site_name", "site_description", "contact_email", "contact_phone"})
 		Options.Table("options")
+
+		if Query != "" {
+			Options.OpenParenthesis("WHERE")
+			Options.Like("WHERE", "option_set_name", Query, "contains")
+			Options.Like("OR", "option_set_description", Query, "contains")
+			Options.Like("OR", "site_name", Query, "contains")
+			Options.Like("OR", "site_description", Query, "contains")
+			Options.Like("OR", "contact_email", Query, "contains")
+			Options.CloseParenthesis()
+
+			if Status != "all" {
+				Options.And("option_set_is_active", "=", Status == "active")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Options.Query, "WHERE") {
+				Options.And("option_set_is_active", "=", Status == "active")
+			} else {
+				Options.Where("option_set_is_active", "=", Status == "active")
+			}
+		}
+
+		Options.OrderBy(SortBy, SortOrder)
 		Options.Limit(int(itemsPerPage))
 		Options.Offset(offset)
 		Options.Finish()
+
 		err = Options.Execute()
 
 		if err != nil {
