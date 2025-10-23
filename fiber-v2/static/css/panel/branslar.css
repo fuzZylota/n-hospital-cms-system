@@ -70,12 +70,21 @@
 .search-group {
     flex: 1;
     max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-form {
+    flex: 1;
+    display: flex;
 }
 
 .search-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    flex: 1;
 }
 
 .search-icon {
@@ -122,6 +131,26 @@
 .search-clear:hover {
     background: var(--bg-tertiary);
     color: var(--text-primary);
+}
+
+.search-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.search-filter-btn:hover {
+    background: var(--primary-dark);
+    opacity: 0.8;
 }
 
 .filter-group {

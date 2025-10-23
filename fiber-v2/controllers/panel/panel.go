@@ -3080,6 +3080,34 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			return c.Redirect("/panel")
 		}
 
+		GetAllSubeler := Orm.CustomSelectQuery("SELECT DISTINCT s.name, s.sid FROM branslar b LEFT JOIN subeler s ON b.sid = s.sid")
+		GetAllSubeler.Finish()
+		err = GetAllSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err := GetAllSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllSubelerArray := []models.Subeler{}
+		for _, row := range rows {
+			GetAllSubelerArray = append(GetAllSubelerArray, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+		Subeler := c.Query("sube", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
@@ -3098,7 +3126,37 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		Branslar.LeftJoin("doktorlar d", "br.head_drid", "=", "d.drid")
 		Branslar.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
 		Branslar.LeftJoin("subeler s", "br.sid", "=", "s.sid")
-		Branslar.OrderBy("br.created_at", "DESC")
+		if Query != "" {
+			Branslar.OpenParenthesis("WHERE")
+			Branslar.Like("WHERE", "br.name", Query, "contains")
+			Branslar.Like("OR", "br.description", Query, "contains")
+			Branslar.CloseParenthesis()
+
+			if Status != "all" {
+				Branslar.And("br.is_active", "=", Status == "active")
+			}
+
+			if Subeler != "all" {
+				Branslar.And("s.name", "=", Subeler)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Branslar.Query, "WHERE") {
+				Branslar.And("br.is_active", "=", Status == "active")
+			} else {
+				Branslar.Where("br.is_active", "=", Status == "active")
+			}
+		}
+
+		if Subeler != "all" {
+			if strings.Contains(Branslar.Query, "WHERE") {
+				Branslar.And("s.name", "=", Subeler)
+			} else {
+				Branslar.Where("s.name", "=", Subeler)
+			}
+		}
+		Branslar.OrderBy("br."+SortBy, SortOrder)
 		Branslar.Limit(int(itemsPerPage))
 		Branslar.Offset(offset)
 		Branslar.Finish()
@@ -3110,7 +3168,7 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			return c.Redirect("/panel")
 		}
 
-		rows, err := Branslar.Rows()
+		rows, err = Branslar.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
@@ -3155,6 +3213,8 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			})
 		}
 
+		fmt.Printf("Subeler: %v\n", GetAllSubelerArray)
+
 		return c.Render("views/panel/branslar-sayfalari/branslar", fiber.Map{
 			"PathOnStart": "../",
 			"PageTitle":   "N-Hospital | Bölümler",
@@ -3163,6 +3223,12 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			"Count":       len(BranslarArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"Sube":        Subeler,
+			"Subeler":     GetAllSubelerArray,
 		}, "layouts/panel/panel")
 	}
 }
