@@ -84,6 +84,7 @@
     position: relative;
     display: flex;
     align-items: center;
+    flex: 1;
 }
 
 .search-icon {
@@ -133,15 +134,15 @@
 }
 
 .search-filter-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: var(--primary-color);
-    color: var(--text-white);
-    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
     transition: var(--transition);
     flex-shrink: 0;

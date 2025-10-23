@@ -2711,12 +2711,36 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		Uzmanliklar := Orm.Select([]string{"uzid", "name", "url_name", "description", "icon", "is_active", "created_at", "updated_at"})
 		Uzmanliklar.Table("uzmanliklar")
-		Uzmanliklar.OrderBy("uzid", "ASC")
+		if Query != "" {
+			Uzmanliklar.OpenParenthesis("WHERE")
+			Uzmanliklar.Like("WHERE", "name", Query, "contains")
+			Uzmanliklar.Like("OR", "description", Query, "contains")
+			Uzmanliklar.CloseParenthesis()
+
+			if Status != "all" {
+				Uzmanliklar.And("is_active", "=", Status == "active")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Uzmanliklar.Query, "WHERE") {
+				Uzmanliklar.And("is_active", "=", Status == "active")
+			} else {
+				Uzmanliklar.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		Uzmanliklar.OrderBy(SortBy, SortOrder)
 		Uzmanliklar.Limit(int(itemsPerPage))
 		Uzmanliklar.Offset(offset)
 		Uzmanliklar.Finish()
@@ -2742,9 +2766,9 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 				UrlName:     lib.String(row["url_name"]),
 				Description: lib.String(row["description"]),
 				Icon:        lib.String(row["icon"]),
-				IsActive:    row["is_active"].(bool),
-				CreatedAt:   row["created_at"].(time.Time),
-				UpdatedAt:   row["updated_at"].(time.Time),
+				IsActive:    lib.Bool(row["is_active"]),
+				CreatedAt:   lib.Time(row["created_at"]),
+				UpdatedAt:   lib.Time(row["updated_at"]),
 			})
 		}
 
@@ -2756,6 +2780,10 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 			"Count":       len(UzmanliklarArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
