@@ -2344,13 +2344,53 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+		Type := c.Query("type", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		AnlasmaliKurumlar := Orm.Select([]string{"ak.akid", "ak.name", "ak.url_name", "ak.type", "ak.contact_person", "ak.phone", "ak.email", "ak.is_active", "ak.created_at", "ak.updated_at", "s.name as sube_name", "s.sid as sube_sid"})
 		AnlasmaliKurumlar.Table("anlasmali_kurumlar ak")
 		AnlasmaliKurumlar.InnerJoin("subeler s", "ak.sid", "=", "s.sid")
-		AnlasmaliKurumlar.OrderBy("akid", "DESC")
+		if Query != "" {
+			AnlasmaliKurumlar.OpenParenthesis("WHERE")
+			AnlasmaliKurumlar.Like("WHERE", "ak.name", Query, "contains")
+			AnlasmaliKurumlar.Like("OR", "ak.contact_person", Query, "contains")
+			AnlasmaliKurumlar.Like("OR", "ak.phone", Query, "contains")
+			AnlasmaliKurumlar.Like("OR", "ak.email", Query, "contains")
+			AnlasmaliKurumlar.Like("OR", "ak.address", Query, "contains")
+			AnlasmaliKurumlar.CloseParenthesis()
+
+			if Status != "all" {
+				AnlasmaliKurumlar.And("ak.is_active", "=", Status == "active")
+			}
+
+			if Type != "all" {
+				AnlasmaliKurumlar.And("ak.type", "=", Type)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(AnlasmaliKurumlar.Query, "WHERE") {
+				AnlasmaliKurumlar.And("ak.is_active", "=", Status == "active")
+			} else {
+				AnlasmaliKurumlar.Where("ak.is_active", "=", Status == "active")
+			}
+		}
+
+		if Type != "all" {
+			if strings.Contains(AnlasmaliKurumlar.Query, "WHERE") {
+				AnlasmaliKurumlar.And("ak.type", "=", Type)
+			} else {
+				AnlasmaliKurumlar.Where("ak.type", "=", Type)
+			}
+		}
+
+		AnlasmaliKurumlar.OrderBy("ak."+SortBy, SortOrder)
 		AnlasmaliKurumlar.Limit(int(itemsPerPage))
 		AnlasmaliKurumlar.Offset(offset)
 		AnlasmaliKurumlar.Finish()
@@ -2402,6 +2442,11 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 			"Count":             len(AnlasmaliKurumlarArray),
 			"User":              ourUser,
 			"Options":           GetOptions,
+			"Query":             Query,
+			"Status":            Status,
+			"SortBy":            SortBy,
+			"SortOrder":         SortOrder,
+			"Type":              Type,
 		}, "layouts/panel/panel")
 	}
 }

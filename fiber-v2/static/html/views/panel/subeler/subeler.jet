@@ -33,7 +33,7 @@
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" id="searchInput" class="search-input" 
                                placeholder="Şube adı, şehir veya adres ile ara..."
-                               autocomplete="off" spellcheck="false">
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
                         <button class="search-clear" id="searchClear" style="display: none;">
                             <i class="fas fa-times"></i>
                         </button>
@@ -45,22 +45,25 @@
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="all">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all" {{if Status == "all"}}selected{{end}}>Tüm Durumlar</option>
+                    <option value="active" {{if Status == "active"}}selected{{end}}>Aktif</option>
+                    <option value="inactive" {{if Status == "inactive"}}selected{{end}}>Pasif</option>
                 </select>
                 <select id="cityFilter" class="filter-select">
-                    <option value="all">Tüm Şehirler</option>
+                    <option value="all" {{if City == "all"}}selected{{end}}>Tüm Şehirler</option>
+                    {{range Cities}}
+                    <option value="{{ . }}" {{if City == .}}selected{{end}}>{{ . }}</option>
+                    {{end}}
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="name">Şube Adı</option>
-                    <option value="city">Şehir</option>
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="name" {{if SortBy == "name"}}selected{{end}}>Şube Adı</option>
+                    <option value="city" {{if SortBy == "city"}}selected{{end}}>Şehir</option>
+                    <option value="created_at" {{if SortBy == "created_at"}}selected{{end}}>Oluşturma Tarihi</option>
+                    <option value="updated_at" {{if SortBy == "updated_at"}}selected{{end}}>Güncelleme Tarihi</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="ASC">Artan</option>
-                    <option value="DESC">Azalan</option>
+                    <option value="ASC" {{if SortOrder == "ASC"}}selected{{end}}>Artan</option>
+                    <option value="DESC" {{if SortOrder == "DESC"}}selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -456,27 +459,6 @@
 </div>
 
 <script>
-    function decodeHtmlEntities(encoded) {
-        const txt = document.createElement('textarea');
-        txt.innerHTML = encoded;
-        return txt.value;
-    }
-
-    const escaped = '{{stj(Subeler)}}';
-    const decoded = decodeHtmlEntities(escaped);
-    const data = decoded ? JSON.parse(decoded) : [];
-    window.pageData = {
-        subeler: data,
-        count: parseInt("{{ Count ? Count : 0 }}"),
-        currentPage: parseInt("{{ Page ? Page : 1 }}"),
-        perPage: parseInt("{{ 10 }}")
-    };
-</script>
-
-<script>
-    // Populate city filter - will be handled by backend or can be added later
-    // For now, keeping the city filter simple with just "all" option
-    
     // Filter functionality
     document.addEventListener('DOMContentLoaded', function() {
         const filterBtn = document.getElementById('filterBtn');

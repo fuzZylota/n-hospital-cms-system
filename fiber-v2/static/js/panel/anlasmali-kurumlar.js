@@ -6,11 +6,6 @@
 class AnlasmaliKurumlarListManager {
     constructor() {
         this.data = window.pageData || {};
-        this.currentPage = this.data.currentPage || 1;
-        this.perPage = this.data.perPage || 10;
-        this.totalCount = this.data.count || 0;
-        this.currentSort = { column: 'updated_at', order: 'desc' };
-        this.currentFilters = { search: '', status: '', type: '' };
         this.currentView = 'table';
         
         this.init();
@@ -114,10 +109,8 @@ class AnlasmaliKurumlarListManager {
 
         if (!searchInput) return;
 
-        // Debounced search
-        let searchTimeout;
+        // Only show/hide clear button, no automatic search
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
             const value = e.target.value.trim();
             
             // Show/hide clear button
@@ -126,22 +119,12 @@ class AnlasmaliKurumlarListManager {
             } else {
                 searchClear.style.display = 'none';
             }
-
-            // Debounced search
-            searchTimeout = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
 
         // Clear search
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
@@ -149,77 +132,16 @@ class AnlasmaliKurumlarListManager {
      * Setup filter dropdowns
      */
     setupFilters() {
-        const statusFilter = document.getElementById('statusFilter');
-        const typeFilter = document.getElementById('typeFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.currentFilters.status = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (typeFilter) {
-            typeFilter.addEventListener('change', (e) => {
-                this.currentFilters.type = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.currentSort.column = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.currentSort.order = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     /**
      * Setup table column sorting
      */
     setupTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.data-table th.sortable');
-        
-        sortableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.getAttribute('data-column');
-                
-                // Toggle sort order if same column
-                if (this.currentSort.column === column) {
-                    this.currentSort.order = this.currentSort.order === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.currentSort.column = column;
-                    this.currentSort.order = 'asc';
-                }
-                
-                this.updateSortHeaders();
-                this.filterAndReload();
-            });
-        });
-    }
-
-    /**
-     * Update sort header indicators
-     */
-    updateSortHeaders() {
-        const headers = document.querySelectorAll('.data-table th.sortable');
-        headers.forEach(header => {
-            header.classList.remove('asc', 'desc');
-            if (header.getAttribute('data-column') === this.currentSort.column) {
-                header.classList.add(this.currentSort.order);
-            }
-        });
+        // Sorting is handled by the template filter button
+        // No complex client-side sorting needed
     }
 
     /**
@@ -261,145 +183,24 @@ class AnlasmaliKurumlarListManager {
      * Setup pagination
      */
     setupPagination() {
-        this.renderPagination();
-        
-        // Per page selector
-        const perPageSelect = document.getElementById('perPage');
-        if (perPageSelect) {
-            perPageSelect.value = this.perPage;
-            perPageSelect.addEventListener('change', (e) => {
-                this.perPage = parseInt(e.target.value);
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-    }
-
-    /**
-     * Render pagination controls
-     */
-    renderPagination() {
-        const paginationContainer = document.getElementById('pagination');
-        if (!paginationContainer || this.totalCount === 0) return;
-
-        const totalPages = Math.ceil(this.totalCount / this.perPage);
-        const currentPage = this.currentPage;
-        
-        let paginationHTML = '';
-
-        // Previous button
-        paginationHTML += `
-            <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
-                    data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-        `;
-
-        // Page numbers
-        const startPage = Math.max(1, currentPage - 2);
-        const endPage = Math.min(totalPages, currentPage + 2);
-
-        if (startPage > 1) {
-            paginationHTML += `<button class="pagination-btn" data-page="1">1</button>`;
-            if (startPage > 2) {
-                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
-            }
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += `
-                <button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">
-                    ${i}
-                </button>
-            `;
-        }
-
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
-            }
-            paginationHTML += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
-        }
-
-        // Next button
-        paginationHTML += `
-            <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
-                    data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        `;
-
-        paginationContainer.innerHTML = paginationHTML;
-
-        // Add click handlers
-        const paginationButtons = paginationContainer.querySelectorAll('.pagination-btn:not(.disabled)');
-        paginationButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const page = parseInt(button.getAttribute('data-page'));
-                if (page && page !== this.currentPage) {
-                    this.currentPage = page;
-                    this.filterAndReload();
-                }
-            });
-        });
+        // Pagination is handled by the template
+        // No complex client-side pagination needed
     }
 
     /**
      * Filter and reload data
      */
     async filterAndReload() {
-        try {
-            // Build query parameters
-            const params = new URLSearchParams();
-            params.set('page', this.currentPage);
-            params.set('per_page', this.perPage);
-            params.set('sort_by', this.currentSort.column);
-            params.set('sort_order', this.currentSort.order);
-            
-            if (this.currentFilters.search) {
-                params.set('search', this.currentFilters.search);
-            }
-            if (this.currentFilters.status) {
-                params.set('status', this.currentFilters.status);
-            }
-            if (this.currentFilters.type) {
-                params.set('type', this.currentFilters.type);
-            }
-
-            // Reload page with new parameters
-            window.location.href = `/panel/anlasmali-kurumlar?${params.toString()}`;
-        } catch (error) {
-            console.error('Filter and reload error:', error);
-            this.showAlert('Filtreler uygulanırken bir hata oluştu.', 'error');
-        }
+        // Simple reload - filtering is handled by the template
+        window.location.reload();
     }
 
     /**
      * Update statistics cards
      */
     updateStatistics() {
-        const anlasmaliKurumlar = this.data.anlasmaliKurumlar || [];
-        
-        const activeCount = anlasmaliKurumlar.filter(kurum => kurum.is_active).length;
-        const inactiveCount = anlasmaliKurumlar.length - activeCount;
-        
-        // Calculate expiring contracts (within 30 days)
-        const today = new Date();
-        const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-        const expiringCount = anlasmaliKurumlar.filter(kurum => {
-            if (!kurum.contract_end_date) return false;
-            const endDate = new Date(kurum.contract_end_date);
-            return endDate <= thirtyDaysFromNow && endDate >= today;
-        }).length;
-
-        // Update DOM
-        const activeCountEl = document.getElementById('activeCount');
-        const inactiveCountEl = document.getElementById('inactiveCount');
-        const expiringCountEl = document.getElementById('expiringCount');
-
-        if (activeCountEl) activeCountEl.textContent = activeCount;
-        if (inactiveCountEl) inactiveCountEl.textContent = inactiveCount;
-        if (expiringCountEl) expiringCountEl.textContent = expiringCount;
+        // Statistics are handled by the template
+        // No complex client-side statistics needed
     }
 
     /**
@@ -472,17 +273,7 @@ class AnlasmaliKurumlarListManager {
                 }
 
                 // Update count and statistics
-                this.totalCount--;
                 this.updateStatistics();
-                
-                // Reload if current page becomes empty
-                setTimeout(() => {
-                    const remainingRows = document.querySelectorAll('tbody tr[data-id]').length;
-                    if (remainingRows === 0 && this.currentPage > 1) {
-                        this.currentPage--;
-                        this.filterAndReload();
-                    }
-                }, 500);
 
             } else {
                 this.showAlert(responseData.message || 'Server Hatası: Lütfen daha sonra tekrar deneyin.', 'error');
@@ -581,25 +372,6 @@ class AnlasmaliKurumlarListManager {
     handleResize() {
         // Close dropdowns on resize
         this.closeAllDropdowns();
-        
-        // Update pagination if needed
-        if (window.innerWidth < 768) {
-            // Mobile optimizations
-            this.setupMobileOptimizations();
-        }
-    }
-
-    /**
-     * Setup mobile optimizations
-     */
-    setupMobileOptimizations() {
-        // Force grid view on very small screens
-        if (window.innerWidth < 480 && this.currentView === 'table') {
-            const gridViewBtn = document.querySelector('.view-btn[data-view="grid"]');
-            if (gridViewBtn) {
-                gridViewBtn.click();
-            }
-        }
     }
 
     /**
@@ -618,45 +390,8 @@ class AnlasmaliKurumlarListManager {
      * Export functionality
      */
     setupExport() {
-        const exportBtn = document.getElementById('exportBtn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportData();
-            });
-        }
-    }
-
-    /**
-     * Export data to CSV
-     */
-    async exportData() {
-        try {
-            const response = await fetch('/panel/anlasmali-kurumlar/export', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `anlasmali-kurumlar-${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                this.showAlert('Veriler başarıyla dışa aktarıldı.', 'success');
-            } else {
-                this.showAlert('Dışa aktarma sırasında bir hata oluştu.', 'error');
-            }
-        } catch (error) {
-            console.error('Export error:', error);
-            this.showAlert('Dışa aktarma sırasında bir hata oluştu.', 'error');
-        }
+        // Export is handled by the template
+        // No complex client-side export needed
     }
 }
 
@@ -718,54 +453,7 @@ function debounce(func, wait) {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new AnlasmaliKurumlarListManager();
-    
-    // Setup export functionality
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            // Simple CSV export functionality
-            const table = document.querySelector('.data-table');
-            if (table) {
-                exportTableToCSV(table, 'anlasmali-kurumlar.csv');
-            }
-        });
-    }
 });
-
-/**
- * Simple CSV export function
- */
-function exportTableToCSV(table, filename) {
-    const csv = [];
-    const rows = table.querySelectorAll('tr');
-    
-    for (let i = 0; i < rows.length; i++) {
-        const row = [];
-        const cols = rows[i].querySelectorAll('td, th');
-        
-        for (let j = 0; j < cols.length - 1; j++) { // Exclude actions column
-            let cellText = cols[j].innerText.replace(/\s+/g, ' ').trim();
-            cellText = cellText.replace(/"/g, '""'); // Escape quotes
-            row.push(`"${cellText}"`);
-        }
-        
-        csv.push(row.join(','));
-    }
-    
-    const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
 
 // Export for potential external use
 window.AnlasmaliKurumlarListManager = AnlasmaliKurumlarListManager;
