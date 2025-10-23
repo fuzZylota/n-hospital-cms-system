@@ -115,10 +115,8 @@ class TibbiBirimlerListManager {
 
         if (!searchInput) return;
 
-        // Debounced search
-        let searchTimeout;
+        // Only show/hide clear button, no automatic filtering
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
             const value = e.target.value.trim();
             
             // Show/hide clear button
@@ -127,22 +125,12 @@ class TibbiBirimlerListManager {
             } else {
                 searchClear.style.display = 'none';
             }
-
-            // Debounced search
-            searchTimeout = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
 
         // Clear search
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
@@ -150,40 +138,8 @@ class TibbiBirimlerListManager {
      * Setup filter dropdowns
      */
     setupFilters() {
-        const statusFilter = document.getElementById('statusFilter');
-        const cityFilter = document.getElementById('cityFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.currentFilters.status = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (cityFilter) {
-            cityFilter.addEventListener('change', (e) => {
-                this.currentFilters.city = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.currentSort.column = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.currentSort.order = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     /**

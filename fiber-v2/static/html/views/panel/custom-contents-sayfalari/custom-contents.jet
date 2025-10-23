@@ -28,41 +28,45 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="İçerik adı, açıklama veya route ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" name="query"
+                               placeholder="İçerik adı, açıklama veya route ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
+                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="typeFilter" class="filter-select">
-                    <option value="">Tüm Tipler</option>
-                    <option value="history">Tarihçe</option>
-                    <option value="about-us">Hakkımızda</option>
-                    <option value="privacy-policy">Gizlilik Politikası</option>
-                    <option value="mission-vision">Misyon-Vizyon</option>
-                    <option value="main-page">Ana Sayfa</option>
-                    <option value="hr">İnsan Kaynakları</option>
-                    <option value="popup">Popup</option>
+                    <option value="all"{{if ContentType == "all" || ContentType == ""}} selected{{end}}>Tüm Tipler</option>
+                    <option value="history"{{if ContentType == "history"}} selected{{end}}>Tarihçe</option>
+                    <option value="about-us"{{if ContentType == "about-us"}} selected{{end}}>Hakkımızda</option>
+                    <option value="privacy-policy"{{if ContentType == "privacy-policy"}} selected{{end}}>Gizlilik Politikası</option>
+                    <option value="mission-vision"{{if ContentType == "mission-vision"}} selected{{end}}>Misyon-Vizyon</option>
+                    <option value="main-page"{{if ContentType == "main-page"}} selected{{end}}>Ana Sayfa</option>
+                    <option value="hr"{{if ContentType == "hr"}} selected{{end}}>İnsan Kaynakları</option>
+                    <option value="popup"{{if ContentType == "popup"}} selected{{end}}>Popup</option>
+                    <option value="other"{{if ContentType == "other"}} selected{{end}}>Diğer</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="name">İçerik Adı</option>
-                    <option value="content_type">Tip</option>
-                    <option value="sort_order">Sıra</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="name"{{if SortBy == "name" || SortBy == ""}} selected{{end}}>İçerik Adı</option>
+                    <option value="description"{{if SortBy == "description"}} selected{{end}}>Açıklama</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="desc">Azalan</option>
-                    <option value="asc">Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -436,12 +440,79 @@
 
     const escaped = '{{stj(CustomContents)}}';
     const decoded = decodeHtmlEntities(escaped);
-    const data = decoded ? JSON.parse(decoded) : [];
+    let data = [];
+    try {
+        data = decoded ? JSON.parse(decoded) : [];
+    } catch (e) {
+        console.error('JSON parsing error:', e);
+        data = [];
+    }
     window.pageData = {
         customContents: data,
         count: parseInt("{{ Count ? Count : 0 }}"),
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
         perPage: parseInt("{{ 10 }}")
     };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const contentType = typeFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('status', status);
+            }
+            if (contentType && contentType !== 'all') {
+                params.append('content_type', contentType);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/custom-contents.js"></script>

@@ -4245,11 +4245,36 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		TibbiBirimler := Orm.Select([]string{"tbid", "name", "url_name", "description", "cover_mid", "is_active", "created_at", "updated_at"})
 		TibbiBirimler.Table("tibbi_birimler")
+		if Query != "" {
+			TibbiBirimler.OpenParenthesis("WHERE")
+			TibbiBirimler.Like("WHERE", "name", Query, "contains")
+			TibbiBirimler.Like("OR", "description", Query, "contains")
+			TibbiBirimler.CloseParenthesis()
+
+			if Status != "all" {
+				TibbiBirimler.And("is_active", "=", Status == "active")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(TibbiBirimler.Query, "WHERE") {
+				TibbiBirimler.And("is_active", "=", Status == "active")
+			} else {
+				TibbiBirimler.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		TibbiBirimler.OrderBy(SortBy, SortOrder)
 		TibbiBirimler.OrderBy("is_active", "DESC")
 		TibbiBirimler.OrderBy("tbid", "DESC")
 		TibbiBirimler.Limit(int(itemsPerPage))
@@ -4313,6 +4338,10 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 			"Count":         len(TibbiBirimlerArray),
 			"User":          ourUser,
 			"Options":       GetOptions,
+			"Query":         Query,
+			"Status":        Status,
+			"SortBy":        SortBy,
+			"SortOrder":     SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
@@ -4579,12 +4608,49 @@ func HomepageContentsPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "sort_order")
+		SortOrder := c.Query("sort_order", "DESC")
+		ContentType := c.Query("content_type", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		HomepageContents := Orm.Select([]string{"hcid", "name", "content_type", "sort_order", "url_name", "content_html", "content_javascript", "content_css", "description", "later_than_which_content", "is_active", "created_at", "updated_at"})
 		HomepageContents.Table("homepage_contents")
-		HomepageContents.OrderBy("sort_order", "ASC")
+		if Query != "" {
+			HomepageContents.OpenParenthesis("WHERE")
+			HomepageContents.Like("WHERE", "name", Query, "contains")
+			HomepageContents.Like("OR", "description", Query, "contains")
+			HomepageContents.CloseParenthesis()
+
+			if Status != "all" {
+				HomepageContents.And("is_active", "=", Status == "active")
+			}
+
+			if ContentType != "all" {
+				HomepageContents.And("content_type", "=", ContentType)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(HomepageContents.Query, "WHERE") {
+				HomepageContents.And("is_active", "=", Status == "active")
+			} else {
+				HomepageContents.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		if ContentType != "all" {
+			if strings.Contains(HomepageContents.Query, "WHERE") {
+				HomepageContents.And("content_type", "=", ContentType)
+			} else {
+				HomepageContents.Where("content_type", "=", ContentType)
+			}
+		}
+
+		HomepageContents.OrderBy(SortBy, SortOrder)
 		HomepageContents.OrderBy("hcid", "DESC")
 		HomepageContents.Limit(int(itemsPerPage))
 		HomepageContents.Offset(offset)
@@ -4629,6 +4695,11 @@ func HomepageContentsPage(states *models.AppState, utilities *models.Utilities) 
 			"Count":            len(HomepageContentsArray),
 			"User":             ourUser,
 			"Options":          GetOptions,
+			"Query":            Query,
+			"Status":           Status,
+			"SortBy":           SortBy,
+			"SortOrder":        SortOrder,
+			"ContentType":      ContentType,
 		}, "layouts/panel/panel")
 	}
 }
@@ -4821,13 +4892,49 @@ func CustomContentsPage(states *models.AppState, utilities *models.Utilities) fi
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "sort_order")
+		SortOrder := c.Query("sort_order", "DESC")
+		ContentType := c.Query("content_type", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		CustomContents := Orm.Select([]string{"ccid", "name", "content_type", "sort_order", "url_name", "content_html", "content_javascript", "content_css", "description", "route", "is_active", "created_at", "updated_at"})
 		CustomContents.Table("custom_contents")
-		CustomContents.OrderBy("sort_order", "ASC")
-		CustomContents.OrderBy("ccid", "DESC")
+		if Query != "" {
+			CustomContents.OpenParenthesis("WHERE")
+			CustomContents.Like("WHERE", "name", Query, "contains")
+			CustomContents.Like("OR", "description", Query, "contains")
+			CustomContents.CloseParenthesis()
+
+			if Status != "all" {
+				CustomContents.And("is_active", "=", Status == "active")
+			}
+
+			if ContentType != "all" {
+				CustomContents.And("content_type", "=", ContentType)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(CustomContents.Query, "WHERE") {
+				CustomContents.And("is_active", "=", Status == "active")
+			} else {
+				CustomContents.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		if ContentType != "all" {
+			if strings.Contains(CustomContents.Query, "WHERE") {
+				CustomContents.And("content_type", "=", ContentType)
+			} else {
+				CustomContents.Where("content_type", "=", ContentType)
+			}
+		}
+
+		CustomContents.OrderBy(SortBy, SortOrder)
 		CustomContents.Limit(int(itemsPerPage))
 		CustomContents.Offset(offset)
 		CustomContents.Finish()
@@ -4871,6 +4978,11 @@ func CustomContentsPage(states *models.AppState, utilities *models.Utilities) fi
 			"Count":          len(CustomContentsArray),
 			"User":           ourUser,
 			"Options":        GetOptions,
+			"Query":          Query,
+			"Status":         Status,
+			"SortBy":         SortBy,
+			"SortOrder":      SortOrder,
+			"ContentType":    ContentType,
 		}, "layouts/panel/panel")
 	}
 }
