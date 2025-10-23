@@ -3137,7 +3137,7 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			}
 
 			if Subeler != "all" {
-				Branslar.And("s.name", "=", Subeler)
+				Branslar.And("s.sid", "=", Subeler)
 			}
 		}
 
@@ -3151,9 +3151,9 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		if Subeler != "all" {
 			if strings.Contains(Branslar.Query, "WHERE") {
-				Branslar.And("s.name", "=", Subeler)
+				Branslar.And("s.sid", "=", Subeler)
 			} else {
-				Branslar.Where("s.name", "=", Subeler)
+				Branslar.Where("s.sid", "=", Subeler)
 			}
 		}
 		Branslar.OrderBy("br."+SortBy, SortOrder)
@@ -3212,8 +3212,6 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 				BranchCity: lib.String(row["branch_city"]),
 			})
 		}
-
-		fmt.Printf("Subeler: %v\n", GetAllSubelerArray)
 
 		return c.Render("views/panel/branslar-sayfalari/branslar", fiber.Map{
 			"PathOnStart": "../",

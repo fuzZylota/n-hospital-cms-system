@@ -146,19 +146,8 @@ class BranslarListManager {
      * Populate branch filter with unique branches from data
      */
     populateBranchFilter() {
-        const branchFilter = document.getElementById('branchFilter');
-        if (!branchFilter) return;
-
-        const branslar = this.data.branslar || [];
-        const branches = [...new Set(branslar.map(brans => brans.branch_name).filter(branch => branch))];
-        branches.sort();
-
-        branches.forEach(branch => {
-            const option = document.createElement('option');
-            option.value = branch;
-            option.textContent = branch;
-            branchFilter.appendChild(option);
-        });
+        // Branch filter is populated from server template
+        // No need for client-side population
     }
 
     /**
