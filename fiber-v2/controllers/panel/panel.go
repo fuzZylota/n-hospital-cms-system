@@ -3603,6 +3603,57 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			return c.Redirect("/panel")
 		}
 
+		GetAllSubeler := Orm.CustomSelectQuery("SELECT DISTINCT s.name, s.sid FROM doktorlar d LEFT JOIN subeler s ON d.sid = s.sid")
+		GetAllSubeler.Finish()
+		err = GetAllSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err := GetAllSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllSubelerArray := []models.Subeler{}
+		for _, row := range rows {
+			GetAllSubelerArray = append(GetAllSubelerArray, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
+		GetAllBranslar := Orm.CustomSelectQuery("SELECT DISTINCT b.name, b.brid FROM doktorlar d LEFT JOIN branslar b ON d.brid = b.brid")
+		GetAllSubeler.Finish()
+		err = GetAllBranslar.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err = GetAllBranslar.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllBranslarArray := []models.Branslar{}
+		for _, row := range rows {
+			GetAllBranslarArray = append(GetAllBranslarArray, models.Branslar{
+				Brid: lib.String(row["brid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "first_name")
+		SortOrder := c.Query("sort_order", "DESC")
+		Subeler := c.Query("sube", "all")
+		Branslar := c.Query("brans", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
@@ -3618,8 +3669,59 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		Doktorlar.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		Doktorlar.LeftJoin("subeler s", "d.sid", "=", "s.sid")
 		Doktorlar.LeftJoin("medias m1", "d.photo_mid", "=", "m1.mid")
-		Doktorlar.OrderBy("d.is_active", "DESC")
-		Doktorlar.OrderBy("d.drid", "DESC")
+		if Query != "" {
+			Doktorlar.OpenParenthesis("WHERE")
+			Doktorlar.Like("WHERE", "d.first_name", Query, "contains")
+			Doktorlar.Like("OR", "d.last_name", Query, "contains")
+			Doktorlar.Like("OR", "d.email", Query, "contains")
+			Doktorlar.Like("OR", "d.phone", Query, "contains")
+			Doktorlar.Like("OR", "d.biography", Query, "contains")
+			Doktorlar.Like("OR", "d.education", Query, "contains")
+			Doktorlar.Like("OR", "d.languages", Query, "contains")
+			Doktorlar.CloseParenthesis()
+
+			if Status != "all" {
+				Doktorlar.And("d.is_active", "=", Status == "active")
+			}
+
+			if Subeler != "all" {
+				Doktorlar.And("s.sid", "=", Subeler)
+			}
+			if Branslar != "all" {
+				Doktorlar.And("b.brid", "=", Branslar)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Doktorlar.Query, "WHERE") {
+				Doktorlar.And("d.is_active", "=", Status == "active")
+			} else {
+				Doktorlar.Where("d.is_active", "=", Status == "active")
+			}
+		}
+
+		if Subeler != "all" {
+			if strings.Contains(Doktorlar.Query, "WHERE") {
+				Doktorlar.And("s.sid", "=", Subeler)
+			} else {
+				Doktorlar.Where("s.sid", "=", Subeler)
+			}
+		}
+
+		if Branslar != "all" {
+			if strings.Contains(Doktorlar.Query, "WHERE") {
+				Doktorlar.And("b.brid", "=", Branslar)
+			} else {
+				Doktorlar.Where("b.brid", "=", Branslar)
+			}
+		}
+
+		if SortBy == "title" {
+			Doktorlar.OrderByField("d.title", []string{SortOrder})
+		} else {
+			Doktorlar.OrderBy("d."+SortBy, SortOrder)
+		}
+
 		Doktorlar.Limit(int(itemsPerPage))
 		Doktorlar.Offset(offset)
 		Doktorlar.Finish()
@@ -3631,7 +3733,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			return c.Redirect("/panel")
 		}
 
-		rows, err := Doktorlar.Rows()
+		rows, err = Doktorlar.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
@@ -3669,6 +3771,14 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			"Count":       len(DoktorlarArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"Subeler":     GetAllSubelerArray,
+			"Branslar":    GetAllBranslarArray,
+			"Sube":        Subeler,
+			"Brans":       Branslar,
 		}, "layouts/panel/panel")
 	}
 }

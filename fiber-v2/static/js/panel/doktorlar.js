@@ -115,10 +115,8 @@ class DoktorlarListManager {
 
         if (!searchInput) return;
 
-        // Debounced search
-        let searchTimeout;
+        // Only show/hide clear button, no automatic search
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
             const value = e.target.value.trim();
             
             // Show/hide clear button
@@ -127,22 +125,12 @@ class DoktorlarListManager {
             } else {
                 searchClear.style.display = 'none';
             }
-
-            // Debounced search
-            searchTimeout = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
 
         // Clear search
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
@@ -150,105 +138,24 @@ class DoktorlarListManager {
      * Setup filter dropdowns
      */
     setupFilters() {
-        const statusFilter = document.getElementById('statusFilter');
-        const branchFilter = document.getElementById('branchFilter');
-        const subeFilter = document.getElementById('subeFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.currentFilters.status = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (branchFilter) {
-            branchFilter.addEventListener('change', (e) => {
-                this.currentFilters.branch = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (subeFilter) {
-            subeFilter.addEventListener('change', (e) => {
-                this.currentFilters.sube = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.currentSort.column = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.currentSort.order = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     /**
      * Populate filter options with unique values from data
      */
     populateFilterOptions() {
-        const branchFilter = document.getElementById('branchFilter');
-        const subeFilter = document.getElementById('subeFilter');
-        
-        if (!branchFilter || !subeFilter) return;
-
-        const doktorlar = this.data.doktorlar || [];
-        
-        // Populate branch filter
-        const branches = [...new Set(doktorlar.map(doctor => doctor.branch_name).filter(branch => branch))];
-        branches.sort();
-        branches.forEach(branch => {
-            const option = document.createElement('option');
-            option.value = branch;
-            option.textContent = branch;
-            branchFilter.appendChild(option);
-        });
-
-        // Populate sube filter
-        const subeler = [...new Set(doktorlar.map(doctor => doctor.sube_name).filter(sube => sube))];
-        subeler.sort();
-        subeler.forEach(sube => {
-            const option = document.createElement('option');
-            option.value = sube;
-            option.textContent = sube;
-            subeFilter.appendChild(option);
-        });
+        // Filter options are populated from server template
+        // No need for client-side population
     }
 
     /**
      * Setup table column sorting
      */
     setupTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.data-table th.sortable');
-        
-        sortableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.getAttribute('data-column');
-                
-                // Toggle sort order if same column
-                if (this.currentSort.column === column) {
-                    this.currentSort.order = this.currentSort.order === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.currentSort.column = column;
-                    this.currentSort.order = 'asc';
-                }
-                
-                this.updateSortHeaders();
-                this.filterAndReload();
-            });
-        });
+        // Sorting is handled by the template filter button
+        // No complex client-side sorting needed
     }
 
     /**

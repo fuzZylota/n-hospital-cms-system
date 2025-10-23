@@ -3,6 +3,27 @@
 /* Import base styles from subeler.css */
 @import url('./subeler.css');
 
+/* Search filter button styles */
+.search-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.search-filter-btn:hover {
+    background: var(--primary-dark);
+    opacity: 0.8;
+}
+
 /* Doctor-specific styles */
 .doctor-info {
     display: flex;
