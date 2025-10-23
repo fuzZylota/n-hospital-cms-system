@@ -28,35 +28,41 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="Başlık veya URL ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Başlık veya URL ile ara..."
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="targetFilter" class="filter-select">
-                    <option value="">Tüm Hedefler</option>
-                    <option value="_self">Aynı Pencere (_self)</option>
-                    <option value="_blank">Yeni Pencere (_blank)</option>
+                    <option value="all"{{if Target == "all" || Target == ""}} selected{{end}}>Tüm Hedefler</option>
+                    <option value="_self"{{if Target == "_self"}} selected{{end}}>Aynı Pencere (_self)</option>
+                    <option value="_blank"{{if Target == "_blank"}} selected{{end}}>Yeni Pencere (_blank)</option>
                 </select>
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
+                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="sort_order">Sıra Numarası</option>
-                    <option value="title">Başlık</option>
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="title"{{if SortBy == "title" || SortBy == ""}} selected{{end}}>Başlık</option>
+                    <option value="url"{{if SortBy == "url"}} selected{{end}}>URL</option>
+                    <option value="sort_order"{{if SortBy == "sort_order"}} selected{{end}}>Sıra Numarası</option>
+                    <option value="updated_at"{{if SortBy == "updated_at"}} selected{{end}}>Güncelleme Tarihi</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="asc">Artan</option>
-                    <option value="desc">Azalan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -574,5 +580,66 @@
     window.pageData.count = {{ Count ? Count : 0 }};
     window.pageData.currentPage = {{ Page ? Page : 1 }};
     window.pageData.perPage = 10;
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const targetFilter = document.getElementById('targetFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const target = targetFilter.value;
+            const status = statusFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (target && target !== 'all') {
+                params.append('target', target);
+            }
+            if (status && status !== 'all') {
+                params.append('status', status);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/header-tuslari.js"></script>

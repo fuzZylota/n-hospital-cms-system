@@ -76,33 +76,22 @@ class TestimonialsListManager {
         const searchInput = document.getElementById('searchInput');
         const searchClear = document.getElementById('searchClear');
         if (!searchInput) return;
-        let t;
+        
+        // Only show/hide clear button, no automatic search
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(t);
             const value = e.target.value.trim();
             searchClear.style.display = value ? 'block' : 'none';
-            t = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
+        
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
     setupFilters() {
-        const statusFilter = document.getElementById('statusFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-        if (statusFilter) statusFilter.addEventListener('change', (e) => { this.currentFilters.status = e.target.value; this.currentPage = 1; this.filterAndReload(); });
-        if (sortBy) sortBy.addEventListener('change', (e) => { this.currentSort.column = e.target.value; this.filterAndReload(); });
-        if (sortOrder) sortOrder.addEventListener('change', (e) => { this.currentSort.order = e.target.value; this.filterAndReload(); });
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     setupTableSorting() {

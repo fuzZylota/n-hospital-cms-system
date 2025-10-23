@@ -33,7 +33,7 @@
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" id="searchInput" class="search-input" name="query"
                                placeholder="Seçenek seti adı, site adı veya e-posta ile ara..."
-                               autocomplete="off" spellcheck="false">
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
                         <button class="search-clear" id="searchClear" style="display: none;">
                             <i class="fas fa-times"></i>
                         </button>
@@ -45,19 +45,19 @@
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="all"{{if Status == "all"}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
                     <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
                     <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="site_name"{{if SortBy == "site_name"}} selected{{end}}>Site Adı</option>
+                    <option value="site_name"{{if SortBy == "site_name" || SortBy == ""}} selected{{end}}>Site Adı</option>
                     <option value="site_description"{{if SortBy == "site_description"}} selected{{end}}>Site Açıklaması</option>
                     <option value="option_set_name"{{if SortBy == "option_set_name"}} selected{{end}}>Seçenek Adı</option>
                     <option value="option_set_description"{{if SortBy == "option_set_description"}} selected{{end}}>Seçenek Açıklaması</option>
                     <option value="smtp_username"{{if SortBy == "smtp_username"}} selected{{end}}>SMTP Kullanıcı Adı</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="ASC"{{if SortOrder == "ASC"}} selected{{end}}>Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
                     <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>

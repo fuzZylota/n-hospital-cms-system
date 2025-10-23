@@ -1158,30 +1158,68 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 			return c.Redirect("/giris")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "title")
+		SortOrder := c.Query("sort_order", "DESC")
+		Target := c.Query("target", "all")
+
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
-		Users := Orm.Select([]string{"hbid", "title", "url", "target", "icon", "sort_order", "is_active", "parent_id"})
-		Users.Table("header_buttons")
-		Users.Limit(int(itemsPerPage))
-		Users.Offset(offset)
-		Users.Finish()
-		err = Users.Execute()
+		HeaderButtons := Orm.Select([]string{"hbid", "title", "url", "target", "icon", "sort_order", "is_active", "parent_id"})
+		HeaderButtons.Table("header_buttons")
+		if Query != "" {
+			HeaderButtons.OpenParenthesis("WHERE")
+			HeaderButtons.Like("WHERE", "title", Query, "contains")
+			HeaderButtons.Like("OR", "url", Query, "contains")
+			HeaderButtons.CloseParenthesis()
+
+			if Status != "all" {
+				HeaderButtons.And("is_active", "=", Status == "active")
+			}
+
+			if Target != "all" {
+				HeaderButtons.And("target", "=", Target)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(HeaderButtons.Query, "WHERE") {
+				HeaderButtons.And("is_active", "=", Status == "active")
+			} else {
+				HeaderButtons.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		if Target != "all" {
+			if strings.Contains(HeaderButtons.Query, "WHERE") {
+				HeaderButtons.And("target", "=", Target)
+			} else {
+				HeaderButtons.Where("target", "=", Target)
+			}
+		}
+
+		HeaderButtons.OrderBy(SortBy, SortOrder)
+		HeaderButtons.Limit(int(itemsPerPage))
+		HeaderButtons.Offset(offset)
+		HeaderButtons.Finish()
+		err = HeaderButtons.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
 		}
 
-		rows, err := Users.Rows()
+		rows, err := HeaderButtons.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
 		}
 
-		UsersArray := []models.HeaderButton{}
+		HeaderButtonsArray := []models.HeaderButton{}
 		for _, row := range rows {
-			UsersArray = append(UsersArray, models.HeaderButton{
+			HeaderButtonsArray = append(HeaderButtonsArray, models.HeaderButton{
 				Hbid:      lib.String(row["hbid"]),
 				Title:     lib.String(row["title"]),
 				Url:       lib.String(row["url"]),
@@ -1195,7 +1233,7 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		GlobalCountOfHeaderButtons := Users.Count("header_buttons")
+		GlobalCountOfHeaderButtons := HeaderButtons.Count("header_buttons")
 		GlobalCountOfHeaderButtons.Finish()
 		err = GlobalCountOfHeaderButtons.Execute()
 		if err != nil {
@@ -1209,10 +1247,15 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 			"PathOnStart":   "../",
 			"PageTitle":     "N-Hospital | Header Tuşları",
 			"User":          ourUser,
-			"HeaderButtons": UsersArray,
+			"HeaderButtons": HeaderButtonsArray,
 			"Count":         CountOfHeaderButtons,
 			"Page":          Page,
 			"Options":       BackendOptions,
+			"Query":         Query,
+			"Status":        Status,
+			"SortBy":        SortBy,
+			"SortOrder":     SortOrder,
+			"Target":        Target,
 		}, "layouts/panel/panel")
 	}
 }
@@ -1468,12 +1511,39 @@ func TestimonialsPage(states *models.AppState, utilities *models.Utilities) fibe
 			return c.Redirect("/giris")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "first_name")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		TestimonialsSel := utilities.Orm.Select([]string{"t.tid", "t.first_name", "t.last_name", "t.occupation", "t.content", "t.is_active", "t.created_at", "m.file_path as customer_picture_path", "m.alt_text as customer_picture_alt_text", "m.title as customer_picture_title"})
 		TestimonialsSel.Table("testimonials t")
 		TestimonialsSel.LeftJoin("medias m", "t.customer_picture_mid", "=", "m.mid")
+		if Query != "" {
+			TestimonialsSel.OpenParenthesis("WHERE")
+			TestimonialsSel.Like("WHERE", "first_name", Query, "contains")
+			TestimonialsSel.Like("OR", "last_name", Query, "contains")
+			TestimonialsSel.Like("OR", "occupation", Query, "contains")
+			TestimonialsSel.Like("OR", "content", Query, "contains")
+			TestimonialsSel.CloseParenthesis()
+
+			if Status != "all" {
+				TestimonialsSel.And("is_active", "=", Status == "active")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(TestimonialsSel.Query, "WHERE") {
+				TestimonialsSel.And("is_active", "=", Status == "active")
+			} else {
+				TestimonialsSel.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		TestimonialsSel.OrderBy(SortBy, SortOrder)
 		TestimonialsSel.Limit(int(itemsPerPage))
 		TestimonialsSel.Offset(offset)
 		TestimonialsSel.Finish()
@@ -1520,6 +1590,10 @@ func TestimonialsPage(states *models.AppState, utilities *models.Utilities) fibe
 			"Count":        len(TestimonialsArray),
 			"User":         ourUser,
 			"Options":      BackendOptions,
+			"Query":        Query,
+			"Status":       Status,
+			"SortBy":       SortBy,
+			"SortOrder":    SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
@@ -1714,12 +1788,77 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			return c.Redirect("/panel")
 		}
 
+		GetAllCities := Orm.CustomSelectQuery("SELECT DISTINCT city FROM subeler")
+		GetAllCities.Finish()
+		err = GetAllCities.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err := GetAllCities.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllCitiesArray := []string{}
+		for _, row := range rows {
+			GetAllCitiesArray = append(GetAllCitiesArray, lib.String(row["city"]))
+		}
+
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+		City := c.Query("city", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		Subeler := Orm.Select([]string{"sid", "name", "url_name", "description", "address", "city", "district", "postal_code", "phone", "fax", "email", "website", "latitude", "longitude", "working_hours", "mid", "is_main", "is_active", "created_at", "updated_at"})
 		Subeler.Table("subeler")
+		if Query != "" {
+			Subeler.OpenParenthesis("WHERE")
+			Subeler.Like("WHERE", "name", Query, "contains")
+			Subeler.Like("OR", "address", Query, "contains")
+			Subeler.Like("OR", "city", Query, "contains")
+			Subeler.Like("OR", "district", Query, "contains")
+			Subeler.Like("OR", "postal_code", Query, "contains")
+			Subeler.Like("OR", "phone", Query, "contains")
+			Subeler.Like("OR", "fax", Query, "contains")
+			Subeler.Like("OR", "email", Query, "contains")
+			Subeler.Like("OR", "website", Query, "contains")
+			Subeler.Like("OR", "transportation_info", Query, "contains")
+			Subeler.CloseParenthesis()
+
+			if Status != "all" {
+				Subeler.And("is_active", "=", Status == "active")
+			}
+
+			if City != "all" {
+				Subeler.And("city", "=", City)
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Subeler.Query, "WHERE") {
+				Subeler.And("is_active", "=", Status == "active")
+			} else {
+				Subeler.Where("is_active", "=", Status == "active")
+			}
+		}
+
+		if City != "all" {
+			if strings.Contains(Subeler.Query, "WHERE") {
+				Subeler.And("city", "=", City)
+			} else {
+				Subeler.Where("city", "=", City)
+			}
+		}
+
 		Subeler.OrderBy("is_main", "DESC")
+		Subeler.OrderBy(SortBy, SortOrder)
 		Subeler.OrderBy("sid", "DESC")
 		Subeler.Limit(int(itemsPerPage))
 		Subeler.Offset(offset)
@@ -1732,7 +1871,7 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			return c.Redirect("/panel")
 		}
 
-		rows, err := Subeler.Rows()
+		rows, err = Subeler.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
@@ -1772,6 +1911,12 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			"Count":       len(SubelerArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Cities":      GetAllCitiesArray,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"City":        City,
 		}, "layouts/panel/panel")
 	}
 }
