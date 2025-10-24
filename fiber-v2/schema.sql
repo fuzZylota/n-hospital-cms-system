@@ -28,6 +28,7 @@ CREATE TABLE options (
     site_name VARCHAR(255) DEFAULT 'N-Hospital CMS',
     site_description TEXT,
     site_logo_mid INTEGER DEFAULT NULL,
+    site_light_logo_mid INTEGER DEFAULT NULL,
     site_favicon_mid INTEGER DEFAULT NULL,
     default_page_mid INTEGER DEFAULT NULL,
 
@@ -99,7 +100,7 @@ CREATE TABLE medias (
     file_path TEXT NOT NULL,
     file_size BIGINT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
-    file_type VARCHAR(20) CHECK (file_type IN ('image', 'video', 'audio', 'document', 'other', 'site_logo', 'site_favicon', 'default_page_picture', 'cv', 'experience_cover', 'tibbi_birim_cover', 'tibbi_birim_video', 'tedkik_cover')),
+    file_type VARCHAR(20) CHECK (file_type IN ('image', 'video', 'audio', 'document', 'other', 'site_logo', 'site_light_logo', 'site_favicon', 'default_page_picture', 'cv', 'experience_cover', 'tibbi_birim_cover', 'tibbi_birim_video', 'tedkik_cover')),
     target_id VARCHAR(255),
     alt_text TEXT,
     title TEXT,

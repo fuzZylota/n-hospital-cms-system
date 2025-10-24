@@ -3,3 +3,8 @@
     align-items: center;
     gap: 10px;
 }
+
+.mobile-menu-logo-box img {
+    width: auto;
+    height: 40px;
+}

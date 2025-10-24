@@ -11,7 +11,23 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
         <div class="main-header__inner">
             <div class="main-header__logo logo-retina">
                 <a href="/">
-                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
+                    {{ if Route == "/" }}
+                        {{ if Options.Medias[1].FilePath != "" }}
+                            <img src="{{ PathOnStart }}{{ Options.Medias[1].FilePath }}" alt="{{ Options.Medias[1].AltText ? Options.Medias[1].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[1].Title ? Options.Medias[1].Title : "N-Hospital Logosu" }}" />
+                        {{ else }}
+                            {{ if Options.Medias[0].FilePath != "" }}
+                                <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+                            {{ else }}
+                                <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" />
+                            {{ end }}
+                        {{ end }}
+                    {{ else }}
+                        {{ if Options.Medias[0].FilePath != "" }}
+                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+                        {{ else }}
+                            <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" />
+                        {{ end }}
+                    {{ end }}
                 </a>
             </div><!-- /.main-header__logo -->
             <div class="main-header__right">
@@ -128,7 +144,13 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
         <span class="mobile-nav__close mobile-nav__toggler"><i class="icon-close"></i></span>
 
         <div class="logo-box logo-retina">
-            <a href="/" aria-label="logo image"><img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="" /></a>
+            <a href="/" aria-label="logo image">
+                {{ if Options.Medias[0].FilePath != "" }}
+                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
+                {{ else }}
+                    <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu">
+                {{ end }}
+            </a>
         </div>
         <!-- /.logo-box -->
         <div class="mobile-nav__container"></div>

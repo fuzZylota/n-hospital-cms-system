@@ -64,6 +64,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 	columns = append(columns, []string{
 		"o.oid", "o.site_name", "o.site_description", "m.file_path as logo_path", "m.alt_text as logo_alt_text",
 		"m.title as logo_title", "m2.file_path as favicon_path", "m3.file_path as default_page_media_path",
+		"m4.file_path as light_logo_path", "m4.alt_text as light_logo_alt_text", "m4.title as light_logo_title",
 		"m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title",
 		"o.default_page_mid", "o.maintenance_mode", "o.facebook_url", "o.twitter_url", "o.instagram_url",
 		"o.linkedin_url", "o.contact_email", "o.contact_phone", "o.primary_color", "o.secondary_color", "o.accent_color",
@@ -96,6 +97,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 	opts.LeftJoin("medias m", "o.site_logo_mid", "=", "m.mid")
 	opts.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
 	opts.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
+	opts.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
 	if user.Uid != "" {
 		opts.Where("o.option_set_is_testing_now", "=", true)
 	} else {
@@ -121,6 +123,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 			opts.LeftJoin("medias m", "o.site_logo_mid", "=", "m.mid")
 			opts.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
 			opts.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
+			opts.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
 			opts.Where("o.option_set_is_active", "=", true)
 
 			opts.Finish()
@@ -155,6 +158,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		SiteName:                      lib.String(rows[0]["site_name"]),
 		SiteDescription:               lib.String(rows[0]["site_description"]),
 		SiteLogoMid:                   lib.Int64(rows[0]["site_logo_mid"]),
+		SiteLightLogoMid:              lib.Int64(rows[0]["site_light_logo_mid"]),
 		FaviconMid:                    lib.Int64(rows[0]["site_favicon_mid"]),
 		DefaultPageMid:                lib.Int64(rows[0]["default_page_mid"]),
 		MaintenanceMode:               lib.Bool(rows[0]["maintenance_mode"]),
@@ -200,6 +204,11 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 				FilePath: lib.String(rows[0]["logo_path"]),
 				AltText:  lib.String(rows[0]["logo_alt_text"]),
 				Title:    lib.String(rows[0]["logo_title"]),
+			},
+			{
+				FilePath: lib.String(rows[0]["light_logo_path"]),
+				AltText:  lib.String(rows[0]["light_logo_alt_text"]),
+				Title:    lib.String(rows[0]["light_logo_title"]),
 			},
 			{
 				FilePath: lib.String(rows[0]["favicon_path"]),

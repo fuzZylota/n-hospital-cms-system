@@ -7,7 +7,15 @@
                 <div class="footer-widget footer-widget--about">
                     <div class="footer-widget__logo logo-retina">
                         <a href="index.php">
-                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="164">
+                            {{ if Options.Medias[1].FilePath != "" }}
+                                <img src="{{ PathOnStart }}{{ Options.Medias[1].FilePath }}" alt="{{ Options.Medias[1].AltText ? Options.Medias[1].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[1].Title ? Options.Medias[1].Title : "N-Hospital Logosu" }}" />
+                            {{ else }}
+                                {{ if Options.Medias[0].FilePath != "" }}
+                                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+                                {{ else }}
+                                    <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" />
+                                {{ end }}
+                            {{ end }}
                         </a>
                     </div><!-- /.footer-widget__logo -->
                     <p class="footer-widget__about-text">{{ Options.Options.SiteDescription }}</p><!-- /.footer-widget__about-text -->

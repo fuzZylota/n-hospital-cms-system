@@ -144,6 +144,7 @@ type Options struct {
 	SiteName                      string    `form:"site_name" json:"site_name"`
 	SiteDescription               string    `form:"site_description" json:"site_description"`
 	SiteLogoMid                   int64     `form:"site_logo_mid" json:"site_logo_mid"`
+	SiteLightLogoMid              int64     `form:"site_light_logo_mid" json:"site_light_logo_mid"`
 	FaviconMid                    int64     `form:"favicon_mid" json:"favicon_mid"`
 	DefaultPageMid                int64     `form:"default_page_mid" json:"default_page_mid"`
 	MaintenanceMode               bool      `form:"maintenance_mode" json:"maintenance_mode"`
@@ -184,6 +185,9 @@ type Options struct {
 	SiteLogoPath                  string    `form:"site_logo_path" json:"site_logo_path"`
 	SiteLogoAltText               string    `form:"site_logo_alt_text" json:"site_logo_alt_text"`
 	SiteLogoTitle                 string    `form:"site_logo_title" json:"site_logo_title"`
+	SiteLightLogoPath             string    `form:"site_light_logo_path" json:"site_light_logo_path"`
+	SiteLightLogoAltText          string    `form:"site_light_logo_alt_text" json:"site_light_logo_alt_text"`
+	SiteLightLogoTitle            string    `form:"site_light_logo_title" json:"site_light_logo_title"`
 	SiteFaviconPath               string    `form:"site_favicon_path" json:"site_favicon_path"`
 	DefaultPageMediaPath          string    `form:"default_page_media_path" json:"default_page_media_path"`
 	DefaultPageMediaAltText       string    `form:"default_page_alt_text" json:"default_page_alt_text"`
@@ -210,6 +214,8 @@ type OptionsEdit struct {
 	OldSiteDescription               string    `form:"old_site_description" json:"old_site_description"`
 	SiteLogoMid                      int64     `form:"site_logo_mid" json:"site_logo_mid"`
 	OldSiteLogoMid                   int64     `form:"old_site_logo_mid" json:"old_site_logo_mid"`
+	SiteLightLogoMid                 int64     `form:"site_light_logo_mid" json:"site_light_logo_mid"`
+	OldSiteLightLogoMid              int64     `form:"old_site_light_logo_mid" json:"old_site_light_logo_mid"`
 	FaviconMid                       int64     `form:"favicon_mid" json:"favicon_mid"`
 	OldFaviconMid                    int64     `form:"old_favicon_mid" json:"old_favicon_mid"`
 	DefaultPageMid                   int64     `form:"default_page_mid" json:"default_page_mid"`

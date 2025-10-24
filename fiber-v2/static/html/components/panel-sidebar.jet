@@ -2,7 +2,7 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <i class="fas fa-hospital-alt"></i>
+            <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-icon.png" alt="">
         </div>
         <div>
             <div class="sidebar-brand">Hospital CMS</div>

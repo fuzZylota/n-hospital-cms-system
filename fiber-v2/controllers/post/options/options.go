@@ -262,7 +262,7 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 					return c.Redirect("/panel/secenek-ekle?error=file_size_is_too_large")
 				}
 
-				estimatedPath := filepath.Join(RootDir, "static", "files", "options", lid, "site_logo")
+				estimatedPath := filepath.Join(RootDir, "static", "files", "options", lid, "site_logo", "dark")
 
 				UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLogoInput.Filename)
 
@@ -283,7 +283,7 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 				media := models.Medias{
 					FileName: UniqueFilePath.BaseName,
-					FilePath: "files/options/" + lid + "/site_logo/" + UniqueFilePath.BaseName,
+					FilePath: "files/options/" + lid + "/site_logo/dark/" + UniqueFilePath.BaseName,
 					FileSize: siteLogoInput.Size,
 					MimeType: siteLogoInput.Header.Get("Content-Type"),
 					FileType: "site_logo",
@@ -307,6 +307,70 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				}
 
 				err = lib.SaveFileWithBuffering(estimatedPath, *siteLogoInput)
+
+				if err != nil {
+					Orm.Rollback()
+					log.Printf("Cannot save file with buffering: %v\n", err)
+					return c.Redirect("/panel/secenek-ekle?error=internal_server_error")
+				}
+			}
+
+			var SiteLightLogoMid string = ""
+			siteLightLogoInput, err := c.FormFile("site_light_logo_mid")
+			if err == nil {
+				// dosya yüklenmiş ve ulaşılabilir
+
+				if siteLightLogoInput.Size > GetOptions.Options.MaxUploadSize {
+					Orm.Rollback()
+					log.Printf("File size is too large: %v\n", err)
+					return c.Redirect("/panel/secenek-ekle?error=file_size_is_too_large")
+				}
+
+				estimatedPath := filepath.Join(RootDir, "static", "files", "options", lid, "site_logo", "light")
+
+				UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLogoInput.Filename)
+
+				if err != nil {
+					Orm.Rollback()
+					log.Printf("Cannot get unique file path: %v\n", err)
+					return c.Redirect("/panel/secenek-ekle?error=internal_server_error")
+				}
+
+				switch UniqueFilePath.Extension {
+				case ".jpg", ".jpeg", ".png", ".webp":
+					break
+				default:
+					Orm.Rollback()
+					log.Printf("Invalid file type: %v\n", err)
+					return c.Redirect("/panel/secenek-ekle?error=invalid_file_type")
+				}
+
+				media := models.Medias{
+					FileName: UniqueFilePath.BaseName,
+					FilePath: "files/options/" + lid + "/site_logo/light/" + UniqueFilePath.BaseName,
+					FileSize: siteLogoInput.Size,
+					MimeType: siteLogoInput.Header.Get("Content-Type"),
+					FileType: "site_light_logo",
+					Uid:      OurUser.Uid,
+					TargetId: lid,
+				}
+
+				optionals := models.MediaOptionals{
+					AltText: inputs.SiteLightLogoAltText,
+					Title:   inputs.SiteLightLogoTitle,
+					Width:   0,
+					Height:  0,
+				}
+
+				SiteLightLogoMid, err = OurOptions.InsertMedia(&insertOption, media, optionals)
+
+				if err != nil {
+					Orm.Rollback()
+					log.Printf("Cannot insert media: %v\n", err)
+					return c.Redirect("/panel/secenek-ekle?error=internal_server_error")
+				}
+
+				err = lib.SaveFileWithBuffering(estimatedPath, *siteLightLogoInput)
 
 				if err != nil {
 					Orm.Rollback()
@@ -441,12 +505,15 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				}
 			}
 
-			if SiteLogoMid != "" || SiteFaviconMid != "" || DefaultPageMid != "" {
+			if SiteLogoMid != "" || SiteLightLogoMid != "" || SiteFaviconMid != "" || DefaultPageMid != "" {
 				updateOption := Orm.Update()
 				updateOption.Table("options")
 
 				if SiteLogoMid != "" {
 					updateOption.Set("site_logo_mid", SiteLogoMid)
+				}
+				if SiteLightLogoMid != "" {
+					updateOption.Set("site_light_logo_mid", SiteLightLogoMid)
 				}
 				if SiteFaviconMid != "" {
 					updateOption.Set("site_favicon_mid", SiteFaviconMid)
@@ -980,11 +1047,12 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			})
 		}
 
-		Options := Orm.Select([]string{"o.oid", "m1.file_path as logo_path", "m2.file_path as favicon_path", "m3.file_path as default_page_path"})
+		Options := Orm.Select([]string{"o.oid", "m1.file_path as logo_path", "m2.file_path as favicon_path", "m3.file_path as default_page_path", "m4.file_path as light_logo_path"})
 		Options.Table("options o")
 		Options.LeftJoin("medias m1", "o.site_logo_mid", "=", "m1.mid")
 		Options.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
 		Options.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
+		Options.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
 		Options.Where("o.oid", "=", Oid)
 		Options.Finish()
 
@@ -1009,7 +1077,7 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		Orm.Begin()
 
-		if len(rows) > 0 && (rows[0]["logo_path"] != "" || rows[0]["favicon_path"] != "" || rows[0]["default_page_path"] != "") {
+		if len(rows) > 0 && (rows[0]["logo_path"] != "" || rows[0]["favicon_path"] != "" || rows[0]["default_page_path"] != "" || rows[0]["light_logo_path"] != "") {
 			valuesArray := []any{}
 
 			if lib.String(rows[0]["logo_path"]) != "" {
@@ -1020,6 +1088,9 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			}
 			if lib.String(rows[0]["default_page_path"]) != "" {
 				valuesArray = append(valuesArray, lib.String(rows[0]["default_page_path"]))
+			}
+			if lib.String(rows[0]["light_logo_path"]) != "" {
+				valuesArray = append(valuesArray, lib.String(rows[0]["light_logo_path"]))
 			}
 
 			if len(valuesArray) > 0 {
@@ -1099,6 +1170,31 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			}
 
 			Path := filepath.Join(RootDir, "static", lib.String(rows[0]["logo_path"]))
+
+			err = lib.DeleteFile(Path)
+
+			if err != nil {
+				log.Printf("Cannot delete file: %v\n", err)
+				Orm.Rollback()
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+		}
+
+		if rows[0]["light_logo_path"] != nil && rows[0]["light_logo_path"] != "" {
+			RootDir := os.Getenv("ROOT_DIRECTORY")
+
+			if RootDir == "" {
+				Orm.Rollback()
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			Path := filepath.Join(RootDir, "static", lib.String(rows[0]["light_logo_path"]))
 
 			err = lib.DeleteFile(Path)
 
@@ -1265,6 +1361,8 @@ func DeleteOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		switch inputs.MediaType {
 		case "site_logo":
 			RemovePictureFromOption.Set("site_logo_mid", nil)
+		case "site_light_logo":
+			RemovePictureFromOption.Set("site_light_logo_mid", nil)
 		case "site_favicon":
 			RemovePictureFromOption.Set("site_favicon_mid", nil)
 		case "default_page_picture":
@@ -1341,6 +1439,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		siteLogoTitle := c.FormValue("site_logo_title")
 		oldSiteLogoAltText := c.FormValue("old_site_logo_alt_text")
 		oldSiteLogoTitle := c.FormValue("old_site_logo_title")
+		siteLightLogoAltText := c.FormValue("site_light_logo_alt_text")
+		siteLightLogoTitle := c.FormValue("site_light_logo_title")
+		oldSiteLightLogoAltText := c.FormValue("old_site_light_logo_alt_text")
+		oldSiteLightLogoTitle := c.FormValue("old_site_light_logo_title")
 		defaultPageMediaAltText := c.FormValue("default_page_media_alt_text")
 		defaultPageMediaTitle := c.FormValue("default_page_media_title")
 		oldDefaultPageMediaAltText := c.FormValue("old_default_page_media_alt_text")
@@ -1361,7 +1463,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := *utilities.Orm
 
-		GetOptions, err := OurOptions.FetchOptionsForBackend(&Orm, []string{"o.site_logo_mid", "o.site_favicon_mid", "o.default_page_mid"}, []string{})
+		GetOptions, err := OurOptions.FetchOptionsForBackend(&Orm, []string{"o.site_logo_mid", "o.site_light_logo_mid", "o.site_favicon_mid", "o.default_page_mid"}, []string{})
 
 		if err != nil {
 			log.Printf("Cannot fetch options for backend: %v\n", err)
@@ -1561,6 +1663,212 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				}
 
 				UpdateMedia.Where("mid", "=", GetOptions.Options.SiteLogoMid)
+				UpdateMedia.And("target_id", "=", Oid)
+				UpdateMedia.Finish()
+
+				err = UpdateMedia.Execute()
+
+				if err != nil {
+					Orm.Rollback()
+					log.Printf("Cannot update media: %v\n", err)
+					return c.JSON(fiber.Map{
+						"status":  500,
+						"message": "Internal server error",
+					})
+				}
+			}
+		}
+
+		siteLightLogoInput, err := c.FormFile("site_light_logo_path")
+		if err == nil {
+			Orm.Begin()
+
+			if siteLightLogoInput.Size > GetOptions.Options.MaxUploadSize {
+				Orm.Rollback()
+				log.Printf("File size is too large: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "File size is too large",
+				})
+			}
+
+			estimatedPath := filepath.Join(RootDir, "static", "files", "options", Oid, "site_logo", "light")
+
+			UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLightLogoInput.Filename)
+
+			if err != nil {
+				Orm.Rollback()
+				log.Printf("Cannot get unique file path: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			switch UniqueFilePath.Extension {
+			case ".jpg", ".jpeg", ".png", ".webp":
+				break
+			default:
+				Orm.Rollback()
+				log.Printf("Invalid file type: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Invalid file type",
+				})
+			}
+
+			media := models.Medias{
+				FileName: UniqueFilePath.BaseName,
+				FilePath: "files/options/" + Oid + "/site_logo/light/" + UniqueFilePath.BaseName,
+				FileSize: siteLogoInput.Size,
+				MimeType: siteLogoInput.Header.Get("Content-Type"),
+				FileType: "site_light_logo",
+				Uid:      OurUser.Uid,
+				TargetId: Oid,
+			}
+
+			optionals := models.MediaOptionals{
+				AltText: siteLightLogoAltText,
+				Title:   siteLightLogoTitle,
+				Width:   0,
+				Height:  0,
+			}
+
+			NewOpts := database.Options{}
+
+			SiteLightLogoMid, err := NewOpts.InsertMedia(&Orm, media, optionals)
+
+			if err != nil {
+				Orm.Rollback()
+				log.Printf("Cannot insert media: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			if SiteLightLogoMid == "" {
+				Orm.Rollback()
+				log.Printf("cannot insert media: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			entries, err := lib.ReadDirectory(estimatedPath)
+			if err != nil && err != os.ErrNotExist {
+				log.Printf("Cannot read directory: %v, %T\n", err, err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			FilePaths := []any{}
+
+			for _, entry := range entries {
+				FilePath := filepath.Join("files/options/"+Oid+"/site_logo/light", entry.Name())
+				fmt.Printf("FilePath: %v\n", FilePath)
+				FilePaths = append(FilePaths, FilePath)
+			}
+
+			if len(FilePaths) > 0 {
+				DeleteMedias := Orm.Delete()
+				DeleteMedias.Table("medias")
+				DeleteMedias.In("WHERE", "file_path", FilePaths)
+				DeleteMedias.Finish()
+				err = DeleteMedias.Execute()
+				if err != nil {
+					Orm.Rollback()
+				}
+			}
+
+			UpdateOptions := Orm.Update()
+			UpdateOptions.Table("options")
+			UpdateOptions.Set("site_light_logo_mid", SiteLightLogoMid)
+			UpdateOptions.Where("oid", "=", Oid)
+			UpdateOptions.Finish()
+			err = UpdateOptions.Execute()
+			if err != nil {
+				Orm.Rollback()
+				log.Printf("Cannot update option: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			ra, err := UpdateOptions.RowsAffected()
+
+			if err != nil {
+				Orm.Rollback()
+				log.Printf("Cannot get rows affected: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			if ra == 0 {
+				Orm.Rollback()
+				log.Printf("Cannot update option: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			err = lib.SaveFileWithBuffering(estimatedPath, *siteLightLogoInput)
+
+			if err != nil {
+				Orm.Rollback()
+				log.Printf("Cannot save file with buffering: %v\n", err)
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			if err != nil {
+				Orm.Rollback()
+				return c.JSON(fiber.Map{
+					"status":  500,
+					"message": "Internal server error",
+				})
+			}
+
+			for _, filePath := range FilePaths {
+				GetAbsolutePath := filepath.Join(RootDir, "static", lib.String(filePath))
+				err := lib.DeleteFile(GetAbsolutePath)
+				if err != nil {
+					log.Printf("Cannot remove file: %v\n", err)
+				}
+			}
+
+			Orm.Commit()
+		} else {
+			if GetOptions.Options.SiteLightLogoMid != 0 && (siteLightLogoAltText != oldSiteLightLogoAltText || siteLightLogoTitle != oldSiteLightLogoTitle) {
+				UpdateMedia := Orm.Update()
+				UpdateMedia.Table("medias")
+
+				if siteLightLogoAltText != oldSiteLightLogoAltText {
+					if siteLightLogoAltText != "" {
+						UpdateMedia.Set("alt_text", siteLightLogoAltText)
+					} else {
+						UpdateMedia.Set("alt_text", nil)
+					}
+				}
+
+				if siteLightLogoTitle != oldSiteLightLogoTitle {
+					if siteLightLogoTitle != "" {
+						UpdateMedia.Set("title", siteLightLogoTitle)
+					} else {
+						UpdateMedia.Set("title", nil)
+					}
+				}
+
+				UpdateMedia.Where("mid", "=", GetOptions.Options.SiteLightLogoMid)
 				UpdateMedia.And("target_id", "=", Oid)
 				UpdateMedia.Finish()
 
