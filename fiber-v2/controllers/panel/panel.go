@@ -6516,13 +6516,53 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("is_active", "all")
+		SortBy := c.Query("sort_by", "created_at")
+		SortOrder := c.Query("sort_order", "DESC")
+		Read := c.Query("read", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		ContactRequests := Orm.Select([]string{"crid", "first_name", "last_name", "email", "phone", "subject", "message", "department", "priority", "status", "assigned_to", "response", "response_date", "ip_address", "user_agent", "source", "is_read", "created_at", "updated_at"})
 		ContactRequests.Table("contact_requests")
-		ContactRequests.OrderBy("is_read", "ASC")
-		ContactRequests.OrderBy("created_at", "DESC")
+		if Query != "" {
+			ContactRequests.OpenParenthesis("WHERE")
+			ContactRequests.Like("WHERE", "first_name", Query, "contains")
+			ContactRequests.Like("OR", "last_name", Query, "contains")
+			ContactRequests.Like("OR", "phone", Query, "contains")
+			ContactRequests.Like("OR", "email", Query, "contains")
+			ContactRequests.Like("OR", "subject", Query, "contains")
+			ContactRequests.Like("OR", "message", Query, "contains")
+			ContactRequests.CloseParenthesis()
+
+			if Status != "all" {
+				ContactRequests.And("status", "=", Status == "active")
+			}
+
+			if Read != "all" {
+				ContactRequests.And("is_read", "=", Read == "read")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(ContactRequests.Query, "WHERE") {
+				ContactRequests.And("status", "=", Status)
+			} else {
+				ContactRequests.Where("status", "=", Status)
+			}
+		}
+
+		if Read != "all" {
+			if strings.Contains(ContactRequests.Query, "WHERE") {
+				ContactRequests.And("is_read", "=", Read == "read")
+			} else {
+				ContactRequests.Where("is_read", "=", Read == "read")
+			}
+		}
+
+		ContactRequests.OrderBy("created_at", SortOrder)
 		ContactRequests.Limit(int(itemsPerPage))
 		ContactRequests.Offset(offset)
 		ContactRequests.Finish()
@@ -6573,6 +6613,11 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 			"Count":           len(ContactRequestsArray),
 			"User":            ourUser,
 			"Options":         GetOptions,
+			"Query":           Query,
+			"Status":          Status,
+			"SortBy":          SortBy,
+			"SortOrder":       SortOrder,
+			"Read":            Read,
 		}, "layouts/panel/panel")
 	}
 }

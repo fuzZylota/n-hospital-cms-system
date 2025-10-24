@@ -24,45 +24,46 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="Ad, soyad, e-posta veya konu ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Ad, soyad, e-posta veya konu ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="yeni">Yeni</option>
-                    <option value="okundu">Okundu</option>
-                    <option value="cevaplanmis">Cevaplanmış</option>
-                    <option value="kapali">Kapalı</option>
-                </select>
-                <select id="priorityFilter" class="filter-select">
-                    <option value="">Tüm Öncelikler</option>
-                    <option value="dusuk">Düşük</option>
-                    <option value="normal">Normal</option>
-                    <option value="yuksek">Yüksek</option>
-                    <option value="acil">Acil</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="yeni"{{if Status == "yeni"}} selected{{end}}>Yeni</option>
+                    <option value="okundu"{{if Status == "okundu"}} selected{{end}}>Okundu</option>
+                    <option value="cevaplanmis"{{if Status == "cevaplanmis"}} selected{{end}}>Cevaplanmış</option>
+                    <option value="kapali"{{if Status == "kapali"}} selected{{end}}>Kapalı</option>
                 </select>
                 <select id="readFilter" class="filter-select">
-                    <option value="">Tüm Okuma Durumları</option>
-                    <option value="read">Okunmuş</option>
-                    <option value="unread">Okunmamış</option>
+                    <option value="all"{{if Read == "all" || Read == ""}} selected{{end}}>Tüm Okuma Durumları</option>
+                    <option value="read"{{if Read == "read"}} selected{{end}}>Okunmuş</option>
+                    <option value="unread"{{if Read == "unread"}} selected{{end}}>Okunmamış</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="first_name">Ad</option>
-                    <option value="subject">Konu</option>
-                    <option value="priority">Öncelik</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="first_name"{{if SortBy == "first_name" || SortBy == ""}} selected{{end}}>Ad</option>
+                    <option value="last_name"{{if SortBy == "last_name"}} selected{{end}}>Soyad</option>
+                    <option value="email"{{if SortBy == "email"}} selected{{end}}>E-posta</option>
+                    <option value="phone"{{if SortBy == "phone"}} selected{{end}}>Telefon</option>
+                    <option value="subject"{{if SortBy == "subject"}} selected{{end}}>Konu</option>
+                    <option value="message"{{if SortBy == "message"}} selected{{end}}>Açıklama</option>
+                    <option value="created_at"{{if SortBy == "created_at"}} selected{{end}}>Oluşturma Tarihi</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="desc">Azalan</option>
-                    <option value="asc">Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -535,5 +536,66 @@
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
         perPage: parseInt("{{ 10 }}")
     };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const readFilter = document.getElementById('readFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const read = readFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('is_active', status);
+            }
+            if (read && read !== 'all') {
+                params.append('read', read);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/contact-requests.js"></script>
