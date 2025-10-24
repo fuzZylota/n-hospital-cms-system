@@ -306,7 +306,7 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 					return c.Redirect("/panel/secenek-ekle?error=internal_server_error")
 				}
 
-				err = lib.SaveFileWithBuffering(estimatedPath, *siteLogoInput)
+				err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *siteLogoInput)
 
 				if err != nil {
 					Orm.Rollback()
@@ -328,7 +328,7 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 				estimatedPath := filepath.Join(RootDir, "static", "files", "options", lid, "site_logo", "light")
 
-				UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLogoInput.Filename)
+				UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLightLogoInput.Filename)
 
 				if err != nil {
 					Orm.Rollback()
@@ -348,8 +348,8 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				media := models.Medias{
 					FileName: UniqueFilePath.BaseName,
 					FilePath: "files/options/" + lid + "/site_logo/light/" + UniqueFilePath.BaseName,
-					FileSize: siteLogoInput.Size,
-					MimeType: siteLogoInput.Header.Get("Content-Type"),
+					FileSize: siteLightLogoInput.Size,
+					MimeType: siteLightLogoInput.Header.Get("Content-Type"),
 					FileType: "site_light_logo",
 					Uid:      OurUser.Uid,
 					TargetId: lid,
@@ -370,7 +370,7 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 					return c.Redirect("/panel/secenek-ekle?error=internal_server_error")
 				}
 
-				err = lib.SaveFileWithBuffering(estimatedPath, *siteLightLogoInput)
+				err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *siteLightLogoInput)
 
 				if err != nil {
 					Orm.Rollback()
@@ -1486,7 +1486,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			estimatedPath := filepath.Join(RootDir, "static", "files", "options", Oid, "site_logo")
+			estimatedPath := filepath.Join(RootDir, "static", "files", "options", Oid, "site_logo", "dark")
 
 			UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + siteLogoInput.Filename)
 
@@ -1513,7 +1513,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 
 			media := models.Medias{
 				FileName: UniqueFilePath.BaseName,
-				FilePath: "files/options/" + Oid + "/site_logo/" + UniqueFilePath.BaseName,
+				FilePath: "files/options/" + Oid + "/site_logo/dark/" + UniqueFilePath.BaseName,
 				FileSize: siteLogoInput.Size,
 				MimeType: siteLogoInput.Header.Get("Content-Type"),
 				FileType: "site_logo",
@@ -1613,7 +1613,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			err = lib.SaveFileWithBuffering(estimatedPath, *siteLogoInput)
+			err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *siteLogoInput)
 
 			if err != nil {
 				Orm.Rollback()
@@ -1720,8 +1720,8 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			media := models.Medias{
 				FileName: UniqueFilePath.BaseName,
 				FilePath: "files/options/" + Oid + "/site_logo/light/" + UniqueFilePath.BaseName,
-				FileSize: siteLogoInput.Size,
-				MimeType: siteLogoInput.Header.Get("Content-Type"),
+				FileSize: siteLightLogoInput.Size,
+				MimeType: siteLightLogoInput.Header.Get("Content-Type"),
 				FileType: "site_light_logo",
 				Uid:      OurUser.Uid,
 				TargetId: Oid,
@@ -1819,7 +1819,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			err = lib.SaveFileWithBuffering(estimatedPath, *siteLightLogoInput)
+			err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *siteLightLogoInput)
 
 			if err != nil {
 				Orm.Rollback()
@@ -2025,7 +2025,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			err = lib.SaveFileWithBuffering(estimatedPath, *siteFaviconInput)
+			err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *siteFaviconInput)
 
 			if err != nil {
 				Orm.Rollback()
@@ -2187,7 +2187,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			err = lib.SaveFileWithBuffering(estimatedPath, *defaultPageInput)
+			err = lib.SaveFileWithBufferingWithRenaming(estimatedPath, UniqueFilePath.BaseName, *defaultPageInput)
 
 			if err != nil {
 				Orm.Rollback()

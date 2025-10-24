@@ -138,6 +138,38 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="site_light_logo_mid" class="form-label">Açık Tema Logosu</label>
+                            <div class="file-upload-area" data-target="site_light_logo_mid">
+                                <div class="file-upload-content">
+                                    <i class="icon-upload"></i>
+                                    <p class="file-upload-text">Açık tema logosunu sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                    <p class="file-upload-hint">PNG, JPG, SVG - Max 2MB</p>
+                                </div>
+                                <input type="file" id="site_light_logo_mid" name="site_light_logo_mid" 
+                                       class="file-input" accept="image/*">
+                                <div class="file-preview" style="display: none;">
+                                    <img class="preview-image" src="" alt="Preview">
+                                    <button type="button" class="file-remove">
+                                        <i class="icon-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="file-meta-inputs">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="site_light_logo_alt_text" class="form-label">Açık Tema Logo Alt Metni</label>
+                                        <input type="text" id="site_light_logo_alt_text" name="site_light_logo_alt_text" 
+                                               class="form-input" placeholder="Açık tema logosu için alternatif metin">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="site_light_logo_title" class="form-label">Açık Tema Logo Başlığı</label>
+                                        <input type="text" id="site_light_logo_title" name="site_light_logo_title" 
+                                               class="form-input" placeholder="Açık tema logosu için başlık metni">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="site_favicon_mid" class="form-label">Favicon</label>
                             <div class="file-upload-area" data-target="site_favicon_mid">
                                 <div class="file-upload-content">
