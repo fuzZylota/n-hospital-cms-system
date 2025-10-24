@@ -114,10 +114,8 @@ class RandevuTalepleriListManager {
 
         if (!searchInput) return;
 
-        // Debounced search
-        let searchTimeout;
+        // Only show/hide clear button, no automatic filtering
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
             const value = e.target.value.trim();
             
             // Show/hide clear button
@@ -126,22 +124,12 @@ class RandevuTalepleriListManager {
             } else {
                 searchClear.style.display = 'none';
             }
-
-            // Debounced search
-            searchTimeout = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
 
         // Clear search
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
@@ -149,55 +137,16 @@ class RandevuTalepleriListManager {
      * Setup filter dropdowns
      */
     setupFilters() {
-        const dateFilter = document.getElementById('dateFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-
-        if (dateFilter) {
-            dateFilter.addEventListener('change', (e) => {
-                this.currentFilters.date = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.currentSort.column = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.currentSort.order = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     /**
      * Setup table column sorting
      */
     setupTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.data-table th.sortable');
-        
-        sortableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.getAttribute('data-column');
-                
-                // Toggle sort order if same column
-                if (this.currentSort.column === column) {
-                    this.currentSort.order = this.currentSort.order === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.currentSort.column = column;
-                    this.currentSort.order = 'asc';
-                }
-                
-                this.updateSortHeaders();
-                this.filterAndReload();
-            });
-        });
+        // Disabled automatic table sorting - now handled by manual filter button
+        // Sorting is only applied when the filter button is clicked
     }
 
     /**

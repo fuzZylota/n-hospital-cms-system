@@ -5945,56 +5945,45 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("status", "all")
+		SortBy := c.Query("sort_by", "patient_first_name")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		// Build query with filters
 		RandevuTalepleri := Orm.Select([]string{"rrid", "patient_first_name", "patient_last_name", "patient_phone", "patient_email", "preferred_date", "preferred_time", "message", "drid", "sid", "created_at", "updated_at"})
 		RandevuTalepleri.Table("randevu_talepleri")
+		if Query != "" {
+			RandevuTalepleri.OpenParenthesis("WHERE")
+			RandevuTalepleri.Like("WHERE", "patient_first_name", Query, "contains")
+			RandevuTalepleri.Like("OR", "patient_last_name", Query, "contains")
+			RandevuTalepleri.Like("OR", "patient_phone", Query, "contains")
+			RandevuTalepleri.Like("OR", "patient_email", Query, "contains")
+			RandevuTalepleri.Like("OR", "message", Query, "contains")
+			RandevuTalepleri.CloseParenthesis()
 
-		// Apply search filter
-		if c.Query("search") != "" {
-			searchTerm := c.Query("search")
-			RandevuTalepleri.Like("WHERE", "patient_first_name", searchTerm, "contains")
-			RandevuTalepleri.Like("OR", "patient_last_name", searchTerm, "contains")
-			RandevuTalepleri.Like("OR", "patient_phone", searchTerm, "contains")
-			RandevuTalepleri.Like("OR", "patient_email", searchTerm, "contains")
-		}
-
-		// Apply date filter
-		if c.Query("date") != "" {
-			dateFilter := c.Query("date")
-			now := time.Now()
-			switch dateFilter {
-			case "today":
-				today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-				tomorrow := today.AddDate(0, 0, 1)
-				RandevuTalepleri.Where("created_at", ">=", today)
-				RandevuTalepleri.Where("created_at", "<", tomorrow)
-			case "week":
-				weekStart := now.AddDate(0, 0, -int(now.Weekday()))
-				weekStart = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, weekStart.Location())
-				RandevuTalepleri.Where("created_at", ">=", weekStart)
-			case "month":
-				monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-				RandevuTalepleri.Where("created_at", ">=", monthStart)
+			if Status != "all" {
+				RandevuTalepleri.And("status", "=", Status == "active")
 			}
 		}
 
-		// Apply sorting
-		sortBy := c.Query("sort_by")
-		if sortBy == "" {
-			sortBy = "created_at"
+		if Status != "all" {
+			if strings.Contains(RandevuTalepleri.Query, "WHERE") {
+				RandevuTalepleri.And("status", "=", Status == "active")
+			} else {
+				RandevuTalepleri.Where("status", "=", Status == "active")
+			}
 		}
-		sortOrder := c.Query("sort_order")
-		if sortOrder == "" {
-			sortOrder = "DESC"
-		}
-		RandevuTalepleri.OrderBy(sortBy, sortOrder)
 
+		RandevuTalepleri.OrderBy(SortBy, SortOrder)
 		RandevuTalepleri.Limit(int(itemsPerPage))
 		RandevuTalepleri.Offset(offset)
 		RandevuTalepleri.Finish()
+
+		fmt.Printf("RandevuTalepleri: %v\n", RandevuTalepleri.Query)
 
 		err = RandevuTalepleri.Execute()
 
@@ -6035,6 +6024,10 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			"Count":            len(RandevuTalepleriArray),
 			"User":             ourUser,
 			"Options":          GetOptions,
+			"Query":            Query,
+			"Status":           Status,
+			"SortBy":           SortBy,
+			"SortOrder":        SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
