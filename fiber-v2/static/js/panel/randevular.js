@@ -31,11 +31,10 @@ class RandevularListManager {
         const searchClear = document.getElementById('searchClear');
         
         if (searchInput) {
-            searchInput.addEventListener('input', this.debounce((e) => {
+            searchInput.addEventListener('input', (e) => {
                 this.searchTerm = e.target.value;
                 this.updateSearchClear();
-                this.filterAndReload();
-            }, 300));
+            });
         }
 
         if (searchClear) {
@@ -53,33 +52,8 @@ class RandevularListManager {
         const sortBy = document.getElementById('sortBy');
         const sortOrder = document.getElementById('sortOrder');
 
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.statusFilter = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (paymentFilter) {
-            paymentFilter.addEventListener('change', (e) => {
-                this.paymentFilter = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.sortBy = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.sortOrder = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
 
         // View toggle
         const viewButtons = document.querySelectorAll('.view-btn');
@@ -134,19 +108,8 @@ class RandevularListManager {
             });
         }
 
-        // Table sorting
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.sortable')) {
-                const th = e.target.closest('.sortable');
-                const column = th.dataset.column;
-                if (column) {
-                    this.sortBy = column;
-                    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-                    this.updateSortIcons();
-                    this.filterAndReload();
-                }
-            }
-        });
+        // Disabled automatic table sorting - now handled by manual filter button
+        // Sorting is only applied when the filter button is clicked
 
         // Delete confirmation
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');

@@ -6060,6 +6060,34 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		offset := (page - 1) * perPage
 
+		GetAllSubeler := Orm.CustomSelectQuery("SELECT DISTINCT s.name, s.sid FROM randevular r LEFT JOIN subeler s ON r.sid = s.sid")
+		GetAllSubeler.Finish()
+		err = GetAllSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		subelerRows, err := GetAllSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllSubelerArray := []models.Subeler{}
+		for _, row := range subelerRows {
+			GetAllSubelerArray = append(GetAllSubelerArray, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
+		Query := c.Query("query", "")
+		Status := c.Query("is_active", "all")
+		SortBy := c.Query("sort_by", "patient_first_name")
+		SortOrder := c.Query("sort_order", "DESC")
+		SubelerQuery := c.Query("sube", "all")
+
 		// Get randevular data
 		RandevularQuery := Orm.Select([]string{
 			"r.rid", "r.patient_first_name", "r.patient_last_name", "r.patient_phone",
@@ -6073,7 +6101,43 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 		RandevularQuery.LeftJoin("doktorlar d", "r.drid", "=", "d.drid")
 		RandevularQuery.LeftJoin("subeler s", "r.sid", "=", "s.sid")
 		RandevularQuery.LeftJoin("branslar b", "r.brid", "=", "b.brid")
-		RandevularQuery.OrderBy("r.appointment_date", "desc")
+		if Query != "" {
+			RandevularQuery.OpenParenthesis("WHERE")
+			RandevularQuery.Like("WHERE", "r.patient_first_name", Query, "contains")
+			RandevularQuery.Like("OR", "r.patient_last_name", Query, "contains")
+			RandevularQuery.Like("OR", "r.patient_phone", Query, "contains")
+			RandevularQuery.Like("OR", "r.patient_email", Query, "contains")
+			RandevularQuery.Like("OR", "r.complaint", Query, "contains")
+			RandevularQuery.Like("OR", "r.notes", Query, "contains")
+			RandevularQuery.CloseParenthesis()
+
+			if Status != "all" {
+				RandevularQuery.And("r.status", "=", Status)
+			}
+
+			if SubelerQuery != "all" {
+				RandevularQuery.And("r.sid", "=", SubelerQuery)
+			}
+
+		}
+
+		if Status != "all" {
+			if strings.Contains(RandevularQuery.Query, "WHERE") {
+				RandevularQuery.And("r.status", "=", Status)
+			} else {
+				RandevularQuery.Where("r.status", "=", Status)
+			}
+		}
+
+		if SubelerQuery != "all" {
+			if strings.Contains(RandevularQuery.Query, "WHERE") {
+				RandevularQuery.And("r.sid", "=", SubelerQuery)
+			} else {
+				RandevularQuery.Where("r.sid", "=", SubelerQuery)
+			}
+		}
+
+		RandevularQuery.OrderBy("r."+SortBy, SortOrder)
 		RandevularQuery.Limit(perPage)
 		RandevularQuery.Offset(offset)
 		RandevularQuery.Finish()
@@ -6159,6 +6223,12 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 			"Count":       Count,
 			"Page":        page,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"Sube":        SubelerQuery,
+			"Subeler":     GetAllSubelerArray,
 		}, "layouts/panel/panel")
 	}
 }
