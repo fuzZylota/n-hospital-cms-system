@@ -1,7 +1,0 @@
-2025/10/24 23:26:06 main.go:36: Error loading .env file: open .env: no such file or directory
-2025/10/24 23:26:06 main.go:39: Env's loaded
-2025/10/24 23:26:06 main.go:62: Html files loaded
-2025/10/24 23:26:06 main.go:78: Static files loaded
-2025/10/24 23:26:06 main.go:90: JWT middleware loaded
-2025/10/24 23:26:06 main.go:103: AppState loaded
-2025/10/24 23:26:06 main.go:109: Routes loaded
