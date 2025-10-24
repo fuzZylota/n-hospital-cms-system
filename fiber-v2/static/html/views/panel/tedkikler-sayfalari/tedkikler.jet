@@ -28,29 +28,34 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="Tedkik adı veya açıklama ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Tedkik adı veya açıklama ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
+                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="created_at">Oluşturma Tarihi</option>
-                    <option value="name">Tedkik Adı</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="name"{{if SortBy == "name" || SortBy == ""}} selected{{end}}>Tedkik Adı</option>
+                    <option value="description"{{if SortBy == "description"}} selected{{end}}>Açıklama</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="desc">Azalan</option>
-                    <option value="asc">Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -383,5 +388,61 @@
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
         perPage: parseInt("{{ 10 }}")
     };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('is_active', status);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/tedkikler.js"></script>

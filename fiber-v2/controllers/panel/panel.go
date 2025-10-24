@@ -5176,15 +5176,86 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 			return c.Redirect("/panel")
 		}
 
+		GetAllCategories := Orm.CustomSelectQuery("SELECT DISTINCT category FROM haberler")
+		GetAllCategories.Finish()
+		err = GetAllCategories.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err := GetAllCategories.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		GetAllCategoriesArray := []string{}
+		for _, row := range rows {
+			GetAllCategoriesArray = append(GetAllCategoriesArray, lib.String(row["category"]))
+		}
+
+		Query := c.Query("query", "")
+		Status := c.Query("is_active", "all")
+		SortBy := c.Query("sort_by", "title")
+		SortOrder := c.Query("sort_order", "DESC")
+		Category := c.Query("category", "all")
+		Featured := c.Query("is_featured", "all")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		Haberler := Orm.Select([]string{"hid", "title", "url_name", "summary", "content", "cover_mid", "category", "tags", "author", "publish_date", "is_featured", "is_published", "views_count", "seo_title", "seo_description", "seo_keywords", "created_at", "updated_at"})
 		Haberler.Table("haberler")
-		Haberler.Where("is_published", "=", true)
-		Haberler.And("publish_date", "<=", time.Now())
-		Haberler.OrderBy("is_featured", "DESC")
-		Haberler.OrderBy("publish_date", "DESC")
+		if Query != "" {
+			Haberler.OpenParenthesis("WHERE")
+			Haberler.Like("WHERE", "title", Query, "contains")
+			Haberler.Like("OR", "summary", Query, "contains")
+			Haberler.Like("OR", "content", Query, "contains")
+			Haberler.Like("OR", "author", Query, "contains")
+			Haberler.Like("OR", "seo_title", Query, "contains")
+			Haberler.Like("OR", "seo_description", Query, "contains")
+			Haberler.Like("OR", "seo_keywords", Query, "contains")
+			Haberler.CloseParenthesis()
+
+			if Status != "all" {
+				Haberler.And("is_published", "=", Status == "published")
+			}
+
+			if Category != "all" {
+				Haberler.And("category", "=", Category)
+			}
+
+			if Featured != "all" {
+				Haberler.And("is_featured", "=", Featured == "featured")
+			}
+		}
+
+		if Status != "all" {
+			if strings.Contains(Haberler.Query, "WHERE") {
+				Haberler.And("is_published", "=", Status == "published")
+			} else {
+				Haberler.Where("is_published", "=", Status == "published")
+			}
+		}
+
+		if Category != "all" {
+			if strings.Contains(Haberler.Query, "WHERE") {
+				Haberler.And("category", "=", Category)
+			} else {
+				Haberler.Where("category", "=", Category)
+			}
+		}
+
+		if Featured != "all" {
+			if strings.Contains(Haberler.Query, "WHERE") {
+				Haberler.And("is_featured", "=", Featured == "featured")
+			} else {
+				Haberler.Where("is_featured", "=", Featured == "featured")
+			}
+		}
+
+		Haberler.OrderBy(SortBy, SortOrder)
 		Haberler.Limit(int(itemsPerPage))
 		Haberler.Offset(offset)
 		Haberler.Finish()
@@ -5196,7 +5267,7 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 			return c.Redirect("/panel")
 		}
 
-		rows, err := Haberler.Rows()
+		rows, err = Haberler.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
@@ -5234,6 +5305,13 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 			"Count":       len(HaberlerArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
+			"Category":    Category,
+			"Featured":    Featured,
+			"Categories":  GetAllCategoriesArray,
 		}, "layouts/panel/panel")
 	}
 }
@@ -5468,6 +5546,11 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			return c.Redirect("/giris")
 		}
 
+		Query := c.Query("query", "")
+		Status := c.Query("is_active", "all")
+		SortBy := c.Query("sort_by", "name")
+		SortOrder := c.Query("sort_order", "DESC")
+
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
@@ -5475,35 +5558,26 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		Tedkikler := utilities.Orm.Select([]string{"t.*", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		Tedkikler.Table("tedkikler t")
 		Tedkikler.LeftJoin("medias m", "t.cover_mid", "=", "m.mid")
+		if Query != "" {
+			Tedkikler.OpenParenthesis("WHERE")
+			Tedkikler.Like("WHERE", "t.name", Query, "contains")
+			Tedkikler.Like("OR", "t.description", Query, "contains")
+			Tedkikler.CloseParenthesis()
 
-		// Apply search filter
-		if c.Query("search") != "" {
-			searchTerm := c.Query("search")
-			Tedkikler.Where("t.name", "ILIKE", "%"+searchTerm+"%")
-			Tedkikler.Or("t.description", "ILIKE", "%"+searchTerm+"%")
-		}
-
-		// Apply status filter
-		if c.Query("status") != "" {
-			status := c.Query("status")
-			if status == "active" {
-				Tedkikler.And("t.is_active", "=", true)
-			} else if status == "inactive" {
-				Tedkikler.And("t.is_active", "=", false)
+			if Status != "all" {
+				Tedkikler.And("t.is_active", "=", Status == "active")
 			}
 		}
 
-		// Apply sorting
-		sortBy := c.Query("sort_by")
-		if sortBy == "" {
-			sortBy = "updated_at"
+		if Status != "all" {
+			if strings.Contains(Tedkikler.Query, "WHERE") {
+				Tedkikler.And("t.is_active", "=", Status == "active")
+			} else {
+				Tedkikler.Where("t.is_active", "=", Status == "active")
+			}
 		}
-		sortOrder := c.Query("sort_order")
-		if sortOrder == "" {
-			sortOrder = "DESC"
-		}
-		Tedkikler.OrderBy("t."+sortBy, sortOrder)
 
+		Tedkikler.OrderBy(SortBy, SortOrder)
 		Tedkikler.Limit(int(itemsPerPage))
 		Tedkikler.Offset(offset)
 		Tedkikler.Finish()
@@ -5549,6 +5623,10 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			"Count":       len(TedkiklerArray),
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Query":       Query,
+			"Status":      Status,
+			"SortBy":      SortBy,
+			"SortOrder":   SortOrder,
 		}, "layouts/panel/panel")
 	}
 }
