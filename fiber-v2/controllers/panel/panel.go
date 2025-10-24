@@ -643,11 +643,12 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			return c.Redirect("/giris")
 		}
 
-		Options := Orm.Select([]string{"o.*", "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title", "m2.file_path as favicon_path", "m3.file_path as default_page_media_path", "m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title"})
+		Options := Orm.Select([]string{"o.*", "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title", "m2.file_path as favicon_path", "m3.file_path as default_page_media_path", "m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title", "m4.file_path as light_logo_path", "m4.alt_text as light_logo_alt_text", "m4.title as light_logo_title"})
 		Options.Table("options o")
 		Options.LeftJoin("medias m", "o.site_logo_mid", "=", "m.mid")
 		Options.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
 		Options.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
+		Options.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
 		Options.Where("o.oid", "=", Oid)
 		Options.Finish()
 		err = Options.Execute()
@@ -673,6 +674,7 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			ContactEmail:                  lib.String(rows[0]["contact_email"]),
 			ContactPhone:                  lib.String(rows[0]["contact_phone"]),
 			SiteLogoMid:                   lib.Int64(rows[0]["site_logo_mid"]),
+			SiteLightLogoMid:              lib.Int64(rows[0]["site_light_logo_mid"]),
 			FaviconMid:                    lib.Int64(rows[0]["site_favicon_mid"]),
 			DefaultPageMid:                lib.Int64(rows[0]["default_page_mid"]),
 			MaintenanceMode:               rows[0]["maintenance_mode"].(bool),
@@ -714,7 +716,12 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			DefaultPageMediaPath:          lib.String(rows[0]["default_page_media_path"]),
 			DefaultPageMediaAltText:       lib.String(rows[0]["default_page_media_alt_text"]),
 			DefaultPageMediaTitle:         lib.String(rows[0]["default_page_media_title"]),
+			SiteLightLogoPath:             lib.String(rows[0]["light_logo_path"]),
+			SiteLightLogoAltText:          lib.String(rows[0]["light_logo_alt_text"]),
+			SiteLightLogoTitle:            lib.String(rows[0]["light_logo_title"]),
 		}
+
+		fmt.Printf("Option: %+v\n", Option.SiteLightLogoPath)
 
 		return c.Render("views/panel/secenek-sayfalari/secenek", fiber.Map{
 			"PathOnStart": "../../",

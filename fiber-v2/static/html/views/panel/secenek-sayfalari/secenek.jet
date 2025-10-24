@@ -102,6 +102,19 @@
                         </div>
                     </div>
                     {{end}}
+                    {{if Option.SiteLightLogoMid}}
+                    <div class="info-item">
+                        <label class="info-label">Açık Tema Logosu</label>
+                        <div class="info-value">
+                            <div class="image-preview" data-media-id="{{ Option.SiteLightLogoMid }}">
+                                <img src="{{ PathOnStart }}{{ Option.SiteLightLogoPath }}" alt="{{ Option.SiteLightLogoAltText }}" title="{{ Option.SiteLightLogoTitle }}" class="preview-image zoomable">
+                                <div class="image-overlay">
+                                    <i class="icon-maximize"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
                     {{if Option.FaviconMid}}
                     <div class="info-item">
                         <label class="info-label">Site Favicon</label>
