@@ -6792,11 +6792,11 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 
 		perPage := c.Query("per_page", "10")
 		//search := c.Query("search", "")
-		status := c.Query("status", "")
-		position := c.Query("position", "")
-		sortBy := c.Query("sort_by", "created_at")
-		sortOrder := c.Query("sort_order", "desc")
 
+		Query := c.Query("query", "")
+		Status := c.Query("is_active", "all")
+		SortBy := c.Query("sort_by", "created_at")
+		SortOrder := c.Query("sort_order", "DESC")
 		// Convert to integers
 		pageInt, _ := strconv.Atoi(page)
 		perPageInt, _ := strconv.Atoi(perPage)
@@ -6804,20 +6804,31 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 		// Build query
 		JobApplications := Orm.Select([]string{"jaid", "first_name", "last_name", "email", "phone", "position_applied", "department", "experience_years", "university", "status", "interview_date", "is_read", "created_at", "updated_at"})
 		JobApplications.Table("job_applications")
+		if Query != "" {
+			JobApplications.OpenParenthesis("WHERE")
+			JobApplications.Like("WHERE", "first_name", Query, "contains")
+			JobApplications.Like("OR", "last_name", Query, "contains")
+			JobApplications.Like("OR", "phone", Query, "contains")
+			JobApplications.Like("OR", "email", Query, "contains")
+			JobApplications.Like("OR", "position_applied", Query, "contains")
+			JobApplications.Like("OR", "department", Query, "contains")
+			JobApplications.Like("OR", "university", Query, "contains")
+			JobApplications.CloseParenthesis()
 
-		// Apply filters
-		/*if search != "" {
-			JobApplications.Where("(first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ? OR position_applied ILIKE ?)", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%")
-		}*/
-		if status != "" {
-			JobApplications.Where("status", "=", status)
-		}
-		if position != "" {
-			JobApplications.And("position_applied", "=", position)
+			if Status != "all" {
+				JobApplications.And("status", "=", Status)
+			}
 		}
 
-		// Apply sorting
-		JobApplications.OrderBy(sortBy, strings.ToUpper(sortOrder))
+		if Status != "all" {
+			if strings.Contains(JobApplications.Query, "WHERE") {
+				JobApplications.And("status", "=", Status)
+			} else {
+				JobApplications.Where("status", "=", Status)
+			}
+		}
+
+		JobApplications.OrderBy(SortBy, SortOrder)
 		JobApplications.Finish()
 
 		err = JobApplications.Execute()
@@ -6879,6 +6890,10 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 			"TotalPages":      totalPages,
 			"User":            ourUser,
 			"Options":         GetOptions,
+			"Query":           Query,
+			"Status":          Status,
+			"SortBy":          SortBy,
+			"SortOrder":       SortOrder,
 		}, "layouts/panel/panel")
 	}
 }

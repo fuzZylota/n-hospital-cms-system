@@ -24,38 +24,47 @@
     <div class="filters-section">
         <div class="filters-content">
             <div class="search-group">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" 
-                           placeholder="Ad, soyad, pozisyon veya e-posta ile ara...">
-                    <button class="search-clear" id="searchClear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Ad, soyad, pozisyon veya e-posta ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
-                    <option value="">Tüm Durumlar</option>
-                    <option value="yeni">Yeni</option>
-                    <option value="inceleniyor">İnceleniyor</option>
-                    <option value="mulakat">Mülakat</option>
-                    <option value="kabul">Kabul</option>
-                    <option value="red">Red</option>
-                    <option value="beklemede">Beklemede</option>
-                </select>
-                <select id="positionFilter" class="filter-select">
-                    <option value="">Tüm Pozisyonlar</option>
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="yeni"{{if Status == "yeni"}} selected{{end}}>Yeni</option>
+                    <option value="inceleniyor"{{if Status == "inceleniyor"}} selected{{end}}>İnceleniyor</option>
+                    <option value="mulakat"{{if Status == "mulakat"}} selected{{end}}>Mülakat</option>
+                    <option value="kabul"{{if Status == "kabul"}} selected{{end}}>Kabul</option>
+                    <option value="red"{{if Status == "red"}} selected{{end}}>Red</option>
+                    <option value="beklemede"{{if Status == "beklemede"}} selected{{end}}>Beklemede</option>
                 </select>
                 <select id="sortBy" class="filter-select">
-                    <option value="created_at">Başvuru Tarihi</option>
-                    <option value="first_name">Ad</option>
-                    <option value="position_applied">Pozisyon</option>
-                    <option value="experience_years">Deneyim</option>
-                    <option value="updated_at">Güncelleme Tarihi</option>
+                    <option value="first_name"{{if SortBy == "first_name" || SortBy == ""}} selected{{end}}>Ad</option>
+                    <option value="last_name"{{if SortBy == "last_name"}} selected{{end}}>Soyad</option>
+                    <option value="email"{{if SortBy == "email"}} selected{{end}}>E-posta</option>
+                    <option value="phone"{{if SortBy == "phone"}} selected{{end}}>Telefon</option>
+                    <option value="skills"{{if SortBy == "skills"}} selected{{end}}>Yetenekler</option>
+                    <option value="cover_letter"{{if SortBy == "cover_letter"}} selected{{end}}>Ön Yazı</option>
+                    <option value="work_references"{{if SortBy == "work_references"}} selected{{end}}>Referanslar</option>
+                    <option value="notes"{{if SortBy == "notes"}} selected{{end}}>Notlar</option>
+                    <option value="interview_date"{{if SortBy == "interview_date"}} selected{{end}}>Mülakat Tarihi</option>
+                    <option value="interview_notes"{{if SortBy == "interview_notes"}} selected{{end}}>Mülakat Notları</option>
+                    <option value="rejection_reason"{{if SortBy == "rejection_reason"}} selected{{end}}>Red Nedeni</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
-                    <option value="desc">Azalan</option>
-                    <option value="asc">Artan</option>
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
                 </select>
             </div>
         </div>
@@ -528,5 +537,61 @@
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
         perPage: parseInt("{{ 10 }}")
     };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('is_active', status);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
 </script>
 <script src="{{ PathOnStart }}js/panel/job-applications.js"></script>

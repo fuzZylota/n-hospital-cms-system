@@ -135,10 +135,8 @@ class JobApplicationsListManager {
 
         if (!searchInput) return;
 
-        // Debounced search
-        let searchTimeout;
+        // Only show/hide clear button, no automatic filtering
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
             const value = e.target.value.trim();
             
             // Show/hide clear button
@@ -147,22 +145,12 @@ class JobApplicationsListManager {
             } else {
                 searchClear.style.display = 'none';
             }
-
-            // Debounced search
-            searchTimeout = setTimeout(() => {
-                this.currentFilters.search = value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            }, 300);
         });
 
         // Clear search
         searchClear.addEventListener('click', () => {
             searchInput.value = '';
             searchClear.style.display = 'none';
-            this.currentFilters.search = '';
-            this.currentPage = 1;
-            this.filterAndReload();
         });
     }
 
@@ -170,40 +158,8 @@ class JobApplicationsListManager {
      * Setup filter dropdowns
      */
     setupFilters() {
-        const statusFilter = document.getElementById('statusFilter');
-        const positionFilter = document.getElementById('positionFilter');
-        const sortBy = document.getElementById('sortBy');
-        const sortOrder = document.getElementById('sortOrder');
-
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.currentFilters.status = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (positionFilter) {
-            positionFilter.addEventListener('change', (e) => {
-                this.currentFilters.position = e.target.value;
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortBy) {
-            sortBy.addEventListener('change', (e) => {
-                this.currentSort.column = e.target.value;
-                this.filterAndReload();
-            });
-        }
-
-        if (sortOrder) {
-            sortOrder.addEventListener('change', (e) => {
-                this.currentSort.order = e.target.value;
-                this.filterAndReload();
-            });
-        }
+        // Disabled automatic filtering - now handled by manual filter button
+        // Filters are only applied when the filter button is clicked
     }
 
     /**
@@ -229,24 +185,8 @@ class JobApplicationsListManager {
      * Setup table column sorting
      */
     setupTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.data-table th.sortable');
-        
-        sortableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.getAttribute('data-column');
-                
-                // Toggle sort order if same column
-                if (this.currentSort.column === column) {
-                    this.currentSort.order = this.currentSort.order === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.currentSort.column = column;
-                    this.currentSort.order = 'asc';
-                }
-                
-                this.updateSortHeaders();
-                this.filterAndReload();
-            });
-        });
+        // Disabled automatic table sorting - now handled by manual filter button
+        // Sorting is only applied when the filter button is clicked
     }
 
     /**
