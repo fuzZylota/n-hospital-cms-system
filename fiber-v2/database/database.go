@@ -195,6 +195,9 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
 		ShowDoctorSocialMedia:         lib.Bool(rows[0]["show_doctor_social_media"]),
 		ShowDoctorAppointmentFee:      lib.Bool(rows[0]["show_doctor_appointment_fee"]),
+		DefaultPageMediaPath:          lib.String(rows[0]["default_page_media_path"]),
+		DefaultPageMediaAltText:       lib.String(rows[0]["default_page_media_alt_text"]),
+		DefaultPageMediaTitle:         lib.String(rows[0]["default_page_media_title"]),
 	}
 
 	Options := Options{

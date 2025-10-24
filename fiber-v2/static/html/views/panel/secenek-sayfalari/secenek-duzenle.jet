@@ -483,6 +483,37 @@
                                 </div>
                             </div>
 
+                            <!-- Site Light Logo -->
+                            <div class="media-item">
+                                <div class="media-header">
+                                    <h4 class="media-title">Açık Tema Logosu</h4>
+                                    {{ if Option.SiteLightLogoPath }}
+                                    <button type="button" class="btn-delete-media" data-type="site_light_logo" data-oid="{{ Option.Oid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ end }}
+                                </div>
+                                <div class="media-preview">
+                                    {{ if Option.SiteLightLogoPath }}
+                                    <img src="{{ PathOnStart }}{{ Option.SiteLightLogoPath }}" alt="{{ Option.SiteLightLogoAltText }}" 
+                                         title="{{ Option.SiteLightLogoTitle }}" class="preview-image">
+                                    <div class="media-info">
+                                        <div class="info-item">
+                                            <strong>Alt Text:</strong> {{ Option.SiteLightLogoAltText }}
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Title:</strong> {{ Option.SiteLightLogoTitle }}
+                                        </div>
+                                    </div>
+                                    {{ else }}
+                                    <div class="no-media">
+                                        <i class="fas fa-image"></i>
+                                        <span>Açık tema logosu yüklenmemiş</span>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+
                             <!-- Favicon -->
                             <div class="media-item">
                                 <div class="media-header">
@@ -544,6 +575,8 @@
                         <form id="mediaForm" class="media-form" enctype="multipart/form-data" novalidate>
                             <input type="hidden" name="old_site_logo_alt_text" value="{{ Option.SiteLogoAltText }}">
                             <input type="hidden" name="old_site_logo_title" value="{{ Option.SiteLogoTitle }}">
+                            <input type="hidden" name="old_site_light_logo_alt_text" value="{{ Option.SiteLightLogoAltText }}">
+                            <input type="hidden" name="old_site_light_logo_title" value="{{ Option.SiteLightLogoTitle }}">
                             <input type="hidden" name="old_default_page_media_alt_text" value="{{ Option.DefaultPageMediaAltText }}">
                             <input type="hidden" name="old_default_page_media_title" value="{{ Option.DefaultPageMediaTitle }}">
                             <div class="form-row">
@@ -575,6 +608,38 @@
                                                 <label for="site_logo_title" class="form-label">Logo Başlığı</label>
                                                 <input type="text" id="site_logo_title" name="site_logo_title" 
                                                        class="form-input" value="{{ Option.SiteLogoTitle }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="site_light_logo_path" class="form-label">Açık Tema Logosu</label>
+                                    <div class="file-upload-area" data-target="site_light_logo_path">
+                                        <div class="file-upload-content">
+                                            <i class="fas fa-upload"></i>
+                                            <p class="file-upload-text">Açık tema logosunu sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                            <p class="file-upload-hint">PNG, JPG, SVG - Max 2MB</p>
+                                        </div>
+                                        <input type="file" id="site_light_logo_path" name="site_light_logo_path" 
+                                               class="file-input" accept="image/*">
+                                        <div class="file-preview" style="display: none;">
+                                            <img class="preview-image" src="" alt="Preview">
+                                            <button type="button" class="file-remove">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="file-meta-inputs">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="site_light_logo_alt_text" class="form-label">Açık Tema Logo Alt Metni</label>
+                                                <input type="text" id="site_light_logo_alt_text" name="site_light_logo_alt_text" 
+                                                       class="form-input" value="{{ Option.SiteLightLogoAltText }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="site_light_logo_title" class="form-label">Açık Tema Logo Başlığı</label>
+                                                <input type="text" id="site_light_logo_title" name="site_light_logo_title" 
+                                                       class="form-input" value="{{ Option.SiteLightLogoTitle }}">
                                             </div>
                                         </div>
                                     </div>
