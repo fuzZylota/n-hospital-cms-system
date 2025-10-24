@@ -620,7 +620,9 @@ class HeaderButtonsListManager {
             btnText.style.opacity = '0';
             btnLoader.style.display = 'block';
 
-            const request = await fetch('/backend/header-button/' + id + '/reorder', {
+            console.log("newOrder", newOrder);
+
+            const request = await fetch('/backend/header-button/' + id + '/change-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

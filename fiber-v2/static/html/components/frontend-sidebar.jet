@@ -3,7 +3,7 @@
     <div class="sidebar-one__content">
         <span class="sidebar-one__close sidebar-btn__toggler"><i class="icon-close"></i></span>
         <div class="sidebar-one__logo sidebar-one__item logo-retina">
-            <a href="/" aria-label="logo image"><img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" width="164" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+            <a href="/" aria-label="logo image"><img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
             </a>
         </div><!-- /.sidebar-one__logo -->
         <div class="sidebar-one__about sidebar-one__item">

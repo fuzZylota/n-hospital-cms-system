@@ -242,7 +242,7 @@
                 </button>
                 <div class="nav-group-items" data-group-items="applications">
                     <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
-                    <a href="/panel/is-basvuru-cevapla" class="nav-item">Cevapla</a>
+                    <a href="/panel/is-basvurusu-cevapla" class="nav-item">Cevapla</a>
                 </div>
             </div>
         </div>

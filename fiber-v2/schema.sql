@@ -46,7 +46,7 @@ CREATE TABLE options (
     linkedin_url VARCHAR(500) DEFAULT 'https://www.linkedin.com/company/107576047',
 
     contact_email VARCHAR(255) DEFAULT 'info@nermefraz.com',
-    contact_phone VARCHAR(255) DEFAULT '+90 532 123 45 67',
+    contact_phone VARCHAR(255) DEFAULT '+90 501 149 56 99',
 
     main_page_meta_title VARCHAR(255) DEFAULT 'N-Hospital CMS, Hastaneler için En Gelişmiş CMS',
     main_page_meta_description VARCHAR(1000) DEFAULT 'N-Hospital CMS, Nermefraz Bilişim Teknolojileri, Yazılım Ve Danışmanlık tarafından tasarlanmış bir hastane yönetim sistemidir.',

@@ -8,3 +8,11 @@
     width: auto;
     height: 40px;
 }
+
+.main-slider-three__item {
+    max-height: 70vh !important;
+}
+  
+.banner-row {
+    margin-top: calc(-3.75 * var(--bs-gutter-x)) !important;
+}

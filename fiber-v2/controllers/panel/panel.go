@@ -624,7 +624,6 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
-		log.Printf("ourUser Log'u: %v\n", ourUser)
 
 		if err != nil {
 			log.Printf("that error occured on redirect: %v\n", err)
@@ -6745,13 +6744,13 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 		err = ContactRequests.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/panel/contact-requests")
+			return c.Redirect("/panel/iletisim-istekleri")
 		}
 
 		rows, err := ContactRequests.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/panel/contact-requests")
+			return c.Redirect("/panel/iletisim-istekleri")
 		}
 
 		ContactRequestsArray := []models.ContactRequests{}
@@ -6764,7 +6763,7 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 		}
 
 		if len(ContactRequestsArray) == 0 {
-			return c.Redirect("/panel/contact-requests")
+			return c.Redirect("/panel/iletisim-istekleri")
 		}
 
 		return c.Render("views/panel/contact-requests-sayfalari/respond-to-contact-request", fiber.Map{

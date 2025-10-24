@@ -16,8 +16,8 @@
         <div class="main-slider-three__item">
             <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-1.webp);">
             </div><!-- /.main-slider-three__bg -->
-            <div class="main-slider-three__container container">
-                <div class="row">
+            <div class="main-slider-three__container container" >
+                <div class="banner-row row">
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
@@ -53,7 +53,7 @@
             <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-2.webp);">
             </div><!-- /.main-slider-three__bg -->
             <div class="main-slider-three__container container">
-                <div class="row">
+                <div class="banner-row row">
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
@@ -89,7 +89,7 @@
             <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-3.webp);">
             </div><!-- /.main-slider-three__bg -->
             <div class="main-slider-three__container container">
-                <div class="row">
+                <div class="banner-row row">
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                                 <div class="main-slider-three__top">
@@ -125,7 +125,7 @@
             <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-4.webp);">
             </div><!-- /.main-slider-three__bg -->
             <div class="main-slider-three__container container">
-                <div class="row">
+                <div class="banner-row row">
                     <div class="col-xxl-10 col-xl-9 mx-auto">
                         <div class="main-slider-three__content">
                             <div class="main-slider-three__top">
