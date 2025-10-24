@@ -20,6 +20,12 @@
     </div><!-- /.container-fluid -->
 </section><!-- /.page-header -->
 
+{{ range index1, CssContent := CssContents }}
+    <div class="css-eval">
+        {{ CssContent }}
+    </div>
+{{ end }}
+
 <section class="service-details section-space">
     <div class="container">
         <div class="row gutter-y-50">
@@ -66,46 +72,13 @@
                 </div><!-- /.sidebar -->
             </div><!-- /.col-md-12 col-lg-8 -->
             <div class="col-md-12 col-lg-8">
-                <div class="service-details__content html-eval">
-                    <div class="service-details__inner">
-                        <div class="service-details__content__box wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                            <h3 class="service-details__title">İnsan Kaynakları</h3>
-                            <p class="service-details__text">Hastanemizde kaliteli sağlık hizmetleri sunmak için yetenekli ve deneyimli profesyonellerle çalışıyoruz. İnsan kaynakları departmanımız, hastanemizin değerlerine uygun, hasta odaklı ve sürekli gelişim anlayışına sahip çalışanlar bulmak için çalışmaktadır.</p>
-                        </div>
+                <div class="service-details__content">
+                    <div class="html-eval">
+                        {{ range index1, HtmlContent := HtmlContents }}
+                            {{ HtmlContent }}
+                        {{ end }}
                     </div>
-                    
-                    <div class="service-details__inner-two wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                        <h3 class="service-details__sub-title">Kariyer Fırsatları</h3>
-                        <p class="service-details__text">Hastanemizde doktor, hemşire, teknisyen, idari personel ve diğer sağlık profesyonelleri için çeşitli kariyer fırsatları sunuyoruz. Sürekli eğitim ve gelişim programları ile çalışanlarımızın mesleki gelişimlerini destekliyoruz.</p>
-                    </div>
-                    
-                    <div class="service-details__info">
-                        <div class="row gutter-y-30">
-                            <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                                <ul class="list-unstyled service-details__info__list">
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Rekabetçi maaş paketleri
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Sağlık sigortası
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Sürekli eğitim imkanları
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Kariyer gelişim desteği
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
-                                <img src="{{ PathOnStart }}files/defaults/other/hospital-reception-1.jpg" alt="{{ Options.Options.SiteDescription }}" class="service-details__info__image">
-                            </div>
-                        </div>
-                    </div>
+  
                     
                     <div class="job-application-form-wrapper wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="200ms">
                         <div class="form-header">
@@ -206,6 +179,12 @@
         </div>
     </div>
 </section>
+
+{{ range index1, JavascriptContent := JavascriptContents }}
+    <div class="js-eval">
+        {{ JavascriptContent }}
+    </div>
+{{ end }}
 
 <script src="{{ PathOnStart }}js/frontend/html-eval.js"></script>
 <script src="{{ PathOnStart }}js/frontend/js-eval.js"></script>

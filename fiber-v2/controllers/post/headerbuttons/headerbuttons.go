@@ -749,6 +749,11 @@ func ChangeHeaderButtonOrder(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
+		fmt.Printf("inputs.NewSortOrder: %v\n", inputs.NewSortOrder)
+		fmt.Printf("inputs.OldSortOrder: %v\n", inputs.OldSortOrder)
+		fmt.Printf("inputs.ParentId: %v\n", inputs.ParentId)
+		fmt.Printf("inputs.OldParentId: %v\n", inputs.OldParentId)
+
 		// First adjust other rows according to the new order/parent
 		ReorderButtons := Orm.SelectFunction("get_shift_for_update", inputs.NewSortOrder, inputs.OldSortOrder, HeaderButtonId, newParent)
 		ReorderButtons.Finish()

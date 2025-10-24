@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="appointment-one__content">
-                    <h3 class="appointment-one__title">Bir Randevu Alın</h3><!-- /.appointment-one__title -->
+                    <h3 class="appointment-one__title">Randevu Alın</h3><!-- /.appointment-one__title -->
                     <form class="appointment-one__form contact-form-validated form-one wow fadeInUp" data-wow-duration="1500ms">
                         <div class="form-one__group">
                             <div class="form-one__control">

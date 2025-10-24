@@ -285,7 +285,9 @@
                     <label for="parent_id" class="form-label">Üst Menü</label>
                     <select id="parent_id" name="parent_id" class="form-input">
                         <option value="">Ana Menü</option>
-                        <!-- Parent options will be populated by JavaScript -->
+                        {{ range i, h := ParentButtons }}
+                            <option value="{{ h.Hbid }}" {{ if h.Hbid == IndividualHeaderButton.ParentId }}selected{{ end }}>{{ h.Title }}</option>
+                        {{ end }}
                     </select>
                     <div class="form-help">Alt menü yapmak için üst menü seçin</div>
                 </div>

@@ -48,7 +48,6 @@
                                 <li><a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a></li>
                             {{ end }}
                         {{ end }}
-                        <li><a href="/giris">Panel Girişi</a></li>
                     </ul><!-- /.list-unstyled footer-widget__links -->
                 </div><!-- /.footer-widget -->
             </div><!-- /.col-xl-2 -->

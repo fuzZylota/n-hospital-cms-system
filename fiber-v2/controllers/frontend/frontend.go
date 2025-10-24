@@ -497,13 +497,49 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 			return c.Redirect("/")
 		}
 
+		GetHrContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
+		GetHrContents.Table("custom_contents c")
+		GetHrContents.Where("c.content_type", "=", "hr")
+		GetHrContents.And("c.is_active", "=", true)
+		GetHrContents.OrderBy("c.sort_order", "ASC")
+		GetHrContents.Finish()
+
+		err = GetHrContents.Execute()
+
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		rows, err := GetHrContents.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		HtmlContents := []string{}
+		for _, row := range rows {
+			HtmlContents = append(HtmlContents, lib.String(row["content_html"]))
+		}
+
+		CssContents := []string{}
+		for _, row := range rows {
+			CssContents = append(CssContents, lib.String(row["content_css"]))
+		}
+
+		JavascriptContents := []string{}
+		for _, row := range rows {
+			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
+		}
+
 		return c.Render("views/frontend/insan-kaynaklari", fiber.Map{
-			"PathOnStart": "../",
-			"Route":       "/kurumsal/insan-kaynaklari",
-			"Options":     Options,
-			"User":        OurUser,
-			"Title":       "İnsan Kaynakları | " + Options.Options.SiteName,
-			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin insan kaynakları sayfası olup, bu sayfada insan kaynakları politikamızla alakalı bilgileri bulabilirsiniz.",
+			"PathOnStart":        "../",
+			"Route":              "/kurumsal/insan-kaynaklari",
+			"Options":            Options,
+			"User":               OurUser,
+			"Title":              "İnsan Kaynakları | " + Options.Options.SiteName,
+			"Description":        "Bu sayfa, " + Options.Options.SiteName + " sitesinin insan kaynakları sayfası olup, bu sayfada insan kaynakları politikamızla alakalı bilgileri bulabilirsiniz.",
+			"HtmlContents":       HtmlContents,
+			"CssContents":        CssContents,
+			"JavascriptContents": JavascriptContents,
 		}, "layouts/main/main")
 	}
 }

@@ -309,7 +309,7 @@ CREATE TABLE tibbi_birimler (
 CREATE TABLE homepage_contents (
     hcid SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
-    content_type VARCHAR(50) CHECK (content_type IN ('generic', 'popup')),
+    content_type VARCHAR(50) CHECK (content_type IN ('generic', 'popup', 'banner_page')),
     later_than_which_content INTEGER DEFAULT 1,
     sort_order INTEGER NOT NULL,
     url_name VARCHAR(200) UNIQUE NOT NULL,

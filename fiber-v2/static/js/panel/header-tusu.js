@@ -21,7 +21,6 @@ class HeaderButtonViewManager {
         this.setupDeleteButton();
         this.setupOrderChangeButtons();
         this.setupCopyToClipboard();
-        this.loadParentOptions();
     }
 
     /**
@@ -102,46 +101,6 @@ class HeaderButtonViewManager {
         }
     }
 
-    /**
-     * Load parent options for the select dropdown
-     */
-    async loadParentOptions() {
-        try {
-            const response = await fetch('/backend/header-buttons/parents', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.status === 200 && data.data) {
-                    this.populateParentOptions(data.data);
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load parent options:', error);
-        }
-    }
-
-    /**
-     * Populate parent options in select dropdown
-     */
-    populateParentOptions(parents) {
-        if (!this.parentIdSelect) return;
-
-        // Clear existing options except the first one
-        this.parentIdSelect.innerHTML = '<option value="">Ana Menü</option>';
-
-        parents.forEach(parent => {
-            const option = document.createElement('option');
-            option.value = parent.hbid;
-            option.textContent = parent.title;
-            option.selected = parent.hbid === this.headerButtonData.parentId;
-            this.parentIdSelect.appendChild(option);
-        });
-    }
 
     /**
      * Show order change modal
