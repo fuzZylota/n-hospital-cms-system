@@ -161,6 +161,7 @@ CREATE TABLE subeler (
     website VARCHAR(255),
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
+    view_count INTEGER DEFAULT 0,
     transportation_info TEXT,
     working_hours JSONB DEFAULT '{"monday": "08:00-18:00", "tuesday": "08:00-18:00", "wednesday": "08:00-18:00", "thursday": "08:00-18:00", "friday": "08:00-18:00", "saturday": "08:00-13:00", "sunday": "closed"}', -- Store working hours as JSON
     mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
@@ -249,6 +250,7 @@ CREATE TABLE doktorlar (
     appointment_duration INTEGER DEFAULT 30, -- Minutes
     appointment_fee DECIMAL(10,2) DEFAULT 0.00,
     online_appointment BOOLEAN DEFAULT TRUE,
+    view_count INTEGER DEFAULT 0,
     working_hours JSONB, -- Store weekly schedule as JSON
     vacation_dates JSONB, -- Store vacation periods as JSON
     facebook_url VARCHAR(500),
@@ -301,6 +303,7 @@ CREATE TABLE tibbi_birimler (
     description TEXT,
     cover_mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     video_mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
+    view_count INTEGER DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -366,6 +369,7 @@ CREATE TABLE tedkikler (
     name VARCHAR(200) NOT NULL,
     url_name VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
+    view_count INTEGER DEFAULT 0,
     cover_mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

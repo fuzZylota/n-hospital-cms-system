@@ -425,6 +425,11 @@
     color: #06b6d4;
 }
 
+.type-badge.banner_page {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+}
+
 .type-badge i {
     font-size: 10px;
 }

@@ -53,6 +53,7 @@
                     <option value="all"{{if ContentType == "all" || ContentType == ""}} selected{{end}}>Tüm Tipler</option>
                     <option value="generic"{{if ContentType == "generic"}} selected{{end}}>Genel</option>
                     <option value="popup"{{if ContentType == "popup"}} selected{{end}}>Popup</option>
+                    <option value="banner_page"{{if ContentType == "banner_page"}} selected{{end}}>Banner Sayfası</option>
                 </select>
                 <select id="sortBy" class="filter-select">
                     <option value="name"{{if SortBy == "name" || SortBy == ""}} selected{{end}}>İçerik Adı</option>
@@ -173,8 +174,8 @@
                                 <td>
                                     <div class="cell-content">
                                         <span class="type-badge {{ .ContentType }}">
-                                            <i class="fas fa-{{ if .ContentType == "generic" }}file{{ else if .ContentType == "popup" }}window-restore{{ else }}file{{ end }}"></i>
-                                            {{ if .ContentType == "generic" }}Genel{{ else if .ContentType == "popup" }}Popup{{ else }}{{ .ContentType }}{{ end }}
+                                            <i class="fas fa-{{ if .ContentType == "generic" }}file{{ else if .ContentType == "popup" }}window-restore{{ else if .ContentType == "banner_page" }}image{{ else }}file{{ end }}"></i>
+                                            {{ if .ContentType == "generic" }}Genel{{ else if .ContentType == "popup" }}Popup{{ else if .ContentType == "banner_page" }}Banner Sayfası{{ else }}{{ .ContentType }}{{ end }}
                                         </span>
                                     </div>
                                 </td>
@@ -288,8 +289,8 @@
                                     <div class="field-label">Tip</div>
                                     <div class="field-value">
                                         <span class="type-badge {{ .ContentType }}">
-                                            <i class="fas fa-{{ if .ContentType == "generic" }}file{{ else if .ContentType == "popup" }}window-restore{{ else }}file{{ end }}"></i>
-                                            {{ if .ContentType == "generic" }}Genel{{ else if .ContentType == "popup" }}Popup{{ else }}{{ .ContentType }}{{ end }}
+                                            <i class="fas fa-{{ if .ContentType == "generic" }}file{{ else if .ContentType == "popup" }}window-restore{{ else if .ContentType == "banner_page" }}image{{ else }}file{{ end }}"></i>
+                                            {{ if .ContentType == "generic" }}Genel{{ else if .ContentType == "popup" }}Popup{{ else if .ContentType == "banner_page" }}Banner Sayfası{{ else }}{{ .ContentType }}{{ end }}
                                         </span>
                                     </div>
                                 </div>

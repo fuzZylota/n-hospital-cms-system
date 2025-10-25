@@ -68,7 +68,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		"m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title",
 		"o.default_page_mid", "o.maintenance_mode", "o.facebook_url", "o.twitter_url", "o.instagram_url",
 		"o.linkedin_url", "o.contact_email", "o.contact_phone", "o.primary_color", "o.secondary_color", "o.accent_color",
-		"o.background_color", "o.font_color", "o.font_family", "o.maximum_sublinks_on_a_menu_item",
+		"o.background_color", "o.font_color", "o.font_family", "o.maximum_sublinks_on_a_menu_item", "o.google_analytics",
 	}...)
 
 	if len(otherColumns.([]string)) > 0 {

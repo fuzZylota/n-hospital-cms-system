@@ -1,5 +1,13 @@
+<div class="css-eval">
+    {{ range index1, BannerContent := BannerContents }}
+        {{ if BannerContent.ContentType == "banner_page" }}
+            {{ BannerContent.ContentCss }}
+        {{ end }}
+    {{ end }}
+</div>
+
 <section class="main-slider-three">
-    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{
+    <div class="main-slider-three__carousel mediox-slick__carousel html-eval" data-slick-options='{
         "slidesToShow": 1,
         "slidesToScroll": 1,
         "fade": true,
@@ -13,150 +21,12 @@
         "prevArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--prev\"><i class=\"icon-arrow-left\"></i></button>",
         "nextArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--next\"><i class=\"icon-arrow-right\"></i></button>"
         }'>
-        <div class="main-slider-three__item">
-            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-1.webp);">
-            </div><!-- /.main-slider-three__bg -->
-            <div class="main-slider-three__container container" >
-                <div class="banner-row row">
-                    <div class="col-xxl-10 col-xl-9 mx-auto">
-                        <div class="main-slider-three__content">
-                            <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">KALICI ETKİ</p><!-- /.slider-sub-title -->
-                            </div><!-- /.main-slider-three__top -->
-                            <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">Kalıcı <br> lens <span class="main-slider-three__title__shape">cerrahisi</span></span>
-                            </h2><!-- /.slider-title -->
-                            <div class="main-slider-three__button-group">
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="/tibbi-birimler/trikofal-lens-cerrahisi" class="mediox-btn">
-                                            <span>İncele</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button__inner -->
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="#randevu" class="mediox-btn">
-                                            <span>Randevu Al</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button-group__inner -->
-                            </div><!-- /.main-slider-three__button-group -->
-                        </div><!-- /.main-slider-three__content -->
-                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </div><!-- /.main-slider-three__item -->
-        <div class="main-slider-three__item">
-            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-2.webp);">
-            </div><!-- /.main-slider-three__bg -->
-            <div class="main-slider-three__container container">
-                <div class="banner-row row">
-                    <div class="col-xxl-10 col-xl-9 mx-auto">
-                        <div class="main-slider-three__content">
-                            <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">Retina'nız Emin Ellerde</p><!-- /.slider-sub-title -->
-                            </div><!-- /.main-slider-three__top -->
-                            <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">Retina <br><span class="main-slider-three__title__shape">Cerrahisi</span></span>
-                            </h2><!-- /.slider-title -->
-                            <div class="main-slider-three__button-group">
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="/tibbi-birimler/retina-tedavisi" class="mediox-btn">
-                                            <span>İncele</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button__inner -->
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="#randevu" class="mediox-btn">
-                                            <span>Randevu Al</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button-group__inner -->
-                            </div><!-- /.main-slider-three__button-group -->
-                        </div><!-- /.main-slider-three__content -->
-                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </div><!-- /.main-slider-three__item -->
-        <div class="main-slider-three__item">
-            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-3.webp);">
-            </div><!-- /.main-slider-three__bg -->
-            <div class="main-slider-three__container container">
-                <div class="banner-row row">
-                    <div class="col-xxl-10 col-xl-9 mx-auto">
-                        <div class="main-slider-three__content">
-                                <div class="main-slider-three__top">
-                                    <p class="main-slider-three__sub-title">Gözünüzdeki Sorunlarımızı Çözüyoruz</p><!-- /.slider-sub-title -->
-                                </div><!-- /.main-slider-three__top -->
-                            <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">Glokom <br> <span class="main-slider-three__title__shape">Tedavisi</span></span>
-                            </h2><!-- /.slider-title -->
-                            <div class="main-slider-three__button-group">
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="/tibbi-birimler/glokom-tedavisi" class="mediox-btn">
-                                            <span>İncele</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button__inner -->
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="#randevu" class="mediox-btn">
-                                            <span>Randevu Al</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button-group__inner -->
-                            </div><!-- /.main-slider-three__button-group -->
-                        </div><!-- /.main-slider-three__content -->
-                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </div><!-- /.main-slider-three__item -->
-        <div class="main-slider-three__item">
-            <div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-4.webp);">
-            </div><!-- /.main-slider-three__bg -->
-            <div class="main-slider-three__container container">
-                <div class="banner-row row">
-                    <div class="col-xxl-10 col-xl-9 mx-auto">
-                        <div class="main-slider-three__content">
-                            <div class="main-slider-three__top">
-                                <p class="main-slider-three__sub-title">Çocuklarımız İçin En İyi Bakım</p><!-- /.slider-sub-title -->
-                            </div><!-- /.main-slider-three__top -->
-                            <h2 class="main-slider-three__title">
-                                <span class="main-slider-three__title__inner">Şaşılık <br> <span class="main-slider-three__title__shape">Tedavisi</span></span>
-                            </h2><!-- /.slider-title -->
-                            <div class="main-slider-three__button-group">
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--1">
-                                        <a href="/tibbi-birimler/sasilik-tedavisi" class="mediox-btn">
-                                            <span>İncele</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button__inner -->
-                                <div class="main-slider-three__button-group__inner">
-                                    <div class="main-slider-three__button main-slider-three__button--2">
-                                        <a href="#randevu" class="mediox-btn">
-                                            <span>Randevu Al</span>
-                                            <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                        </a><!-- /.mediox-btn -->
-                                    </div><!-- /.main-slider-three__button -->
-                                </div><!-- /.main-slider-three__button-group__inner -->
-                            </div><!-- /.main-slider-three__button-group -->
-                        </div><!-- /.main-slider-three__content -->
-                    </div><!-- /.col-xxl-10 col-xl-9 mx-auto -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </div><!-- /.main-slider-three__item -->
+        {{ range index1, BannerContent := BannerContents }}
+            {{ if BannerContent.ContentType == "banner_page" }}
+                {{ BannerContent.ContentHtml }}
+            {{ end }}
+        {{ end }}
+        
     </div><!-- /.main-slider-three__carousel -->
     <div class="main-slider-three__carousel-counter mediox-slick__carousel" data-slick-options='{
         "asNavFor": ".main-slider-three__carousel",
@@ -169,17 +39,20 @@
         "dots": false,
         "arrows": false
         }'>
-        <div>
-            <span class="main-slider-three__carousel-counter__text">01</span>
-        </div>
-        <div>
-            <span class="main-slider-three__carousel-counter__text">02</span>
-        </div>
-        <div>
-            <span class="main-slider-three__carousel-counter__text">03</span>
-        </div>
-        <div>
-            <span class="main-slider-three__carousel-counter__text">04</span>
-        </div>
+        {{ range index1, BannerContent := BannerContents }}
+            {{ if BannerContent.ContentType == "banner_page" }}
+                <div>
+                    <span class="main-slider-three__carousel-counter__text">{{ index1 + 1 }}</span>
+                </div>
+            {{ end }}
+        {{ end }}
     </div><!-- /.main-slider-three__carousel-counter -->
 </section><!-- /.main-slider-three -->
+
+<div class="js-eval">
+    {{ range index1, BannerContent := BannerContents }}
+        {{ if BannerContent.ContentType == "banner_page" }}
+            {{ BannerContent.ContentJavascript }}
+        {{ end }}
+    {{ end }}
+</div>

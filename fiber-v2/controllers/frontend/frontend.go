@@ -206,14 +206,26 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		AllHomepageContents := []models.HomepageContents{}
 
+		BannerContents := []models.HomepageContents{}
+
 		for _, row := range rows {
-			AllHomepageContents = append(AllHomepageContents, models.HomepageContents{
-				ContentHtml:           lib.String(row["content_html"]),
-				ContentJavascript:     lib.String(row["content_javascript"]),
-				ContentCss:            lib.String(row["content_css"]),
-				LaterThanWhichContent: lib.Int64(row["later_than_which_content"]),
-				ContentType:           lib.String(row["content_type"]),
-			})
+			if row["content_type"] == "banner_page" {
+				BannerContents = append(BannerContents, models.HomepageContents{
+					ContentHtml:           lib.String(row["content_html"]),
+					ContentJavascript:     lib.String(row["content_javascript"]),
+					ContentCss:            lib.String(row["content_css"]),
+					LaterThanWhichContent: lib.Int64(row["later_than_which_content"]),
+					ContentType:           lib.String(row["content_type"]),
+				})
+			} else {
+				AllHomepageContents = append(AllHomepageContents, models.HomepageContents{
+					ContentHtml:           lib.String(row["content_html"]),
+					ContentJavascript:     lib.String(row["content_javascript"]),
+					ContentCss:            lib.String(row["content_css"]),
+					LaterThanWhichContent: lib.Int64(row["later_than_which_content"]),
+					ContentType:           lib.String(row["content_type"]),
+				})
+			}
 		}
 
 		return c.Render("views/frontend/index", fiber.Map{
@@ -227,6 +239,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"Doctors":             Doctors,
 			"AllSubeler":          AllSubeler,
 			"AllHomepageContents": AllHomepageContents,
+			"BannerContents":      BannerContents,
 			"Title":               Options.Options.MainPageMetaTitle,
 			"Description":         Options.Options.MainPageMetaDescription,
 		}, "layouts/main/main")

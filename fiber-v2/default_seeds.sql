@@ -379,7 +379,9 @@ INSERT INTO homepage_contents (
     content_css,
     description,
     is_active
-) VALUES (
+) 
+
+VALUES (
     'Welcome Popup',
     'popup',
     1,
@@ -388,6 +390,34 @@ INSERT INTO homepage_contents (
     '.popup-header{padding:0;text-align:center;position:relative;overflow:hidden;height:200px}.popup-header::before{content:'''';position:absolute;inset:0;background:transparent}@keyframes popup-header-glow{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,20px)}}.popup-header-image{width:100%;height:100%;object-fit:contain;display:flex;align-items:center;place-content:center}@keyframes popup-icon-bounce{0%{transform:scale(0);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}.popup-title{display:none}.popup-subtitle{display:none}@keyframes popup-slide-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.popup-body{padding:32px 24px;max-height:60vh;overflow-y:auto}.popup-body::-webkit-scrollbar{width:8px}.popup-body::-webkit-scrollbar-track{background:#f1f1f1;border-radius:4px}.popup-body::-webkit-scrollbar-thumb{background:#667eea;border-radius:4px}.popup-body::-webkit-scrollbar-thumb:hover{background:#764ba2}.popup-content-item{margin-bottom:20px;animation:popup-fade-in .5s ease-out backwards}.popup-content-item:nth-child(1){animation-delay:.6s}.popup-content-item:nth-child(2){animation-delay:.7s}.popup-content-item:nth-child(3){animation-delay:.8s}.popup-content-item:nth-child(4){animation-delay:.9s}@keyframes popup-fade-in{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}.popup-content-label{font-size:22px;font-weight:700;color:#252525;text-transform:none;letter-spacing:0;margin:0 0 10px 0;text-align:center}.popup-content-value{font-size:16px;color:#333;line-height:1.6}.popup-footer{padding:20px 24px;background:#f8f9fa;display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #e9ecef}.popup-btn{padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s ease;border:none;outline:none}.popup-btn-secondary{background:#e9ecef;color:#495057}.popup-btn-secondary:hover{background:#dee2e6;transform:translateY(-2px)}.popup-btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}.popup-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}@media (max-width:600px){.popup-body{padding:24px 16px}.popup-footer{padding:16px;flex-direction:column}.popup-btn{width:100%}}',
     'Ana sayfa için karşılama popup içeriği',
     true
+),
+
+('Banner Page 1', 'banner_page', 1, 'banner-page-1', 
+'<div class="main-slider-three__item"><div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-1.webp);"></div><div class="main-slider-three__container container"><div class="banner-row row"><div class="col-xxl-10 col-xl-9 mx-auto"><div class="main-slider-three__content"><div class="main-slider-three__top"><p class="main-slider-three__sub-title">KALICI ETKİ</p></div><h2 class="main-slider-three__title"><span class="main-slider-three__title__inner">Kalıcı <br> lens <span class="main-slider-three__title__shape">cerrahisi</span></span></h2><div class="main-slider-three__button-group"><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--1"><a href="/tibbi-birimler/trikofal-lens-cerrahisi" class="mediox-btn"><span>İncele</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--2"><a href="#randevu" class="mediox-btn"><span>Randevu Al</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div></div></div></div></div></div></div>',
+NULL,
+'Banner sayfası için banner içeriği',
+true
+),
+
+('Banner Page 2', 'banner_page', 2, 'banner-page-2', 
+'<div class="main-slider-three__item"><div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-2.webp);"></div><div class="main-slider-three__container container"><div class="banner-row row"><div class="col-xxl-10 col-xl-9 mx-auto"><div class="main-slider-three__content"><div class="main-slider-three__top"><p class="main-slider-three__sub-title">Retina''nız Emin Ellerde</p></div><h2 class="main-slider-three__title"><span class="main-slider-three__title__inner">Retina <br><span class="main-slider-three__title__shape">Cerrahisi</span></span></h2><div class="main-slider-three__button-group"><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--1"><a href="/tibbi-birimler/retina-tedavisi" class="mediox-btn"><span>İncele</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--2"><a href="#randevu" class="mediox-btn"><span>Randevu Al</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div></div></div></div></div></div></div>',
+NULL,
+'Banner sayfası için banner içeriği',
+true
+),
+
+('Banner Page 3', 'banner_page', 3, 'banner-page-3', 
+'<div class="main-slider-three__item"><div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-3.webp);"></div><div class="main-slider-three__container container"><div class="banner-row row"><div class="col-xxl-10 col-xl-9 mx-auto"><div class="main-slider-three__content"><div class="main-slider-three__top"><p class="main-slider-three__sub-title">Gözünüzdeki Sorunlarımızı Çözüyoruz</p></div><h2 class="main-slider-three__title"><span class="main-slider-three__title__inner">Glokom <br> <span class="main-slider-three__title__shape">Tedavisi</span></span></h2><div class="main-slider-three__button-group"><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--1"><a href="/tibbi-birimler/glokom-tedavisi" class="mediox-btn"><span>İncele</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--2"><a href="#randevu" class="mediox-btn"><span>Randevu Al</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div></div></div></div></div></div></div>',
+NULL,
+'Banner sayfası için banner içeriği',
+true
+),
+
+('Banner Page 4', 'banner_page', 4, 'banner-page-4', 
+'<div class="main-slider-three__item"><div class="main-slider-three__bg" style="background-image: url(files/defaults/banner/slider-4.webp);"></div><div class="main-slider-three__container container"><div class="banner-row row"><div class="col-xxl-10 col-xl-9 mx-auto"><div class="main-slider-three__content"><div class="main-slider-three__top"><p class="main-slider-three__sub-title">Çocuklarımız İçin En İyi Bakım</p></div><h2 class="main-slider-three__title"><span class="main-slider-three__title__inner">Şaşılık <br> <span class="main-slider-three__title__shape">Tedavisi</span></span></h2><div class="main-slider-three__button-group"><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--1"><a href="/tibbi-birimler/sasilik-tedavisi" class="mediox-btn"><span>İncele</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div><div class="main-slider-three__button-group__inner"><div class="main-slider-three__button main-slider-three__button--2"><a href="#randevu" class="mediox-btn"><span>Randevu Al</span><span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span></a></div></div></div></div></div></div></div></div>',
+NULL,
+'Banner sayfası için banner içeriği',
+true
 );
 
 -- =====================================================

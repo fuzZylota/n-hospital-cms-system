@@ -73,6 +73,10 @@
     {{ end }}
 
     <link rel="stylesheet" href="{{ PathOnStart }}css/style.css">
+
+    {{ if Options.Options.GoogleAnalytics != "" }}
+        {{ Options.Options.GoogleAnalytics | raw }}
+    {{ end }}
 </head>
 <body class="custom-cursor">
     {{ include "../../components/preloader" }}
