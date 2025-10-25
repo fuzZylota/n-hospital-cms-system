@@ -45,6 +45,14 @@ type Utilities struct {
 	// Limiter
 }
 
+type FrontendOptions struct {
+	Database        *orm.Neorm
+	UnwantedColumns any
+	OtherColumns    any
+	User            AuthenticatedUser
+	States          *AppState
+}
+
 type SubeLink struct {
 	Sid          string
 	Name         string

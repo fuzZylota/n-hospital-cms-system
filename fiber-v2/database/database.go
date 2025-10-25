@@ -37,6 +37,513 @@ type Options struct {
 	Notifications      *[]models.Notification
 }
 
+func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models.FrontendOptions) (Options, error) {
+	var ActiveOptions models.Options
+	var ActiveMedias []models.Medias
+	var TestingOptions models.Options
+	var TestingMedias []models.Medias
+
+	// check if active option set or testing option set is empty
+	ActiveOptionSetOrTestingOptionSetIsEmpty := CurrentOptions.States.ActiveOptions.Oid == "" || CurrentOptions.States.TestingOptions.Oid == ""
+	// check if there is no authentication and we have active option set
+	NoNeedToFetchOptions := CurrentOptions.States.ActiveOptions.Oid != "" && CurrentOptions.User.Uid == ""
+
+	fmt.Printf("ActiveOptionSetOrTestingSetIsEmpty: %v\n", ActiveOptionSetOrTestingOptionSetIsEmpty)
+	fmt.Printf("NoNeedToFetchOptions: %v\n", NoNeedToFetchOptions)
+	fmt.Printf("Üyelik Varsa üye uid'i: %v\n", CurrentOptions.User.Uid)
+	fmt.Printf("Hafızada Aktif Seçenek Varsa oid'i: %v\n", CurrentOptions.States.ActiveOptions.Oid)
+
+	if ActiveOptionSetOrTestingOptionSetIsEmpty {
+		if NoNeedToFetchOptions {
+			fmt.Printf("no need to fetch options, using states \n")
+			ActiveOptions = CurrentOptions.States.ActiveOptions
+			TestingOptions = CurrentOptions.States.TestingOptions
+			ActiveMedias = CurrentOptions.States.Medias
+			TestingMedias = CurrentOptions.States.Medias
+		} else {
+			fmt.Printf("making database calls \n")
+			var Columns []string
+
+			switch CurrentOptions.OtherColumns.(type) {
+			case []string:
+				Columns = CurrentOptions.OtherColumns.([]string)
+			default:
+				if len(CurrentOptions.OtherColumns.([]string)) > 0 {
+					fmt.Println("opts.OtherColumns is not a []string")
+					return Options{}, errors.New("currentOptions.OtherColumns is not a []string")
+				}
+			}
+
+			switch CurrentOptions.UnwantedColumns.(type) {
+			case []string:
+				Columns = CurrentOptions.UnwantedColumns.([]string)
+			default:
+				if len(CurrentOptions.UnwantedColumns.([]string)) > 0 {
+					fmt.Println("opts.UnwantedColumns is not a []string")
+					return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
+				}
+				return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
+			}
+
+			Columns = append(Columns, []string{
+				"o.oid", "o.option_set_is_testing_now", "o.option_set_is_active", "o.site_name", "o.site_description",
+				"m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title", "m2.file_path as favicon_path",
+				"m3.file_path as default_page_media_path", "m4.file_path as light_logo_path", "m4.alt_text as light_logo_alt_text",
+				"m4.title as light_logo_title", "m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title",
+				"o.default_page_mid", "o.maintenance_mode", "o.facebook_url", "o.twitter_url", "o.instagram_url",
+				"o.linkedin_url", "o.contact_email", "o.contact_phone", "o.primary_color", "o.secondary_color", "o.accent_color",
+				"o.background_color", "o.font_color", "o.font_family", "o.maximum_sublinks_on_a_menu_item", "o.google_analytics",
+			}...)
+
+			if len(CurrentOptions.OtherColumns.([]string)) > 0 {
+				Columns = append(Columns, CurrentOptions.OtherColumns.([]string)...)
+			}
+
+			if len(CurrentOptions.UnwantedColumns.([]string)) > 0 {
+				newColumns := []string{}
+
+				for _, column := range CurrentOptions.UnwantedColumns.([]string) {
+					for _, c := range Columns {
+						if c == column {
+							continue
+						}
+
+						newColumns = append(newColumns, c)
+					}
+
+				}
+
+				Columns = newColumns
+			}
+
+			opts := CurrentOptions.Database.Select(Columns)
+			opts.Table("options o")
+			opts.LeftJoin("medias m", "o.site_logo_mid", "=", "m.mid")
+			opts.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
+			opts.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
+			opts.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
+			opts.Where("o.option_set_is_active", "=", true)
+
+			if CurrentOptions.States.TestingOptions == (models.Options{}) && CurrentOptions.User.Uid != "" {
+				opts.Or("o.option_set_is_testing_now", "=", true)
+			}
+
+			opts.Finish()
+			err := opts.Execute()
+
+			if err != nil {
+				return Options{}, err
+			}
+
+			rows, err := opts.Rows()
+
+			if err != nil {
+				return Options{}, err
+			}
+
+			for i, _ := range rows {
+				if lib.Bool(rows[i]["option_set_is_testing_now"]) {
+					TestingOptions = models.Options{
+						Oid:                           lib.String(rows[i]["oid"]),
+						OptionSetName:                 lib.String(rows[i]["option_set_name"]),
+						OptionSetDescription:          lib.String(rows[i]["option_set_description"]),
+						OptionSetIsActive:             lib.Bool(rows[i]["option_set_is_active"]),
+						OptionSetCreatedAt:            lib.Time(rows[i]["option_set_created_at"]),
+						OptionSetUpdatedAt:            lib.Time(rows[i]["option_set_updated_at"]),
+						SiteName:                      lib.String(rows[i]["site_name"]),
+						SiteDescription:               lib.String(rows[i]["site_description"]),
+						SiteLogoMid:                   lib.Int64(rows[i]["site_logo_mid"]),
+						SiteLightLogoMid:              lib.Int64(rows[i]["site_light_logo_mid"]),
+						FaviconMid:                    lib.Int64(rows[i]["site_favicon_mid"]),
+						DefaultPageMid:                lib.Int64(rows[i]["default_page_mid"]),
+						MaintenanceMode:               lib.Bool(rows[i]["maintenance_mode"]),
+						SMTPHost:                      lib.String(rows[i]["smtp_host"]),
+						SMTPPort:                      lib.Int64(rows[i]["smtp_port"]),
+						SMTPUsername:                  lib.String(rows[i]["smtp_username"]),
+						SMTPPassword:                  lib.String(rows[i]["smtp_password"]),
+						SMTPEncryption:                lib.String(rows[i]["smtp_encryption"]),
+						FacebookUrl:                   lib.String(rows[i]["facebook_url"]),
+						TwitterUrl:                    lib.String(rows[i]["twitter_url"]),
+						InstagramUrl:                  lib.String(rows[i]["instagram_url"]),
+						LinkedinUrl:                   lib.String(rows[i]["linkedin_url"]),
+						ContactEmail:                  lib.String(rows[i]["contact_email"]),
+						ContactPhone:                  lib.String(rows[i]["contact_phone"]),
+						MainPageMetaTitle:             lib.String(rows[i]["main_page_meta_title"]),
+						MainPageMetaDescription:       lib.String(rows[i]["main_page_meta_description"]),
+						GoogleAnalytics:               lib.String(rows[i]["google_analytics"]),
+						PrimaryColor:                  lib.String(rows[i]["primary_color"]),
+						SecondaryColor:                lib.String(rows[i]["secondary_color"]),
+						AccentColor:                   lib.String(rows[i]["accent_color"]),
+						BackgroundColor:               lib.String(rows[i]["background_color"]),
+						FontColor:                     lib.String(rows[i]["font_color"]),
+						FontFamily:                    lib.String(rows[i]["font_family"]),
+						RequireStrongPassword:         lib.Bool(rows[i]["require_strong_password"]),
+						ItemsPerPage:                  lib.Int64(rows[i]["items_per_page"]),
+						ShowDoctorsOnSameCity:         lib.Bool(rows[i]["show_doctors_on_same_city"]),
+						ShowDoctorsOnSameCountry:      lib.Bool(rows[i]["show_doctors_on_same_country"]),
+						AutoRemovePartnersWhenExpired: lib.Bool(rows[i]["auto_remove_partners_when_expired"]),
+						MaxUploadSize:                 lib.Int64(rows[i]["max_upload_size"]),
+						Timezone:                      lib.String(rows[i]["timezone"]),
+						Language:                      lib.String(rows[i]["language"]),
+						EnableTestimonials:            lib.Bool(rows[i]["enable_testimonials"]),
+						EnableOurHistory:              lib.Bool(rows[i]["enable_our_history"]),
+						MaximumSublinksOnAMenuItem:    lib.Int64(rows[i]["maximum_sublinks_on_a_menu_item"]),
+						ShowDoctorSocialMedia:         lib.Bool(rows[0]["show_doctor_social_media"]),
+						ShowDoctorAppointmentFee:      lib.Bool(rows[i]["show_doctor_appointment_fee"]),
+						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
+						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
+						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
+					}
+
+					TestingMedias = []models.Medias{
+						{
+							FilePath: lib.String(rows[i]["logo_path"]),
+							AltText:  lib.String(rows[i]["logo_alt_text"]),
+							Title:    lib.String(rows[i]["logo_title"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["light_logo_path"]),
+							AltText:  lib.String(rows[i]["light_logo_alt_text"]),
+							Title:    lib.String(rows[i]["light_logo_title"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["favicon_path"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["default_page_media_path"]),
+							AltText:  lib.String(rows[i]["default_page_media_alt_text"]),
+							Title:    lib.String(rows[i]["default_page_media_title"]),
+						},
+					}
+				}
+
+				if lib.Bool(rows[i]["option_set_is_active"]) {
+					ActiveOptions = models.Options{
+						Oid:                           lib.String(rows[i]["oid"]),
+						OptionSetName:                 lib.String(rows[i]["option_set_name"]),
+						OptionSetDescription:          lib.String(rows[i]["option_set_description"]),
+						OptionSetIsActive:             lib.Bool(rows[i]["option_set_is_active"]),
+						OptionSetCreatedAt:            lib.Time(rows[i]["option_set_created_at"]),
+						OptionSetUpdatedAt:            lib.Time(rows[i]["option_set_updated_at"]),
+						SiteName:                      lib.String(rows[i]["site_name"]),
+						SiteDescription:               lib.String(rows[i]["site_description"]),
+						SiteLogoMid:                   lib.Int64(rows[i]["site_logo_mid"]),
+						SiteLightLogoMid:              lib.Int64(rows[i]["site_light_logo_mid"]),
+						FaviconMid:                    lib.Int64(rows[i]["site_favicon_mid"]),
+						DefaultPageMid:                lib.Int64(rows[i]["default_page_mid"]),
+						MaintenanceMode:               lib.Bool(rows[i]["maintenance_mode"]),
+						SMTPHost:                      lib.String(rows[i]["smtp_host"]),
+						SMTPPort:                      lib.Int64(rows[i]["smtp_port"]),
+						SMTPUsername:                  lib.String(rows[i]["smtp_username"]),
+						SMTPPassword:                  lib.String(rows[i]["smtp_password"]),
+						SMTPEncryption:                lib.String(rows[i]["smtp_encryption"]),
+						FacebookUrl:                   lib.String(rows[i]["facebook_url"]),
+						TwitterUrl:                    lib.String(rows[i]["twitter_url"]),
+						InstagramUrl:                  lib.String(rows[i]["instagram_url"]),
+						LinkedinUrl:                   lib.String(rows[i]["linkedin_url"]),
+						ContactEmail:                  lib.String(rows[i]["contact_email"]),
+						ContactPhone:                  lib.String(rows[i]["contact_phone"]),
+						MainPageMetaTitle:             lib.String(rows[i]["main_page_meta_title"]),
+						MainPageMetaDescription:       lib.String(rows[i]["main_page_meta_description"]),
+						GoogleAnalytics:               lib.String(rows[i]["google_analytics"]),
+						PrimaryColor:                  lib.String(rows[i]["primary_color"]),
+						SecondaryColor:                lib.String(rows[i]["secondary_color"]),
+						AccentColor:                   lib.String(rows[i]["accent_color"]),
+						BackgroundColor:               lib.String(rows[i]["background_color"]),
+						FontColor:                     lib.String(rows[i]["font_color"]),
+						FontFamily:                    lib.String(rows[i]["font_family"]),
+						RequireStrongPassword:         lib.Bool(rows[i]["require_strong_password"]),
+						ItemsPerPage:                  lib.Int64(rows[i]["items_per_page"]),
+						ShowDoctorsOnSameCity:         lib.Bool(rows[i]["show_doctors_on_same_city"]),
+						ShowDoctorsOnSameCountry:      lib.Bool(rows[i]["show_doctors_on_same_country"]),
+						AutoRemovePartnersWhenExpired: lib.Bool(rows[i]["auto_remove_partners_when_expired"]),
+						MaxUploadSize:                 lib.Int64(rows[i]["max_upload_size"]),
+						Timezone:                      lib.String(rows[i]["timezone"]),
+						Language:                      lib.String(rows[i]["language"]),
+						EnableTestimonials:            lib.Bool(rows[i]["enable_testimonials"]),
+						EnableOurHistory:              lib.Bool(rows[i]["enable_our_history"]),
+						MaximumSublinksOnAMenuItem:    lib.Int64(rows[i]["maximum_sublinks_on_a_menu_item"]),
+						ShowDoctorSocialMedia:         lib.Bool(rows[i]["show_doctor_social_media"]),
+						ShowDoctorAppointmentFee:      lib.Bool(rows[i]["show_doctor_appointment_fee"]),
+						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
+						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
+						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
+					}
+
+					ActiveMedias = []models.Medias{
+						{
+							FilePath: lib.String(rows[i]["logo_path"]),
+							AltText:  lib.String(rows[i]["logo_alt_text"]),
+							Title:    lib.String(rows[i]["logo_title"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["light_logo_path"]),
+							AltText:  lib.String(rows[i]["light_logo_alt_text"]),
+							Title:    lib.String(rows[i]["light_logo_title"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["favicon_path"]),
+						},
+						{
+							FilePath: lib.String(rows[i]["default_page_media_path"]),
+							AltText:  lib.String(rows[i]["default_page_media_alt_text"]),
+							Title:    lib.String(rows[i]["default_page_media_title"]),
+						},
+					}
+				}
+			}
+		}
+	} else {
+		fmt.Printf("not fetched any options, using states \n")
+		ActiveOptions = CurrentOptions.States.ActiveOptions
+		ActiveMedias = CurrentOptions.States.Medias
+		TestingOptions = CurrentOptions.States.TestingOptions
+		TestingMedias = CurrentOptions.States.Medias
+	}
+
+	Options := Options{
+		HeaderButtons: &[]models.HeaderButton{},
+		NewsLinks:     &[]models.NewsLink{},
+	}
+
+	if CurrentOptions.User.Uid != "" && TestingOptions != (models.Options{}) {
+		Options.Options = &TestingOptions
+		CurrentOptions.States.TestingOptions = TestingOptions
+		Options.Medias = &TestingMedias
+		CurrentOptions.States.Medias = TestingMedias
+	} else {
+		Options.Options = &ActiveOptions
+		CurrentOptions.States.ActiveOptions = ActiveOptions
+		Options.Medias = &ActiveMedias
+		CurrentOptions.States.Medias = ActiveMedias
+	}
+
+	HeaderButtons := &[]models.HeaderButton{}
+
+	if len(CurrentOptions.States.HeaderButtons) == 0 {
+		SelectHeaderButtons := CurrentOptions.Database.Select([]string{"title", "url", "target", "icon", "sort_order", "parent_id", "button_type"})
+		SelectHeaderButtons.Table("header_buttons")
+		SelectHeaderButtons.Where("is_active", "=", true)
+		SelectHeaderButtons.OrderBy("sort_order", "ASC")
+		SelectHeaderButtons.Finish()
+		err := SelectHeaderButtons.Execute()
+		if err != nil {
+			return Options, err
+		}
+
+		rows, err := SelectHeaderButtons.Rows()
+		if err != nil {
+			return Options, err
+		}
+
+		for _, row := range rows {
+			*HeaderButtons = append(*HeaderButtons, models.HeaderButton{
+				Title:      lib.String(row["title"]),
+				Url:        lib.String(row["url"]),
+				Target:     lib.String(row["target"]),
+				Icon:       lib.String(row["icon"]),
+				SortOrder:  lib.Int64(row["sort_order"]),
+				ParentId:   lib.String(row["parent_id"]),
+				ButtonType: lib.String(row["button_type"]),
+			})
+		}
+
+		Options.HeaderButtons = HeaderButtons
+		CurrentOptions.States.HeaderButtons = *HeaderButtons
+	} else {
+		Options.HeaderButtons = &CurrentOptions.States.HeaderButtons
+	}
+
+	if len(CurrentOptions.States.NewsLinks) == 0 {
+		NewsLinks := []models.NewsLink{}
+		GetNewsLinks := CurrentOptions.Database.Select([]string{"h.hid", "h.title", "h.url_name", "h.author", "h.cover_mid", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
+		GetNewsLinks.Table("haberler h")
+		GetNewsLinks.LeftJoin("medias m", "h.cover_mid", "=", "m.mid")
+		GetNewsLinks.Where("h.is_published", "=", true)
+		GetNewsLinks.OrderBy("h.hid", "DESC")
+		GetNewsLinks.Limit(2)
+		GetNewsLinks.Finish()
+
+		err := GetNewsLinks.Execute()
+
+		if err != nil {
+			return Options, err
+		}
+
+		rows, err := GetNewsLinks.Rows()
+		if err != nil {
+			return Options, err
+		}
+
+		for _, row := range rows {
+			NewsLinks = append(NewsLinks, models.NewsLink{
+				Hid:          lib.String(row["hid"]),
+				Title:        lib.String(row["title"]),
+				UrlName:      lib.String(row["url_name"]),
+				Author:       lib.String(row["author"]),
+				CoverMid:     lib.Int64(row["cover_mid"]),
+				CoverPath:    lib.String(row["cover_path"]),
+				CoverAltText: lib.String(row["cover_alt_text"]),
+				CoverTitle:   lib.String(row["cover_title"]),
+			})
+		}
+
+		Options.NewsLinks = &NewsLinks
+		CurrentOptions.States.NewsLinks = NewsLinks
+	} else {
+		Options.NewsLinks = &CurrentOptions.States.NewsLinks
+	}
+
+	if len(CurrentOptions.States.SubelerLinks) == 0 {
+		GetSubeler := CurrentOptions.Database.Select([]string{"sid", "name", "url_name", "document_mids"})
+		GetSubeler.Table("subeler")
+		GetSubeler.Where("is_active", "=", true)
+		GetSubeler.OrderBy("is_main", "DESC")
+		GetSubeler.OrderBy("sid", "ASC")
+		GetSubeler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
+		GetSubeler.Finish()
+		err := GetSubeler.Execute()
+		if err != nil {
+			return Options, err
+		}
+
+		rows, err := GetSubeler.Rows()
+		if err != nil {
+			return Options, err
+		}
+
+		SubelerLinks := []models.SubeLink{}
+
+		DocumentMids := []any{}
+		for _, row := range rows {
+			SubelerLinks = append(SubelerLinks, models.SubeLink{
+				Sid:       lib.String(row["sid"]),
+				Name:      lib.String(row["name"]),
+				UrlName:   lib.String(row["url_name"]),
+				Documents: []models.Medias{},
+				//DoktorLinks: []models.DoktorLink{},
+			})
+
+			ConvertDocumentMid := row["document_mids"].(string)
+			if ConvertDocumentMid != "{}" {
+				ReplaceDocumentMid := strings.ReplaceAll(ConvertDocumentMid, "{", "")
+				ReplaceDocumentMid = strings.ReplaceAll(ReplaceDocumentMid, "}", "")
+				SplitTheDocumentMids := strings.SplitSeq(ReplaceDocumentMid, ",")
+				for mid := range SplitTheDocumentMids {
+					DocumentMids = append(DocumentMids, mid)
+				}
+			}
+		}
+
+		if len(DocumentMids) > 0 {
+			GetSubeDocuments := CurrentOptions.Database.Select([]string{"mid", "file_path", "data", "target_id"})
+			GetSubeDocuments.Table("medias")
+			GetSubeDocuments.In("WHERE", "mid", DocumentMids)
+			GetSubeDocuments.Limit(int(Options.Options.MaximumSublinksOnAMenuItem - 2))
+			GetSubeDocuments.Finish()
+			err := GetSubeDocuments.Execute()
+			if err != nil {
+				return Options, err
+			}
+
+			rows, err := GetSubeDocuments.Rows()
+			if err != nil {
+				return Options, err
+			}
+
+			for i := range SubelerLinks {
+				for _, row := range rows {
+					if SubelerLinks[i].Sid == lib.String(row["target_id"]) {
+						Media := models.Medias{
+							Mid:      lib.Int64(row["mid"]),
+							FilePath: lib.String(row["file_path"]),
+							Data:     lib.String(row["data"]),
+						}
+
+						SubelerLinks[i].Documents = append(SubelerLinks[i].Documents, Media)
+					}
+				}
+			}
+
+		}
+
+		Options.SubelerLinks = &SubelerLinks
+		CurrentOptions.States.SubelerLinks = SubelerLinks
+	} else {
+		Options.SubelerLinks = &CurrentOptions.States.SubelerLinks
+	}
+
+	if len(CurrentOptions.States.TibbiBirimlerLinks) == 0 {
+		GetTibbiBirimler := CurrentOptions.Database.Select([]string{"tb.tbid", "tb.name", "tb.url_name"})
+		GetTibbiBirimler.Table("tibbi_birimler tb")
+		GetTibbiBirimler.Where("is_active", "=", true)
+		GetTibbiBirimler.OrderBy("tbid", "ASC")
+		GetTibbiBirimler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
+		GetTibbiBirimler.Finish()
+
+		err := GetTibbiBirimler.Execute()
+
+		if err != nil {
+			return Options, err
+		}
+
+		rows, err := GetTibbiBirimler.Rows()
+
+		if err != nil {
+			return Options, err
+		}
+
+		TibbiBirimlerLinks := []models.TibbiBirimLink{}
+
+		for _, row := range rows {
+			TibbiBirimlerLinks = append(TibbiBirimlerLinks, models.TibbiBirimLink{
+				Tbid:    lib.String(row["tbid"]),
+				Name:    lib.String(row["name"]),
+				UrlName: lib.String(row["url_name"]),
+			})
+		}
+
+		Options.TibbiBirimlerLinks = &TibbiBirimlerLinks
+		CurrentOptions.States.TibbiBirimlerLinks = TibbiBirimlerLinks
+	} else {
+		Options.TibbiBirimlerLinks = &CurrentOptions.States.TibbiBirimlerLinks
+	}
+
+	if len(CurrentOptions.States.TedkiklerLinks) == 0 {
+		GetTedkikler := CurrentOptions.Database.Select([]string{"tid", "name", "url_name"})
+		GetTedkikler.Table("tedkikler")
+		GetTedkikler.Where("is_active", "=", true)
+		GetTedkikler.OrderBy("tid", "ASC")
+		GetTedkikler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
+		GetTedkikler.Finish()
+		err := GetTedkikler.Execute()
+		if err != nil {
+			return Options, err
+		}
+		rows, err := GetTedkikler.Rows()
+		if err != nil {
+			return Options, err
+		}
+
+		TedkiklerLinks := []models.TedkikLink{}
+
+		for _, row := range rows {
+			TedkiklerLinks = append(TedkiklerLinks, models.TedkikLink{
+				Tid:     lib.String(row["tid"]),
+				Name:    lib.String(row["name"]),
+				UrlName: lib.String(row["url_name"]),
+			})
+		}
+
+		Options.TedkiklerLinks = &TedkiklerLinks
+		CurrentOptions.States.TedkiklerLinks = TedkiklerLinks
+	} else {
+		Options.TedkiklerLinks = &CurrentOptions.States.TedkiklerLinks
+	}
+
+	return Options, nil
+}
+
 func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any, unwantedColumns any, user models.AuthenticatedUser) (Options, error) {
 	var columns []string
 

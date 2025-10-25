@@ -20,8 +20,16 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{"o.main_page_meta_title", "o.main_page_meta_description", "o.items_per_page", "o.show_doctor_social_media", "o.enable_testimonials"},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, err := Options.FetchOptionsForFrontend(Orm, []string{"o.main_page_meta_title", "o.main_page_meta_description", "o.items_per_page", "o.show_doctor_social_media", "o.enable_testimonials"}, []string{}, OurUser)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
@@ -252,8 +260,16 @@ func AboutUsPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		GetHakkimizdaContents := Orm.Select([]string{"content_html", "content_javascript", "content_css"})
 		GetHakkimizdaContents.Table("custom_contents")
@@ -310,8 +326,16 @@ func LoginPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		return c.Render("views/frontend/giris", fiber.Map{
 			"PathOnStart": "",
@@ -330,8 +354,16 @@ func ContactPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		// Fetch şube data for contact information
 		var Subeler []models.SubeForFrontendPages
@@ -390,8 +422,16 @@ func MissionVisionPage(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		GetMissionVisionContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
 		GetMissionVisionContents.Table("custom_contents c")
@@ -446,8 +486,16 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		GetAnlasmaliKurumlar := Orm.Select([]string{"a.akid", "a.name", "a.sid", "s.name as sube_name", "s.is_main", "a.discount_rate", "a.is_active", "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title"})
 		GetAnlasmaliKurumlar.Table("anlasmali_kurumlar a")
@@ -502,8 +550,16 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, err := Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		if err != nil {
 			log.Printf("%v\n", err)
@@ -563,8 +619,16 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{"o.items_per_page"},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{"o.items_per_page"}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		Page := 1
 		if c.Query("page") != "" {
@@ -688,8 +752,16 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		HaberUrlName := c.Params("haber")
 
@@ -781,8 +853,16 @@ func FotoGaleriPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		return c.Render("views/frontend/foto-galeri", fiber.Map{
 			"PathOnStart": "",
@@ -801,8 +881,16 @@ func VideoGaleriPage(states *models.AppState, utilities *models.Utilities) fiber
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		return c.Render("views/frontend/video-galeri", fiber.Map{
 			"PathOnStart": "",
@@ -821,8 +909,16 @@ func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		GetKvkkContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
 		GetKvkkContents.Table("custom_contents c")
@@ -875,8 +971,16 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		Page := 1
 		if c.Query("page") != "" {
@@ -946,8 +1050,16 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		subeName := c.Params("sube")
 
@@ -1131,8 +1243,16 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		subeName := c.Params("sube")
 
@@ -1221,8 +1341,16 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		subeName := c.Params("sube")
 		doktorName := c.Params("doktor")
@@ -1353,8 +1481,16 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 		OurUser, _ := lib.CheckAuth(c)
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{"o.items_per_page"},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, err := Options.FetchOptionsForFrontend(Orm, []string{"o.main_page_meta_title", "o.main_page_meta_description", "o.items_per_page", "o.show_doctor_social_media", "o.enable_testimonials"}, []string{}, OurUser)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
@@ -1407,8 +1543,16 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		tibbiBirimName := c.Params("tibbibirim")
 
@@ -1462,8 +1606,16 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		OurUser, _ := lib.CheckAuth(c)
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		GetTetkikler := Orm.Select([]string{"t.name", "t.url_name", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		GetTetkikler.Table("tedkikler t")
@@ -1510,8 +1662,16 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		OurUser, _ := lib.CheckAuth(c)
 		Orm := utilities.Orm
 
+		FrontendOptions := models.FrontendOptions{
+			Database:        Orm,
+			UnwantedColumns: []string{},
+			OtherColumns:    []string{},
+			User:            OurUser,
+			States:          states,
+		}
+
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontend(Orm, []string{}, []string{}, OurUser)
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
 		tedkikName := c.Params("tetkik")
 

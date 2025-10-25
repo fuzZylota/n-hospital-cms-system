@@ -545,6 +545,9 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 		}
 
+		states.ActiveOptions = models.Options{}
+		states.TestingOptions = models.Options{}
+		states.Medias = []models.Medias{}
 		Orm.Commit()
 
 		return c.Redirect("/panel/secenekler/" + lid)
@@ -874,13 +877,11 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		if OptionsAmount > 1 && inputs.OptionSetIsActive != inputs.OldOptionSetIsActive {
-			fmt.Printf("OptionSetIsActive is about to change\n")
 			var completeActivations neormgo.Neorm
 
 			if inputs.OptionSetIsActive {
 				completeActivations = updateOption.SelectFunction("set_active_option", Oid)
 			} else {
-				fmt.Printf("OptionSetIsActive is false\n")
 				completeActivations = updateOption.SelectFunction("set_active_option", nil)
 			}
 			completeActivations.Finish()
@@ -914,7 +915,6 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		if (OptionsAmount > 1 && inputs.OptionSetIsTestingNow != inputs.OldOptionSetIsTestingNow) && (inputs.OptionSetIsActive == inputs.OldOptionSetIsActive) {
-			fmt.Printf("OptionSetIsTestingNow is about to change\n")
 			var completeTestingActivations neormgo.Neorm
 
 			if inputs.OptionSetIsTestingNow {
@@ -953,6 +953,10 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 			fmt.Printf("Everything is OK!\n")
 		}
+
+		states.ActiveOptions = models.Options{}
+		states.TestingOptions = models.Options{}
+		states.Medias = []models.Medias{}
 
 		Orm.Commit()
 
@@ -1258,6 +1262,10 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			}
 		}
 
+		states.ActiveOptions = models.Options{}
+		states.TestingOptions = models.Options{}
+		states.Medias = []models.Medias{}
+
 		Orm.Commit()
 
 		return c.JSON(fiber.Map{
@@ -1415,6 +1423,10 @@ func DeleteOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				"message": "Internal server error",
 			})
 		}
+
+		states.ActiveOptions = models.Options{}
+		states.TestingOptions = models.Options{}
+		states.Medias = []models.Medias{}
 
 		Orm.Commit()
 
@@ -1640,6 +1652,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 				}
 			}
 
+			states.ActiveOptions = models.Options{}
+			states.TestingOptions = models.Options{}
+			states.Medias = []models.Medias{}
+
 			Orm.Commit()
 		} else {
 			if GetOptions.Options.SiteLogoMid != 0 && (siteLogoAltText != oldSiteLogoAltText || siteLogoTitle != oldSiteLogoTitle) {
@@ -1676,6 +1692,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 						"message": "Internal server error",
 					})
 				}
+
+				states.ActiveOptions = models.Options{}
+				states.TestingOptions = models.Options{}
+				states.Medias = []models.Medias{}
 			}
 		}
 
@@ -1847,6 +1867,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			Orm.Commit()
+
+			states.ActiveOptions = models.Options{}
+			states.TestingOptions = models.Options{}
+			states.Medias = []models.Medias{}
 		} else {
 			if GetOptions.Options.SiteLightLogoMid != 0 && (siteLightLogoAltText != oldSiteLightLogoAltText || siteLightLogoTitle != oldSiteLightLogoTitle) {
 				UpdateMedia := Orm.Update()
@@ -1882,6 +1906,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 						"message": "Internal server error",
 					})
 				}
+
+				states.ActiveOptions = models.Options{}
+				states.TestingOptions = models.Options{}
+				states.Medias = []models.Medias{}
 			}
 		}
 
@@ -2045,6 +2073,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			Orm.Commit()
+
+			states.ActiveOptions = models.Options{}
+			states.TestingOptions = models.Options{}
+			states.Medias = []models.Medias{}
 		}
 
 		defaultPageInput, err := c.FormFile("default_page_media_path")
@@ -2215,6 +2247,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			Orm.Commit()
+
+			states.ActiveOptions = models.Options{}
+			states.TestingOptions = models.Options{}
+			states.Medias = []models.Medias{}
 		} else {
 			if GetOptions.Options.DefaultPageMid != 0 && (defaultPageMediaAltText != oldDefaultPageMediaAltText || defaultPageMediaTitle != oldDefaultPageMediaTitle) {
 				UpdateMedia := Orm.Update()
@@ -2250,6 +2286,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 						"message": "Internal server error",
 					})
 				}
+
+				states.ActiveOptions = models.Options{}
+				states.TestingOptions = models.Options{}
+				states.Medias = []models.Medias{}
 			}
 		}
 
