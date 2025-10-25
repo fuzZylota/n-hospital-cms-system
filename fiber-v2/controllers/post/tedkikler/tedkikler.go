@@ -167,6 +167,8 @@ func AddTedkik(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		Orm.Commit()
 
+		states.TedkiklerLinks = []models.TedkikLink{}
+
 		return c.Redirect("/panel/tedkikler/" + tid)
 	}
 }
@@ -256,6 +258,8 @@ func EditTedkik(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		Orm.Commit()
+
+		states.TedkiklerLinks = []models.TedkikLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -385,7 +389,16 @@ func DeleteTedkik(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		states.TedkiklerLinks = []models.TedkikLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
