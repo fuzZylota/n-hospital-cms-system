@@ -46,11 +46,9 @@ type Utilities struct {
 }
 
 type FrontendOptions struct {
-	Database        *orm.Neorm
-	UnwantedColumns any
-	OtherColumns    any
-	User            AuthenticatedUser
-	States          *AppState
+	Database *orm.Neorm
+	User     AuthenticatedUser
+	States   *AppState
 }
 
 type SubeLink struct {

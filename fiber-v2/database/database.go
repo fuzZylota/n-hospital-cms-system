@@ -55,57 +55,11 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 			ActiveMedias = CurrentOptions.States.Medias
 			TestingMedias = CurrentOptions.States.Medias
 		} else {
-			var Columns []string
-
-			switch CurrentOptions.OtherColumns.(type) {
-			case []string:
-				Columns = CurrentOptions.OtherColumns.([]string)
-			default:
-				if len(CurrentOptions.OtherColumns.([]string)) > 0 {
-					fmt.Println("opts.OtherColumns is not a []string")
-					return Options{}, errors.New("currentOptions.OtherColumns is not a []string")
-				}
-			}
-
-			switch CurrentOptions.UnwantedColumns.(type) {
-			case []string:
-				Columns = CurrentOptions.UnwantedColumns.([]string)
-			default:
-				if len(CurrentOptions.UnwantedColumns.([]string)) > 0 {
-					return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
-				}
-				return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
-			}
-
-			Columns = append(Columns, []string{
-				"o.oid", "o.option_set_is_testing_now", "o.option_set_is_active", "o.site_name", "o.site_description",
+			Columns := []string{
+				"o.*",
 				"m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title", "m2.file_path as favicon_path",
 				"m3.file_path as default_page_media_path", "m4.file_path as light_logo_path", "m4.alt_text as light_logo_alt_text",
 				"m4.title as light_logo_title", "m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title",
-				"o.default_page_mid", "o.maintenance_mode", "o.facebook_url", "o.twitter_url", "o.instagram_url",
-				"o.linkedin_url", "o.contact_email", "o.contact_phone", "o.primary_color", "o.secondary_color", "o.accent_color",
-				"o.background_color", "o.font_color", "o.font_family", "o.maximum_sublinks_on_a_menu_item", "o.google_analytics",
-			}...)
-
-			if len(CurrentOptions.OtherColumns.([]string)) > 0 {
-				Columns = append(Columns, CurrentOptions.OtherColumns.([]string)...)
-			}
-
-			if len(CurrentOptions.UnwantedColumns.([]string)) > 0 {
-				newColumns := []string{}
-
-				for _, column := range CurrentOptions.UnwantedColumns.([]string) {
-					for _, c := range Columns {
-						if c == column {
-							continue
-						}
-
-						newColumns = append(newColumns, c)
-					}
-
-				}
-
-				Columns = newColumns
 			}
 
 			opts := CurrentOptions.Database.Select(Columns)

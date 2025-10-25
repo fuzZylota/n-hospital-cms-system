@@ -21,11 +21,9 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{"o.main_page_meta_title", "o.main_page_meta_description", "o.items_per_page", "o.show_doctor_social_media", "o.enable_testimonials"},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -261,11 +259,9 @@ func AboutUsPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -327,11 +323,9 @@ func LoginPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -355,11 +349,9 @@ func ContactPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -423,11 +415,9 @@ func MissionVisionPage(states *models.AppState, utilities *models.Utilities) fib
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -487,11 +477,9 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -551,11 +539,9 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -620,11 +606,9 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{"o.items_per_page"},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -753,11 +737,9 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -854,11 +836,9 @@ func FotoGaleriPage(states *models.AppState, utilities *models.Utilities) fiber.
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -882,11 +862,9 @@ func VideoGaleriPage(states *models.AppState, utilities *models.Utilities) fiber
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -910,11 +888,9 @@ func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -972,11 +948,9 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1051,11 +1025,9 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1244,11 +1216,9 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1342,11 +1312,9 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1482,11 +1450,9 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{"o.items_per_page"},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1544,11 +1510,9 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1607,11 +1571,9 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
@@ -1663,11 +1625,9 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		Orm := utilities.Orm
 
 		FrontendOptions := models.FrontendOptions{
-			Database:        Orm,
-			UnwantedColumns: []string{},
-			OtherColumns:    []string{},
-			User:            OurUser,
-			States:          states,
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
 		}
 
 		Options := database.Options{}
