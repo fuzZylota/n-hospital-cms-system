@@ -1,13 +1,15 @@
-<div class="css-eval">
+<style>
     {{ range index1, BannerContent := BannerContents }}
         {{ if BannerContent.ContentType == "banner_page" }}
-            {{ BannerContent.ContentCss }}
+            <style>
+            {{ BannerContent.ContentCss | raw }}
+            </style>
         {{ end }}
     {{ end }}
-</div>
+</style>
 
 <section class="main-slider-three">
-    <div class="main-slider-three__carousel mediox-slick__carousel html-eval" data-slick-options='{
+    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{
         "slidesToShow": 1,
         "slidesToScroll": 1,
         "fade": true,
@@ -23,7 +25,7 @@
         }'>
         {{ range index1, BannerContent := BannerContents }}
             {{ if BannerContent.ContentType == "banner_page" }}
-                {{ BannerContent.ContentHtml }}
+                {{ BannerContent.ContentHtml | raw }}
             {{ end }}
         {{ end }}
         
@@ -49,10 +51,10 @@
     </div><!-- /.main-slider-three__carousel-counter -->
 </section><!-- /.main-slider-three -->
 
-<div class="js-eval">
-    {{ range index1, BannerContent := BannerContents }}
-        {{ if BannerContent.ContentType == "banner_page" }}
-            {{ BannerContent.ContentJavascript }}
-        {{ end }}
+{{ range index1, BannerContent := BannerContents }}
+    {{ if BannerContent.ContentType == "banner_page" }}
+        <script>
+            {{ BannerContent.ContentJavascript | raw }}
+        </script>
     {{ end }}
-</div>
+{{ end }}

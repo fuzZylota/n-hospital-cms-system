@@ -26,8 +26,17 @@ type WebsocketMessage struct {
 
 // type that represents all the changeable app states
 type AppState struct {
-	Broadcaster *wsb.Broadcaster
-	Connections []WebsocketConnection
+	Broadcaster        *wsb.Broadcaster
+	Connections        []WebsocketConnection
+	ActiveOptions      Options
+	TestingOptions     Options
+	Medias             []Medias
+	HeaderButtons      []HeaderButton
+	SubelerLinks       []SubeLink
+	TibbiBirimlerLinks []TibbiBirimLink
+	TedkiklerLinks     []TedkikLink
+	NewsLinks          []NewsLink
+	Notifications      []Notification
 }
 
 // type that represents all the unchanging utilites.

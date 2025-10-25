@@ -21,9 +21,9 @@
 </section><!-- /.page-header -->
 
 {{ range index1, CssContent := CssContents }}
-    <div class="css-eval">
-        {{ CssContent }}
-    </div>
+    <style>
+        {{ CssContent | raw }}
+    </style>
 {{ end }}
 
 <section class="service-details section-space">
@@ -73,11 +73,9 @@
             </div><!-- /.col-md-12 col-lg-8 -->
             <div class="col-md-12 col-lg-8">
                 <div class="service-details__content">
-                    <div class="html-eval">
-                        {{ range index1, HtmlContent := HtmlContents }}
-                            {{ HtmlContent }}
-                        {{ end }}
-                    </div>
+                    {{ range index1, HtmlContent := HtmlContents }}
+                        {{ HtmlContent | raw }}
+                    {{ end }}
   
                     
                     <div class="job-application-form-wrapper wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="200ms">
@@ -181,12 +179,9 @@
 </section>
 
 {{ range index1, JavascriptContent := JavascriptContents }}
-    <div class="js-eval">
-        {{ JavascriptContent }}
-    </div>
+    <script>
+        {{ JavascriptContent | raw }}
+    </script>
 {{ end }}
 
-<script src="{{ PathOnStart }}js/frontend/html-eval.js"></script>
-<script src="{{ PathOnStart }}js/frontend/js-eval.js"></script>
-<script src="{{ PathOnStart }}js/frontend/css-eval.js"></script>
 <script src="{{ PathOnStart }}js/frontend/insert-job-application.js"></script>

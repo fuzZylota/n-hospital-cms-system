@@ -4,15 +4,15 @@
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 1 }}
-        <div class="css-eval">
-            {{ Content.ContentCss }}
-        </div>
-        <div class="html-eval">
-            {{ Content.ContentHtml }}
-        </div>
-        <div class="js-eval">
-            {{ Content.ContentJavascript }}
-        </div>
+        <style>
+            {{ Content.ContentCss | raw }}
+        </style>
+
+        {{ Content.ContentHtml | raw }}
+
+        <script>
+            {{ Content.ContentJavascript | raw }}
+        </script>
     {{ end }}
 {{ end }}
 
@@ -20,15 +20,15 @@
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 2 }}
-        <div class="css-eval">
-            {{ Content.ContentCss }}
-        </div>
-        <div class="html-eval">
-            {{ Content.ContentHtml }}
-        </div>
-        <div class="js-eval">
-            {{ Content.ContentJavascript }}
-        </div>
+        <style>
+            {{ Content.ContentCss | raw }}
+        </style>
+
+        {{ Content.ContentHtml | raw }}
+
+        <script>
+            {{ Content.ContentJavascript | raw }}
+        </script>
     {{ end }}
 {{ end }}
 
@@ -36,15 +36,15 @@
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 3 }}
-        <div class="css-eval">
-            {{ Content.ContentCss }}
-        </div>
-        <div class="html-eval">
-            {{ Content.ContentHtml }}
-        </div>
-        <div class="js-eval">
-            {{ Content.ContentJavascript }}
-        </div>
+        <style>
+            {{ Content.ContentCss | raw }}
+        </style>
+
+        {{ Content.ContentHtml | raw }}
+
+        <script>
+            {{ Content.ContentJavascript | raw }}
+        </script>
     {{ end }}
 {{ end }}
 
@@ -52,15 +52,15 @@
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 4 }}
-        <div class="css-eval">
-            {{ Content.ContentCss }}
-        </div>
-        <div class="html-eval">
-            {{ Content.ContentHtml }}
-        </div>
-        <div class="js-eval">
-            {{ Content.ContentJavascript }}
-        </div>
+        <style>
+            {{ Content.ContentCss | raw }}
+        </style>
+
+        {{ Content.ContentHtml | raw }}
+
+        <script>
+            {{ Content.ContentJavascript | raw }}
+        </script>
     {{ end }}
 {{ end }}
 
@@ -68,19 +68,15 @@
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent >= 5 }}
-        <div class="css-eval">
-            {{ Content.ContentCss }}
-        </div>
-        <div class="html-eval">
-            {{ Content.ContentHtml }}
-        </div>
-        <div class="js-eval">
-            {{ Content.ContentJavascript }}
-        </div>
+        <style>
+            {{ Content.ContentCss | raw }}
+        </style>
+
+        {{ Content.ContentHtml | raw }}
+
+        <script>
+            {{ Content.ContentJavascript | raw }}
+        </script>
     {{ end }}
 {{ end }}
-
-<script src="{{ PathOnStart }}js/frontend/html-eval.js"></script>
-<script src="{{ PathOnStart }}js/frontend/js-eval.js"></script>
-<script src="{{ PathOnStart }}js/frontend/css-eval.js"></script>
 
