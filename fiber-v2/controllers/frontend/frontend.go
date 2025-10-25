@@ -20,6 +20,9 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		Orm := utilities.Orm
 
+		fmt.Printf("Home Page is called\n")
+		fmt.Printf("Our header buttons length: %v\n", len(states.HeaderButtons))
+
 		FrontendOptions := models.FrontendOptions{
 			Database:        Orm,
 			UnwantedColumns: []string{},

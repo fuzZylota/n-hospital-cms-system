@@ -211,6 +211,8 @@ func AddHeaderButton(states *models.AppState, utilities *models.Utilities) fiber
 			})
 		}
 
+		states.HeaderButtons = []models.HeaderButton{}
+
 		return c.JSON(fiber.Map{
 			"status":  201,
 			"message": "Header button added successfully",
@@ -264,13 +266,6 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 			})
 		}
 
-		if inputs.SortOrder < 1 {
-			return c.JSON(fiber.Map{
-				"status":  400,
-				"message": "Sort order must be at least 1",
-			})
-		}
-
 		if inputs.Url != "" && len(inputs.Url) > 255 {
 			return c.JSON(fiber.Map{
 				"status":  400,
@@ -296,95 +291,6 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 				"status":  500,
 				"message": "Internal server error",
 			})
-		}
-
-		var newParent interface{}
-
-		if inputs.ParentId == "" || inputs.ParentId == "0" {
-			newParent = nil
-		} else {
-			newParent = inputs.ParentId
-		}
-
-		// If ordering or parent changed, adjust via function first (uses current row state to compute)
-		orderingChanged := (inputs.SortOrder != inputs.OldSortOrder) || (inputs.ParentId != inputs.OldParentId)
-		if orderingChanged {
-			ReorderButtons := Orm.SelectFunction("get_shift_for_update", inputs.SortOrder, inputs.OldSortOrder, inputs.Hbid, newParent)
-			ReorderButtons.Finish()
-			err = ReorderButtons.Execute()
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot execute update_header_button_sort function: %v\n", err)
-			}
-
-			rows, err := ReorderButtons.Rows()
-
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot get update_header_button_sort function rows: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
-			}
-
-			fmt.Printf("rows: %v\n", rows)
-
-			if len(rows) == 0 {
-				log.Printf("Cannot update header button, issue is no rows returned : %v\n", len(rows) == 0)
-				Orm.Rollback()
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
-			}
-
-			HbidsToChange := []any{}
-
-			for _, row := range rows {
-				HbidsToChange = append(HbidsToChange, row["our_hbid"])
-			}
-
-			Expression := ""
-
-			if rows[0]["direction"] == "down" {
-				Expression = "sort_order - 1"
-			} else {
-				Expression = "sort_order + 1"
-			}
-
-			UpdateSortings := Orm.Update()
-			UpdateSortings.Table("header_buttons")
-			UpdateSortings.SetExpr("sort_order", Expression)
-			UpdateSortings.In("WHERE", "hbid", HbidsToChange)
-			UpdateSortings.Finish()
-
-			err = UpdateSortings.Execute()
-
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot update button sortings: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
-			}
-
-			UpdateThisButton := Orm.Update()
-			UpdateThisButton.Table("header_buttons")
-			UpdateThisButton.Set("sort_order", rows[0]["new_sort_order"])
-			UpdateThisButton.Set("parent_id", newParent)
-			UpdateThisButton.Where("hbid", "=", inputs.Hbid)
-			UpdateThisButton.Finish()
-			err = UpdateThisButton.Execute()
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot update this button sort order: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
-			}
 		}
 
 		UpdateHB := Orm.Update()
@@ -423,8 +329,6 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 			UpdateHB.Where("hbid", "=", inputs.Hbid)
 			UpdateHB.Finish()
 
-			fmt.Printf("UpdateHB: %v\n", UpdateHB.Query)
-
 			err = UpdateHB.Execute()
 			if err != nil {
 				Orm.Rollback()
@@ -445,6 +349,8 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 				"message": "Internal server error",
 			})
 		}
+
+		states.HeaderButtons = []models.HeaderButton{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -621,6 +527,8 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 				"message": "Internal server error",
 			})
 		}
+
+		states.HeaderButtons = []models.HeaderButton{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -838,6 +746,8 @@ func ChangeHeaderButtonOrder(states *models.AppState, utilities *models.Utilitie
 				"message": "Internal server error",
 			})
 		}
+
+		states.HeaderButtons = []models.HeaderButton{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
