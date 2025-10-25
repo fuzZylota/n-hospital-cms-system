@@ -198,6 +198,8 @@ func AddNews(states *models.AppState, utilities *models.Utilities) fiber.Handler
 
 		Orm.Commit()
 
+		states.NewsLinks = []models.NewsLink{}
+
 		return c.Redirect("/panel/haberler/" + hid)
 	}
 }
@@ -337,7 +339,16 @@ func EditNews(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		states.NewsLinks = []models.NewsLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -467,7 +478,16 @@ func DeleteNews(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		states.NewsLinks = []models.NewsLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -655,6 +675,8 @@ func UpdateNewsPicture(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			Orm.Commit()
+
+			states.NewsLinks = []models.NewsLink{}
 		} else {
 			// Metadata only update case
 			if haberMediaAltText != oldHaberMediaAltText || haberMediaTitle != oldHaberMediaTitle {
@@ -715,6 +737,8 @@ func UpdateNewsPicture(states *models.AppState, utilities *models.Utilities) fib
 						})
 					}
 				}
+
+				states.NewsLinks = []models.NewsLink{}
 			}
 		}
 
@@ -865,7 +889,16 @@ func DeleteNewsPicture(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		states.NewsLinks = []models.NewsLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,

@@ -5470,8 +5470,6 @@ func HaberDuzenlePage(states *models.AppState, utilities *models.Utilities) fibe
 		HaberQuery.Table("haberler h")
 		HaberQuery.LeftJoin("medias m", "h.cover_mid", "=", "m.mid")
 		HaberQuery.Where("h.hid", "=", Hid)
-		HaberQuery.And("h.is_published", "=", true)
-		HaberQuery.And("h.publish_date", "<=", time.Now())
 		HaberQuery.Finish()
 		err = HaberQuery.Execute()
 

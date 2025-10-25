@@ -48,20 +48,13 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 	// check if there is no authentication and we have active option set
 	NoNeedToFetchOptions := CurrentOptions.States.ActiveOptions.Oid != "" && CurrentOptions.User.Uid == ""
 
-	fmt.Printf("ActiveOptionSetOrTestingSetIsEmpty: %v\n", ActiveOptionSetOrTestingOptionSetIsEmpty)
-	fmt.Printf("NoNeedToFetchOptions: %v\n", NoNeedToFetchOptions)
-	fmt.Printf("Üyelik Varsa üye uid'i: %v\n", CurrentOptions.User.Uid)
-	fmt.Printf("Hafızada Aktif Seçenek Varsa oid'i: %v\n", CurrentOptions.States.ActiveOptions.Oid)
-
 	if ActiveOptionSetOrTestingOptionSetIsEmpty {
 		if NoNeedToFetchOptions {
-			fmt.Printf("no need to fetch options, using states \n")
 			ActiveOptions = CurrentOptions.States.ActiveOptions
 			TestingOptions = CurrentOptions.States.TestingOptions
 			ActiveMedias = CurrentOptions.States.Medias
 			TestingMedias = CurrentOptions.States.Medias
 		} else {
-			fmt.Printf("making database calls \n")
 			var Columns []string
 
 			switch CurrentOptions.OtherColumns.(type) {
@@ -79,7 +72,6 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 				Columns = CurrentOptions.UnwantedColumns.([]string)
 			default:
 				if len(CurrentOptions.UnwantedColumns.([]string)) > 0 {
-					fmt.Println("opts.UnwantedColumns is not a []string")
 					return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
 				}
 				return Options{}, errors.New("currentOptions.UnwantedColumns is not a []string")
@@ -294,7 +286,6 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 			}
 		}
 	} else {
-		fmt.Printf("not fetched any options, using states \n")
 		ActiveOptions = CurrentOptions.States.ActiveOptions
 		ActiveMedias = CurrentOptions.States.Medias
 		TestingOptions = CurrentOptions.States.TestingOptions
