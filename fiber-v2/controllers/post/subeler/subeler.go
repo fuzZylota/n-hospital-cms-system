@@ -245,7 +245,13 @@ func AddSube(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
+		}
+
+		states.SubelerLinks = []models.SubeLink{}
 
 		return c.Redirect("/panel/subeler/" + sid)
 	}
@@ -487,6 +493,8 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		Orm.Commit()
 
+		states.SubelerLinks = []models.SubeLink{}
+
 		return c.JSON(fiber.Map{
 			"status":  201,
 			"message": "Şube başarıyla güncellendi.",
@@ -561,7 +569,16 @@ func SetSubeAsMain(states *models.AppState, utilities *models.Utilities) fiber.H
 			})
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		states.SubelerLinks = []models.SubeLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -767,6 +784,8 @@ func DeleteSube(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
 		}
+
+		states.SubelerLinks = []models.SubeLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -1399,6 +1418,8 @@ func AddSubeDocuments(states *models.AppState, utilities *models.Utilities) fibe
 			}
 
 			Orm.Commit()
+
+			states.SubelerLinks = []models.SubeLink{}
 		} else {
 			Orm.Rollback()
 			return c.JSON(fiber.Map{
@@ -1464,6 +1485,8 @@ func EditSubeDocument(states *models.AppState, utilities *models.Utilities) fibe
 				"message": "Döküman bulunamadı.",
 			})
 		}
+
+		states.SubelerLinks = []models.SubeLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -1617,6 +1640,8 @@ func DeleteSubeDocument(states *models.AppState, utilities *models.Utilities) fi
 		}
 
 		Orm.Commit()
+
+		states.SubelerLinks = []models.SubeLink{}
 
 		return c.JSON(fiber.Map{
 			"status":  201,

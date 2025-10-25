@@ -18,7 +18,6 @@ class HeaderButtonEditHandler {
         this.setupToggleSwitches();
         this.setupTargetHandling();
         this.setupIconPreview();
-        this.loadParentOptions();
     }
 
     /**
@@ -250,49 +249,6 @@ class HeaderButtonEditHandler {
         }
     }
 
-    /**
-     * Load parent options for the select dropdown
-     */
-    async loadParentOptions() {
-        try {
-            const response = await fetch('/backend/header-buttons/parents', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.status === 200 && data.data) {
-                    this.populateParentOptions(data.data);
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load parent options:', error);
-        }
-    }
-
-    /**
-     * Populate parent options in select dropdown
-     */
-    populateParentOptions(parents) {
-        const parentSelect = this.headerButtonForm.querySelector('#parent_id');
-        if (!parentSelect) return;
-
-        // Clear existing options except the first one
-        parentSelect.innerHTML = '<option value="">Ana Menü</option>';
-
-        parents.forEach(parent => {
-            const option = document.createElement('option');
-            option.value = parent.hbid;
-            option.textContent = parent.title;
-            const oldParentRaw = this.headerButtonForm.querySelector('input[name="old_parent_id"]').value;
-            const oldParentId = oldParentRaw === '' ? null : parseInt(oldParentRaw, 10);
-            option.selected = (oldParentId !== null && parent.hbid === oldParentId);
-            parentSelect.appendChild(option);
-        });
-    }
 
     /**
      * Validate individual field

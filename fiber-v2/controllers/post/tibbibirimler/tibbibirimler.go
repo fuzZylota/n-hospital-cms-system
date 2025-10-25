@@ -230,7 +230,14 @@ func AddTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.H
 			}
 		}
 
-		Orm.Commit()
+		err = Orm.Commit()
+		if err != nil {
+			log.Printf("Cannot commit transaction: %v\n", err)
+			return c.Redirect("/panel/tibbi-birim-ekle?error=internal_server_error")
+		}
+
+		states.TibbiBirimlerLinks = []models.TibbiBirimLink{}
+
 		return c.Redirect("/panel/tibbi-birimler/" + tbid)
 	}
 }
@@ -297,7 +304,12 @@ func EditTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 
 		Orm.Commit()
-		return c.JSON(fiber.Map{"status": 201, "message": "Tıbbi birim başarıyla güncellendi."})
+		states.TibbiBirimlerLinks = []models.TibbiBirimLink{}
+
+		return c.JSON(fiber.Map{
+			"status":  201,
+			"message": "Tıbbi birim başarıyla güncellendi.",
+		})
 	}
 }
 
@@ -358,6 +370,8 @@ func DeleteTibbiBirim(states *models.AppState, utilities *models.Utilities) fibe
 				"message": "Tibbi birim not found",
 			})
 		}
+
+		states.TibbiBirimlerLinks = []models.TibbiBirimLink{}
 
 		var CoverMediaId int64
 		if tibbiBirimRows[0]["cover_mid"] != nil {

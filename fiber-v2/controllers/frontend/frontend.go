@@ -22,6 +22,9 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		fmt.Printf("Home Page is called\n")
 		fmt.Printf("Our header buttons length: %v\n", len(states.HeaderButtons))
+		fmt.Printf("Our subeler links length: %v\n", len(states.SubelerLinks))
+		fmt.Printf("Our tibbi birim links length: %v\n", len(states.TibbiBirimlerLinks))
+		fmt.Printf("Our Active Options Site Name: %v\n", states.ActiveOptions.SiteName)
 
 		FrontendOptions := models.FrontendOptions{
 			Database:        Orm,

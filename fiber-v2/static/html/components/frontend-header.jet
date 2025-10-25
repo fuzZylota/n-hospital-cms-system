@@ -47,7 +47,7 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
 
                             {{ if HeaderButtons.ButtonType == "kurumsal" && HeaderButtons.ParentId == "" }}
                                 <li class="dropdown">
-                                    <a href="#">Kurumsal</a>
+                                    <a href="#">{{ HeaderButtons.Title }}</a>
                                     <ul>
                                         {{ range index2, HeaderButtonsAgain := Options.HeaderButtons }}
                                             {{ if HeaderButtonsAgain.ButtonType == "kurumsal" && HeaderButtonsAgain.Hbid == HeaderButtons.ParentId && HeaderButtonsAgain.ParentId != "" }}
@@ -86,7 +86,7 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
 
                             {{ if HeaderButtons.ButtonType == "tibbi_birimler" }}
                                 <li class="dropdown">
-                                    <a href="/tibbi-birimler">Tıbbi Birimler</a>
+                                    <a href="/tibbi-birimler">{{ HeaderButtons.Title }}</a>
                                     <ul>
                                         {{ range index2, TibbiBirimLink := Options.TibbiBirimlerLinks }}
                                             <li><a href="/tibbi-birimler/{{ TibbiBirimLink.UrlName }}">{{ TibbiBirimLink.Name }}</a></li>
@@ -97,7 +97,7 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
 
                             {{ if HeaderButtons.ButtonType == "tedkikler" }}
                                 <li class="dropdown">
-                                    <a href="/tetkikler">Tetkikler</a>
+                                    <a href="/tetkikler">{{ HeaderButtons.Title }}</a>
                                     <ul>
                                         {{ range index2, TedkikLink := Options.TedkiklerLinks }}
                                             <li><a href="/tetkikler/{{ TedkikLink.UrlName }}">{{ TedkikLink.Name }}</a></li>

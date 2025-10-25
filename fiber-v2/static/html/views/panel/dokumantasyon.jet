@@ -216,7 +216,7 @@
         <div class="doc-acc-content">
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv">
-                <div class="k">Açıklama</div><div class="v">Web sitesi üst menü öğeleri ve sıralamaları. Ana menü ve alt menü yapısını oluşturur. Her buton için başlık, URL, ikon ve sıralama bilgileri saklanır. 4 tane özel menü öğesi bulunur: Şube, Tıbbi Birim, Tetkik, Doktor, Branş. Bu tipteki öğeler, alt menü öğesi olamazlar ve bunların altına da özel alt menü öğesi eklenemez.</div>
+                <div class="k">Açıklama</div><div class="v">Web sitesi üst menü öğeleri ve sıralamaları. Ana menü ve alt menü yapısını oluşturur. Her buton için başlık, URL, ikon ve sıralama bilgileri saklanır. 4 tane özel menü öğesi bulunur: Şube, Tıbbi Birim, Tetkik, Doktor, Branş. Bu tipteki öğeler, alt menü öğesi olamazlar ve bunların altına da özel alt menü öğesi eklenemez. Url değişimlerinin, gerçek sayfa url'lerine bir etkisi yoktur. Öğelerin sıralaması ve isimleri haricinde herhangi bir bilginin, teknik yetkililerden habersiz değiştirilmemesi tavsiye edilir, aksi takdirde sorumluluk kabul edilmez. Sıralama değişimleri, menü öğesinin bilgilerinin bulunduğu sayfadan yapılmalıdır.</div>
             </div>
             <div class="doc-section-title">Alan Değerleri</div>
             <div class="doc-list">

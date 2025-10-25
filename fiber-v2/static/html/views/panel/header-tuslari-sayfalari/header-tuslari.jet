@@ -263,23 +263,6 @@
                                                 <i class="fas fa-edit"></i>
                                                 <span>Düzenle</span>
                                             </a>
-                                            <div class="action-divider"></div>
-                                            {{if .IsActive}}
-                                            <button class="action-item deactivate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                                <i class="fas fa-pause"></i>
-                                                <span>Pasifleştir</span>
-                                            </button>
-                                            {{else}}
-                                            <button class="action-item activate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                                <i class="fas fa-play"></i>
-                                                <span>Aktifleştir</span>
-                                            </button>
-                                            {{end}}
-                                            <div class="action-divider"></div>
-                                            <button class="action-item reorder" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                                <i class="fas fa-arrows-alt-v"></i>
-                                                <span>Sıra Değiştir</span>
-                                            </button>
                                             <button class="action-item delete" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
                                                 <i class="fas fa-trash"></i>
                                                 <span>Sil</span>
@@ -338,23 +321,6 @@
                                             <i class="fas fa-edit"></i>
                                             <span>Düzenle</span>
                                         </a>
-                                        <div class="action-divider"></div>
-                                        {{if .IsActive}}
-                                        <button class="action-item deactivate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                            <i class="fas fa-pause"></i>
-                                            <span>Pasifleştir</span>
-                                        </button>
-                                        {{else}}
-                                        <button class="action-item activate" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                            <i class="fas fa-play"></i>
-                                            <span>Aktifleştir</span>
-                                        </button>
-                                        {{end}}
-                                        <div class="action-divider"></div>
-                                        <button class="action-item reorder" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
-                                            <i class="fas fa-arrows-alt-v"></i>
-                                            <span>Sıra Değiştir</span>
-                                        </button>
                                         <button class="action-item delete" data-id="{{ .Hbid }}" data-name="{{ .Title }}">
                                             <i class="fas fa-trash"></i>
                                             <span>Sil</span>
@@ -497,54 +463,6 @@
     </div>
 </div>
 
-<!-- Status Change Confirmation Modal -->
-<div id="statusModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-icon">
-            <i class="fas fa-question-circle"></i>
-        </div>
-        <h3 class="modal-title" id="statusModalTitle">Header Tuşu Durumunu Değiştir</h3>
-        <p class="modal-message" id="statusModalMessage">
-            Bu header tuşunun durumunu değiştirmek istediğinizden emin misiniz?
-        </p>
-        <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">İptal</button>
-            <button type="button" class="btn btn-primary" id="confirmStatusBtn">
-                <i class="fas fa-check"></i>
-                <span class="btn-text">Onayla</span>
-                <div class="btn-loader" style="display: none;">
-                    <div class="spinner"></div>
-                </div>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Reorder Modal -->
-<div id="reorderModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-icon">
-            <i class="fas fa-arrows-alt-v"></i>
-        </div>
-        <h3 class="modal-title">Sıra Değiştir</h3>
-        <p class="modal-message">
-            "<span id="reorderItemName"></span>" için yeni sıra numarası girin:
-        </p>
-        <div class="modal-form">
-            <input type="number" id="newSortOrder" class="form-input" min="1" placeholder="Sıra numarası">
-        </div>
-        <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeReorderModal()">İptal</button>
-            <button type="button" class="btn btn-primary" id="confirmReorderBtn">
-                <i class="fas fa-check"></i>
-                <span class="btn-text">Güncelle</span>
-                <div class="btn-loader" style="display: none;">
-                    <div class="spinner"></div>
-                </div>
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- Success/Error Messages -->
 <div id="successMessage" class="alert alert-success" style="display: none;">

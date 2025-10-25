@@ -45,7 +45,6 @@
                         <input type="hidden" name="old_url" value="{{ IndividualHeaderButton.Url }}">
                         <input type="hidden" name="old_target" value="{{ IndividualHeaderButton.Target }}">
                         <input type="hidden" name="old_icon" value="{{ IndividualHeaderButton.Icon }}">
-                        <input type="hidden" name="old_sort_order" value="{{ IndividualHeaderButton.SortOrder }}">
                         <input type="hidden" name="old_is_active" value="{{ IndividualHeaderButton.IsActive }}">
                         <input type="hidden" name="old_parent_id" value="{{ IndividualHeaderButton.ParentId }}">
                         <input type="hidden" name="old_button_type" value="{{ IndividualHeaderButton.ButtonType }}">
@@ -86,12 +85,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="button_type" class="form-label required">Buton Tipi</label>
+                                    {{ if IndividualHeaderButton.ButtonType == "anasayfa" || IndividualHeaderButton.ButtonType == "diger" || IndividualHeaderButton.ButtonType == "kurumsal" }}
                                     <select id="button_type" name="button_type" class="form-select" required>
                                         <option value="kurumsal" {{ if IndividualHeaderButton.ButtonType == "kurumsal" }}selected{{ end }}>kurumsal</option>
                                         <option value="anasayfa" {{ if IndividualHeaderButton.ButtonType == "anasayfa" }}selected{{ end }}>anasayfa</option>
                                         <option value="diger" {{ if IndividualHeaderButton.ButtonType == "diger" }}selected{{ end }}>diger</option>
                                     </select>
                                     <div class="form-help">Menü tuşunun kategorisi (veritabanı şeması ile uyumlu)</div>
+                                    {{ else }}
+                                    <input type="text" id="button_type" name="button_type" class="form-input" value="{{ IndividualHeaderButton.ButtonType }}" readonly>
+                                    <div class="form-help">Bu buton tipi değiştirilemez (özel tip)</div>
+                                    {{ end }}
                                 </div>
                             </div>
                         </div>
@@ -99,22 +103,6 @@
                         <!-- Navigation Settings -->
                         <div class="form-group-section">
                             <h3 class="group-title">Navigasyon Ayarları</h3>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="sort_order" class="form-label required">Sıra Numarası</label>
-                                    <input type="number" id="sort_order" name="sort_order" class="form-input" 
-                                           value="{{ IndividualHeaderButton.SortOrder }}" required min="1">
-                                    <div class="form-help">Menüdeki sıralama numarası</div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="parent_id" class="form-label">Üst Menü</label>
-                                    <select id="parent_id" name="parent_id" class="form-select">
-                                        <option value="">Ana Menü</option>
-                                        <!-- Parent options will be populated by JavaScript -->
-                                    </select>
-                                    <div class="form-help">Alt menü yapmak için üst menü seçin</div>
-                                </div>
-                            </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="is_active" class="form-label">Durum</label>
