@@ -163,6 +163,7 @@ type Options struct {
 	FaviconMid                    int64     `form:"favicon_mid" json:"favicon_mid"`
 	DefaultPageMid                int64     `form:"default_page_mid" json:"default_page_mid"`
 	MaintenanceMode               bool      `form:"maintenance_mode" json:"maintenance_mode"`
+	Preloader                     string    `form:"preloader" json:"preloader"`
 	SMTPHost                      string    `form:"smtp_host" json:"smtp_host"`
 	SMTPPort                      int64     `form:"smtp_port" json:"smtp_port"`
 	SMTPUsername                  string    `form:"smtp_username" json:"smtp_username"`
@@ -237,6 +238,8 @@ type OptionsEdit struct {
 	OldDefaultPageMid                int64     `form:"old_default_page_mid" json:"old_default_page_mid"`
 	MaintenanceMode                  bool      `form:"maintenance_mode" json:"maintenance_mode"`
 	OldMaintenanceMode               bool      `form:"old_maintenance_mode" json:"old_maintenance_mode"`
+	Preloader                        string    `form:"preloader" json:"preloader"`
+	OldPreloader                     string    `form:"old_preloader" json:"old_preloader"`
 	SMTPHost                         string    `form:"smtp_host" json:"smtp_host"`
 	OldSMTPHost                      string    `form:"old_smtp_host" json:"old_smtp_host"`
 	SMTPPort                         int64     `form:"smtp_port" json:"smtp_port"`

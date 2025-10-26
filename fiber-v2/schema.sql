@@ -32,6 +32,8 @@ CREATE TABLE options (
     site_favicon_mid INTEGER DEFAULT NULL,
     default_page_mid INTEGER DEFAULT NULL,
 
+    preloader TEXT DEFAULT NULL,
+
     maintenance_mode BOOLEAN DEFAULT FALSE,
 
     smtp_host VARCHAR(255),
@@ -163,7 +165,7 @@ CREATE TABLE subeler (
     longitude DECIMAL(11, 8),
     view_count INTEGER DEFAULT 0,
     transportation_info TEXT,
-    working_hours JSONB DEFAULT '{"monday": "08:00-18:00", "tuesday": "08:00-18:00", "wednesday": "08:00-18:00", "thursday": "08:00-18:00", "friday": "08:00-18:00", "saturday": "08:00-13:00", "sunday": "closed"}', -- Store working hours as JSON
+    working_hours JSONB DEFAULT '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', -- Store working hours as JSON
     mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     document_mids INTEGER[] DEFAULT '{}',
     is_main BOOLEAN DEFAULT FALSE,

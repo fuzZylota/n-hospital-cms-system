@@ -1,5 +1,92 @@
 
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/secenek.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+
+<style>
+    /* CodeMirror styling for preloader display */
+    .code-display {
+        position: relative;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: var(--bg-primary);
+    }
+
+    .code-display .CodeMirror {
+        height: 300px;
+        font-size: 13px;
+        line-height: 1.5;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .code-display .CodeMirror-scroll {
+        overflow: auto !important;
+        height: 100% !important;
+        margin-right: 0 !important;
+    }
+
+    .code-display .CodeMirror-scrollbar-filler {
+        display: none !important;
+    }
+
+    .code-display .CodeMirror-sizer {
+        min-height: 100% !important;
+        margin-right: 0 !important;
+    }
+
+    .code-display .CodeMirror-cursor {
+        display: none !important;
+    }
+
+    .code-display .CodeMirror-focused {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .code-display .CodeMirror-gutters {
+        background: var(--bg-secondary) !important;
+        border-right: 1px solid var(--border-color) !important;
+    }
+
+    .code-display .CodeMirror-linenumber {
+        color: var(--text-muted) !important;
+    }
+
+    .code-display .CodeMirror-cursor {
+        display: none !important;
+    }
+
+    .code-display .CodeMirror-selected {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .no-data {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+        background: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        border: 1px dashed var(--border-color);
+    }
+
+    .no-data i {
+        font-size: 24px;
+        margin-right: 12px;
+        opacity: 0.6;
+    }
+
+    .no-data span {
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>
 
 <div class="page-container">
     <!-- Page Header -->
@@ -526,6 +613,38 @@
                 </div>
             </div>
         </div>
+
+        <!-- Preloader Settings Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <h3 class="card-title">Preloader Ayarları</h3>
+            </div>
+            <div class="card-content">
+                {{if Option.Preloader}}
+                <div class="info-item full-width">
+                    <label class="info-label">Özel Preloader Kodu</label>
+                    <div class="info-value">
+                        <div class="code-display">
+                            <textarea id="preloaderCode" readonly>{{ Option.Preloader }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {{else}}
+                <div class="info-item full-width">
+                    <label class="info-label">Preloader Kodu</label>
+                    <div class="info-value">
+                        <div class="no-data">
+                            <i class="fas fa-code"></i>
+                            <span>Özel preloader kodu tanımlanmamış</span>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -594,6 +713,54 @@
         <i class="icon-x"></i>
     </button>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+
+<script>
+    // Initialize CodeMirror for preloader code display
+    document.addEventListener('DOMContentLoaded', function() {
+        const preloaderTextarea = document.getElementById('preloaderCode');
+        if (preloaderTextarea) {
+            const editor = CodeMirror.fromTextArea(preloaderTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                readOnly: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false,
+                scrollbarStyle: 'native',
+                viewportMargin: Infinity,
+                extraKeys: {
+                    "F11": function(cm) {
+                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                    },
+                    "Esc": function(cm) {
+                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    }
+                }
+            });
+            
+            // Store editor reference for potential future use
+            window.preloaderDisplayEditor = editor;
+        }
+    });
+</script>
 
 <script>
     // Pass data to JavaScript

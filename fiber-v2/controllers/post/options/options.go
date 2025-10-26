@@ -173,6 +173,10 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				columns = append(columns, "language")
 				values = append(values, inputs.Language)
 			}
+			if inputs.Preloader != "" {
+				columns = append(columns, "preloader")
+				values = append(values, inputs.Preloader)
+			}
 		}
 
 		if len(columns) == 0 {
@@ -674,6 +678,16 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 			if inputs.MaintenanceMode != inputs.OldMaintenanceMode {
 				updateOption.Set("maintenance_mode", inputs.MaintenanceMode)
+				SomethingSet = true
+			}
+
+			if inputs.Preloader != inputs.OldPreloader {
+				if inputs.Preloader == "" {
+					updateOption.Set("preloader", nil)
+				} else {
+					updateOption.Set("preloader", inputs.Preloader)
+				}
+
 				SomethingSet = true
 			}
 

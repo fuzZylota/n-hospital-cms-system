@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/secenek-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -509,6 +513,25 @@
                 </div>
             </div>
 
+            <!-- Preloader Settings Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-loader"></i>
+                        Preloader Ayarları
+                    </h2>
+                    <p class="section-description">Özel preloader kodu (HTML, CSS ve JavaScript)</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="preloader" class="form-label">Özel Preloader Kodu</label>
+                        <textarea id="preloader" name="preloader" class="form-textarea code-editor" 
+                                  rows="15" placeholder="HTML, CSS ve JavaScript kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">Özel preloader kodu (HTML, CSS ve JavaScript dahil) - Opsiyonel</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="window.history.back()">
@@ -553,6 +576,55 @@
         </div>
     </div>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+
+<script>
+    // Initialize CodeMirror for preloader textarea
+    document.addEventListener('DOMContentLoaded', function() {
+        const preloaderTextarea = document.getElementById('preloader');
+        if (preloaderTextarea) {
+            const editor = CodeMirror.fromTextArea(preloaderTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete",
+                    "F11": function(cm) {
+                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                    },
+                    "Esc": function(cm) {
+                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    }
+                },
+                hintOptions: {
+                    completeSingle: false
+                }
+            });
+            
+            // Store editor reference for potential future use
+            window.preloaderEditor = editor;
+        }
+    });
+</script>
 
 <script src="{{ PathOnStart }}js/panel/secenek-ekle.js"></script>
 
