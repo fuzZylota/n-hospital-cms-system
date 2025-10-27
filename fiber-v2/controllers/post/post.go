@@ -250,7 +250,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			}
 
 			// Save file to uploads directory
-			err = c.SaveFile(file, uniquePathResponse.FilePath)
+			err = lib.SaveFileWithBufferingWithRenaming(uniquePathResponse.FilePath, uniquePathResponse.BaseName, *file)
 			if err != nil {
 				log.Printf("Cannot save file: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -3141,11 +3141,11 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		err = UpdateContactRequest.Execute()
 		if err != nil {
 			log.Printf("Cannot update contact request: %v\n", err)
-		return c.JSON(fiber.Map{
+			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-		})
-}
+			})
+		}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -3400,20 +3400,20 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.Email != "" {
-		GetLogo := ""
+			GetLogo := ""
 
-		if (*GetOptions.Medias)[0].FilePath != "" {
-			GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
-		} else {
-			GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
-		}
+			if (*GetOptions.Medias)[0].FilePath != "" {
+				GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+			} else {
+				GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
+			}
 
-		LogoName := filepath.Base(GetLogo)
+			LogoName := filepath.Base(GetLogo)
 
-		Html := ""
-		// Create professional HTML email template
-		{
-			Html = `<!DOCTYPE html>
+			Html := ""
+			// Create professional HTML email template
+			{
+				Html = `<!DOCTYPE html>
 <html lang="tr">
 <head>
 	<meta charset="UTF-8">
@@ -3631,45 +3631,45 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 					<span class="info-value">` + inputs.Email + `</span>
 				</div>`
 
-			if inputs.Phone != "" {
-				Html += `
+				if inputs.Phone != "" {
+					Html += `
 				<div class="info-row">
 					<span class="info-label">Telefon:</span>
 					<span class="info-value">` + inputs.Phone + `</span>
 				</div>`
-			}
+				}
 
-			Html += `
+				Html += `
 				<div class="info-row">
 					<span class="info-label">Şehir:</span>
 					<span class="info-value">` + inputs.City + `</span>
 				</div>`
 
-			if inputs.PositionApplied != "" {
-				Html += `
+				if inputs.PositionApplied != "" {
+					Html += `
 				<div class="info-row">
 					<span class="info-label">Başvurulan Pozisyon:</span>
 					<span class="info-value">` + inputs.PositionApplied + `</span>
 				</div>`
-			}
+				}
 
-			if inputs.University != "" {
-				Html += `
+				if inputs.University != "" {
+					Html += `
 				<div class="info-row">
 					<span class="info-label">Üniversite:</span>
 					<span class="info-value">` + inputs.University + `</span>
 				</div>`
-			}
+				}
 
-			if inputs.Languages != "" {
-				Html += `
+				if inputs.Languages != "" {
+					Html += `
 				<div class="info-row">
 					<span class="info-label">Diller:</span>
 					<span class="info-value">` + inputs.Languages + `</span>
 				</div>`
-			}
+				}
 
-			Html += `
+				Html += `
 			</div>
 			
 			<div class="next-steps">
@@ -3699,24 +3699,24 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			
 			<div class="social-links">`
 
-			if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
-				Html += `
+				if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+					Html += `
 				<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
-			}
-			if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
-				Html += `
+				}
+				if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+					Html += `
 				<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
-			}
-			if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
-				Html += `
+				}
+				if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+					Html += `
 				<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
-			}
-			if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
-				Html += `
+				}
+				if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+					Html += `
 				<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
-			}
+				}
 
-			Html += `
+				Html += `
 			</div>
 			
 									<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
@@ -3724,25 +3724,25 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 	</div>
 </body>
 </html>`
-		}
+			}
 
-		CreateEmailInfos := models.EmailInfos{
-			From:        GetOptions.Options.SiteName,
-			To:          []string{inputs.Email},
-			Username:    GetOptions.Options.SMTPUsername,
-			Password:    GetOptions.Options.SMTPPassword,
-			Host:        GetOptions.Options.SMTPHost,
-			Port:        lib.Int64(GetOptions.Options.SMTPPort),
-			Subject:     "İş Başvurunuz Alındı - " + GetOptions.Options.SiteName,
-			PlainText:   "Sayın " + inputs.FirstName + " " + inputs.LastName + ", iş başvurunuz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
-			Body:        Html,
-			Attachments: []string{GetLogo},
-		}
+			CreateEmailInfos := models.EmailInfos{
+				From:        GetOptions.Options.SiteName,
+				To:          []string{inputs.Email},
+				Username:    GetOptions.Options.SMTPUsername,
+				Password:    GetOptions.Options.SMTPPassword,
+				Host:        GetOptions.Options.SMTPHost,
+				Port:        lib.Int64(GetOptions.Options.SMTPPort),
+				Subject:     "İş Başvurunuz Alındı - " + GetOptions.Options.SiteName,
+				PlainText:   "Sayın " + inputs.FirstName + " " + inputs.LastName + ", iş başvurunuz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
+				Body:        Html,
+				Attachments: []string{GetLogo},
+			}
 
-		err = lib.SendEmail(&CreateEmailInfos)
+			err = lib.SendEmail(&CreateEmailInfos)
 
-		if err != nil {
-			log.Printf("Cannot send email: %v\n", err)
+			if err != nil {
+				log.Printf("Cannot send email: %v\n", err)
 			}
 		}
 
