@@ -1,2 +1,3 @@
 Preloader'ı admin panelinden, seçenek bazlı eklemeyi ayarla
-Çalışma saatlerinin default değerlerini türkçeleştir ve pazartesi'den başlat.
+şube sayfalarında google maps'in raw olarak gösterimini hallet.
+Tedkikşer panel sayfasındaki açıklama sütununun harf sayısı limitlendirilecek.

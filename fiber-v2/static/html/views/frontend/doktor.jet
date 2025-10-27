@@ -163,7 +163,7 @@
                 <h3 class="team-skills-one__title doc-section-title">Uzmanlıklar</h3>
                 {{ if len(Doktor.Expertises) > 0 }}
                 <div>
-                    {{ range Uz := Doktor.Expertises }}
+                    {{ range index, Uz := Doktor.Expertises }}
                     <div class="doc-card">
                         <div class="doc-card__thumb doc-card__thumb--primary">
                             <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/expertise/expertise-default.svg" alt="Expertise">

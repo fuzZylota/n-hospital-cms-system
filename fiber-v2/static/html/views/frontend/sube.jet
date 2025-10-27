@@ -249,6 +249,20 @@
                     </div>
                     {{ end }}
                     
+                    <!-- Google Maps Section -->
+                    {{ if Sube.GoogleMapIframe }}
+                    <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="400ms">
+                        <div class="portfolio-sidebar__info">
+                            <div class="portfolio-sidebar__info__top">
+                                <h3 class="portfolio-sidebar__title">🗺️ Konum</h3>
+                            </div>
+                            <div class="map-container" style="margin-top: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                                {{ Sube.GoogleMapIframe | raw }}
+                            </div>
+                        </div>
+                    </div>
+                    {{ end }}
+                    
                     <!-- Şube Dokümanları Section -->
                     {{ if len(SubeDocuments) > 0 }}
                     <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="200ms">

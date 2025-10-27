@@ -1065,6 +1065,16 @@ func buildHTMLWithAttachments(from string, to []string, subject, plainText, html
 	return b.Bytes(), nil
 }
 
+func ShortenTextForFrontend(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	if max <= 3 {
+		return s[:max] // saçma durumlar için
+	}
+	return s[:max-3] + "..."
+}
+
 func WebsocketHandshake(c *fiber.Ctx) error {
 	if websocket.IsWebSocketUpgrade(c) {
 		// burası handshake aşaması

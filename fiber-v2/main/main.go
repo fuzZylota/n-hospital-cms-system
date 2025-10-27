@@ -59,6 +59,7 @@ func main() {
 	htmlFiles.AddFunc("stti", lib.ShowTimeOfTimeInput)
 	htmlFiles.AddFunc("stj", lib.TurnStructIntoJson)
 	htmlFiles.AddFunc("contains", lib.ContainsWrapper)
+	htmlFiles.AddFunc("shorten", lib.ShortenTextForFrontend)
 	log.Printf("Html files loaded")
 
 	// new fiber server
