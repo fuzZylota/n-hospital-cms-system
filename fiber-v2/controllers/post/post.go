@@ -221,7 +221,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			})
 		}
 
-		uploadDir := "static/uploads"
+		uploadDir := filepath.Join(RootDir, "static", "uploads")
 
 		FileInfos := []models.File{}
 
@@ -238,9 +238,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 				})
 			}
 
-			filePath := filepath.Join(RootDir, uploadDir, file.Filename)
-
-			uniquePathResponse, err := lib.UniqueFilePath(filePath)
+			uniquePathResponse, err := lib.UniqueFilePath(uploadDir + "/" + file.Filename)
 			if err != nil {
 				log.Printf("Cannot generate unique file path: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -250,7 +248,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			}
 
 			// Save file to uploads directory
-			err = lib.SaveFileWithBufferingWithRenaming(uniquePathResponse.FilePath, uniquePathResponse.BaseName, *file)
+			err = lib.SaveFileWithBufferingWithRenaming(uploadDir, uniquePathResponse.BaseName, *file)
 			if err != nil {
 				log.Printf("Cannot save file: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -290,7 +288,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 
 				filePath := filepath.Join(RootDir, uploadDir, file.Filename)
 
-				uniquePathResponse, err := lib.UniqueFilePath(filePath)
+				uniquePathResponse, err := lib.UniqueFilePath(filePath + "/" + file.Filename)
 				if err != nil {
 					log.Printf("Cannot generate unique file path: %v\n", err)
 					return c.JSON(fiber.Map{
@@ -299,8 +297,10 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 					})
 				}
 
+				OurUploadDir := filepath.Join(RootDir, "static", "uploads")
+
 				// Save file to uploads directory
-				err = c.SaveFile(file, uniquePathResponse.FilePath)
+				err = lib.SaveFileWithBufferingWithRenaming(OurUploadDir, uniquePathResponse.BaseName, *file)
 				if err != nil {
 					log.Printf("Cannot save file: %v\n", err)
 					return c.JSON(fiber.Map{
