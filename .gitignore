@@ -1,6 +1,10 @@
 fiber-v2/.env
 fiber-v2/static/uploads
 fiber-v2/static/files/options
+fiber-v2/static/files/subeler
+fiber-v2/static/files/testimonials
+fiber-v2/static/files/haberler
+fiber-v2/static/files/job-applications
 fiber-v2/static/files/customs
 fiber-v2/static/files/branches
 fiber-v2/static/files/tibbi_birimler
