@@ -55,20 +55,6 @@
                             </div><!-- /.service-sidebar__contact__inner -->
                         </div><!-- /.service-sidebar__contact -->
                     </div><!-- /.service-sidebar__info service-sidebar__single -->
-                    <div class="service-sidebar__single wow fadeInLeft" data-wow-duration="1500ms" data-wow-delay="200ms">
-                        <div class="service-sidebar__company">
-                            <a href="contact.php" class="service-sidebar__company__btn">
-                                <i class="icon-download"></i>
-                            </a><!-- /.service-sidebar__company__btn -->
-                            <h4 class="service-sidebar__company__title">Şirket Profili</h4><!-- /.service-sidebar__company__title -->
-                        </div><!-- /.service-sidebar__company -->
-                        <div class="service-sidebar__company">
-                            <a href="contact.php" class="service-sidebar__company__btn">
-                                <i class="icon-download"></i>
-                            </a><!-- /.service-sidebar__company__btn -->
-                            <h4 class="service-sidebar__company__title">Şirket Broşürü</h4><!-- /.service-sidebar__company__title -->
-                        </div><!-- /.service-sidebar__company -->
-                    </div><!-- /.service-sidebar__single -->
                 </div><!-- /.sidebar -->
             </div><!-- /.col-md-12 col-lg-8 -->
             <div class="col-md-12 col-lg-8">

@@ -12,37 +12,49 @@
         <div class="sidebar-one__info sidebar-one__item">
             <h4 class="sidebar-one__title">İletişim</h4>
             <ul class="sidebar-one__info__list">
-                <li>
-                    <span class="sidebar-one__info__icon">
-                        <i class="icon-paper-plane"></i>
-                    </span>
-                    <a href="mailto:{{ Options.Options.ContactEmail }}">{{ Options.Options.ContactEmail }}</a>
-                </li>
-                <li>
-                    <span class="sidebar-one__info__icon">
-                        <i class="icon-telephone"></i>
-                    </span>
-                    <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
-                </li>
+                {{ if Options.Options.ContactEmail != "" }}
+                    <li>
+                        <span class="sidebar-one__info__icon">
+                            <i class="icon-paper-plane"></i>
+                        </span>
+                        <a href="mailto:{{ Options.Options.ContactEmail }}">{{ Options.Options.ContactEmail }}</a>
+                    </li>
+                {{ end }}
+                {{ if Options.Options.ContactPhone != "" }}
+                    <li>
+                        <span class="sidebar-one__info__icon">
+                            <i class="icon-telephone"></i>
+                        </span>
+                        <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
+                    </li>
+                {{ end }}
             </ul><!-- /.sidebar-one__info__list -->
         </div><!-- /.sidebar-one__info -->
         <div class="social-links sidebar-one__item">
-            <a href="https://{{ Options.Options.FacebookUrl }}">
-                <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                <span class="sr-only">Facebook</span>
-            </a>
-            <a href="https://{{ Options.Options.TwitterUrl }}">
-                <i class="fab fa-twitter" aria-hidden="true"></i>
-                <span class="sr-only">Twitter</span>
-            </a>
-            <a href="https://{{ Options.Options.InstagramUrl }}">
-                <i class="fab fa-instagram" aria-hidden="true"></i>
-                <span class="sr-only">Instagram</span>
-            </a>
-            <a href="https://{{ Options.Options.LinkedinUrl }}">
-                <i class="fab fa-youtube" aria-hidden="true"></i>
-                <span class="sr-only">Youtube</span>
-            </a>
+            {{ if Options.Options.FacebookUrl != "" && Options.Options.FacebookUrl != "#" }}
+                <a href="https://{{ Options.Options.FacebookUrl }}">
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                    <span class="sr-only">Facebook</span>
+                </a>
+            {{ end }}
+            {{ if Options.Options.TwitterUrl != "" && Options.Options.TwitterUrl != "#" }}
+                <a href="https://{{ Options.Options.TwitterUrl }}">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                    <span class="sr-only">Twitter</span>
+                </a>
+            {{ end }}
+            {{ if Options.Options.InstagramUrl != "" && Options.Options.InstagramUrl != "#" }}
+                <a href="https://{{ Options.Options.InstagramUrl }}">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                    <span class="sr-only">Instagram</span>
+                </a>
+            {{ end }}
+            {{ if Options.Options.LinkedinUrl != "" && Options.Options.LinkedinUrl != "#" }}
+                <a href="https://{{ Options.Options.LinkedinUrl }}">
+                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                    <span class="sr-only">Youtube</span>
+                </a>
+            {{ end }}
         </div><!-- /sidebar-one__social -->
     </div><!-- /.sidebar__content -->
 </aside><!-- /.sidebar-one -->
