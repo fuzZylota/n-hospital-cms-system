@@ -158,6 +158,8 @@ func ListFilesPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			}
 		}
 
+		fmt.Printf("Files: %v\n", Files)
+
 		return c.Render("views/panel/dosyalar", fiber.Map{
 			"PathOnStart": "../",
 			"PageTitle":   "N-Hospital | Dosyalar",
