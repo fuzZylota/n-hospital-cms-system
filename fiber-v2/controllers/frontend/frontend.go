@@ -1405,8 +1405,9 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		Doktor.Experiences = DoctorExperiences
 
-		GetDoctorExpertises := Orm.Select([]string{"de.name", "de.description", "de.start_date", "de.end_date"})
+		GetDoctorExpertises := Orm.Select([]string{"u.name", "u.description", "de.certification_date", "de.certification_institution", "de.is_primary"})
 		GetDoctorExpertises.Table("doctor_expertises de")
+		GetDoctorExpertises.LeftJoin("uzmanliklar u", "de.uzid", "=", "u.uzid")
 		GetDoctorExpertises.Where("drid", "=", Doktor.Drid)
 		GetDoctorExpertises.Finish()
 		err = GetDoctorExpertises.Execute()
