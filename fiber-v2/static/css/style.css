@@ -16,3 +16,9 @@
 .banner-row {
     margin-top: calc(-3.75 * var(--bs-gutter-x)) !important;
 }
+
+@media (max-width: 500px) {
+    .banner-row {
+        margin-top: calc(-1.75 * var(--bs-gutter-x)) !important;
+    }
+}
