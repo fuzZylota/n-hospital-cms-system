@@ -19,6 +19,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
     <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
     <title>{{ Title }}</title>
+    <meta name="author" content="Nermefraz Bilişim Teknolojileri, Yazılım ve Danışmanlık. Nermefraz Information Technologies, Software Consulting and Development Company.">
     <meta name="description" content="{{ Description }}" />
 
     <!-- fonts -->

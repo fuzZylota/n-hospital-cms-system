@@ -38,9 +38,9 @@
                                 {{ end }}
                             {{ end }}
                         </ul><!-- /.list-unstyled service-sidebar__nav -->
-                        <div class="service-sidebar__contact wow fadeInLeft" data-wow-duration="1500ms" data-wow-delay="100ms" style="background-image: url('assets/images/services/service-sidebar-contact-bg.jpg');">
+                        <div class="service-sidebar__contact wow fadeInLeft" data-wow-duration="1500ms" data-wow-delay="100ms" style="background-image: url('{{ PathOnStart }}{{ Options.Medias[3].FilePath != "" ? Options.Medias[3].FilePath : "assets/images/backgrounds/institutional-default.jpg" }}'); background-size: contain; background-position: center;">
                             <div class="service-sidebar__contact__bg">
-                                <div class="service-sidebar__contact__bg__inner" style="background-image: url('assets/images/shapes/service-sidebar-contact-bg-2.png');"></div><!-- /.service-sidebar__contact__bg__inner -->
+                                <div class="service-sidebar__contact__bg__inner" style="background-image: url('{{ PathOnStart }}{{ Options.Medias[3].FilePath != "" ? Options.Medias[3].FilePath : "assets/images/backgrounds/institutional-default.jpg" }}'); background-size: contain; background-position: center;"></div><!-- /.service-sidebar__contact__bg__inner -->
                             </div><!-- /.service-sidebar__contact__bg -->
                             <div class="service-sidebar__contact__inner">
                                 <div class="service-sidebar__contact__icon">

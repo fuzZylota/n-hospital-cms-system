@@ -45,11 +45,14 @@ type Utilities struct {
 	// Limiter
 }
 
+// type that represents the necessary information for getting the frontend options
 type FrontendOptions struct {
 	Database *orm.Neorm
 	User     AuthenticatedUser
 	States   *AppState
 }
+
+// Options Related Structs
 
 type SubeLink struct {
 	Sid          string

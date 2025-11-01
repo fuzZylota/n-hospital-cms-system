@@ -100,7 +100,7 @@ INSERT INTO users (
 -- Main menu items
 INSERT INTO header_buttons (title, url, sort_order, is_active, icon, button_type) VALUES
 ('Anasayfa', '/', 1, true, 'home', 'anasayfa'),
-('Kurumsal', '/kurumsal', 2, true, 'building', 'kurumsal'),
+('Kurumsal', '#', 2, true, 'building', 'kurumsal'),
 ('Şubelerimiz', '/subelerimiz', 3, true, 'map-marker-alt', 'subeler'),
 ('Tıbbi Birimler', '/tibbi-birimler', 4, true, 'hospital', 'tibbi_birimler'),
 ('Tetkikler', '/tetkikler', 5, true, 'microscope', 'tedkikler'),

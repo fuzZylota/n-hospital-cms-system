@@ -6,11 +6,11 @@
     <title>{{ PageTitle }}</title>
 
     <!-- favicons Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}assets/images/favicons/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}assets/images/favicons/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}assets/images/favicons/favicon-16x16.png" />
-    <link rel="manifest" href="{{ PathOnStart }}assets/images/favicons/site.webmanifest" />
-    <meta name="description" content="Mediox is a versatile medical and healthcare PHP Template. You can make a good professional looking websites with our attractive design which is best for medical clinic, healthcare, hospital, dermatology clinic, cosmetology company, skin care, plastic surgery, beauty clinic, cosmetic clinic, laser surgery, spa, wellness hospital and all other medical and health care related websites and businesses." />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
+    <meta name="author" content="Nermefraz Bilişim Teknolojileri, Yazılım ve Danışmanlık. Nermefraz Information Technologies, Software Consulting and Development Company.">
+    <meta name="description" content="N-Hospital Gelişmiş Hastane Cms Sistemi'nin İdare Paneli." />
 
     <!-- fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
