@@ -43,7 +43,7 @@
 .sube-card__title {
     font-size: 18px;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--theme-primary-color);
     margin: 0;
     line-height: 1.3;
 }
@@ -52,7 +52,8 @@
     position: absolute;
     top: 14px;
     right: 14px;
-    color: var(--theme-primary-color);
+    color: white;
+    background-color: var(--theme-secondary-color);
     padding: 4px 10px;
     border-radius: 16px;
     font-size: 11px;
