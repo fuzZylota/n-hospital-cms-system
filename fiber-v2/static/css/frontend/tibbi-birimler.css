@@ -46,16 +46,18 @@
     font-weight: 700;
     margin: 0;
     color: #1f2937;
-    max-width: 50px;
-    /* prevent overlap and awkward wrapping */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: 20px;        /* kutu genişliği */
+    word-wrap: break-word; /* uzun kelimeleri kır */
+    overflow-wrap: break-word;
 }
 
 .service-card-two__title a {
     color: #fff;
     text-decoration: none;
+    max-width: 20px;        /* kutu genişliği */
+    word-wrap: break-word; /* uzun kelimeleri kır */
+    overflow-wrap: break-word;
+
 }
 
 .service-card-two__title a:hover {
