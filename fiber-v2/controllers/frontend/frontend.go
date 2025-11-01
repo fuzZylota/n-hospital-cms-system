@@ -1193,8 +1193,8 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		return c.Render("views/frontend/sube", fiber.Map{
-			"PathOnStart":         "../",
-			"Route":               "/subeler/" + subeName,
+			"PathOnStart":         "../../",
+			"Route":               "/subelerimiz/" + subeName,
 			"Options":             Options,
 			"User":                OurUser,
 			"Sube":                Sube,
