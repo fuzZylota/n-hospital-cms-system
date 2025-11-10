@@ -124,14 +124,19 @@
                                     <textarea name="message" id="contactMessage" placeholder="Mesajınızı yazın..." required></textarea>
                                 </div><!-- /.form-one__control -->
                                 <div class="form-one__control form-one__control--full">
-                                    <div class="checkbox-group">
-                                        <label for="kvkk_approval" class="checkbox-label" style="display: block; position: relative; padding-left: 25px; cursor: pointer; line-height: 1.4; margin-bottom: 10px;">
-                                            <input type="checkbox" id="kvkk_approval" name="kvkk_approval" class="form-checkbox" required style="position: absolute !important; left: 0 !important; top: 2px !important; margin: 0 !important; width: 16px !important; height: 16px !important; float: none !important; display: block !important;">
-                                            <a href="/kurumsal/kvkk" target="_blank" class="kvkk-link">Kişisel Verilerin Korunması Kanunu (KVKK)</a> kapsamında kişisel verilerimin işlenmesini kabul ediyorum.
-                                        </label>
-                                    </div>
-                                    <div class="form-help">Bu onay olmadan mesaj gönderilemez.</div>
+                                    <label for="kvkk_approval" class="checkbox-label">
+                                        <input type="checkbox" id="kvkk_approval" name="kvkk_approval" required>
+                                        <span>
+                                            <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                        </span>
+                                    </label>
                                 </div><!-- /.form-one__control -->
+                                {{ if Options.Options.RecaptchaSiteKey != "" }}
+                                <div class="form-one__control form-one__control--full">
+                                    <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedContact" data-expired-callback="onRecaptchaExpiredContact"></div>
+                                    <input type="hidden" name="recaptcha_token" id="contactRecaptchaToken">
+                                </div><!-- /.form-one__control -->
+                                {{ end }}
                                 <div class="form-one__control form-one__control--full">
                                     <button type="submit" class="mediox-btn" id="contactSubmitBtn">
                                         <span>Mesaj Gönder</span>
@@ -218,3 +223,57 @@
         </div><!-- /.container -->
     </div><!-- /.contact-page__inner section-space -->
 </section><!-- /.contact-page section-space-top -->
+
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
+<script>
+var recaptchaVerifiedContact = false;
+
+function onRecaptchaVerifiedContact(token) {
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedContact = true;
+    var tokenInput = document.getElementById('contactRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = token;
+    }
+    updateContactSubmitButtonState();
+}
+
+function onRecaptchaExpiredContact() {
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedContact = false;
+    var tokenInput = document.getElementById('contactRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = '';
+    }
+    updateContactSubmitButtonState();
+}
+
+function updateContactSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('contactSubmitBtn');
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerifiedContact;
+        }
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('contactSubmitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        kvkkCheckbox.addEventListener('change', updateContactSubmitButtonState);
+        updateContactSubmitButtonState();
+    }
+});
+</script>

@@ -6649,6 +6649,34 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 
 		Orm := utilities.Orm
 
+		if c.Query("notification") == "true" {
+			GetOriginalUrl := c.OriginalURL()
+
+			UpdateNotification := Orm.Update()
+			UpdateNotification.Table("notifications")
+			UpdateNotification.Set("is_read", true)
+			UpdateNotification.Where("link", "=", GetOriginalUrl)
+
+			UpdateNotification.Finish()
+
+			err = UpdateNotification.Execute()
+
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+
+			ra, err := UpdateNotification.RowsAffected()
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+
+			fmt.Printf("RowsAffected: %d\n", ra)
+
+			if ra == 0 {
+				log.Printf("Notification not found: %s\n", GetOriginalUrl)
+			}
+		}
+
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
 
@@ -6924,6 +6952,32 @@ func JobApplicationPage(states *models.AppState, utilities *models.Utilities) fi
 		}
 
 		Orm := utilities.Orm
+
+		if c.Query("notification") == "true" {
+			GetOriginalUrl := c.OriginalURL()
+
+			UpdateNotification := Orm.Update()
+			UpdateNotification.Table("notifications")
+			UpdateNotification.Set("is_read", true)
+			UpdateNotification.Where("link", "=", GetOriginalUrl)
+
+			UpdateNotification.Finish()
+
+			err = UpdateNotification.Execute()
+
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+
+			ra, err := UpdateNotification.RowsAffected()
+			if err != nil {
+				log.Printf("%v\n", err)
+			}
+
+			if ra == 0 {
+				log.Printf("Notification not found: %s\n", GetOriginalUrl)
+			}
+		}
 
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)

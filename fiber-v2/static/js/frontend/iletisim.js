@@ -140,10 +140,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Validate KVKK approval
-        if (!formData.get('kvkk_approval')) {
-            updateModalStatus('error', 'KVKK onayını vermelisiniz.');
+        const kvkkCheckbox = form.querySelector('#kvkk_approval');
+        if (kvkkCheckbox && !kvkkCheckbox.checked) {
+            updateModalStatus('error', 'Lütfen KVKK onay kutusunu işaretleyin.');
             showModal();
             return;
+        }
+
+        // Validate reCAPTCHA only if it exists
+        const recaptchaWidget = form.querySelector('.g-recaptcha');
+        if (recaptchaWidget) {
+            if (typeof grecaptcha === 'undefined') {
+                updateModalStatus('error', 'Güvenlik doğrulaması yükleniyor, lütfen bekleyin...');
+                showModal();
+                return;
+            }
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse || recaptchaResponse === '') {
+                updateModalStatus('error', 'Lütfen güvenlik doğrulamasını tamamlayın.');
+                showModal();
+                return;
+            }
+            
+            // Add token to form data
+            const recaptchaTokenInput = form.querySelector('input[name="recaptcha_token"]');
+            if (recaptchaTokenInput) {
+                formData.set('recaptcha_token', recaptchaTokenInput.value || recaptchaResponse);
+            } else {
+                formData.set('recaptcha_token', recaptchaResponse);
+            }
         }
 
         // Modal'ı göster ve loading durumunu ayarla
@@ -191,6 +216,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 form.reset();
+                // Reset reCAPTCHA only if it exists
+                const recaptchaWidget = form.querySelector('.g-recaptcha');
+                if (recaptchaWidget) {
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                    // Reset reCAPTCHA token input
+                    const recaptchaTokenInput = form.querySelector('input[name="recaptcha_token"]');
+                    if (recaptchaTokenInput) {
+                        recaptchaTokenInput.value = '';
+                    }
+                    // Reset reCAPTCHA verification state
+                    if (typeof recaptchaVerifiedContact !== 'undefined') {
+                        recaptchaVerifiedContact = false;
+                    }
+                }
+                // Update button state
+                if (typeof updateContactSubmitButtonState === 'function') {
+                    updateContactSubmitButtonState();
+                }
             } else {
                 updateModalStatus('error', data?.message || 'Sunucu Hatası: Lütfen daha sonra tekrar deneyin.');
             }

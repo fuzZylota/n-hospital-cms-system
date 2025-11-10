@@ -2167,7 +2167,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		GetOptions := database.Options{}
 		GetOptions, err := GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color",
+			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color", "o.google_recaptcha_site_key", "o.google_recaptcha_secret_key",
 			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
@@ -2199,6 +2199,15 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 				"status":  400,
 				"message": "Bu e-posta adresi ile aynı konuda zaten bir mesaj gönderilmiştir. Lütfen daha sonra tekrar deneyin.",
 			})
+		}
+
+		if GetOptions.Options.RecaptchaSiteKey != "" && GetOptions.Options.RecaptchaSecretKey != "" {
+			if !lib.VerifyRecaptcha(inputs.RecaptchaToken, GetOptions.Options.RecaptchaSecretKey) {
+				return c.JSON(fiber.Map{
+					"status":  400,
+					"message": "reCAPTCHA doğrulama hatası. Lütfen tekrar deneyin.",
+				})
+			}
 		}
 
 		inputs.Status = "yeni"

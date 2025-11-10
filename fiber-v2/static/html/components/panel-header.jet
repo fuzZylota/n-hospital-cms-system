@@ -32,7 +32,7 @@
                     <div class="notification-list">
                         {{ if len(Options.Notifications) > 0 }}
                             {{ range index1, Notification := Options.Notifications }}
-                                <a href="{{ Notification.Link }}?notification=1"><div class="notification-item {{ if !Notification.IsRead }} unread {{ end }}">
+                                <a href="{{ Notification.Link }}"><div class="notification-item {{ if !Notification.IsRead }} unread {{ end }}">
                                     <div class="notification-icon {{ Notification.NotificationType }}" style="cursor: pointer;">
                                         <i class="fas fa-user-plus"></i>
                                     </div>

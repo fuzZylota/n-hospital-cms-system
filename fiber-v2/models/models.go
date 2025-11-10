@@ -1264,26 +1264,27 @@ type RandevuRequests struct {
 }
 
 type ContactRequests struct {
-	Crid         string    `form:"crid" json:"crid"`
-	FirstName    string    `form:"first_name" json:"first_name"`
-	LastName     string    `form:"last_name" json:"last_name"`
-	Email        string    `form:"email" json:"email"`
-	Phone        string    `form:"phone" json:"phone"`
-	Subject      string    `form:"subject" json:"subject"`
-	Message      string    `form:"message" json:"message"`
-	Department   string    `form:"department" json:"department"`
-	Priority     string    `form:"priority" json:"priority"`
-	Status       string    `form:"status" json:"status"`
-	AssignedTo   string    `form:"assigned_to" json:"assigned_to"`
-	Response     string    `form:"response" json:"response"`
-	ResponseDate time.Time `form:"response_date" json:"response_date"`
-	IpAddress    string    `form:"ip_address" json:"ip_address"`
-	UserAgent    string    `form:"user_agent" json:"user_agent"`
-	IsRead       bool      `form:"is_read" json:"is_read"`
-	IsReplied    bool      `form:"is_replied" json:"is_replied"`
-	Source       string    `form:"source" json:"source"`
-	CreatedAt    time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt    time.Time `form:"updated_at" json:"updated_at"`
+	Crid           string    `form:"crid" json:"crid"`
+	FirstName      string    `form:"first_name" json:"first_name"`
+	LastName       string    `form:"last_name" json:"last_name"`
+	Email          string    `form:"email" json:"email"`
+	Phone          string    `form:"phone" json:"phone"`
+	Subject        string    `form:"subject" json:"subject"`
+	Message        string    `form:"message" json:"message"`
+	Department     string    `form:"department" json:"department"`
+	Priority       string    `form:"priority" json:"priority"`
+	Status         string    `form:"status" json:"status"`
+	AssignedTo     string    `form:"assigned_to" json:"assigned_to"`
+	Response       string    `form:"response" json:"response"`
+	ResponseDate   time.Time `form:"response_date" json:"response_date"`
+	IpAddress      string    `form:"ip_address" json:"ip_address"`
+	UserAgent      string    `form:"user_agent" json:"user_agent"`
+	IsRead         bool      `form:"is_read" json:"is_read"`
+	IsReplied      bool      `form:"is_replied" json:"is_replied"`
+	Source         string    `form:"source" json:"source"`
+	RecaptchaToken string    `form:"recaptcha_token" json:"recaptcha_token"`
+	CreatedAt      time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt      time.Time `form:"updated_at" json:"updated_at"`
 }
 
 type ContactRequestsEdit struct {
@@ -1359,6 +1360,7 @@ type JobApplications struct {
 	InterviewNotes     string    `form:"interview_notes" json:"interview_notes"`
 	RejectionReason    string    `form:"rejection_reason" json:"rejection_reason"`
 	IsRead             bool      `form:"is_read" json:"is_read"`
+	RecaptchaToken     string    `form:"recaptcha_token" json:"recaptcha_token"`
 	CreatedAt          time.Time `form:"created_at" json:"created_at"`
 	UpdatedAt          time.Time `form:"updated_at" json:"updated_at"`
 }
