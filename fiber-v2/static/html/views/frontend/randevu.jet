@@ -98,6 +98,10 @@
                             </label>
                         </div>
                         <div class="form-one__control form-one__control--full">
+                            <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerified" data-expired-callback="onRecaptchaExpired"></div>
+                            <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+                        </div>
+                        <div class="form-one__control form-one__control--full">
                             <button type="submit" class="mediox-btn mediox-btn--primary" id="appointmentSubmitBtn">
                                 <span>Randevu Al</span>
                                 <span class="mediox-btn__icon"><i class="icon-up-right-arrow randevu-btn"></i></span>
@@ -115,7 +119,39 @@
     </div>
 </section>
 
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
+var recaptchaVerified = false;
+
+function onRecaptchaVerified(token) {
+    recaptchaVerified = true;
+    var tokenInput = document.getElementById('recaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = token;
+    }
+    updateSubmitButtonState();
+}
+
+function onRecaptchaExpired() {
+    recaptchaVerified = false;
+    var tokenInput = document.getElementById('recaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = '';
+    }
+    updateSubmitButtonState();
+}
+
+function updateSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('appointmentKVKK');
+    var submitButton = document.getElementById('appointmentSubmitBtn');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked || !recaptchaVerified;
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var headerBg = document.querySelector('.page-header__bg[data-bg]');
     if (headerBg && headerBg.dataset.bg) {
@@ -126,14 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var submitButton = document.getElementById('appointmentSubmitBtn');
 
     if (kvkkCheckbox && submitButton) {
-        var toggleSubmitAvailability = function () {
-            var shouldDisable = !kvkkCheckbox.checked;
-            submitButton.disabled = shouldDisable;
-            submitButton.classList.toggle('is-disabled', shouldDisable);
-        };
-
-        toggleSubmitAvailability();
-        kvkkCheckbox.addEventListener('change', toggleSubmitAvailability);
+        kvkkCheckbox.addEventListener('change', updateSubmitButtonState);
+        updateSubmitButtonState();
     }
 });
 </script>

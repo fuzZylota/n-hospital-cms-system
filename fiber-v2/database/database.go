@@ -140,6 +140,8 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
 						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
 						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
+						RecaptchaSiteKey:              lib.String(rows[i]["google_recaptcha_site_key"]),
+						RecaptchaSecretKey:            lib.String(rows[i]["google_recaptcha_secret_key"]),
 					}
 
 					TestingMedias = []models.Medias{
@@ -216,6 +218,8 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
 						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
 						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
+						RecaptchaSiteKey:              lib.String(rows[i]["google_recaptcha_site_key"]),
+						RecaptchaSecretKey:            lib.String(rows[i]["google_recaptcha_secret_key"]),
 					}
 
 					ActiveMedias = []models.Medias{

@@ -177,6 +177,14 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				columns = append(columns, "preloader")
 				values = append(values, inputs.Preloader)
 			}
+			if inputs.RecaptchaSiteKey != "" {
+				columns = append(columns, "google_recaptcha_site_key")
+				values = append(values, inputs.RecaptchaSiteKey)
+			}
+			if inputs.RecaptchaSecretKey != "" {
+				columns = append(columns, "google_recaptcha_secret_key")
+				values = append(values, inputs.RecaptchaSecretKey)
+			}
 		}
 
 		if len(columns) == 0 {
@@ -853,6 +861,14 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 			if inputs.Language != inputs.OldLanguage && inputs.Language != "" {
 				updateOption.Set("language", inputs.Language)
+				SomethingSet = true
+			}
+			if inputs.RecaptchaSiteKey != inputs.OldRecaptchaSiteKey {
+				updateOption.Set("google_recaptcha_site_key", inputs.RecaptchaSiteKey)
+				SomethingSet = true
+			}
+			if inputs.RecaptchaSecretKey != inputs.OldRecaptchaSecretKey {
+				updateOption.Set("google_recaptcha_secret_key", inputs.RecaptchaSecretKey)
 				SomethingSet = true
 			}
 		}

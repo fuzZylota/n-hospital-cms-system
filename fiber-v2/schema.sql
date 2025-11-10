@@ -47,6 +47,9 @@ CREATE TABLE options (
     instagram_url VARCHAR(500) DEFAULT 'https://www.instagram.com/nermefraz',
     linkedin_url VARCHAR(500) DEFAULT 'https://www.linkedin.com/company/107576047',
 
+    google_recaptcha_site_key VARCHAR(255) DEFAULT '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+    google_recaptcha_secret_key VARCHAR(255) DEFAULT '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+
     contact_email VARCHAR(255) DEFAULT 'info@nermefraz.com',
     contact_phone VARCHAR(255) DEFAULT '+90 501 149 56 99',
 

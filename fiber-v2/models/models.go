@@ -211,6 +211,8 @@ type Options struct {
 	DefaultPageMediaPath          string    `form:"default_page_media_path" json:"default_page_media_path"`
 	DefaultPageMediaAltText       string    `form:"default_page_alt_text" json:"default_page_alt_text"`
 	DefaultPageMediaTitle         string    `form:"default_page_title" json:"default_page_title"`
+	RecaptchaSiteKey              string    `form:"recaptcha_site_key" json:"recaptcha_site_key"`
+	RecaptchaSecretKey            string    `form:"recaptcha_secret_key" json:"recaptcha_secret_key"`
 }
 
 type OptionsEdit struct {
@@ -324,6 +326,10 @@ type OptionsEdit struct {
 	OldDefaultPageMediaAltText       string    `form:"old_default_page_alt_text" json:"old_default_page_alt_text"`
 	DefaultPageMediaTitle            string    `form:"default_page_title" json:"default_page_title"`
 	OldDefaultPageMediaTitle         string    `form:"old_default_page_title" json:"old_default_page_title"`
+	RecaptchaSiteKey                 string    `form:"recaptcha_site_key" json:"recaptcha_site_key"`
+	OldRecaptchaSiteKey              string    `form:"old_recaptcha_site_key" json:"old_recaptcha_site_key"`
+	RecaptchaSecretKey               string    `form:"recaptcha_secret_key" json:"recaptcha_secret_key"`
+	OldRecaptchaSecretKey            string    `form:"old_recaptcha_secret_key" json:"old_recaptcha_secret_key"`
 }
 
 type Medias struct {
@@ -1252,6 +1258,7 @@ type RandevuRequests struct {
 	Message          string    `form:"message" json:"message"`
 	Drid             string    `form:"drid" json:"drid"`
 	Sid              string    `form:"sid" json:"sid"`
+	RecaptchaToken   string    `form:"recaptcha_token" json:"recaptcha_token"`
 	CreatedAt        time.Time `form:"created_at" json:"created_at"`
 	UpdatedAt        time.Time `form:"updated_at" json:"updated_at"`
 }
@@ -1648,4 +1655,11 @@ type PanelStatistics struct {
 	MonthRevenue            float64 `json:"month_revenue"`
 	TodayRevenue            float64 `json:"today_revenue"`
 	AverageAppointmentPrice float64 `json:"average_appointment_price"`
+}
+
+type RecaptchaResponse struct {
+	Success     bool      `json:"success"`
+	ChallengeTs time.Time `json:"challenge_ts"`
+	Hostname    string    `json:"hostname"`
+	ErrorCodes  []string  `json:"error-codes"`
 }

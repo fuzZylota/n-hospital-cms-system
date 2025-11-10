@@ -15,7 +15,9 @@ import (
 	"mime"
 	"mime/multipart"
 	"mime/quotedprintable"
+	"net/http"
 	"net/smtp"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -1092,4 +1094,24 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 	fmt.Println("Websocket not upgraded")
 
 	return fiber.ErrUpgradeRequired
+}
+
+func verifyRecaptcha(token string) bool {
+	data := url.Values{
+		"secret":   {"SENIN_SECRET_KEYIN"},
+		"response": {token},
+	}
+
+	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", data)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	var result models.RecaptchaResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return false
+	}
+
+	return result.Success
 }

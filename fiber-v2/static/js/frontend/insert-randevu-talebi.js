@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageInput = form.querySelector('textarea[name="message"]');
         const sidSelect = form.querySelector('select[name="sid"]');
         const kvkkCheckbox = form.querySelector('#appointmentKVKK');
+        const recaptchaTokenInput = form.querySelector('input[name="recaptcha_token"]');
 
         const payload = {
             patient_first_name: nameInput?.value || '',
@@ -139,12 +140,31 @@ document.addEventListener('DOMContentLoaded', () => {
             preferred_date: convertDateForBackend((dateInput?.value || '').trim()),
             sid: sidSelect?.value || '',
             message: messageInput?.value || '',
+            recaptcha_token: recaptchaTokenInput?.value || '',
         };
 
         if (kvkkCheckbox && !kvkkCheckbox.checked) {
             updateModalStatus('error', 'Lütfen KVKK onay kutusunu işaretleyin.');
             showModal();
             return;
+        }
+
+        // Validate reCAPTCHA
+        if (typeof grecaptcha === 'undefined') {
+            updateModalStatus('error', 'Güvenlik doğrulaması yükleniyor, lütfen bekleyin...');
+            showModal();
+            return;
+        }
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse || recaptchaResponse === '') {
+            updateModalStatus('error', 'Lütfen güvenlik doğrulamasını tamamlayın.');
+            showModal();
+            return;
+        }
+        
+        // Ensure token is in payload
+        if (!payload.recaptcha_token || payload.recaptcha_token === '') {
+            payload.recaptcha_token = recaptchaResponse;
         }
 
         if (!payload.patient_first_name || !payload.patient_last_name || !payload.patient_phone || !payload.patient_email) {
@@ -188,6 +208,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     // sessizce geç
                 }
                 form.reset();
+                // Reset reCAPTCHA
+                if (typeof grecaptcha !== 'undefined') {
+                    grecaptcha.reset();
+                }
+                // Reset reCAPTCHA token input
+                const recaptchaTokenInput = form.querySelector('input[name="recaptcha_token"]');
+                if (recaptchaTokenInput) {
+                    recaptchaTokenInput.value = '';
+                }
+                // Reset reCAPTCHA verification state
+                if (typeof recaptchaVerified !== 'undefined') {
+                    recaptchaVerified = false;
+                }
+                if (typeof updateSubmitButtonState === 'function') {
+                    updateSubmitButtonState();
+                }
             } else {
                 updateModalStatus('error', data?.message || 'Sunucu Hatası: Lütfen daha sonra tekrar deneyin.');
             }

@@ -508,6 +508,14 @@
                             <span class="language-badge">{{ Option.Language }}</span>
                         </div>
                     </div>
+                    <div class="info-item">
+                        <label class="info-label">reCAPTCHA Site Key</label>
+                        <div class="info-value">{{ Option.RecaptchaSiteKey }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">reCAPTCHA Secret Key</label>
+                        <div class="info-value">{{ Option.RecaptchaSecretKey }}</div>
+                    </div>
                 </div>
             </div>
         </div>
