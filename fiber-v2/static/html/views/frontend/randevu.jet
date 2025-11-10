@@ -97,10 +97,12 @@
                                 </span>
                             </label>
                         </div>
+                        {{ if Options.Options.RecaptchaSiteKey != "" }}
                         <div class="form-one__control form-one__control--full">
                             <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerified" data-expired-callback="onRecaptchaExpired"></div>
                             <input type="hidden" name="recaptcha_token" id="recaptchaToken">
                         </div>
+                        {{ end }}
                         <div class="form-one__control form-one__control--full">
                             <button type="submit" class="mediox-btn mediox-btn--primary" id="appointmentSubmitBtn">
                                 <span>Randevu Al</span>
@@ -119,11 +121,15 @@
     </div>
 </section>
 
+{{ if Options.Options.RecaptchaSiteKey != "" }}
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
 <script>
 var recaptchaVerified = false;
 
 function onRecaptchaVerified(token) {
+    var recaptchaWidget = document.querySelector('.g-recaptcha');
+    if (!recaptchaWidget) return;
     recaptchaVerified = true;
     var tokenInput = document.getElementById('recaptchaToken');
     if (tokenInput) {
@@ -133,6 +139,8 @@ function onRecaptchaVerified(token) {
 }
 
 function onRecaptchaExpired() {
+    var recaptchaWidget = document.querySelector('.g-recaptcha');
+    if (!recaptchaWidget) return;
     recaptchaVerified = false;
     var tokenInput = document.getElementById('recaptchaToken');
     if (tokenInput) {
@@ -144,9 +152,13 @@ function onRecaptchaExpired() {
 function updateSubmitButtonState() {
     var kvkkCheckbox = document.getElementById('appointmentKVKK');
     var submitButton = document.getElementById('appointmentSubmitBtn');
+    var recaptchaWidget = document.querySelector('.g-recaptcha');
     
     if (kvkkCheckbox && submitButton) {
-        var shouldDisable = !kvkkCheckbox.checked || !recaptchaVerified;
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerified;
+        }
         submitButton.disabled = shouldDisable;
         submitButton.classList.toggle('is-disabled', shouldDisable);
     }

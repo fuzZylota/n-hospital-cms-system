@@ -1096,9 +1096,9 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 	return fiber.ErrUpgradeRequired
 }
 
-func verifyRecaptcha(token string) bool {
+func VerifyRecaptcha(token string, secretKey string) bool {
 	data := url.Values{
-		"secret":   {"SENIN_SECRET_KEYIN"},
+		"secret":   {secretKey},
 		"response": {token},
 	}
 

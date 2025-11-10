@@ -1038,6 +1038,8 @@ func (options *Options) FetchOptionsForBackend(db *orm.Neorm, otherColumns any, 
 		EnableTestimonials:            lib.Bool(rows[0]["enable_testimonials"]),
 		EnableOurHistory:              lib.Bool(rows[0]["enable_our_history"]),
 		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
+		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
+		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
 	}
 
 	Options := Options{
@@ -1179,6 +1181,8 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 		EnableTestimonials:            lib.Bool(rows[0]["enable_testimonials"]),
 		EnableOurHistory:              lib.Bool(rows[0]["enable_our_history"]),
 		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
+		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
+		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
 	}
 
 	Options := Options{
