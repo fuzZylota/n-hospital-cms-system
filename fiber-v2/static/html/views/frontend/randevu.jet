@@ -1,0 +1,140 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-page.css">
+
+<section class="page-header" style="margin-top: 200px;">
+    <div class="container-fluid">
+        <div class="page-header__inner">
+            <div
+                class="page-header__bg"
+                data-bg="{{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }}"></div><!-- /.page-header__bg -->
+            <div class="container">
+                <div class="page-header__content">
+                    <h2 class="page-header__title">Randevu</h2>
+                    <ul class="mediox-breadcrumb list-unstyled">
+                        <li>
+                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
+                            <a href="/">Anasayfa</a>
+                        </li>
+                        <li><span>Randevu</span></li>
+                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
+                </div><!-- /.page-header__content -->
+            </div><!-- /.container -->
+        </div><!-- /.page-header__inner -->
+    </div><!-- /.container-fluid -->
+</section><!-- /.page-header -->
+
+<section class="appointment-page section-space">
+    <div class="container">
+        <div class="appointment-page__wrapper">
+            <div class="appointment-page__info">
+                <h3 class="appointment-page__title">Uzmanlarımızla Sağlıklı Yarınlara</h3>
+                <p class="appointment-page__description">
+                    Aşağıdaki formu doldurarak hızla randevu talebi oluşturabilirsiniz. Ekibimiz en kısa sürede sizinle iletişime geçecektir.
+                </p>
+                <ul class="appointment-page__highlights">
+                    <li>
+                        <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                        Uzman doktor kadrosu ve modern tedavi yöntemleri
+                    </li>
+                    <li>
+                        <i class="fas fa-hospital-user" aria-hidden="true"></i>
+                        Kişiye özel tedavi planı ve hasta takibi
+                    </li>
+                    <li>
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        Esnek randevu saatleri ve hızlı geri dönüş
+                    </li>
+                </ul>
+            </div>
+            <div class="appointment-page__form-card">
+                <div class="appointment-page__form-header">
+                    <h3 class="appointment-page__form-title">Randevu Talep Formu</h3>
+                    <p class="appointment-page__form-subtitle">* işaretli alanlar zorunludur.</p>
+                </div>
+                <form class="appointment-one__form contact-form-validated form-one" data-wow-duration="1500ms">
+                    <div class="form-one__group">
+                        <div class="form-one__control">
+                            <label for="patientFirstName" class="form-one__label">Adınız*</label>
+                            <input type="text" id="patientFirstName" name="patient_first_name" placeholder="Adınız" required>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control">
+                            <label for="patientLastName" class="form-one__label">Soyadınız*</label>
+                            <input type="text" id="patientLastName" name="patient_last_name" placeholder="Soyadınız" required>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control">
+                            <label for="patientEmail" class="form-one__label">E-posta Adresiniz*</label>
+                            <input type="email" id="patientEmail" name="patient_email" placeholder="E-posta Adresiniz" required>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control">
+                            <label for="patientPhone" class="form-one__label">Telefon Numaranız*</label>
+                            <input type="tel" id="patientPhone" name="patient_phone" placeholder="Telefon Numaranız" required>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control appointment-one__form__date">
+                            <label for="appointmentDate" class="form-one__label">Tercih Ettiğiniz Tarih</label>
+                            <input type="text" id="appointmentDate" name="preferred_date" placeholder="Randevu Tarihi" class="mediox-datepicker">
+                            <span class="appointment-one__form__date__arrow" aria-hidden="true">
+                                <i class="icon-caret-down"></i>
+                            </span><!-- /.appointment-one__form__date__arrow -->
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control">
+                            <label for="appointmentBranch" class="form-one__label">Şube Seçiniz</label>
+                            <select class="selectpicker" aria-label="Şube Seçiniz" name="sid" id="appointmentBranch">
+                                <option value="" selected disabled>Şube seçiniz</option>
+                                {{ range index2, Sube := AllSubeler }}
+                                    <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
+                                {{ end }}
+                            </select>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control form-one__control--full">
+                            <label for="appointmentMessage" class="form-one__label">Mesajınız</label>
+                            <textarea id="appointmentMessage" name="message" placeholder="Eklemek istediğiniz notları yazabilirsiniz..."></textarea>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control form-one__control--full appointment-page__kvkk">
+                            <label for="appointmentKVKK" class="checkbox-label">
+                                <input type="checkbox" id="appointmentKVKK" required>
+                                <span>
+                                    <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                </span>
+                            </label>
+                        </div>
+                        <div class="form-one__control form-one__control--full">
+                            <button type="submit" class="mediox-btn mediox-btn--primary" id="appointmentSubmitBtn">
+                                <span>Randevu Al</span>
+                                <span class="mediox-btn__icon"><i class="icon-up-right-arrow randevu-btn"></i></span>
+                            </button><!-- /.mediox-btn -->
+                        </div><!-- /.form-one__control -->
+                    </div><!-- /.form-one__group -->
+                </form><!-- /.form-one -->
+                <div class="result"></div><!-- /.result -->
+                <div class="appointment-page__notice">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    Talepleriniz mesai saatleri içerisinde en geç 24 saat içinde yanıtlanmaktadır.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var headerBg = document.querySelector('.page-header__bg[data-bg]');
+    if (headerBg && headerBg.dataset.bg) {
+        headerBg.style.backgroundImage = 'url(' + headerBg.dataset.bg + ')';
+    }
+
+    var kvkkCheckbox = document.getElementById('appointmentKVKK');
+    var submitButton = document.getElementById('appointmentSubmitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        var toggleSubmitAvailability = function () {
+            var shouldDisable = !kvkkCheckbox.checked;
+            submitButton.disabled = shouldDisable;
+            submitButton.classList.toggle('is-disabled', shouldDisable);
+        };
+
+        toggleSubmitAvailability();
+        kvkkCheckbox.addEventListener('change', toggleSubmitAvailability);
+    }
+});
+</script>
+<script src="{{ PathOnStart }}js/frontend/insert-randevu-talebi.js"></script>

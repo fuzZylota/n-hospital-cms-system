@@ -401,6 +401,15 @@ body {
     overflow: hidden;
 }
 
+.admin-sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 20px;
+}
+
+.admin-sidebar.collapsed .sidebar-logo {
+    margin: 0 auto;
+}
+
 .sidebar-toggle {
     position: absolute;
     top: 50%;

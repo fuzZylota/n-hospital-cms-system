@@ -128,7 +128,7 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                         </h4><!-- /.main-header__call__number -->
                     </div><!-- /.main-header__call__content -->
                 </div><!-- /.main-header__call -->
-                <a href="/#randevu" class="mediox-btn main-header__btn">
+                <a href="/randevu" class="mediox-btn main-header__btn">
                     <span>Randevu Al</span>
                     <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
                 </a><!-- /.mediox-btn -->

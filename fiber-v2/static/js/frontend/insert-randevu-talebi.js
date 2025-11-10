@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateInput = form.querySelector('input[name="preferred_date"]');
         const messageInput = form.querySelector('textarea[name="message"]');
         const sidSelect = form.querySelector('select[name="sid"]');
+        const kvkkCheckbox = form.querySelector('#appointmentKVKK');
 
         const payload = {
             patient_first_name: nameInput?.value || '',
@@ -139,6 +140,12 @@ document.addEventListener('DOMContentLoaded', () => {
             sid: sidSelect?.value || '',
             message: messageInput?.value || '',
         };
+
+        if (kvkkCheckbox && !kvkkCheckbox.checked) {
+            updateModalStatus('error', 'Lütfen KVKK onay kutusunu işaretleyin.');
+            showModal();
+            return;
+        }
 
         if (!payload.patient_first_name || !payload.patient_last_name || !payload.patient_phone || !payload.patient_email) {
             updateModalStatus('error', 'Lütfen ad, soyad, telefon ve e-posta alanlarını doldurun.');

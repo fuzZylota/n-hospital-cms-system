@@ -1445,6 +1445,59 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 	}
 }
 
+func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, err := lib.CheckAuth(c)
+
+		if err == nil {
+			return c.Redirect("/panel")
+		}
+
+		Orm := utilities.Orm
+
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+		AllSubeler := []models.Subeler{}
+		GetAllSubeler := Orm.Select([]string{"sid", "name"})
+		GetAllSubeler.Table("subeler")
+		GetAllSubeler.Where("is_active", "=", true)
+		GetAllSubeler.Finish()
+		err = GetAllSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		rows, err := GetAllSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		for _, row := range rows {
+			AllSubeler = append(AllSubeler, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
+		return c.Render("views/frontend/randevu", fiber.Map{
+			"PathOnStart": "",
+			"Route":       "/randevu",
+			"Options":     Options,
+			"User":        OurUser,
+			"AllSubeler":  AllSubeler,
+			"Title":       "Randevu Al | " + Options.Options.SiteName,
+			"Description": "Bu sayfa, " + Options.Options.SiteName + " kurumundan randevu almanızı sağlayan sayfadır.",
+		}, "layouts/main/main")
+	}
+}
+
 func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, _ := lib.CheckAuth(c)

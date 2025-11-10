@@ -1080,7 +1080,7 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 		// burası handshake aşaması
 		// subprotocol’ü kontrol edebilirsin
 		proto := c.Get("Sec-WebSocket-Protocol")
-		fmt.Println("client subprotocol:", proto)
+		//fmt.Println("client subprotocol:", proto)
 
 		c.Locals("protocol", proto)
 

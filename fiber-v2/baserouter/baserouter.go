@@ -34,6 +34,7 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 	routes.Get("/kurumsal/insan-kaynaklari", frontend.InsanKaynaklariPage(states, utilities))
 	routes.Get("/haberler", frontend.HaberlerPage(states, utilities))
 	routes.Get("/haberler/:haber", frontend.HaberPage(states, utilities))
+	routes.Get("/randevu", frontend.RandevuPage(states, utilities))
 	routes.Get("/foto-galeri", frontend.FotoGaleriPage(states, utilities))
 	routes.Get("/video-galeri", frontend.VideoGaleriPage(states, utilities))
 	routes.Get("/tibbi-birimler", frontend.TibbiBirimlerPage(states, utilities))
