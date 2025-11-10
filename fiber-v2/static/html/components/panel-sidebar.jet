@@ -64,8 +64,6 @@
                 <div class="nav-group-items" data-group-items="doctors">
                     <a href="/panel/doktorlar" class="nav-item">Tüm Doktorlar</a>
                     <a href="/panel/doktorlar/doktor-ekle" class="nav-item">Doktor Ekle</a>
-                    <a href="/panel/doctors/schedules" class="nav-item">Çalışma Saatleri</a>
-                    <a href="/panel/doctors/specializations" class="nav-item">Uzmanlık Alanları</a>
                 </div>
             </div>
             

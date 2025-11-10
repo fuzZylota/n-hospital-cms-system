@@ -140,16 +140,22 @@
                             <div class="form-section">
                                 <h4 class="section-title">KVKK Onayı</h4>
                                 <div class="form-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="kvkk_approval" name="kvkk_approval" class="form-checkbox" required>
-                                        <label for="kvkk_approval" class="checkbox-label">
-                                            <a href="/kurumsal/kvkk" target="_blank" class="kvkk-link">Kişisel Verilerin Korunması Kanunu (KVKK)</a> kapsamında kişisel verilerimin işlenmesini kabul ediyorum.
-                                        </label>
-                                    </div>
-                                    <div class="form-help">Bu onay olmadan başvuru gönderilemez.</div>
+                                    <label for="kvkk_approval" class="checkbox-label">
+                                        <input type="checkbox" id="kvkk_approval" name="kvkk_approval" required>
+                                        <span>
+                                            <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
-                            
+                            {{ if Options.Options.RecaptchaSiteKey != "" }}
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedJobApplication" data-expired-callback="onRecaptchaExpiredJobApplication"></div>
+                                    <input type="hidden" name="recaptcha_token" id="jobApplicationRecaptchaToken">
+                                </div>
+                            </div>
+                            {{ end }}
                             <div class="form-actions">
                                 <button type="submit" class="mediox-btn" id="submitBtn">
                                     <span>Başvuruyu Gönder</span>
@@ -170,4 +176,57 @@
     </script>
 {{ end }}
 
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
+<script>
+var recaptchaVerifiedJobApplication = false;
+
+function onRecaptchaVerifiedJobApplication(token) {
+    var recaptchaWidget = document.querySelector('#jobApplicationForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedJobApplication = true;
+    var tokenInput = document.getElementById('jobApplicationRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = token;
+    }
+    updateJobApplicationSubmitButtonState();
+}
+
+function onRecaptchaExpiredJobApplication() {
+    var recaptchaWidget = document.querySelector('#jobApplicationForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedJobApplication = false;
+    var tokenInput = document.getElementById('jobApplicationRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = '';
+    }
+    updateJobApplicationSubmitButtonState();
+}
+
+function updateJobApplicationSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('submitBtn');
+    var recaptchaWidget = document.querySelector('#jobApplicationForm .g-recaptcha');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerifiedJobApplication;
+        }
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('submitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        kvkkCheckbox.addEventListener('change', updateJobApplicationSubmitButtonState);
+        updateJobApplicationSubmitButtonState();
+    }
+});
+</script>
 <script src="{{ PathOnStart }}js/frontend/insert-job-application.js"></script>
