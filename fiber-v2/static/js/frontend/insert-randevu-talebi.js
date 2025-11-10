@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateInput = form.querySelector('input[name="preferred_date"]');
         const messageInput = form.querySelector('textarea[name="message"]');
         const sidSelect = form.querySelector('select[name="sid"]');
-        const kvkkCheckbox = form.querySelector('#appointmentKVKK');
+        const kvkkCheckbox = form.querySelector('#appointmentKVKK') || form.querySelector('#homepageAppointmentKVKK');
         const recaptchaTokenInput = form.querySelector('input[name="recaptcha_token"]');
         const recaptchaWidget = form.querySelector('.g-recaptcha');
 
@@ -223,13 +223,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (recaptchaTokenInput) {
                         recaptchaTokenInput.value = '';
                     }
-                    // Reset reCAPTCHA verification state
+                    // Reset reCAPTCHA verification state (both standalone and homepage)
                     if (typeof recaptchaVerified !== 'undefined') {
                         recaptchaVerified = false;
                     }
+                    if (typeof recaptchaVerifiedHomepage !== 'undefined') {
+                        recaptchaVerifiedHomepage = false;
+                    }
                 }
+                // Update button states
                 if (typeof updateSubmitButtonState === 'function') {
                     updateSubmitButtonState();
+                }
+                if (typeof updateHomepageSubmitButtonState === 'function') {
+                    updateHomepageSubmitButtonState();
                 }
             } else {
                 updateModalStatus('error', data?.message || 'Sunucu Hatası: Lütfen daha sonra tekrar deneyin.');

@@ -45,7 +45,21 @@
                                 <textarea name="message" placeholder="Mesajınız..."></textarea>
                             </div><!-- /.form-one__control -->
                             <div class="form-one__control form-one__control--full">
-                                <button type="submit" class="mediox-btn">
+                                <label for="homepageAppointmentKVKK" class="checkbox-label">
+                                    <input type="checkbox" id="homepageAppointmentKVKK" required>
+                                    <span>
+                                        <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                    </span>
+                                </label>
+                            </div><!-- /.form-one__control -->
+                            {{ if Options.Options.RecaptchaSiteKey != "" }}
+                            <div class="form-one__control form-one__control--full">
+                                <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedHomepage" data-expired-callback="onRecaptchaExpiredHomepage"></div>
+                                <input type="hidden" name="recaptcha_token" id="homepageRecaptchaToken">
+                            </div><!-- /.form-one__control -->
+                            {{ end }}
+                            <div class="form-one__control form-one__control--full">
+                                <button type="submit" class="mediox-btn" id="homepageAppointmentSubmitBtn">
                                     <span>Randevu Al</span>
                                     <span class="mediox-btn__icon"><i class="icon-up-right-arrow randevu-btn"></i></span>
                                 </button><!-- /.mediox-btn -->
@@ -61,3 +75,57 @@
     <img src="files/shapes/shape8.webp" alt="shape" class="appointment-one__shape-2">
     <img src="files/shapes/shape7.webp" alt="shape" class="appointment-one__shape-3">
 </section><!-- /.appointment-one section-space-bottom -->
+
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
+<script>
+var recaptchaVerifiedHomepage = false;
+
+function onRecaptchaVerifiedHomepage(token) {
+    var recaptchaWidget = document.querySelector('#randevu .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedHomepage = true;
+    var tokenInput = document.getElementById('homepageRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = token;
+    }
+    updateHomepageSubmitButtonState();
+}
+
+function onRecaptchaExpiredHomepage() {
+    var recaptchaWidget = document.querySelector('#randevu .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedHomepage = false;
+    var tokenInput = document.getElementById('homepageRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = '';
+    }
+    updateHomepageSubmitButtonState();
+}
+
+function updateHomepageSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('homepageAppointmentKVKK');
+    var submitButton = document.getElementById('homepageAppointmentSubmitBtn');
+    var recaptchaWidget = document.querySelector('#randevu .g-recaptcha');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerifiedHomepage;
+        }
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var kvkkCheckbox = document.getElementById('homepageAppointmentKVKK');
+    var submitButton = document.getElementById('homepageAppointmentSubmitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        kvkkCheckbox.addEventListener('change', updateHomepageSubmitButtonState);
+        updateHomepageSubmitButtonState();
+    }
+});
+</script>
