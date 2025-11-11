@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlarimiz.css">
 <section class="team-three section-space">
     <div class="container">
         <div class="team-three__top">
@@ -53,6 +54,7 @@
             {{ range index2, Doctor := Doctors }}
                 <div class="item">
                     <div class="team-card-three wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='00ms'>
+                        <a class="team-card-three__link-overlay" href="/subelerimiz/{{ Doctor.SubeUrlName }}/doktorlar/{{ Doctor.UrlName }}" aria-label="{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}"></a>
                         <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? Doctor.PhotoPath : "files/defaults/doktorlar/default-doctor-pic.png" }}")'></div><!-- /.team-card-three__image -->
                         <div class="team-card-three__hover">
                             {{ if Options.Options.ShowDoctorSocialMedia }}
@@ -91,7 +93,7 @@
                             {{ end }}
                             <div class="team-card-three__identity">
                                 <h3 class="team-card-three__name">
-                                    <a href="/subelerimiz/{{ Doctor.SubeUrlName }}/doktorlar/{{ Doctor.UrlName }}">{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</a>
+                                    <span>{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</span>
                                 </h3><!-- /.team-card-three__name -->
                                 <p class="team-card-three__designation">{{ Doctor.BransName }}</p><!-- /.team-card-three__designation -->
                             </div><!-- /.team-card-three__identity -->

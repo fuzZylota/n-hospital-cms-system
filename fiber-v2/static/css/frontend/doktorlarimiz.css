@@ -1,4 +1,4 @@
-/* Doctor cards: make whole card clickable and move name to bottom center */
+/* Doctor cards on home component: whole card clickable, name bottom center */
 .team-card-three {
     position: relative;
 }
@@ -70,29 +70,3 @@
     color: #fff;
 }
 
-/* Empty state styling */
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.empty-state__icon {
-    margin-bottom: 24px;
-    opacity: 0.6;
-}
-
-.empty-state__title {
-    color: #374151;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 16px;
-}
-
-.empty-state__description {
-    color: #6b7280;
-    font-size: 18px;
-    margin-bottom: 32px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-}
