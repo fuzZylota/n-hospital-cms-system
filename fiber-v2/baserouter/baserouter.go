@@ -185,6 +185,7 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/anlasmali-kurum/:akid/update-picture", anlasmali_kurumlar.UpdateAnlasmaliKurumPicture(states, utilities))
 	routes.Post("/anlasmali-kurum/:akid/delete-picture", anlasmali_kurumlar.DeleteAnlasmaliKurumPicture(states, utilities))
 	routes.Post("/get-all-anlasmali-kurumlar", anlasmali_kurumlar.GetAllAnlasmaliKurumlar(states, utilities))
+	routes.Post("/get-anlasmali-kurumlar-with-pagination", anlasmali_kurumlar.GetAnlasmaliKurumlarWithPagination(states, utilities))
 	routes.Post("/add-expertise", post.AddExpertiseArea(states, utilities))
 	routes.Post("/expertise/:eid/edit", post.EditExpertiseArea(states, utilities))
 	routes.Post("/expertise/:eid/delete", post.DeleteExpertiseArea(states, utilities))

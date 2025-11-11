@@ -1058,3 +1058,91 @@ func GetAllAnlasmaliKurumlar(states *models.AppState, utilities *models.Utilitie
 		})
 	}
 }
+
+func GetAnlasmaliKurumlarWithPagination(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+
+		Orm := utilities.Orm
+
+		CurrentOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&CurrentOptions)
+
+		inputs := models.PaginateAnlasmaliKurumlarInputs{}
+		if err := c.BodyParser(&inputs); err != nil {
+			return c.JSON(fiber.Map{
+				"status":  400,
+				"message": "Invalid inputs",
+			})
+		}
+
+		if inputs.Offset < 0 {
+			inputs.Offset = 0
+		}
+
+		columns := []string{"a.akid", "a.name", "a.discount_rate", "a.logo_mid", "s.name as sube_name", "s.sid as sube_sid"}
+
+		if Options.Options.ShowAnlasmaliKurumPictures {
+			columns = append(columns, "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title")
+		}
+
+		GetAnlasmaliKurumlar := Orm.Select(columns)
+		GetAnlasmaliKurumlar.Table("anlasmali_kurumlar a")
+		GetAnlasmaliKurumlar.InnerJoin("subeler s", "a.sid", "=", "s.sid")
+
+		if Options.Options.ShowAnlasmaliKurumPictures {
+			GetAnlasmaliKurumlar.LeftJoin("medias m", "a.logo_mid", "=", "m.mid")
+		}
+
+		GetAnlasmaliKurumlar.Where("a.is_active", "=", true)
+		GetAnlasmaliKurumlar.OrderBy("a.name", "ASC")
+		GetAnlasmaliKurumlar.Offset(int(inputs.Offset))
+		GetAnlasmaliKurumlar.Limit(int(Options.Options.ItemsPerPage))
+		GetAnlasmaliKurumlar.Finish()
+
+		err := GetAnlasmaliKurumlar.Execute()
+		if err != nil {
+			log.Printf("Cannot get anlasmali kurumlar with pagination: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		rows, err := GetAnlasmaliKurumlar.Rows()
+		if err != nil {
+			log.Printf("Cannot get anlasmali kurumlar with pagination: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		AnlasmaliKurumlar := []models.AnlasmaliKurumlar{}
+		for _, row := range rows {
+			AnlasmaliKurumlar = append(AnlasmaliKurumlar, models.AnlasmaliKurumlar{
+				Akid:         lib.String(row["akid"]),
+				Name:         lib.String(row["name"]),
+				DiscountRate: lib.Float64(row["discount_rate"]),
+				LogoMid:      lib.Int64(row["logo_mid"]),
+				LogoPath:     lib.String(row["logo_path"]),
+				LogoAltText:  lib.String(row["logo_alt_text"]),
+				LogoTitle:    lib.String(row["logo_title"]),
+				SubeName:     lib.String(row["sube_name"]),
+				Sid:          lib.String(row["sube_sid"]),
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"status":  200,
+			"message": "Anlaşmalı kurumlar başarıyla getirildi.",
+			"data":    AnlasmaliKurumlar,
+		})
+	}
+}

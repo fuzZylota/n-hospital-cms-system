@@ -519,6 +519,11 @@
                                     <span class="checkbox-custom"></span>
                                     Doktor randevu ücretini göster
                                 </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="show_anlasmali_kurum_pictures" name="show_anlasmali_kurum_pictures" checked>
+                                    <span class="checkbox-custom"></span>
+                                    Anlasmali Kurum Resimlerini Göster
+                                </label>
                             </div>
                         </div>
                     </div>

@@ -87,6 +87,7 @@
                         <input type="hidden" name="old_preloader" value="{{ Option.Preloader }}">
                         <input type="hidden" name="old_recaptcha_site_key" value="{{ Option.RecaptchaSiteKey }}">
                         <input type="hidden" name="old_recaptcha_secret_key" value="{{ Option.RecaptchaSecretKey }}">
+                        <input type="hidden" name="old_show_anlasmali_kurum_pictures" value="{{ Option.ShowAnlasmaliKurumPictures }}">
 
                         <!-- Basic Information -->
                         <div class="form-group-section">
@@ -438,6 +439,12 @@
                                                    {{ if Option.EnableOurHistory }}checked{{ end }}>
                                             <span class="checkbox-custom"></span>
                                             Tarihçe bölümünü etkinleştir
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="show_anlasmali_kurum_pictures" name="show_anlasmali_kurum_pictures" 
+                                                   {{ if Option.ShowAnlasmaliKurumPictures }}checked{{ end }}>
+                                            <span class="checkbox-custom"></span>
+                                            Anlasmali Kurum Resimlerini Göster
                                         </label>
                                     </div>
                                 </div>

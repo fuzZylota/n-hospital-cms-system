@@ -51,10 +51,10 @@ func AddOption(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		columns := []string{"option_set_is_active", "option_set_is_testing_now", "maintenance_mode", "require_strong_password",
 			"enable_testimonials", "enable_our_history", "show_doctors_on_same_city", "show_doctors_on_same_country", "auto_remove_partners_when_expired",
-			"show_doctor_social_media", "show_doctor_appointment_fee"}
+			"show_doctor_social_media", "show_doctor_appointment_fee", "show_anlasmali_kurum_pictures"}
 		values := []interface{}{inputs.OptionSetIsActive, inputs.OptionSetIsTestingNow, inputs.MaintenanceMode,
 			inputs.RequireStrongPassword, inputs.EnableTestimonials, inputs.EnableOurHistory, inputs.ShowDoctorsOnSameCity,
-			inputs.ShowDoctorsOnSameCountry, inputs.AutoRemovePartnersWhenExpired, inputs.ShowDoctorSocialMedia, inputs.ShowDoctorAppointmentFee}
+			inputs.ShowDoctorsOnSameCountry, inputs.AutoRemovePartnersWhenExpired, inputs.ShowDoctorSocialMedia, inputs.ShowDoctorAppointmentFee, inputs.ShowAnlasmaliKurumPictures}
 
 		{
 			if inputs.OptionSetName != "" {
@@ -826,6 +826,11 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 			if inputs.ShowDoctorsOnSameCountry != inputs.OldShowDoctorsOnSameCountry {
 				updateOption.Set("show_doctors_on_same_country", inputs.ShowDoctorsOnSameCountry)
+				SomethingSet = true
+			}
+
+			if inputs.ShowAnlasmaliKurumPictures != inputs.OldShowAnlasmaliKurumPictures {
+				updateOption.Set("show_anlasmali_kurum_pictures", inputs.ShowAnlasmaliKurumPictures)
 				SomethingSet = true
 			}
 

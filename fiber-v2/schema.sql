@@ -76,6 +76,8 @@ CREATE TABLE options (
     show_doctor_social_media BOOLEAN DEFAULT FALSE,
     show_doctor_appointment_fee BOOLEAN DEFAULT FALSE,
 
+    show_anlasmali_kurum_pictures BOOLEAN DEFAULT TRUE,
+
     max_upload_size INTEGER DEFAULT 5242880, -- 5MB
     timezone VARCHAR(100) DEFAULT 'UTC',
     language VARCHAR(100) DEFAULT 'tr' CHECK (language IN ('tr', 'en', 'de', 'us', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'zh')),

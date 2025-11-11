@@ -60,77 +60,54 @@
                     </div><!-- /.service-details__inner -->
                     
                     {{ if len(AnlasmaliKurumlar) > 0 }}
-                    <div class="row gutter-y-30">
-                        {{ range index, Kurum := AnlasmaliKurumlar }}
-                            <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
-                                <div class="anlasmali-kurum-card">
-                                     <div class="anlasmali-kurum-card-header">
-                                         {{ if Kurum.LogoPath != "" }}
-                                             <img src="{{ PathOnStart }}{{ Kurum.LogoPath }}" alt="{{ Kurum.LogoAltText != "" ? Kurum.LogoAltText : Kurum.Name }}" title="{{ Kurum.LogoTitle != "" ? Kurum.LogoTitle : Kurum.Name }}" class="anlasmali-kurum-logo">
-                                         {{ else }}
-                                             <img src="{{ PathOnStart }}files/defaults/anlasmali-kurumlar/anlasmali-kurumlar-default.png" alt="{{ Kurum.Name }}" title="{{ Kurum.Name }}" class="anlasmali-kurum-logo">
-                                         {{ end }}
-                                     </div>
-                                    <div class="anlasmali-kurum-card-content">
-                                        <h3 class="anlasmali-kurum-name">{{ Kurum.Name }}</h3>
-                                        {{ if Kurum.SubeName != "" }}
-                                        <p class="anlasmali-kurum-sube">
-                                            <i class="fas fa-building"></i>
-                                            {{ Kurum.SubeName }}
-                                        </p>
+                        <div class="row gutter-y-30" id="anlasmaliKurumlarContainer">
+                            {{ range index, Kurum := AnlasmaliKurumlar }}
+                                <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp anlasmali-kurum-item" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
+                                    <div class="anlasmali-kurum-card">
+                                        {{ if Options.Options.ShowAnlasmaliKurumPictures }}
+                                        <div class="anlasmali-kurum-card-header">
+                                            {{ if Kurum.LogoPath != "" }}
+                                                <img src="{{ PathOnStart }}{{ Kurum.LogoPath }}" alt="{{ Kurum.LogoAltText != "" ? Kurum.LogoAltText : Kurum.Name }}" title="{{ Kurum.LogoTitle != "" ? Kurum.LogoTitle : Kurum.Name }}" class="anlasmali-kurum-logo">
+                                            {{ else }}
+                                                <img src="{{ PathOnStart }}files/defaults/anlasmali-kurumlar/anlasmali-kurumlar-default.png" alt="{{ Kurum.Name }}" title="{{ Kurum.Name }}" class="anlasmali-kurum-logo">
+                                            {{ end }}
+                                        </div>
                                         {{ end }}
-                                        {{ if Kurum.DiscountRate > 0 }}
-                                        <p class="anlasmali-kurum-discount">İndirim Oranı: %{{ Kurum.DiscountRate }}</p>
-                                        {{ end }}
-                                        {{ if Kurum.Address != "" }}
-                                        <p class="anlasmali-kurum-address">{{ Kurum.Address }}</p>
-                                        {{ end }}
+                                        <div class="anlasmali-kurum-card-content">
+                                            <h3 class="anlasmali-kurum-name">{{ Kurum.Name }}</h3>
+                                            {{ if Kurum.SubeName != "" }}
+                                            <p class="anlasmali-kurum-sube">
+                                                <i class="fas fa-building"></i>
+                                                {{ Kurum.SubeName }}
+                                            </p>
+                                            {{ end }}
+                                            {{ if Kurum.DiscountRate > 0 }}
+                                            <p class="anlasmali-kurum-discount">İndirim Oranı: %{{ Kurum.DiscountRate }}</p>
+                                            {{ end }}
+                                            {{ if Kurum.Address != "" }}
+                                            <p class="anlasmali-kurum-address">{{ Kurum.Address }}</p>
+                                            {{ end }}
+                                        </div>
                                     </div>
-                                </div>
-                            </div><!-- /.col-xl-6 col-lg-12 col-md-6 -->
-                        {{ end }}
-                    </div><!-- /.row gutter-y-30 -->
+                                </div><!-- /.col-xl-6 col-lg-12 col-md-6 -->
+                            {{ end }}
+                        </div><!-- /.row gutter-y-30 -->
+                        <div class="text-center" style="margin-top: 40px;" id="anlasmaliKurumlarLoadMoreContainer">
+                            <button type="button" class="mediox-btn" id="anlasmaliKurumlarLoadMoreBtn">
+                                <span>Devamını Getir</span>
+                                <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                            </button>
+                        </div>
                     {{ else }}
                         <div class="service-details__inner-two wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
                             <h3 class="service-details__sub-title">Anlaşmalı Kurum Bulunmuyor</h3><!-- /.service-details__sub-title -->
                             <p class="service-details__text">Şu anda anlaşmalı kurum bulunmamaktadır. Güncel bilgiler için lütfen daha sonra tekrar ziyaret ediniz.</p><!-- /.service-details__text -->
                         </div><!-- /.service-details__inner-two -->
                     {{ end }}
-                    
-                    <div class="service-details__inner-two wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="200ms">
-                        <h3 class="service-details__sub-title">Anlaşma Süreci</h3><!-- /.service-details__sub-title -->
-                        <p class="service-details__text">Kurumumuzla anlaşma yapmak isteyen kurumlar, bizimle iletişime geçerek süreci başlatabilirler. Anlaşma süreci, karşılıklı değerlendirme ve onay süreçlerini içermektedir.</p><!-- /.service-details__text -->
-                    </div><!-- /.service-details__inner-two -->
-                    
-                    <div class="service-details__info">
-                        <div class="row gutter-y-30">
-                            <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                                <ul class="list-unstyled service-details__info__list">
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Kaliteli sağlık hizmetleri
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Uygun fiyatlandırma
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Hızlı randevu sistemi
-                                    </li>
-                                    <li>
-                                        <span class="service-details__list__icon"><i class="icon-check"></i></span>
-                                        Uzman doktor kadrosu
-                                    </li>
-                                </ul><!-- /.list-unstyled service-details__info__list -->
-                            </div><!-- /.col-xl-6 col-lg-12 col-md-6 -->
-                            <div class="col-xl-6 col-lg-12 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
-                                <img src="{{ PathOnStart }}files/defaults/other/hospital-reception-1.jpg" alt="{{ Options.Options.SiteDescription }}" class="service-details__info__image">
-                            </div><!-- /.col-xl-6 col-lg-12 col-md-6 -->
-                        </div><!-- /.row gutter-y-30 -->
-                    </div><!-- /.service-details__info -->
                 </div><!-- /.service-details__content -->
             </div><!-- /.col-md-12 col-lg-8 -->
         </div><!-- /.row -->
     </div><!-- /.container -->
 </section><!-- /.service-details section-space -->
+
+<script src="{{ PathOnStart }}js/frontend/anlasmali-kurumlar.js"></script>

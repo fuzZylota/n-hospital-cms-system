@@ -558,6 +558,20 @@
                             </span>
                         </div>
                     </div>
+                    <div class="info-item">
+                        <label class="info-label">Anlasmali Kurum Resimlerini Göster</label>
+                        <div class="info-value">
+                            <span class="toggle-indicator {{if Option.ShowAnlasmaliKurumPictures}}active{{else}}inactive{{end}}">
+                                {{if Option.ShowAnlasmaliKurumPictures}}
+                                <i class="icon-chevron-right"></i>
+                                Açık
+                                {{else}}
+                                <i class="icon-chevron-left"></i>
+                                Kapalı
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -198,6 +198,7 @@ type Options struct {
 	MaxUploadSize                 int64     `form:"max_upload_size" json:"max_upload_size"`
 	ShowDoctorSocialMedia         bool      `form:"show_doctor_social_media" json:"show_doctor_social_media"`
 	ShowDoctorAppointmentFee      bool      `form:"show_doctor_appointment_fee" json:"show_doctor_appointment_fee"`
+	ShowAnlasmaliKurumPictures    bool      `form:"show_anlasmali_kurum_pictures" json:"show_anlasmali_kurum_pictures"`
 	Timezone                      string    `form:"timezone" json:"timezone"`
 	Language                      string    `form:"language" json:"language"`
 	IsActive                      bool      `form:"is_active" json:"is_active"`
@@ -307,6 +308,8 @@ type OptionsEdit struct {
 	OldShowDoctorSocialMedia         bool      `form:"old_show_doctor_social_media" json:"old_show_doctor_social_media"`
 	ShowDoctorAppointmentFee         bool      `form:"show_doctor_appointment_fee" json:"show_doctor_appointment_fee"`
 	OldShowDoctorAppointmentFee      bool      `form:"old_show_doctor_appointment_fee" json:"old_show_doctor_appointment_fee"`
+	ShowAnlasmaliKurumPictures       bool      `form:"show_anlasmali_kurum_pictures" json:"show_anlasmali_kurum_pictures"`
+	OldShowAnlasmaliKurumPictures    bool      `form:"old_show_anlasmali_kurum_pictures" json:"old_show_anlasmali_kurum_pictures"`
 	Timezone                         string    `form:"timezone" json:"timezone"`
 	OldTimezone                      string    `form:"old_timezone" json:"old_timezone"`
 	Language                         string    `form:"language" json:"language"`
@@ -1664,4 +1667,8 @@ type RecaptchaResponse struct {
 	ChallengeTs time.Time `json:"challenge_ts"`
 	Hostname    string    `json:"hostname"`
 	ErrorCodes  []string  `json:"error-codes"`
+}
+
+type PaginateAnlasmaliKurumlarInputs struct {
+	Offset int64 `form:"offset" json:"offset"`
 }

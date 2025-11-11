@@ -723,6 +723,7 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			SiteLightLogoTitle:            lib.String(rows[0]["light_logo_title"]),
 			RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
 			RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
+			ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 		}
 
 		fmt.Printf("Option: %+v\n", Option.SiteLightLogoPath)
@@ -866,6 +867,7 @@ func SecenekDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 			SiteLightLogoTitle:            lib.String(rows[0]["light_logo_title"]),
 			RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
 			RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
+			ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 		}
 
 		return c.Render("views/panel/secenek-sayfalari/secenek-duzenle", fiber.Map{
