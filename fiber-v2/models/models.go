@@ -118,10 +118,10 @@ type SubeForFrontendPages struct {
 	TransportationInfo string `form:"transportation_info" json:"transportation_info"`
 	Phone              string `form:"phone" json:"phone"`
 	Email              string `form:"email" json:"email"`
-	IsMain             bool   `form:"is_main" json:"is_main"`
-	MediaPath          string `form:"media_path" json:"media_path"`
-	MediaAltText       string `form:"media_alt_text" json:"media_alt_text"`
-	MediaTitle         string `form:"media_title" json:"media_title"`
+	//IsMain             bool   `form:"is_main" json:"is_main"`
+	MediaPath    string `form:"media_path" json:"media_path"`
+	MediaAltText string `form:"media_alt_text" json:"media_alt_text"`
+	MediaTitle   string `form:"media_title" json:"media_title"`
 }
 
 type HaberlerForHaberlerPage struct {
@@ -526,7 +526,6 @@ type Subeler struct {
 	SubeMediaPath      string    `form:"sube_media_path" json:"sube_media_path"`
 	SubeMediaAltText   string    `form:"sube_media_alt_text" json:"sube_media_alt_text"`
 	SubeMediaTitle     string    `form:"sube_media_title" json:"sube_media_title"`
-	IsMain             bool      `form:"is_main" json:"is_main"`
 	IsActive           bool      `form:"is_active" json:"is_active"`
 	CreatedAt          time.Time `form:"created_at" json:"created_at"`
 	UpdatedAt          time.Time `form:"updated_at" json:"updated_at"`
@@ -568,8 +567,6 @@ type SubelerEdit struct {
 	OldWorkingHours       string    `form:"old_working_hours" json:"old_working_hours"`
 	Mid                   int64     `form:"mid" json:"mid"`
 	OldMid                int64     `form:"old_mid" json:"old_mid"`
-	IsMain                bool      `form:"is_main" json:"is_main"`
-	OldIsMain             bool      `form:"old_is_main" json:"old_is_main"`
 	IsActive              bool      `form:"is_active" json:"is_active"`
 	OldIsActive           bool      `form:"old_is_active" json:"old_is_active"`
 	CreatedAt             time.Time `form:"created_at" json:"created_at"`

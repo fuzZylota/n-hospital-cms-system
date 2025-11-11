@@ -173,8 +173,8 @@ CREATE TABLE subeler (
     working_hours JSONB DEFAULT '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', -- Store working hours as JSON
     mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     document_mids INTEGER[] DEFAULT '{}',
-    is_main BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
+    /*is_main BOOLEAN DEFAULT TRUE,*/
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -525,7 +525,7 @@ CREATE INDEX idx_header_buttons_order ON header_buttons(sort_order);
 -- Branches indexes
 CREATE INDEX idx_subeler_url_name ON subeler(url_name);
 CREATE INDEX idx_subeler_active ON subeler(is_active);
-CREATE INDEX idx_subeler_main ON subeler(is_main);
+/*CREATE INDEX idx_subeler_main ON subeler(is_main);*/
 
 -- Contracted institutions indexes
 CREATE INDEX idx_anlasmali_kurumlar_url_name ON anlasmali_kurumlar(url_name);
@@ -1000,7 +1000,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION set_sube_as_main(p_sube_id INT, p_action TEXT)
+/*CREATE OR REPLACE FUNCTION set_sube_as_main(p_sube_id INT, p_action TEXT)
 RETURNS TABLE(result BOOLEAN)
 LANGUAGE plpgsql
 AS $$
@@ -1088,7 +1088,7 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Error in set_sube_as_main(): %', SQLERRM;
 END;
-$$;
+$$;*/
 
 
 

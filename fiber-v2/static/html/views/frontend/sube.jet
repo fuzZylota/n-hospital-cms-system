@@ -119,13 +119,6 @@
                                 <!-- /.portfolio-sidebar__title -->
                             </div><!-- /.portfolio-sidebar__info__top -->
                             <ul class="portfolio-sidebar__info__list">
-                                {{ if Sube.IsMain }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Durum:</span>
-                                    <span class="portfolio-sidebar__info__text is-main">Ana Şube</span>
-                                </li>
-                                {{ end }}
-                                
                                 {{ if Sube.City }}
                                 <li>
                                     <span class="portfolio-sidebar__info__title">Konum:</span>

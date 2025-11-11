@@ -99,15 +99,6 @@
                     <div class="stat-label">Pasif Şubeler</div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon main">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number" id="mainCount">-</div>
-                    <div class="stat-label">Ana Şube</div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -211,17 +202,10 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        {{if .IsMain}}
-                                        <span class="branch-badge main">
-                                            <i class="fas fa-star"></i>
-                                            Ana Şube
-                                        </span>
-                                        {{else}}
                                         <span class="branch-badge branch">
                                             <i class="fas fa-building"></i>
                                             Şube
                                         </span>
-                                        {{end}}
                                     </div>
                                 </td>
                                 <td>
@@ -349,17 +333,10 @@
                             </div>
                             <div class="card-footer">
                                 <div class="card-status">
-                                    {{if .IsMain}}
-                                    <span class="branch-badge main">
-                                        <i class="fas fa-star"></i>
-                                        Ana Şube
-                                    </span>
-                                    {{else}}
                                     <span class="branch-badge branch">
                                         <i class="fas fa-building"></i>
                                         Şube
                                     </span>
-                                    {{end}}
                                     {{if .IsActive}}
                                     <span class="status-badge active">
                                         <i class="fas fa-check-circle"></i>

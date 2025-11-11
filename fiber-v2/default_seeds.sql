@@ -145,12 +145,12 @@ INSERT INTO subeler (
     phone, 
     email, 
     working_hours, 
-    is_main, 
+    /*is_main,*/ 
     is_active
 ) VALUES
-('İstanbul Merkez Hastane', 'istanbul-merkez', 'Ana hastane binası, tüm bölümlerimizin bulunduğu merkez lokasyonumuz.', 'Merkez Mah. Sağlık Cad. No:1', 'İstanbul', 'Beyoğlu', '+90 212 555 0000', 'istanbul@nhospital.com', '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', true, true),
-('Ankara Şubesi', 'ankara-subesi', 'Başkent Ankara''daki modern şubemiz, kapsamlı sağlık hizmetleri sunmaktadır.', 'Çankaya Mah. Sağlık Sok. No:25', 'Ankara', 'Çankaya', '+90 312 555 0000', 'ankara@nhospital.com', '{"pazartesi": "08:30-17:30", "salı": "08:30-17:30", "çarşamba": "08:30-17:30", "perşembe": "08:30-17:30", "cuma": "08:30-17:30", "cumartesi": "09:00-13:00", "pazar": "closed"}', false, true),
-('İzmir Şubesi', 'izmir-subesi', 'Ege bölgesindeki şubemiz, deneyimli doktor kadrosu ile hizmet vermektedir.', 'Konak Mah. Hastane Cad. No:15', 'İzmir', 'Konak', '+90 232 555 0000', 'izmir@nhospital.com', '{"pazartesi": "09:00-17:00", "salı": "09:00-17:00", "çarşamba": "09:00-17:00", "perşembe": "09:00-17:00", "cuma": "09:00-17:00", "cumartesi": "09:00-12:00", "pazar": "closed"}', false, true);
+('İstanbul Merkez Hastane', 'istanbul-merkez', 'Ana hastane binası, tüm bölümlerimizin bulunduğu merkez lokasyonumuz.', 'Merkez Mah. Sağlık Cad. No:1', 'İstanbul', 'Beyoğlu', '+90 212 555 0000', 'istanbul@nhospital.com', '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', /*true,*/ true),
+('Ankara Şubesi', 'ankara-subesi', 'Başkent Ankara''daki modern şubemiz, kapsamlı sağlık hizmetleri sunmaktadır.', 'Çankaya Mah. Sağlık Sok. No:25', 'Ankara', 'Çankaya', '+90 312 555 0000', 'ankara@nhospital.com', '{"pazartesi": "08:30-17:30", "salı": "08:30-17:30", "çarşamba": "08:30-17:30", "perşembe": "08:30-17:30", "cuma": "08:30-17:30", "cumartesi": "09:00-13:00", "pazar": "closed"}', /*false,*/ true),
+('İzmir Şubesi', 'izmir-subesi', 'Ege bölgesindeki şubemiz, deneyimli doktor kadrosu ile hizmet vermektedir.', 'Konak Mah. Hastane Cad. No:15', 'İzmir', 'Konak', '+90 232 555 0000', 'izmir@nhospital.com', '{"pazartesi": "09:00-17:00", "salı": "09:00-17:00", "çarşamba": "09:00-17:00", "perşembe": "09:00-17:00", "cuma": "09:00-17:00", "cumartesi": "09:00-12:00", "pazar": "closed"}', /*false,*/ true);
 
 -- =====================================================
 -- 5. CONTRACTED INSTITUTIONS - 8 INSTITUTIONS

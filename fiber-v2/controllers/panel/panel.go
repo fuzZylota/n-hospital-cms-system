@@ -202,7 +202,6 @@ func PanelPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			(SELECT COUNT(*) FROM subeler) as total_branches,
 			(SELECT COUNT(*) FROM subeler WHERE is_active = true) as active_branches,
 			(SELECT COUNT(*) FROM subeler WHERE is_active = false) as inactive_branches,
-			(SELECT COUNT(*) FROM subeler WHERE is_main = true) as main_branch,
 			
 			-- Doctors statistics
 			(SELECT COUNT(*) FROM doktorlar) as total_doctors,
@@ -1837,7 +1836,7 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
-		Subeler := Orm.Select([]string{"sid", "name", "url_name", "description", "address", "city", "district", "postal_code", "phone", "fax", "email", "website", "latitude", "longitude", "working_hours", "mid", "is_main", "is_active", "created_at", "updated_at"})
+		Subeler := Orm.Select([]string{"sid", "name", "url_name", "description", "address", "city", "district", "postal_code", "phone", "fax", "email", "website", "latitude", "longitude", "working_hours", "mid", "is_active", "created_at", "updated_at"})
 		Subeler.Table("subeler")
 		if Query != "" {
 			Subeler.OpenParenthesis("WHERE")
@@ -1878,7 +1877,6 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			}
 		}
 
-		Subeler.OrderBy("is_main", "DESC")
 		Subeler.OrderBy(SortBy, SortOrder)
 		Subeler.OrderBy("sid", "DESC")
 		Subeler.Limit(int(itemsPerPage))
@@ -1917,10 +1915,9 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 				Longitude:    lib.Float64(row["longitude"]),
 				WorkingHours: lib.String(row["working_hours"]),
 				Mid:          lib.Int64(row["mid"]),
-				IsMain:       row["is_main"].(bool),
-				IsActive:     row["is_active"].(bool),
-				CreatedAt:    row["created_at"].(time.Time),
-				UpdatedAt:    row["updated_at"].(time.Time),
+				IsActive:     lib.Bool(row["is_active"]),
+				CreatedAt:    lib.Time(row["created_at"]),
+				UpdatedAt:    lib.Time(row["updated_at"]),
 			})
 		}
 
@@ -2034,7 +2031,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			Longitude:        lib.Float64(rows[0]["longitude"]),
 			WorkingHours:     lib.String(rows[0]["working_hours"]),
 			Mid:              lib.Int64(rows[0]["mid"]),
-			IsMain:           rows[0]["is_main"].(bool),
 			IsActive:         rows[0]["is_active"].(bool),
 			CreatedAt:        rows[0]["created_at"].(time.Time),
 			UpdatedAt:        rows[0]["updated_at"].(time.Time),
@@ -2283,10 +2279,9 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 			WorkingHours:     lib.String(rows[0]["working_hours"]),
 			Mid:              lib.Int64(rows[0]["mid"]),
 			DocumentMids:     lib.StringArray(rows[0]["document_mids"]),
-			IsMain:           rows[0]["is_main"].(bool),
-			IsActive:         rows[0]["is_active"].(bool),
-			CreatedAt:        rows[0]["created_at"].(time.Time),
-			UpdatedAt:        rows[0]["updated_at"].(time.Time),
+			IsActive:         lib.Bool(rows[0]["is_active"]),
+			CreatedAt:        lib.Time(rows[0]["created_at"]),
+			UpdatedAt:        lib.Time(rows[0]["updated_at"]),
 			SubeMediaPath:    lib.String(rows[0]["sube_media_path"]),
 			SubeMediaAltText: lib.String(rows[0]["sube_media_alt_text"]),
 			SubeMediaTitle:   lib.String(rows[0]["sube_media_title"]),
@@ -4203,7 +4198,6 @@ func DoktorDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 		GetSubeler := Orm.Select([]string{"sid", "name"})
 		GetSubeler.Table("subeler")
 		GetSubeler.Where("is_active", "=", true)
-		GetSubeler.OrderBy("is_main", "DESC")
 		GetSubeler.OrderBy("name", "ASC")
 		GetSubeler.Finish()
 		err = GetSubeler.Execute()

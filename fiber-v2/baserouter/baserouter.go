@@ -175,7 +175,7 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/sube/:sid/add-documents", subeler.AddSubeDocuments(states, utilities))
 	routes.Post("/sube/:sid/delete-document", subeler.DeleteSubeDocument(states, utilities))
 	routes.Post("/sube/:sid/edit-document", subeler.EditSubeDocument(states, utilities))
-	routes.Post("/sube/:sid/set-as-main", subeler.SetSubeAsMain(states, utilities))
+	//routes.Post("/sube/:sid/set-as-main", subeler.SetSubeAsMain(states, utilities))
 	routes.Post("/sube/:sid/get-branches", subeler.GetBranchesThatFitsIndividualSube(states, utilities))
 	routes.Post("/sube/:sid/get-doctors", subeler.GetSubeDoctors(states, utilities))
 	routes.Post("/get-all-subeler", subeler.GetAllSubeler(states, utilities))

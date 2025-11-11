@@ -134,31 +134,6 @@ func AddSube(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
 		}
 
-		if inputs.IsMain && sid != "" {
-			SetMainSube := Orm.SelectFunction("set_sube_as_main", sid, "INSERT")
-			SetMainSube.Finish()
-
-			err = SetMainSube.Execute()
-
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("%v\n", err)
-				return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
-			}
-
-			rows, err := SetMainSube.Rows()
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("%v\n", err)
-				return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
-			}
-
-			if rows[0]["result"] == false {
-				Orm.Rollback()
-				return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
-			}
-		}
-
 		// Handle file upload if provided
 		var SubeMediaMid string = ""
 		subeMediaInput, err := c.FormFile("mid")
@@ -459,38 +434,6 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			}
 		}
 
-		if inputs.IsActive != inputs.OldIsActive && !inputs.IsActive {
-			UnmainSube := Orm.SelectFunction("set_sube_as_main", nil, "UPDATE")
-			UnmainSube.Finish()
-			err = UnmainSube.Execute()
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot unmain sube: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
-			}
-
-			rows, err := UnmainSube.Rows()
-			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot get rows: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
-			}
-
-			if rows[0]["result"] == false {
-				Orm.Rollback()
-				return c.JSON(fiber.Map{
-					"status":  400,
-					"message": "Şube bulunamadı.",
-				})
-			}
-		}
-
 		Orm.Commit()
 
 		states.SubelerLinks = []models.SubeLink{}
@@ -502,7 +445,7 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 	}
 }
 
-func SetSubeAsMain(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+/*func SetSubeAsMain(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, err := lib.CheckAuth(c)
 
@@ -585,7 +528,7 @@ func SetSubeAsMain(states *models.AppState, utilities *models.Utilities) fiber.H
 			"message": "Şube başarıyla ana şube olarak ayarlandı.",
 		})
 	}
-}
+}*/
 
 func DeleteSube(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -758,20 +701,6 @@ func DeleteSube(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				"status":  404,
 				"message": "Şube bulunamadı.",
 			})
-		}
-
-		UnmainSube := Orm.SelectFunction("set_sube_as_main", SubeId, "DELETE")
-		UnmainSube.Finish()
-		err = UnmainSube.Execute()
-		if err != nil {
-			Orm.Rollback()
-			log.Printf("Cannot unmain sube: %v\n", err)
-		}
-
-		_, err = UnmainSube.Rows()
-		if err != nil {
-			Orm.Rollback()
-			log.Printf("Cannot get rows: %v\n", err)
 		}
 
 		// Commit transaction

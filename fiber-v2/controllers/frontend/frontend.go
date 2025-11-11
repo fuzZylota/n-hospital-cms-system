@@ -359,11 +359,10 @@ func ContactPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		// Fetch şube data for contact information
 		var Subeler []models.SubeForFrontendPages
-		GetSubeler := Orm.Select([]string{"s.sid, s.name, s.url_name, s.city, s.district, s.google_map_iframe, s.phone, s.email, s.is_main, m.file_path as media_path, m.alt_text as media_alt_text, m.title as media_title, s.transportation_info"})
+		GetSubeler := Orm.Select([]string{"s.sid, s.name, s.url_name, s.city, s.district, s.google_map_iframe, s.phone, s.email, m.file_path as media_path, m.alt_text as media_alt_text, m.title as media_title, s.transportation_info"})
 		GetSubeler.Table("subeler s")
 		GetSubeler.LeftJoin("medias m", "s.mid", "=", "m.mid")
 		GetSubeler.Where("s.is_active", "=", true)
-		GetSubeler.OrderBy("s.is_main", "DESC")
 		GetSubeler.OrderBy("s.name", "ASC")
 		GetSubeler.Finish()
 		err := GetSubeler.Execute()
@@ -388,7 +387,6 @@ func ContactPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 				GoogleMapIframe:    lib.String(row["google_map_iframe"]),
 				Phone:              lib.String(row["phone"]),
 				Email:              lib.String(row["email"]),
-				IsMain:             lib.Bool(row["is_main"]),
 				MediaPath:          lib.String(row["media_path"]),
 				MediaAltText:       lib.String(row["media_alt_text"]),
 				MediaTitle:         lib.String(row["media_title"]),
@@ -485,7 +483,7 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 		Options := database.Options{}
 		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
-		GetAnlasmaliKurumlar := Orm.Select([]string{"a.akid", "a.name", "a.sid", "s.name as sube_name", "s.is_main", "a.discount_rate", "a.is_active", "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title"})
+		GetAnlasmaliKurumlar := Orm.Select([]string{"a.akid", "a.name", "a.sid", "s.name as sube_name", "a.discount_rate", "a.is_active", "m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title"})
 		GetAnlasmaliKurumlar.Table("anlasmali_kurumlar a")
 		GetAnlasmaliKurumlar.InnerJoin("subeler s", "a.sid", "=", "s.sid")
 		GetAnlasmaliKurumlar.LeftJoin("medias m", "a.logo_mid", "=", "m.mid")
@@ -968,11 +966,10 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Offset := (Page - 1) * int(Options.Options.MaximumSublinksOnAMenuItem)
 
-		GetSubeler := Orm.Select([]string{"s.sid, s.name, s.url_name, s.city, s.district, s.google_map_iframe, s.phone, s.email, s.is_main, m.file_path as media_path, m.alt_text as media_alt_text, m.title as media_title, s.transportation_info"})
+		GetSubeler := Orm.Select([]string{"s.sid, s.name, s.url_name, s.city, s.district, s.google_map_iframe, s.phone, s.email, m.file_path as media_path, m.alt_text as media_alt_text, m.title as media_title, s.transportation_info"})
 		GetSubeler.Table("subeler s")
 		GetSubeler.LeftJoin("medias m", "s.mid", "=", "m.mid")
 		GetSubeler.Where("s.is_active", "=", true)
-		GetSubeler.OrderBy("s.is_main", "DESC")
 		GetSubeler.OrderBy("s.name", "ASC")
 		GetSubeler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
 		GetSubeler.Offset(Offset)
@@ -998,7 +995,6 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 				GoogleMapIframe:    lib.String(row["google_map_iframe"]),
 				Phone:              lib.String(row["phone"]),
 				Email:              lib.String(row["email"]),
-				IsMain:             lib.Bool(row["is_main"]),
 				MediaPath:          lib.String(row["media_path"]),
 				MediaAltText:       lib.String(row["media_alt_text"]),
 				MediaTitle:         lib.String(row["media_title"]),
@@ -1072,7 +1068,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			DocumentMids:       lib.StringArray(rows[0]["document_mids"]),
 			Phone:              lib.String(rows[0]["phone"]),
 			Email:              lib.String(rows[0]["email"]),
-			IsMain:             lib.Bool(rows[0]["is_main"]),
 			SubeMediaPath:      lib.String(rows[0]["media_path"]),
 			SubeMediaAltText:   lib.String(rows[0]["media_alt_text"]),
 			SubeMediaTitle:     lib.String(rows[0]["media_title"]),

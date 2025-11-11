@@ -53,9 +53,6 @@
                     </div>
                     <div class="sube-card__header">
                         <h4 class="sube-card__title">{{ .Name }}</h4>
-                        {{ if .IsMain }}
-                            <span class="sube-card__badge">Ana Şube</span>
-                        {{ end }}
                     </div>
                     <div class="sube-card__content">
                         <div class="sube-card__info">
@@ -164,46 +161,13 @@
                             <h3 class="sec-title__title">Bizimle <span>İletişime Geçin!</span></h3><!-- /.sec-title__title -->
                         </div><!-- /.sec-title -->
                         <div class="contact-page__info__inner wow fadeInUp" data-wow-duration="1500ms">
-                            {{ if len(Subeler) > 0 }}
-                                {{ range Subeler }}
-                                    {{ if .IsMain }}
-                                    <div class="contact-page__info__item">
-                                        <span class="contact-page__info__icon">
-                                            <i class="fas fa-phone"></i>
-                                        </span><!-- /.contact-page__info__icon -->
-                                        <div class="contact-page__info__content">
-                                            <h4 class="contact-page__info__title">Telefon</h4>
-                                            <a href="tel:{{ .Phone }}" class="contact-page__info__link">{{ .Phone }}</a>
-                                        </div><!-- /.contact-page__info__content -->
-                                    </div><!-- /.contact-page__info__item -->
-                                    <div class="contact-page__info__item">
-                                        <span class="contact-page__info__icon">
-                                            <i class="fas fa-envelope"></i>
-                                        </span><!-- /.contact-page__info__icon -->
-                                        <div class="contact-page__info__content">
-                                            <h4 class="contact-page__info__title">E-posta</h4>
-                                            <a href="mailto:{{ .Email }}" class="contact-page__info__link">{{ .Email }}</a>
-                                        </div><!-- /.contact-page__info__content -->
-                                    </div><!-- /.contact-page__info__item -->
-                                    <div class="contact-page__info__item">
-                                        <span class="contact-page__info__icon">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                        </span><!-- /.contact-page__info__icon -->
-                                        <div class="contact-page__info__content">
-                                            <h4 class="contact-page__info__title">Adres</h4>
-                                            <span class="contact-page__info__link">{{ .City }}, {{ .District }}</span>
-                                        </div><!-- /.contact-page__info__content -->
-                                    </div><!-- /.contact-page__info__item -->
-                                    {{ end }}
-                                {{ end }}
-                            {{ else }}
                             <div class="contact-page__info__item">
                                 <span class="contact-page__info__icon">
                                     <i class="fas fa-phone"></i>
                                 </span>
                                 <div class="contact-page__info__content">
                                     <h4 class="contact-page__info__title">Telefon</h4>
-                                    <span class="contact-page__info__link">+90 (212) 555 0123</span>
+                                    <a href="tel:{{ Options.Options.ContactPhone }}" class="contact-page__info__link">{{ Options.Options.ContactPhone }}</a>
                                 </div>
                             </div>
                             <div class="contact-page__info__item">
@@ -212,10 +176,9 @@
                                 </span>
                                 <div class="contact-page__info__content">
                                     <h4 class="contact-page__info__title">E-posta</h4>
-                                    <span class="contact-page__info__link">info@nhospital.com</span>
+                                    <a href="mailto:{{ Options.Options.ContactEmail }}" class="contact-page__info__link">{{ Options.Options.ContactEmail }}</a>
                                 </div>
                             </div>
-                            {{ end }}
                         </div><!-- /.contact-page__info__inner -->
                     </div><!-- /.contact-page__info -->
                 </div><!-- /.col-xl-5 col-lg-6 -->

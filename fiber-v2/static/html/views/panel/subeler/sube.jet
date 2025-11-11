@@ -37,12 +37,6 @@
             </div>
             <div class="page-actions">
                 <div class="status-indicator">
-                    {{if Sube.IsMain}}
-                    <span class="status-badge main">
-                        <i class="fas fa-star"></i>
-                        Ana Şube
-                    </span>
-                    {{end}}
                     {{if Sube.IsActive}}
                     <span class="status-badge active">
                         <i class="fas fa-check-circle"></i>
@@ -60,15 +54,6 @@
                         <i class="fas fa-edit"></i>
                         Düzenle
                     </a>
-                    {{if !Sube.IsMain}}
-                    <button class="btn btn-secondary" id="setMainSubeBtn" data-id="{{ Sube.Sid }}" data-name="{{ Sube.Name }}">
-                        <i class="fas fa-star"></i>
-                        <span class="btn-text">Ana Şube Yap</span>
-                        <div class="btn-loader" style="display: none;">
-                            <div class="spinner"></div>
-                        </div>
-                    </button>
-                    {{end}}
                     <button class="btn btn-danger" id="deleteSubeBtn" data-id="{{ Sube.Sid }}" data-name="{{ Sube.Name }}">
                         <i class="fas fa-trash"></i>
                         <span class="btn-text">Sil</span>
@@ -123,17 +108,10 @@
                     <div class="info-item">
                         <label class="info-label">Şube Türü</label>
                         <div class="info-value">
-                            {{if Sube.IsMain}}
-                            <span class="branch-badge main">
-                                <i class="fas fa-star"></i>
-                                Ana Şube
-                            </span>
-                            {{else}}
                             <span class="branch-badge branch">
                                 <i class="fas fa-building"></i>
                                 Şube
                             </span>
-                            {{end}}
                         </div>
                     </div>
                 </div>

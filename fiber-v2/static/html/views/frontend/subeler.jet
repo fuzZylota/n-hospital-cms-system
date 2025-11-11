@@ -62,9 +62,6 @@
                         </div>
                         <div class="sube-card__header">
                             <h4 class="sube-card__title">{{ .Name }}</h4>
-                            {{ if .IsMain }}
-                                <span class="sube-card__badge">Ana Şube</span>
-                            {{ end }}
                         </div>
                         <div class="sube-card__content">
                             <div class="sube-card__info">

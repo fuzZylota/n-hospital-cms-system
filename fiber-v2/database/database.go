@@ -351,7 +351,6 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 		GetSubeler := CurrentOptions.Database.Select([]string{"sid", "name", "url_name", "document_mids"})
 		GetSubeler.Table("subeler")
 		GetSubeler.Where("is_active", "=", true)
-		GetSubeler.OrderBy("is_main", "DESC")
 		GetSubeler.OrderBy("sid", "ASC")
 		GetSubeler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
 		GetSubeler.Finish()
@@ -659,6 +658,7 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		DefaultPageMediaPath:          lib.String(rows[0]["default_page_media_path"]),
 		DefaultPageMediaAltText:       lib.String(rows[0]["default_page_media_alt_text"]),
 		DefaultPageMediaTitle:         lib.String(rows[0]["default_page_media_title"]),
+		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 	}
 
 	Options := Options{
@@ -756,7 +756,6 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 	GetSubeler := db.Select([]string{"sid", "name", "url_name", "document_mids"})
 	GetSubeler.Table("subeler")
 	GetSubeler.Where("is_active", "=", true)
-	GetSubeler.OrderBy("is_main", "DESC")
 	GetSubeler.OrderBy("sid", "ASC")
 	GetSubeler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
 	GetSubeler.Finish()
@@ -1042,6 +1041,7 @@ func (options *Options) FetchOptionsForBackend(db *orm.Neorm, otherColumns any, 
 		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
 		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
 		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
+		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 	}
 
 	Options := Options{
@@ -1185,6 +1185,7 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
 		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
 		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
+		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 	}
 
 	Options := Options{
