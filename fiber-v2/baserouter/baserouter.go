@@ -45,6 +45,7 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 	routes.Get("/subelerimiz/:sube", frontend.SubePage(states, utilities))
 	routes.Get("/subelerimiz/:sube/doktorlar", frontend.DoktorlarPage(states, utilities))
 	routes.Get("/subelerimiz/:sube/doktorlar/:doktor", frontend.DoktorPage(states, utilities))
+	routes.Get("/doktorlarimiz", frontend.TumDoktorlarPage(states, utilities))
 }
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {

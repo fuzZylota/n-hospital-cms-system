@@ -1300,6 +1300,108 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 	}
 }
 
+func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+
+		Orm := utilities.Orm
+
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+
+		Page := 1
+		if c.Query("page") != "" {
+			NewPage, err := strconv.Atoi(c.Query("page"))
+			if err != nil {
+				Page = 1
+			} else {
+				Page = NewPage
+			}
+		}
+
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+		GetCountOfDoctors := Orm.Count("doktorlar")
+		GetCountOfDoctors.Where("is_active", "=", true)
+		GetCountOfDoctors.Finish()
+		err := GetCountOfDoctors.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/")
+		}
+		CountOfDoctors := GetCountOfDoctors.Length()
+
+		ItemsPerPage := Options.Options.ItemsPerPage
+
+		Offset := (Page - 1) * int(ItemsPerPage)
+
+		Doctors := []models.DoktorForHomePage{}
+		GetDoctors := Orm.Select([]string{"d.drid", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoctors.Table("doktorlar d")
+		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
+		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
+		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
+		GetDoctors.And("d.is_active", "=", true)
+		GetDoctors.Limit(int(ItemsPerPage))
+		GetDoctors.Offset(Offset)
+		GetDoctors.Finish()
+
+		err = GetDoctors.Execute()
+
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/")
+		}
+
+		rows, err := GetDoctors.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/")
+		}
+
+		for _, row := range rows {
+			Doctors = append(Doctors, models.DoktorForHomePage{
+				Drid:         lib.String(row["drid"]),
+				Title:        lib.String(row["title"]),
+				FirstName:    lib.String(row["first_name"]),
+				LastName:     lib.String(row["last_name"]),
+				UrlName:      lib.String(row["url_name"]),
+				PhotoPath:    lib.String(row["photo_path"]),
+				PhotoAltText: lib.String(row["photo_alt_text"]),
+				PhotoTitle:   lib.String(row["photo_title"]),
+				FacebookUrl:  lib.String(row["facebook_url"]),
+				XUrl:         lib.String(row["x_url"]),
+				InstagramUrl: lib.String(row["instagram_url"]),
+				LinkedinUrl:  lib.String(row["linkedin_url"]),
+				PersonalUrl:  lib.String(row["personal_url"]),
+				SubeUrlName:  lib.String(row["sube_url_name"]),
+				BransName:    lib.String(row["brans_name"]),
+				BransUrlName: lib.String(row["brans_url_name"]),
+			})
+		}
+
+		TotalPages := (int(CountOfDoctors) + int(ItemsPerPage) - 1) / int(ItemsPerPage)
+
+		return c.Render("views/frontend/tum-doktorlar", fiber.Map{
+			"PathOnStart":    "../../",
+			"Route":          "/doktorlarimiz",
+			"Options":        Options,
+			"User":           OurUser,
+			"Doctors":        Doctors,
+			"CountOfDoctors": CountOfDoctors,
+			"Page":           Page,
+			"TotalPages":     TotalPages,
+			"Offset":         Offset,
+			"Title":          "Doktorlarımız | " + Options.Options.SiteName,
+			"Description":    "Bu sayfa, " + Options.Options.SiteName + " sitesinin doktorlar sayfası olup, bu sayfada kurumumuzun tüm doktorları hakkında bilgi bulabilirsiniz.",
+		}, "layouts/main/main")
+	}
+}
+
 func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, _ := lib.CheckAuth(c)
