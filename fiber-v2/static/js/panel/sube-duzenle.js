@@ -328,7 +328,7 @@ class SubeEditHandler {
                     </button>
                 </div>
                 <div class="file-data-input">
-                    <input type="text" class="form-input" placeholder="Dosya için ek bilgi (opsiyonel)" 
+                    <input type="text" class="form-input" placeholder="Dosya için döküman adı (opsiyonel)" 
                            value="${fileData.data}" data-id="${fileData.id}">
                 </div>
             `;
@@ -691,7 +691,7 @@ class SubeEditHandler {
             btn.addEventListener('click', () => {
                 const documentMid = btn.dataset.mid;
                 const documentItem = btn.closest('.document-item');
-                const currentData = documentItem.querySelector('.document-data')?.textContent?.replace('Ek Bilgi: ', '') || '';
+                const currentData = documentItem.querySelector('.document-data')?.textContent?.replace('Döküman Adı: ', '') || '';
                 
                 this.currentEditDocumentTarget = { 
                     mid: documentMid, 
@@ -740,13 +740,13 @@ class SubeEditHandler {
                     const documentDataElement = target.item.querySelector('.document-data');
                     if (newData) {
                         if (documentDataElement) {
-                            documentDataElement.innerHTML = `<strong>Ek Bilgi:</strong> ${newData}`;
+                            documentDataElement.innerHTML = `<strong>Döküman Adı:</strong> ${newData}`;
                         } else {
                             // Create new data element if it doesn't exist
                             const documentInfo = target.item.querySelector('.document-info');
                             const dataElement = document.createElement('div');
                             dataElement.className = 'document-data';
-                            dataElement.innerHTML = `<strong>Ek Bilgi:</strong> ${newData}`;
+                            dataElement.innerHTML = `<strong>Döküman Adı:</strong> ${newData}`;
                             documentInfo.appendChild(dataElement);
                         }
                     } else {

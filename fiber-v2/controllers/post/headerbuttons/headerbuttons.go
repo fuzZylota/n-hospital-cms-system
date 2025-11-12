@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// bunu yapay zeka yazdı, test et.
 func AddHeaderButton(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
@@ -220,7 +219,6 @@ func AddHeaderButton(states *models.AppState, utilities *models.Utilities) fiber
 	}
 }
 
-// bunu yapay zeka yazdı, test et.
 func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
@@ -359,7 +357,6 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 	}
 }
 
-// bunu yapay zeka yazdı, test et.
 func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, err := lib.CheckAuth(c)
@@ -409,17 +406,10 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 
 		// Extract values for function call
 		sortOrder := lib.Int64(rows[0]["sort_order"])
-		parentId := lib.String(rows[0]["parent_id"])
-		var parentIdInt interface{}
-		if parentId == "" || parentId == "0" {
-			parentIdInt = nil
-		} else {
-			parentIdInt = parentId
-		}
+		parentId := lib.Int64(rows[0]["parent_id"])
 
 		fmt.Printf("sortOrder: %v\n", sortOrder)
 		fmt.Printf("parentId: %v\n", parentId)
-		fmt.Printf("parentIdInt: %v\n", parentIdInt)
 
 		// Begin transaction
 		err = Orm.Begin()
@@ -467,7 +457,7 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 		}*/
 
 		// Call handle_button_sorting function with DELETE action
-		handleSorting := Orm.SelectFunction("get_shift_for_delete", sortOrder, HeaderButtonId, parentIdInt)
+		handleSorting := Orm.SelectFunction("get_shift_for_delete", sortOrder, HeaderButtonId, parentId)
 		handleSorting.Finish()
 		err = handleSorting.Execute()
 		if err != nil {
@@ -496,15 +486,17 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 
 			Ins := []any{}
 			for _, row := range rows {
-				if row["old_parent_id"] != parentIdInt {
+				if row["old_parent_id"] != parentId {
 					continue
 				}
 
 				Ins = append(Ins, lib.String(row["our_hbid"]))
 			}
 			UpdateRows.In("WHERE", "hbid", Ins)
-			UpdateRows.And("parent_id", "=", parentIdInt)
+			UpdateRows.And("parent_id", "=", parentId)
 			UpdateRows.Finish()
+
+			fmt.Printf("UpdateRows: %v\n", UpdateRows.Query)
 
 			err = UpdateRows.Execute()
 

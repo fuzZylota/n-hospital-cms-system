@@ -324,7 +324,7 @@
                                         </div>
                                         {{ if .Data }}
                                         <div class="document-data">
-                                            <strong>Ek Bilgi:</strong> {{ .Data }}
+                                            <strong>Döküman Adı:</strong> {{ .Data }}
                                         </div>
                                         {{ end }}
                                     </div>
