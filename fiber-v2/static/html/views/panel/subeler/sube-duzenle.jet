@@ -501,9 +501,9 @@
         <div class="modal-body">
             <form id="editDocumentForm" class="edit-document-form">
                 <div class="form-group">
-                    <label for="editDocumentData" class="form-label">Ek Bilgi</label>
+                    <label for="editDocumentData" class="form-label">Döküman Adı</label>
                     <textarea id="editDocumentData" name="data" class="form-textarea" rows="4" 
-                              placeholder="Doküman için ek bilgi giriniz..."></textarea>
+                              placeholder="Doküman için döküman adı giriniz..."></textarea>
                 </div>
             </form>
         </div>

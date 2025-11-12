@@ -360,7 +360,6 @@ func EditHeaderButton(states *models.AppState, utilities *models.Utilities) fibe
 func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, err := lib.CheckAuth(c)
-		fmt.Printf("OurUser: %v\n", OurUser)
 
 		if err != nil {
 			return c.JSON(fiber.Map{
@@ -495,8 +494,6 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 			UpdateRows.In("WHERE", "hbid", Ins)
 			UpdateRows.And("parent_id", "=", parentId)
 			UpdateRows.Finish()
-
-			fmt.Printf("UpdateRows: %v\n", UpdateRows.Query)
 
 			err = UpdateRows.Execute()
 
