@@ -77,9 +77,9 @@
                             </span><!-- /.appointment-one__form__date__arrow -->
                         </div><!-- /.form-one__control -->
                         <div class="form-one__control">
-                            <label for="appointmentBranch" class="form-one__label">Şube Seçiniz</label>
-                            <select class="selectpicker" aria-label="Şube Seçiniz" name="sid" id="appointmentBranch">
-                                <option value="" selected disabled>Şube seçiniz</option>
+                            <label for="appointmentBranch" class="form-one__label">Merkez Seçiniz</label>
+                            <select class="selectpicker" aria-label="Merkez Seçiniz" name="sid" id="appointmentBranch">
+                                <option value="" selected disabled>Merkez seçiniz</option>
                                 {{ range index2, Sube := AllSubeler }}
                                     <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
                                 {{ end }}

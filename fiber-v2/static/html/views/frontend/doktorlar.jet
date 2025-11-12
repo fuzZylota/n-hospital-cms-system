@@ -24,9 +24,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="sec-title text-center">
-                    <h3 class="sec-title__title">{{ SubeName.Name }} Şubemizin <span>Doktorları</span></h3>
+                    <h3 class="sec-title__title">{{ SubeName.Name }} <span>Doktorları</span></h3>
                     <p class="mt-3" style="max-width: 800px; margin: 10px auto 0; color: #6b7280; font-size: 16px;">
-                        Bu şubede görev yapan uzman doktorlarımızı görüntüleyebilir, uzmanlık alanlarını inceleyebilir 
+                        {{ SubeName.Name }} Merkezimizde görev yapan uzman doktorlarımızı görüntüleyebilir, uzmanlık alanlarını inceleyebilir 
                         ve doktorlarımızın iletişim bilgilerine ulaşabilirsiniz.
                     </p>
                 </div>
@@ -101,7 +101,7 @@
                             <h3 class="empty-state__title" style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Doktor Bulunamadı</h3>
                             <p class="empty-state__description" style="color: #6b7280; font-size: 16px; margin-bottom: 24px;">Bu şubede henüz doktor bilgisi bulunmamaktadır.</p>
                             <a href="/subelerimiz" class="mediox-btn mediox-btn--normal">
-                                <span>Şubelerimizi Görüntüle</span>
+                                <span>Merkezlerimizi Görüntüle</span>
                             </a>
                         </div>
                     </div>

@@ -12,7 +12,7 @@
                             <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
                             <a href="/">Anasayfa</a>
                         </li>
-                        <li><a href="/subelerimiz">Şubeler</a></li>
+                        <li><a href="/subelerimiz">Merkezler</a></li>
                         <li><span>{{ Sube.Name }}</span></li>
                     </ul><!-- /.mediox-breadcrumb list-unstyled -->
                 </div><!-- /.page-header__content -->
@@ -103,7 +103,7 @@
                         </div>
                         
                         <div class="d-flex">
-                            <a href="/subelerimiz/{{ Sube.UrlName }}" class="mediox-btn mediox-btn--normal"><span>Şube Bilgileri</span></a>
+                            <a href="/subelerimiz/{{ Sube.UrlName }}" class="mediox-btn mediox-btn--normal"><span>Merkez Bilgileri</span></a>
                             <a href="/subelerimiz/{{ Sube.UrlName }}/doktorlar" class="mediox-btn mediox-btn--normal"><span>Doktorları Gör</span></a>
                         </div>
                     </div><!-- /.portfolio-details__content__inner -->
@@ -115,7 +115,7 @@
                     <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="00ms">
                         <div class="portfolio-sidebar__info">
                             <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">Şube Bilgileri</h3>
+                                <h3 class="portfolio-sidebar__title">Merkez Bilgileri</h3>
                                 <!-- /.portfolio-sidebar__title -->
                             </div><!-- /.portfolio-sidebar__info__top -->
                             <ul class="portfolio-sidebar__info__list">
@@ -263,7 +263,7 @@
                     <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="200ms">
                         <div class="portfolio-sidebar__info">
                             <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">📄 Şube Dokümanları</h3>
+                                <h3 class="portfolio-sidebar__title">📄 Merkez Dokümanları</h3>
                             </div>
                             <div class="documents-list">
                                 {{ range SubeDocuments }}

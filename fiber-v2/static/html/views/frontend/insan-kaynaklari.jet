@@ -67,7 +67,7 @@
                     <div class="job-application-form-wrapper wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="200ms">
                         <div class="form-header">
                             <h3 class="form-title">İş Başvuru Formu</h3>
-                            <p class="form-description">Hastanemizde çalışmak için aşağıdaki formu doldurun. Başvurunuz değerlendirildikten sonra sizinle iletişime geçeceğiz.</p>
+                            <p class="form-description">Kurumumuzda çalışmak için aşağıdaki formu doldurun. Başvurunuz değerlendirildikten sonra sizinle iletişime geçeceğiz.</p>
                         </div>
                         
                         <form id="jobApplicationForm" class="job-application-form">

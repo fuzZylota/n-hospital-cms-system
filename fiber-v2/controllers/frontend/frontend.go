@@ -1004,11 +1004,11 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/frontend/subeler", fiber.Map{
 			"PathOnStart": "",
-			"Route":       "/subeler",
+			"Route":       "/subelerimiz",
 			"Options":     Options,
 			"User":        OurUser,
 			"Subeler":     Subeler,
-			"Title":       "Şubeler | " + Options.Options.SiteName,
+			"Title":       "Merkezlerimiz | " + Options.Options.SiteName,
 			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin şubeler sayfası olup, bu sayfada hastanemizin şubeleri hakkında bilgi bulabilirsiniz.",
 		}, "layouts/main/main")
 	}

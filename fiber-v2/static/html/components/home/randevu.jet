@@ -35,7 +35,7 @@
                             </div><!-- /.form-one__control -->
                             <div class="form-one__control">
                                 <select class="selectpicker" aria-label="Type of Service" name="sid">
-                                    <option selected>Şube Seçiniz</option>
+                                    <option selected>Merkez Seçiniz</option>
                                     {{ range index2, Sube := AllSubeler }}
                                         <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
                                     {{ end }}

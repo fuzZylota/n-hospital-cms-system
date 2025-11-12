@@ -24,7 +24,7 @@
         <div class="sec-title text-center">
             <h3 class="sec-title__title">Tüm <span>Tetkikler</span></h3>
             <p class="mt-3" style="max-width: 800px; margin: 10px auto 0; color: #6b7280; font-size: 16px;">
-                Hastanemizde uygulanan tetkikleri görüntüleyebilir ve detaylarını inceleyebilirsiniz.
+                Kurumumuzda uygulanan tetkikleri görüntüleyebilir ve detaylarını inceleyebilirsiniz.
             </p>
         </div>
         <div class="row gutter-y-30">

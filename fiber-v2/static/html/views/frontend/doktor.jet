@@ -74,7 +74,7 @@
                             <i class="icon-location"></i>
                         </span>
                         <div class="team-details__contact__content">
-                            <h3 class="team-details__contact__title">Çalıştığı Şube</h3>
+                            <h3 class="team-details__contact__title">Çalıştığı Merkez</h3>
                             <span class="team-details__contact__link">{{ Doktor.SubeName }}</span>
                         </div>
                     </li><!-- /.item -->

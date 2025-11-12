@@ -55,7 +55,7 @@
                     <div class="service-details__inner">
                         <div class="service-details__content__box wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
                             <h3 class="service-details__title">Anlaşmalı Kurumlar</h3><!-- /.service-details__title -->
-                            <p class="service-details__text">Hastanemiz, kaliteli sağlık hizmetlerini daha geniş kitlelere ulaştırmak amacıyla çeşitli kurum ve kuruluşlarla anlaşmalar yapmaktadır. Aşağıda anlaşmalı kurumlarımızın listesini bulabilirsiniz.</p><!-- /.service-details__text -->
+                            <p class="service-details__text">Merkezlerimiz, kaliteli sağlık hizmetlerini daha geniş kitlelere ulaştırmak amacıyla çeşitli kurum ve kuruluşlarla anlaşmalar yapmaktadır. Aşağıda anlaşmalı kurumlarımızın listesini bulabilirsiniz.</p><!-- /.service-details__text -->
                         </div><!-- /.service-details__content__box -->
                     </div><!-- /.service-details__inner -->
                     
