@@ -1544,11 +1544,7 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		OurUser, err := lib.CheckAuth(c)
-
-		if err == nil {
-			return c.Redirect("/panel")
-		}
+		OurUser, _ := lib.CheckAuth(c)
 
 		Orm := utilities.Orm
 
@@ -1566,7 +1562,7 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		GetAllSubeler.Table("subeler")
 		GetAllSubeler.Where("is_active", "=", true)
 		GetAllSubeler.Finish()
-		err = GetAllSubeler.Execute()
+		err := GetAllSubeler.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
 		}
