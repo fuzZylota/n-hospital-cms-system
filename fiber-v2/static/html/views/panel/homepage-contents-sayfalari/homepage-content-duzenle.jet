@@ -69,6 +69,7 @@
                                     <select id="content_type" name="content_type" class="form-select" required>
                                         <option value="">İçerik tipini seçin</option>
                                         <option value="generic" {{ if HomepageContent.ContentType == "generic" }}selected{{ end }}>Genel</option>
+                                        <option value="banner_page" {{ if HomepageContent.ContentType == "banner_page" }}selected{{ end }}>Banner Sayfası</option>
                                         <option value="popup" {{ if HomepageContent.ContentType == "popup" }}selected{{ end }}>Popup</option>
                                     </select>
                                 </div>
