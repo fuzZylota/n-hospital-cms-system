@@ -21,6 +21,8 @@
     height: 160px; /* smaller visuals */
     overflow: hidden;
     position: relative;
+    display: block;
+    text-decoration: none;
 }
 
 .sube-card__img {

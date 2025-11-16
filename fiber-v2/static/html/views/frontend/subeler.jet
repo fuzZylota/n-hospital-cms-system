@@ -26,13 +26,13 @@
                 {{ range Subeler }}
                 <div class="col-xl-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
                     <div class="sube-card">
-                        <div class="sube-card__image">
+                        <a href="/subelerimiz/{{ .UrlName }}" class="sube-card__image">
                             {{ if .MediaPath }}
                                 <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
                             {{ else }}
                                 <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ .Name }}" class="sube-card__img">
                             {{ end }}
-                        </div>
+                        </a>
                         <div class="sube-card__header">
                             <h4 class="sube-card__title">{{ .Name }}</h4>
                         </div>
