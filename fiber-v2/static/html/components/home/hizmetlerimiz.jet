@@ -76,7 +76,9 @@
                         <div class="service-card-two">
                             <div class="service-card-two__bg"></div><!-- /.service-card-two__bg -->
                             <div class="service-card-two__content">
-                                <img src="{{ TibbiBirim.CoverPath != "" ? TibbiBirim.CoverPath : "files/defaults/tibbi-birim/tibbi-birim-resim.png" }}" alt="{{ TibbiBirim.CoverAltText != "" ? TibbiBirim.CoverAltText : "Tıbbi Birim" }}" title="{{ TibbiBirim.CoverTitle != "" ? TibbiBirim.CoverTitle : "Tıbbi Birim" }}" class="service-card-two__image">
+                                <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">
+                                    <img src="{{ TibbiBirim.CoverPath != "" ? TibbiBirim.CoverPath : "files/defaults/tibbi-birim/tibbi-birim-resim.png" }}" alt="{{ TibbiBirim.CoverAltText != "" ? TibbiBirim.CoverAltText : "Tıbbi Birim" }}" title="{{ TibbiBirim.CoverTitle != "" ? TibbiBirim.CoverTitle : "Tıbbi Birim" }}" class="service-card-two__image">
+                                </a>
                                 <h3 class="service-card-two__title"><a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a></h3><!-- /.service-card-two__title -->
                                 <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" class="service-card-two__link">
                                     <i class="icon-up-right-arrow"></i>

@@ -31,6 +31,11 @@
     padding-right: 70px;
 }
 
+.service-card-two__content > a:not(.service-card-two__link) {
+    display: block;
+    text-decoration: none;
+}
+
 .service-card-two__image {
     width: 100%;
     height: 220px;
@@ -71,19 +76,20 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     background: var(--theme-primary-color);
     color: #fff;
     text-decoration: none;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
-    z-index: 2;
+    z-index: 10;
 }
 
 .service-card-two__link i {
     font-size: 16px;
     line-height: 1;
+    display: block;
 }
 
 .service-card-two:hover .service-card-two__link {
