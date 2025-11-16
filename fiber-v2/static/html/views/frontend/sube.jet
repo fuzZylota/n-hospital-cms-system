@@ -35,11 +35,11 @@
                     </div><!-- /.portfolio-details__image -->
                     <h3 class="portfolio-details__title">{{ Sube.Name }}</h3><!-- /.portfolio-details__title -->
                     <div class="portfolio-details__content__inner">
-                        {{ if Sube.Description }}
+                        <!--<{{ if Sube.Description }}
                         <div class="sube-description">
                             <p class="portfolio-details__text">{{ Sube.Description }}</p>
                         </div>
-                        {{ end }}
+                        {{ end }}-->
                         
                         <div class="sube-contact-info">
                             <h4>📞 İletişim Bilgileri</h4>
