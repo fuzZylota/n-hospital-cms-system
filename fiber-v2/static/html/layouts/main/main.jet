@@ -73,6 +73,7 @@
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlar.css">
     {{ end }}
 
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fast-randevu.css">
     <link rel="stylesheet" href="{{ PathOnStart }}css/style.css">
 
     {{ if Options.Options.GoogleAnalytics != "" }}
@@ -105,9 +106,11 @@
          {{ include "../../components/frontend-sidebar" }}
     
          {{ include "../../components/frontend-footer" }}
+         {{ include "../../components/fast-randevu" }}
     </div>
 
     <script src="{{ PathOnStart }}js/script.js"></script>
+    <script src="{{ PathOnStart }}js/frontend/fast-randevu.js"></script>
 
     {{ if Route == "/" }}
         <script src="{{ PathOnStart }}js/frontend/not-transparent-when-scrolled-down.js"></script>

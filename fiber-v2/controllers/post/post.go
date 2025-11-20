@@ -4529,15 +4529,19 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					bildirimLink := "/panel/randevu-talepleri/" + RandevuTalebi.Rrid + "?notification=true"
 					bildirimMetni := RandevuTalebi.PatientFirstName + " " + RandevuTalebi.PatientLastName + " tarafından"
 
-					if !RandevuTalebi.PreferredDate.IsZero() {
-						bildirimMetni += ", " + RandevuTalebi.PreferredDate.Format("02.01.2006") + " tarihinde "
-					}
+					if RandevuTalebi.PatientEmail != "" {
+						if !RandevuTalebi.PreferredDate.IsZero() {
+							bildirimMetni += ", " + RandevuTalebi.PreferredDate.Format("02.01.2006") + " tarihinde "
+						}
 
-					if !RandevuTalebi.PreferredTime.IsZero() {
-						bildirimMetni += ", " + RandevuTalebi.PreferredTime.Format("15:04") + " saatinde "
-					}
+						if !RandevuTalebi.PreferredTime.IsZero() {
+							bildirimMetni += ", " + RandevuTalebi.PreferredTime.Format("15:04") + " saatinde "
+						}
 
-					bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
+						bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
+					} else {
+						bildirimMetni += " hızlı randevu formuyla randevu talebi gönderildi."
+					}
 
 					NewWebsocketMessage := models.WebsocketMessage{
 						Uid: "",
