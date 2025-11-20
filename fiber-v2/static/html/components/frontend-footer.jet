@@ -18,7 +18,7 @@
                             {{ end }}
                         </a>
                     </div><!-- /.footer-widget__logo -->
-                    <p class="footer-widget__about-text">{{ Options.Options.SiteDescription }}</p><!-- /.footer-widget__about-text -->
+                    <p class="footer-widget__about-text">Gözünüz, Yaşamınızdır.</p><!-- /.footer-widget__about-text -->
                     <div class="social-links">
                         <a href="https://{{ Options.Options.FacebookUrl }}">
                             <i class="fab fa-facebook-f" aria-hidden="true"></i>
@@ -61,8 +61,13 @@
                     </ul><!-- /.list-unstyled footer-widget__links -->
                 </div><!-- /.footer-widget -->
             </div><!-- /.col-xl-2 -->
-            {{ if len(Options.NewsLinks) > 0 }}
-                <div class="col-xl-4 col-lg-6 col-md-7 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="300ms">
+
+            <div class="col-xl-4 col-lg-6 col-md-7 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="300ms">
+                <div class="footer-widget footer-widget--links">
+                    <h2 class="footer-widget__title">Hakkımızda</h2>
+                    <p class="footer-widget__description-text">{{ Options.Options.SiteDescription }}</p><!-- /.footer-widget__description-text -->
+                </div>
+                {{ if len(Options.NewsLinks) > 0 }}
                     <div class="footer-widget footer-widget--blog">
                         <h2 class="footer-widget__title">En Son <span>Haberler</span></h2><!-- /.footer-widget__title -->
                         <ul class="footer-widget__posts list-unstyled">
@@ -88,8 +93,8 @@
                             {{ end }}
                         </ul><!-- /.footer-widget__posts list-unstyled -->
                     </div><!-- /.footer-widget -->
-                </div><!-- /.col-xl-4 -->
-            {{ end }}
+                {{ end }}
+            </div><!-- /.col-xl-4 -->
         </div><!-- /.row -->
         <div class="main-footer__bottom">
             <p class="main-footer__copyright">

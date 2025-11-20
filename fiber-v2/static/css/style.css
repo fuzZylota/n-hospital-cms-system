@@ -17,6 +17,15 @@
     margin-top: calc(-3.75 * var(--bs-gutter-x)) !important;
 }
 
+.footer-widget__description-text {
+    margin-bottom: 21px;
+    color: var(--mediox-text-dark, #456EA1);
+    text-transform: capitalize;
+    font-size: 20px;
+    font-weight: 600;
+}
+        
+
 @media (max-width: 500px) {
     .banner-row {
         margin-top: calc(-1.75 * var(--bs-gutter-x)) !important;
