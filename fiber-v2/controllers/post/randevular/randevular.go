@@ -24,10 +24,10 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		// Required validation
-		if inputs.PatientFirstName == "" || inputs.PatientLastName == "" || inputs.PatientPhone == "" || inputs.PatientEmail == "" {
+		if inputs.PatientFirstName == "" || inputs.PatientLastName == "" || inputs.PatientPhone == "" {
 			return c.JSON(fiber.Map{
 				"status":  400,
-				"message": "Ad, soyad, telefon ve e-posta zorunludur.",
+				"message": "Ad, soyad ve telefon zorunludur.",
 			})
 		}
 
@@ -78,10 +78,14 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
-		columns := []string{"patient_first_name", "patient_last_name", "patient_phone", "patient_email"}
-		values := []interface{}{inputs.PatientFirstName, inputs.PatientLastName, inputs.PatientPhone, inputs.PatientEmail}
+		columns := []string{"patient_first_name", "patient_last_name", "patient_phone"}
+		values := []interface{}{inputs.PatientFirstName, inputs.PatientLastName, inputs.PatientPhone}
 
 		// Optional fields
+		if inputs.PatientEmail != "" {
+			columns = append(columns, "patient_email")
+			values = append(values, inputs.PatientEmail)
+		}
 		if !inputs.PreferredDate.IsZero() {
 			columns = append(columns, "preferred_date")
 			values = append(values, inputs.PreferredDate)
@@ -116,9 +120,6 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
 		}
-
-		fmt.Printf("Preferred Date: %v\n", inputs.PreferredDate)
-		fmt.Printf("Preferred Time: %v\n", inputs.PreferredTime)
 
 		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.PatientEmail != "" {
 			RootDir := os.Getenv("ROOT_DIRECTORY")

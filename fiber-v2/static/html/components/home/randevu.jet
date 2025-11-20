@@ -47,7 +47,7 @@
                             <div class="form-one__control form-one__control--full">
                                 <label for="homepageAppointmentKVKK" class="checkbox-label">
                                     <input type="checkbox" id="homepageAppointmentKVKK" required>
-                                    <span>
+                                    <span class="kvkk-consent-text">
                                         <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
                                     </span>
                                 </label>
