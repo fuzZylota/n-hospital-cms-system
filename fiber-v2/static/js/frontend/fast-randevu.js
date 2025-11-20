@@ -198,16 +198,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     const url = `${scheme}://${window.location.host}/backend/notifications`;
                     const ws = new WebSocket(url, 'randevu');
                     payload.rrid = data.rrid;
-                    ws.addEventListener('open', () => {
-                        ws.send(JSON.stringify({
-                            uid: null,
-                            message: JSON.stringify(payload)
-                        }));
-                        setTimeout(() => {
-                            try { ws.close(); } catch (_) {}
-                        }, 500);
+                    
+                    let messageSent = false;
+                    const sendMessage = () => {
+                        if (messageSent) return;
+                        messageSent = true;
+                        try {
+                            ws.send(JSON.stringify({
+                                uid: null,
+                                message: JSON.stringify(payload)
+                            }));
+                            setTimeout(() => {
+                                try {
+                                    if (ws.readyState === WebSocket.OPEN) {
+                                        ws.close();
+                                    }
+                                } catch (e) {
+                                    // Ignore close errors
+                                }
+                            }, 500);
+                        } catch (e) {
+                            console.error('WebSocket send error:', e);
+                        }
+                    };
+                    
+                    ws.addEventListener('open', sendMessage);
+                    ws.addEventListener('error', (error) => {
+                        console.error('WebSocket error:', error);
                     });
-                } catch (_) {}
+                    
+                    // Timeout fallback
+                    setTimeout(() => {
+                        if (!messageSent && ws.readyState === WebSocket.OPEN) {
+                            sendMessage();
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error('WebSocket connection error:', error);
+                }
 
                 form.reset();
                 if (typeof grecaptcha !== 'undefined') {

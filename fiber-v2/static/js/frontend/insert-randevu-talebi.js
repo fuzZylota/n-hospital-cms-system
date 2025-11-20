@@ -3,6 +3,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('.appointment-one__form');
     if (!form) return;
 
+    // Disable jQuery Validate for this form to prevent conflicts with reCAPTCHA
+    if (typeof jQuery !== 'undefined' && jQuery.fn.validate) {
+        // Remove validation class to prevent auto-validation
+        form.classList.remove('contact-form-validated');
+        // Disable any existing validation
+        const validator = jQuery(form).data('validator');
+        if (validator) {
+            validator.destroy();
+        }
+        // Mark reCAPTCHA hidden input and widget as ignored for validation
+        const recaptchaInput = form.querySelector('input[name="recaptcha_token"]');
+        if (recaptchaInput) {
+            recaptchaInput.setAttribute('data-validate', 'false');
+            recaptchaInput.removeAttribute('required');
+            recaptchaInput.setAttribute('data-ignore', 'true');
+        }
+        const recaptchaWidget = form.querySelector('.g-recaptcha');
+        if (recaptchaWidget) {
+            recaptchaWidget.setAttribute('data-validate', 'false');
+            recaptchaWidget.setAttribute('data-ignore', 'true');
+        }
+    }
+
     // Modal oluştur
     const createModal = () => {
         const modal = document.createElement('div');
@@ -121,6 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        
+        // Prevent jQuery Validate from interfering
+        if (typeof jQuery !== 'undefined') {
+            jQuery(e.target).off('submit.validate');
+        }
 
         const nameInput = form.querySelector('input[name="patient_first_name"]');
         const surnameInput = form.querySelector('input[name="patient_last_name"]');
@@ -198,18 +227,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     const url = `${scheme}://${window.location.host}/backend/notifications`;
                     const ws = new WebSocket(url, 'randevu');
                     payload.rrid = data.rrid;
-                    ws.addEventListener('open', () => {
-                        const message = {
-                            uid: null,
-                            //insert_form: 'randevu',
-                            message: JSON.stringify(payload),
-                        };
-                        ws.send(JSON.stringify(message));
-                        // kısa bir süre sonra kapat
-                        setTimeout(() => { try { ws.close(); } catch (_) {} }, 500);
+                    
+                    let messageSent = false;
+                    const sendMessage = () => {
+                        if (messageSent) return;
+                        messageSent = true;
+                        try {
+                            const message = {
+                                uid: null,
+                                message: JSON.stringify(payload),
+                            };
+                            ws.send(JSON.stringify(message));
+                            setTimeout(() => {
+                                try {
+                                    if (ws.readyState === WebSocket.OPEN) {
+                                        ws.close();
+                                    }
+                                } catch (e) {
+                                    // Ignore close errors
+                                }
+                            }, 500);
+                        } catch (e) {
+                            console.error('WebSocket send error:', e);
+                        }
+                    };
+                    
+                    ws.addEventListener('open', sendMessage);
+                    ws.addEventListener('error', (error) => {
+                        console.error('WebSocket error:', error);
                     });
-                } catch (_) {
-                    // sessizce geç
+                    
+                    // Timeout fallback
+                    setTimeout(() => {
+                        if (!messageSent && ws.readyState === WebSocket.OPEN) {
+                            sendMessage();
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error('WebSocket connection error:', error);
                 }
                 form.reset();
                 // Reset reCAPTCHA only if it exists
