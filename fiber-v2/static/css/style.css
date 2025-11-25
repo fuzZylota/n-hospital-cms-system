@@ -19,7 +19,7 @@
 
 .footer-widget__description-text {
     margin-bottom: 21px;
-    color: var(--mediox-text-dark, #456EA1);
+    color: #fff;
     text-transform: capitalize;
     font-size: 20px;
     font-weight: 600;
