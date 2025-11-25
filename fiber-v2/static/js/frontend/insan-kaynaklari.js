@@ -24,8 +24,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileRemove = area.querySelector('.file-remove');
             
             // Click to upload
-            area.addEventListener('click', () => {
+            area.addEventListener('click', (e) => {
+                // Don't trigger if clicking directly on the file input
+                if (e.target === fileInput) {
+                    return;
+                }
+                // Prevent event from bubbling if clicking on file-upload-content
+                if (e.target === fileUploadContent || fileUploadContent.contains(e.target)) {
+                    e.preventDefault();
+                }
                 fileInput.click();
+            });
+            
+            // Prevent double-trigger when clicking directly on file input
+            fileInput.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
             
             // File input change
