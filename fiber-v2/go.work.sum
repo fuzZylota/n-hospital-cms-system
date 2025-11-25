@@ -21,6 +21,8 @@ github.com/Necoo33/neormgo v1.9.0 h1:1fcITF9hhyeOgy3YXadPaCltmijQJZQRlMASuU5qK1U
 github.com/Necoo33/neormgo v1.9.0/go.mod h1:XF8nerh9zuMbioKhWcxsOcESS4oDIlFf0r5xmMKGY0Y=
 github.com/Necoo33/neormgo/v2 v2.1.0 h1:AqnVFtD5LRNISIL3AceoY/ezPIacc4DIHt6PPdWLvs4=
 github.com/Necoo33/neormgo/v2 v2.1.0/go.mod h1:t7Kpx4HSieG9nlEPBt1v/XJBqjB31dhg10bSQ/23nmA=
+github.com/Necoo33/neormgo/v2 v2.4.0 h1:5cutmBDPfAtDapGL2GDMKTTitehs3R6b75+PoZNK0OY=
+github.com/Necoo33/neormgo/v2 v2.4.0/go.mod h1:t7Kpx4HSieG9nlEPBt1v/XJBqjB31dhg10bSQ/23nmA=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/klauspost/compress v1.17.6/go.mod h1:/dCuZOvVtNoHsyb+cuJD3itjs3NbnF6KH9zAO4BDxPM=
 github.com/klauspost/compress v1.17.7/go.mod h1:Di0epgTjJY877eYKx5yC51cX2A2Vl2ibi7bDH9ttBbw=

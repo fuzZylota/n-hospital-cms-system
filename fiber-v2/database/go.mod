@@ -2,7 +2,7 @@ module database
 
 go 1.25.1
 
-require github.com/Necoo33/neormgo/v2 v2.1.0
+require github.com/Necoo33/neormgo/v2 v2.4.0
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
