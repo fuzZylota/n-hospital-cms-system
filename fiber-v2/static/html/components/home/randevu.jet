@@ -27,13 +27,13 @@
                             <div class="form-one__control">
                                 <input type="tel" name="patient_phone" placeholder="Telefon Numaranız*">
                             </div><!-- /.form-one__control -->
-                            <div class="form-one__control appointment-one__form__date">
+                            <!--<div class="form-one__control appointment-one__form__date">
                                 <input type="text" name="preferred_date" placeholder="Randevu Tarihi*" id="datepicker" class="mediox-datepicker">
                                 <span class="appointment-one__form__date__arrow">
                                     <i class="icon-caret-down"></i>
-                                </span><!-- /.appointment-one__form__date__arrow -->
-                            </div><!-- /.form-one__control -->
-                            <div class="form-one__control">
+                                </span>
+                            </div>-->
+                            <div class="form-one__control form-one__control--full">
                                 <select class="selectpicker" aria-label="Type of Service" name="sid">
                                     <option selected>Merkez Seçiniz</option>
                                     {{ range index2, Sube := AllSubeler }}

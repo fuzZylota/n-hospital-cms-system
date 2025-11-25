@@ -69,14 +69,14 @@
                             <label for="patientPhone" class="form-one__label">Telefon Numaranız*</label>
                             <input type="tel" id="patientPhone" name="patient_phone" placeholder="Telefon Numaranız" required>
                         </div><!-- /.form-one__control -->
-                        <div class="form-one__control appointment-one__form__date">
+                        <!--<div class="form-one__control appointment-one__form__date">
                             <label for="appointmentDate" class="form-one__label">Tercih Ettiğiniz Tarih</label>
                             <input type="text" id="appointmentDate" name="preferred_date" placeholder="Randevu Tarihi" class="mediox-datepicker">
                             <span class="appointment-one__form__date__arrow" aria-hidden="true">
                                 <i class="icon-caret-down"></i>
-                            </span><!-- /.appointment-one__form__date__arrow -->
-                        </div><!-- /.form-one__control -->
-                        <div class="form-one__control">
+                            </span>
+                        </div>-->
+                        <div class="form-one__control form-one__control--full">
                             <label for="appointmentBranch" class="form-one__label">Merkez Seçiniz</label>
                             <select class="selectpicker" aria-label="Merkez Seçiniz" name="sid" id="appointmentBranch">
                                 <option value="" selected disabled>Merkez seçiniz</option>

@@ -4538,7 +4538,11 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 							bildirimMetni += ", " + RandevuTalebi.PreferredTime.Format("15:04") + " saatinde "
 						}
 
-						bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
+						if RandevuTalebi.PreferredDate.IsZero() && RandevuTalebi.PreferredTime.IsZero() {
+							bildirimMetni += " randevu talebi gönderildi."
+						} else {
+							bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
+						}
 					} else {
 						bildirimMetni += " hızlı randevu formuyla randevu talebi gönderildi."
 					}
