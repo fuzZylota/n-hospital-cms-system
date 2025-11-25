@@ -302,10 +302,10 @@
                             <div class="file-details">
                                 <div class="file-name">CV Dosyası</div>
                                 <div class="file-actions">
-                                    <a href="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" target="_blank" class="btn btn-sm btn-primary">
+                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" data-filename="CV Dosyası">
                                         <i class="fas fa-eye"></i>
                                         Görüntüle
-                                    </a>
+                                    </button>
                                     <a href="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" download class="btn btn-sm btn-secondary">
                                         <i class="fas fa-download"></i>
                                         İndir
@@ -322,10 +322,10 @@
                             <div class="file-details">
                                 <div class="file-name">Diploma Dosyası</div>
                                 <div class="file-actions">
-                                    <a href="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" target="_blank" class="btn btn-sm btn-primary">
+                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" data-filename="Diploma Dosyası">
                                         <i class="fas fa-eye"></i>
                                         Görüntüle
-                                    </a>
+                                    </button>
                                     <a href="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" download class="btn btn-sm btn-secondary">
                                         <i class="fas fa-download"></i>
                                         İndir
@@ -414,6 +414,38 @@
     </div>
 </div>
 
+<!-- Document Preview Modal -->
+<div id="documentPreviewModal" class="modal document-modal" style="display: none;">
+    <div class="modal-content document-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="documentPreviewTitle">Doküman Önizleme</h3>
+            <button class="modal-close" onclick="closeDocumentPreviewModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="document-preview-container" id="documentPreviewContainer">
+                <!-- Content will be loaded here based on file type -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="document-info">
+                <span id="documentPreviewInfo">Dosya bilgileri</span>
+            </div>
+            <div class="document-actions">
+                <button class="btn btn-secondary" onclick="downloadDocument()">
+                    <i class="fas fa-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-secondary" onclick="openDocumentInNewTab()">
+                    <i class="fas fa-external-link-alt"></i>
+                    Yeni Sekmede Aç
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal" style="display: none;">
     <div class="modal-content danger">
@@ -456,6 +488,7 @@
 </div>
 
 <script>
+    let pathToStart = "{{ PathOnStart }}";
     // Pass data to JavaScript
     window.jobApplicationData = {
         id: "{{ JobApplication.Jaid }}",

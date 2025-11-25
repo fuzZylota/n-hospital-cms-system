@@ -15,7 +15,9 @@ class JobApplicationViewManager {
         this.setupDeleteButton();
         this.setupDropdown();
         this.setupMarkAsReadButton();
+        this.setupDocumentPreview();
         this.setupKeyboardShortcuts();
+        this.currentDocumentPath = null;
     }
 
     /**
@@ -26,8 +28,11 @@ class JobApplicationViewManager {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const deleteModal = document.getElementById('deleteModal');
+                const documentModal = document.getElementById('documentPreviewModal');
 
-                if (deleteModal && deleteModal.style.display !== 'none') {
+                if (documentModal && documentModal.style.display !== 'none') {
+                    this.closeDocumentPreviewModal();
+                } else if (deleteModal && deleteModal.style.display !== 'none') {
                     this.closeDeleteModal();
                 } else {
                     this.closeDropdown();
@@ -38,8 +43,11 @@ class JobApplicationViewManager {
         // Close modals when clicking outside
         document.addEventListener('click', (e) => {
             const deleteModal = document.getElementById('deleteModal');
+            const documentModal = document.getElementById('documentPreviewModal');
 
-            if (e.target === deleteModal) {
+            if (e.target === documentModal) {
+                this.closeDocumentPreviewModal();
+            } else if (e.target === deleteModal) {
                 this.closeDeleteModal();
             }
         });
@@ -107,6 +115,221 @@ class JobApplicationViewManager {
             e.stopPropagation();
             this.toggleReadStatus();
         });
+    }
+
+    /**
+     * Setup document preview functionality
+     */
+    setupDocumentPreview() {
+        const previewButtons = document.querySelectorAll('.btn-preview-cv');
+        previewButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filePath = button.getAttribute('data-filepath');
+                const fileName = button.getAttribute('data-filename') || 'Doküman';
+                this.openDocumentPreview(filePath, fileName);
+            });
+        });
+    }
+
+    /**
+     * Open document preview modal
+     */
+    openDocumentPreview(filePath, fileName) {
+        const modal = document.getElementById('documentPreviewModal');
+        const container = document.getElementById('documentPreviewContainer');
+        const title = document.getElementById('documentPreviewTitle');
+        const info = document.getElementById('documentPreviewInfo');
+        
+        if (!modal || !container) return;
+
+        // Store current document path
+        this.currentDocumentPath = filePath;
+
+        // Set title and info
+        if (title) title.textContent = fileName;
+        if (info) info.textContent = `Dosya: ${filePath.split('/').pop()}`;
+
+        // Clear previous content
+        container.innerHTML = '';
+
+        // Determine file type from extension
+        const fileExtension = filePath.split('.').pop().toLowerCase();
+        
+        // Handle different file types
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileExtension)) {
+            this.previewImage(container, filePath);
+        } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+            this.previewVideo(container, filePath);
+        } else if (['mp3', 'wav', 'ogg'].includes(fileExtension)) {
+            this.previewAudio(container, filePath);
+        } else if (fileExtension === 'pdf') {
+            this.previewPDF(container, filePath);
+        } else if (['txt', 'md', 'html', 'css', 'js'].includes(fileExtension)) {
+            this.previewText(container, filePath);
+        } else {
+            this.previewUnsupported(container, fileExtension);
+        }
+
+        // Show modal
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Encode file path properly, handling spaces and special characters in filename
+     */
+    encodeFilePath(filePath) {
+        // Convert relative path to absolute path
+        let absolutePath = filePath;
+        if (filePath.startsWith('../')) {
+            // Remove relative path markers and make it absolute
+            absolutePath = '/' + filePath.replace(/^\.\.\//g, '');
+        } else if (!filePath.startsWith('/')) {
+            // If it doesn't start with /, add it
+            absolutePath = '/' + filePath;
+        }
+        
+        // Split path into directory and filename
+        const lastSlash = absolutePath.lastIndexOf('/');
+        if (lastSlash === -1) {
+            // No directory, just filename - encode it
+            return '/' + encodeURIComponent(absolutePath);
+        }
+        
+        const directory = absolutePath.substring(0, lastSlash + 1);
+        const filename = absolutePath.substring(lastSlash + 1);
+        
+        // Encode only the filename part, keep directory as-is
+        return directory + encodeURIComponent(filename);
+    }
+
+    /**
+     * Preview image files
+     */
+    previewImage(container, filePath) {
+        const encodedPath = this.encodeFilePath(filePath);
+        const img = document.createElement('img');
+        img.src = encodedPath;
+        img.alt = 'Doküman Önizleme';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'contain';
+        container.appendChild(img);
+    }
+
+    /**
+     * Preview video files
+     */
+    previewVideo(container, filePath) {
+        const encodedPath = this.encodeFilePath(filePath);
+        const video = document.createElement('video');
+        video.src = encodedPath;
+        video.controls = true;
+        video.style.maxWidth = '100%';
+        video.style.maxHeight = '100%';
+        video.style.objectFit = 'contain';
+        container.appendChild(video);
+    }
+
+    /**
+     * Preview audio files
+     */
+    previewAudio(container, filePath) {
+        const encodedPath = this.encodeFilePath(filePath);
+        const audio = document.createElement('audio');
+        audio.src = encodedPath;
+        audio.controls = true;
+        audio.style.width = '100%';
+        audio.style.maxWidth = '500px';
+        container.appendChild(audio);
+    }
+
+    /**
+     * Preview PDF files
+     */
+    previewPDF(container, filePath) {
+        // Properly encode the file path, especially for filenames with spaces
+        const encodedPath = this.encodeFilePath(filePath);
+        
+        const iframe = document.createElement('iframe');
+        iframe.src = encodedPath;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        container.appendChild(iframe);
+    }
+
+    /**
+     * Preview text files
+     */
+    previewText(container, filePath) {
+        const encodedPath = this.encodeFilePath(filePath);
+        const iframe = document.createElement('iframe');
+        iframe.src = encodedPath;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        container.appendChild(iframe);
+    }
+
+    /**
+     * Show unsupported file type message
+     */
+    previewUnsupported(container, fileExtension) {
+        container.innerHTML = `
+            <div class="unsupported-file">
+                <i class="fas fa-file"></i>
+                <h3>Önizleme Desteklenmiyor</h3>
+                <p>Bu dosya türü (.${fileExtension}) önizlenemiyor. Dosyayı indirmek için "İndir" butonunu kullanın.</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Close document preview modal
+     */
+    closeDocumentPreviewModal() {
+        const modal = document.getElementById('documentPreviewModal');
+        if (!modal) return;
+
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+        
+        // Clear current document path
+        this.currentDocumentPath = null;
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+
+    /**
+     * Download current document
+     */
+    downloadDocument() {
+        if (this.currentDocumentPath) {
+            const encodedPath = this.encodeFilePath(this.currentDocumentPath);
+            const link = document.createElement('a');
+            link.href = encodedPath;
+            link.download = this.currentDocumentPath.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    /**
+     * Open document in new tab
+     */
+    openDocumentInNewTab() {
+        if (this.currentDocumentPath) {
+            window.open(this.currentDocumentPath, '_blank');
+        }
     }
 
     /**
@@ -380,6 +603,24 @@ class JobApplicationViewManager {
 function closeDeleteModal() {
     if (window.jobApplicationViewManager) {
         window.jobApplicationViewManager.closeDeleteModal();
+    }
+}
+
+function closeDocumentPreviewModal() {
+    if (window.jobApplicationViewManager) {
+        window.jobApplicationViewManager.closeDocumentPreviewModal();
+    }
+}
+
+function downloadDocument() {
+    if (window.jobApplicationViewManager) {
+        window.jobApplicationViewManager.downloadDocument();
+    }
+}
+
+function openDocumentInNewTab() {
+    if (window.jobApplicationViewManager) {
+        window.jobApplicationViewManager.openDocumentInNewTab();
     }
 }
 
