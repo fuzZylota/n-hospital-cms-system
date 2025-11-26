@@ -2,7 +2,6 @@ package panel
 
 import (
 	"database"
-	"fmt"
 	lib "lib"
 	"log"
 	"models"
@@ -157,8 +156,6 @@ func ListFilesPage(states *models.AppState, utilities *models.Utilities) fiber.H
 				})
 			}
 		}
-
-		fmt.Printf("Files: %v\n", Files)
 
 		return c.Render("views/panel/dosyalar", fiber.Map{
 			"PathOnStart": "../",
@@ -724,8 +721,6 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
 			ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 		}
-
-		fmt.Printf("Option: %+v\n", Option.SiteLightLogoPath)
 
 		return c.Render("views/panel/secenek-sayfalari/secenek", fiber.Map{
 			"PathOnStart": "../../",
@@ -4585,8 +4580,6 @@ func TibbiBirimDuzenlePage(states *models.AppState, utilities *models.Utilities)
 			UpdatedAt:    lib.Time(rows[0]["updated_at"]),
 		}
 
-		fmt.Printf("video path: %+v\n", TibbiBirim.VideoPath)
-
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
 			"PageTitle":   "N-Hospital | Tıbbi Birim Düzenle",
@@ -5822,7 +5815,6 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 
 		if c.Query("notification") == "true" {
 			GetOriginalUrl := c.OriginalURL()
-			fmt.Printf("GetOriginalUrl: %s\n", GetOriginalUrl)
 
 			UpdateNotification := Orm.Update()
 			UpdateNotification.Table("notifications")
@@ -5995,8 +5987,6 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		RandevuTalepleri.Limit(int(itemsPerPage))
 		RandevuTalepleri.Offset(offset)
 		RandevuTalepleri.Finish()
-
-		fmt.Printf("RandevuTalepleri: %v\n", RandevuTalepleri.Query)
 
 		err = RandevuTalepleri.Execute()
 
@@ -6257,7 +6247,6 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Rid := c.Params("rid")
 
 		if Rid == "" {
-			fmt.Printf("Randevu not found: %s\n", Rid)
 			return c.Redirect("/panel/randevular")
 		}
 
@@ -6291,8 +6280,6 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		RandevuQuery.Where("r.rid", "=", Rid)
 		RandevuQuery.Finish()
 
-		fmt.Printf("RandevuQuery: %v\n", RandevuQuery.Query)
-
 		err = RandevuQuery.Execute()
 
 		if err != nil {
@@ -6307,7 +6294,6 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		}
 
 		if len(rows) == 0 {
-			fmt.Printf("Randevu not found: %s\n", Rid)
 			return c.Redirect("/panel/randevular")
 		}
 
@@ -6665,8 +6651,6 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 			if err != nil {
 				log.Printf("%v\n", err)
 			}
-
-			fmt.Printf("RowsAffected: %d\n", ra)
 
 			if ra == 0 {
 				log.Printf("Notification not found: %s\n", GetOriginalUrl)
