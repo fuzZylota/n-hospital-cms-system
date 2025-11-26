@@ -42,6 +42,13 @@
             </div>
         </form>
     </div>
+    <button type="button" class="fast-randevu__mobile-line" id="fastRandevuMobileLine" aria-label="Hızlı randevu panelini aç">
+        <span class="fast-randevu__mobile-line-label">
+            <i class="icon-phone-call"></i>
+            Hızlı Randevu
+        </span>
+        <span class="fast-randevu__mobile-line-badge">7/24</span>
+    </button>
 </div>
 
 {{ if Options.Options.RecaptchaSiteKey != "" }}
