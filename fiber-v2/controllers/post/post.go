@@ -4490,8 +4490,6 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 
 		Orm := utilities.Orm
 
-		fmt.Printf("Here is our websocket protocol: %s\n", protocol)
-
 		var (
 			mt   int
 			msg  []byte

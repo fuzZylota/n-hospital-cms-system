@@ -1,5 +1,11 @@
 let recaptchaVerifiedFast = false;
 
+function isFastRandevuMobileDevice() {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+}
+
 function updateFastRandevuSubmitState() {
     const kvkkCheckbox = document.getElementById('fastRandevuKVKK');
     const submitButton = document.getElementById('fastRandevuSubmit');

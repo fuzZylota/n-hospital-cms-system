@@ -1086,6 +1086,8 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 
 		c.Locals("protocol", proto)
 
+		fmt.Printf("Websocket protocol: %s\n", proto)
+
 		c.Locals("allowed", true)
 
 		return c.Next()
