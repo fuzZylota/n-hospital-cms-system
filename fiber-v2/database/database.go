@@ -1215,6 +1215,7 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 		GetNotifications.Where("notification_level", "=", "moderator")
 	}
 
+	GetNotifications.OrderBy("is_read", "ASC")
 	GetNotifications.OrderBy("created_at", "DESC")
 	GetNotifications.Limit(5)
 	GetNotifications.Finish()
