@@ -97,6 +97,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
 		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
 		GetDoctors.Where("d.is_active", "=", true)
+		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END")
 		GetDoctors.Limit(int(Options.Options.ItemsPerPage))
 		GetDoctors.Finish()
 
@@ -1051,27 +1052,29 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		Sube := models.Subeler{
-			Sid:                lib.String(rows[0]["sid"]),
-			Name:               lib.String(rows[0]["name"]),
-			UrlName:            lib.String(rows[0]["url_name"]),
-			City:               lib.String(rows[0]["city"]),
-			District:           lib.String(rows[0]["district"]),
-			GoogleMapIframe:    lib.String(rows[0]["google_map_iframe"]),
-			Description:        lib.String(rows[0]["description"]),
-			Address:            lib.String(rows[0]["address"]),
-			PostalCode:         lib.String(rows[0]["postal_code"]),
-			Fax:                lib.String(rows[0]["fax"]),
-			Website:            lib.String(rows[0]["website"]),
-			Latitude:           lib.Float64(rows[0]["latitude"]),
-			Longitude:          lib.Float64(rows[0]["longitude"]),
-			WorkingHours:       lib.String(rows[0]["working_hours"]),
-			DocumentMids:       lib.StringArray(rows[0]["document_mids"]),
-			Phone:              lib.String(rows[0]["phone"]),
-			Email:              lib.String(rows[0]["email"]),
-			SubeMediaPath:      lib.String(rows[0]["media_path"]),
-			SubeMediaAltText:   lib.String(rows[0]["media_alt_text"]),
-			SubeMediaTitle:     lib.String(rows[0]["media_title"]),
-			TransportationInfo: lib.String(rows[0]["transportation_info"]),
+			Sid:                    lib.String(rows[0]["sid"]),
+			Name:                   lib.String(rows[0]["name"]),
+			UrlName:                lib.String(rows[0]["url_name"]),
+			City:                   lib.String(rows[0]["city"]),
+			District:               lib.String(rows[0]["district"]),
+			GoogleMapIframe:        lib.String(rows[0]["google_map_iframe"]),
+			Description:            lib.String(rows[0]["description"]),
+			Address:                lib.String(rows[0]["address"]),
+			PostalCode:             lib.String(rows[0]["postal_code"]),
+			Fax:                    lib.String(rows[0]["fax"]),
+			Website:                lib.String(rows[0]["website"]),
+			Latitude:               lib.Float64(rows[0]["latitude"]),
+			Longitude:              lib.Float64(rows[0]["longitude"]),
+			WorkingHours:           lib.String(rows[0]["working_hours"]),
+			TransportationInfoHtml: lib.String(rows[0]["transportation_info_html"]),
+			AnlasmaliKurumlarHtml:  lib.String(rows[0]["anlasmali_kurumlar_html"]),
+			DocumentMids:           lib.StringArray(rows[0]["document_mids"]),
+			Phone:                  lib.String(rows[0]["phone"]),
+			Email:                  lib.String(rows[0]["email"]),
+			SubeMediaPath:          lib.String(rows[0]["media_path"]),
+			SubeMediaAltText:       lib.String(rows[0]["media_alt_text"]),
+			SubeMediaTitle:         lib.String(rows[0]["media_title"]),
+			TransportationInfo:     lib.String(rows[0]["transportation_info"]),
 		}
 
 		SubeMids := []any{}

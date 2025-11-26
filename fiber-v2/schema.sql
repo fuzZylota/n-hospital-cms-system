@@ -174,6 +174,8 @@ CREATE TABLE subeler (
     mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     document_mids INTEGER[] DEFAULT '{}',
     is_active BOOLEAN DEFAULT TRUE,
+    anlasmali_kurumlar_html TEXT DEFAULT NULL,
+    transportation_info_html TEXT DEFAULT NULL,
     /*is_main BOOLEAN DEFAULT TRUE,*/
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

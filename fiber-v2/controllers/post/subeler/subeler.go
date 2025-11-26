@@ -99,6 +99,14 @@ func AddSube(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			columns = append(columns, "transportation_info")
 			values = append(values, inputs.TransportationInfo)
 		}
+		if inputs.AnlasmaliKurumlarHtml != "" {
+			columns = append(columns, "anlasmali_kurumlar_html")
+			values = append(values, inputs.AnlasmaliKurumlarHtml)
+		}
+		if inputs.TransportationInfoHtml != "" {
+			columns = append(columns, "transportation_info_html")
+			values = append(values, inputs.TransportationInfoHtml)
+		}
 
 		Orm := utilities.Orm
 
@@ -415,6 +423,16 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		if inputs.TransportationInfo != inputs.OldTransportationInfo {
 			updateSube.Set("transportation_info", inputs.TransportationInfo)
+			SomethingSet = true
+		}
+
+		if inputs.AnlasmaliKurumlarHtml != inputs.OldAnlasmaliKurumlarHtml {
+			updateSube.Set("anlasmali_kurumlar_html", inputs.AnlasmaliKurumlarHtml)
+			SomethingSet = true
+		}
+
+		if inputs.TransportationInfoHtml != inputs.OldTransportationInfoHtml {
+			updateSube.Set("transportation_info_html", inputs.TransportationInfoHtml)
 			SomethingSet = true
 		}
 

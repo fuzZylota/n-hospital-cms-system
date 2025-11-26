@@ -41,6 +41,12 @@
                         </div>
                         {{ end }}-->
                         
+                        {{ if Sube.TransportationInfoHtml }}
+                        <div class="sube-transportation-info-html">
+                            {{ Sube.TransportationInfoHtml | raw }}
+                        </div>
+                        {{ end }}
+                        
                         <div class="sube-contact-info">
                             <h4>📞 İletişim Bilgileri</h4>
                             <div class="contact-list">
@@ -101,6 +107,12 @@
                                 {{ end }}
                             </div>
                         </div>
+                        
+                        {{ if Sube.AnlasmaliKurumlarHtml }}
+                        <div class="sube-anlasmali-kurumlar-html">
+                            {{ Sube.AnlasmaliKurumlarHtml | raw }}
+                        </div>
+                        {{ end }}
                         
                         <div class="d-flex">
                             <a href="/subelerimiz/{{ Sube.UrlName }}" class="mediox-btn mediox-btn--normal"><span>Merkez Bilgileri</span></a>

@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/sube-duzenle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -56,6 +60,8 @@
                         <input type="hidden" name="old_longitude" value="{{ Sube.Longitude }}">
                         <input type="hidden" name="old_working_hours" value="{{ Sube.WorkingHours }}">
                         <input type="hidden" name="old_is_active" value="{{ Sube.IsActive }}">
+                        <input type="hidden" name="old_anlasmali_kurumlar_html" value="{{ Sube.AnlasmaliKurumlarHtml }}">
+                        <input type="hidden" name="old_transportation_info_html" value="{{ Sube.TransportationInfoHtml }}">
 
                         <!-- Basic Information -->
                         <div class="form-group-section">
@@ -179,6 +185,28 @@
                                 <label for="working_hours" class="form-label">Çalışma Saatleri</label>
                                 <textarea id="working_hours" name="working_hours" class="form-textarea" 
                                           rows="3" placeholder="Örn: Pazartesi-Cuma: 08:00-18:00, Cumartesi: 09:00-13:00">{{ Sube.WorkingHours }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Anlaşmalı Kurumlar HTML Section -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Anlaşmalı Kurumlar HTML</h3>
+                            <div class="form-group">
+                                <label for="anlasmali_kurumlar_html" class="form-label">Anlaşmalı Kurumlar HTML Kodu</label>
+                                <textarea id="anlasmali_kurumlar_html" name="anlasmali_kurumlar_html" class="form-textarea code-editor" 
+                                          rows="15" placeholder="HTML, CSS ve JavaScript kodunuzu buraya yazın...">{{ Sube.AnlasmaliKurumlarHtml }}</textarea>
+                                <div class="form-help">Özel anlaşmalı kurumlar HTML kodu (HTML, CSS ve JavaScript dahil) - Opsiyonel</div>
+                            </div>
+                        </div>
+
+                        <!-- Transportation Info HTML Section -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Ulaşım Bilgileri HTML</h3>
+                            <div class="form-group">
+                                <label for="transportation_info_html" class="form-label">Ulaşım Bilgileri HTML Kodu</label>
+                                <textarea id="transportation_info_html" name="transportation_info_html" class="form-textarea code-editor" 
+                                          rows="15" placeholder="HTML, CSS ve JavaScript kodunuzu buraya yazın...">{{ Sube.TransportationInfoHtml }}</textarea>
+                                <div class="form-help">Özel ulaşım bilgileri HTML kodu (HTML, CSS ve JavaScript dahil) - Opsiyonel</div>
                             </div>
                         </div>
 
@@ -519,6 +547,20 @@
         </div>
     </div>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
 
 <script>
     // Pass data to JavaScript

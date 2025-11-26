@@ -1244,3 +1244,44 @@
         justify-content: center;
     }
 }
+
+/* CodeMirror styling for HTML code display */
+.code-display {
+    position: relative;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background: var(--bg-secondary);
+}
+
+.code-display .CodeMirror {
+    height: 300px;
+    font-size: 13px;
+    line-height: 1.5;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+}
+
+.code-display .CodeMirror-scroll {
+    overflow: auto !important;
+    height: 100% !important;
+    margin-right: 0 !important;
+}
+
+.code-display .CodeMirror-scrollbar-filler {
+    display: none !important;
+}
+
+.code-display .CodeMirror-sizer {
+    border-right-width: 0 !important;
+}
+
+.code-display .CodeMirror-gutters {
+    border-right: 1px solid var(--border-color);
+}
+
+.code-display .CodeMirror-hscrollbar {
+    bottom: 0 !important;
+}

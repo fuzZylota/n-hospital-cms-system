@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/sube-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -237,6 +241,44 @@
                 </div>
             </div>
 
+            <!-- Anlaşmalı Kurumlar HTML Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-file-text"></i>
+                        Anlaşmalı Kurumlar HTML
+                    </h2>
+                    <p class="section-description">Özel anlaşmalı kurumlar HTML kodu (HTML, CSS ve JavaScript)</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="anlasmali_kurumlar_html" class="form-label">Anlaşmalı Kurumlar HTML Kodu</label>
+                        <textarea id="anlasmali_kurumlar_html" name="anlasmali_kurumlar_html" class="form-textarea code-editor" 
+                                  rows="15" placeholder="HTML, CSS ve JavaScript kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">Özel anlaşmalı kurumlar HTML kodu (HTML, CSS ve JavaScript dahil) - Opsiyonel</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transportation Info HTML Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-navigation"></i>
+                        Ulaşım Bilgileri HTML
+                    </h2>
+                    <p class="section-description">Özel ulaşım bilgileri HTML kodu (HTML, CSS ve JavaScript)</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="transportation_info_html" class="form-label">Ulaşım Bilgileri HTML Kodu</label>
+                        <textarea id="transportation_info_html" name="transportation_info_html" class="form-textarea code-editor" 
+                                  rows="15" placeholder="HTML, CSS ve JavaScript kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">Özel ulaşım bilgileri HTML kodu (HTML, CSS ve JavaScript dahil) - Opsiyonel</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="window.history.back()">
@@ -281,5 +323,86 @@
         </div>
     </div>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+
+<script>
+    // Initialize CodeMirror for HTML textareas
+    document.addEventListener('DOMContentLoaded', function() {
+        // Anlaşmalı Kurumlar HTML Editor
+        const anlasmaliKurumlarTextarea = document.getElementById('anlasmali_kurumlar_html');
+        if (anlasmaliKurumlarTextarea) {
+            const editor = CodeMirror.fromTextArea(anlasmaliKurumlarTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete",
+                    "F11": function(cm) {
+                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                    },
+                    "Esc": function(cm) {
+                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    }
+                },
+                hintOptions: {
+                    completeSingle: false
+                }
+            });
+            
+            // Store editor reference for potential future use
+            window.anlasmaliKurumlarEditor = editor;
+        }
+
+        // Transportation Info HTML Editor
+        const transportationInfoTextarea = document.getElementById('transportation_info_html');
+        if (transportationInfoTextarea) {
+            const editor = CodeMirror.fromTextArea(transportationInfoTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete",
+                    "F11": function(cm) {
+                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                    },
+                    "Esc": function(cm) {
+                        if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    }
+                },
+                hintOptions: {
+                    completeSingle: false
+                }
+            });
+            
+            // Store editor reference for potential future use
+            window.transportationInfoEditor = editor;
+        }
+    });
+</script>
 
 <script src="{{ PathOnStart }}js/panel/sube-ekle.js"></script>

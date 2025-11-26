@@ -23,6 +23,14 @@ class SubeFormHandler {
      */
     setupFormSubmission() {
         this.form.addEventListener('submit', (e) => {
+            // Sync CodeMirror editors back to textareas before submission
+            if (window.anlasmaliKurumlarEditor) {
+                window.anlasmaliKurumlarEditor.save();
+            }
+            if (window.transportationInfoEditor) {
+                window.transportationInfoEditor.save();
+            }
+
             // Validate before submit; block submit if invalid
             if (!this.validateForm()) {
                 e.preventDefault();

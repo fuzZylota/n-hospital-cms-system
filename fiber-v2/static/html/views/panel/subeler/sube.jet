@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/sube.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -439,6 +443,50 @@
         </div>
         {{end}}
 
+        <!-- Anlaşmalı Kurumlar HTML Section -->
+        {{if Sube.AnlasmaliKurumlarHtml}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <h3 class="card-title">Anlaşmalı Kurumlar HTML</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-item full-width">
+                    <label class="info-label">Anlaşmalı Kurumlar HTML Kodu</label>
+                    <div class="info-value">
+                        <div class="code-display">
+                            <textarea id="anlasmaliKurumlarHtmlCode" readonly>{{ Sube.AnlasmaliKurumlarHtml }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Transportation Info HTML Section -->
+        {{if Sube.TransportationInfoHtml}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="card-title">Ulaşım Bilgileri HTML</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-item full-width">
+                    <label class="info-label">Ulaşım Bilgileri HTML Kodu</label>
+                    <div class="info-value">
+                        <div class="code-display">
+                            <textarea id="transportationInfoHtmlCode" readonly>{{ Sube.TransportationInfoHtml }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
         <!-- Documents Section -->
         {{if len(SubeDocuments) > 0}}
         <div class="content-card">
@@ -601,6 +649,13 @@
         <i class="icon-x"></i>
     </button>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
 
 <script>
     // Pass data to JavaScript

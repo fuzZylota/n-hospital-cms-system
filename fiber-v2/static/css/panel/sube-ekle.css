@@ -557,3 +557,25 @@
 * {
     box-sizing: border-box;
 }
+
+/* CodeMirror styling for HTML code editor */
+.code-editor {
+    font-family: 'Courier New', monospace;
+}
+
+.code-editor .CodeMirror {
+    height: 400px;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.code-editor .CodeMirror-scroll {
+    overflow: auto !important;
+    height: 100% !important;
+}
+
+.code-editor .CodeMirror-hscrollbar {
+    bottom: 0 !important;
+}

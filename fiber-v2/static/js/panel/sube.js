@@ -20,6 +20,7 @@ class SubeViewManager {
         this.formatDates();
         this.setupCopyToClipboard();
         this.setupKeyboardShortcuts();
+        this.setupCodeMirror();
     }
 
     /**
@@ -731,6 +732,52 @@ class SubeViewManager {
         cards.forEach(card => {
             observer.observe(card);
         });
+    }
+
+    /**
+     * Setup CodeMirror editors for HTML code display
+     */
+    setupCodeMirror() {
+        // Check if CodeMirror is available
+        if (typeof CodeMirror === 'undefined') {
+            return;
+        }
+
+        // Anlaşmalı Kurumlar HTML Editor
+        const anlasmaliKurumlarTextarea = document.getElementById('anlasmaliKurumlarHtmlCode');
+        if (anlasmaliKurumlarTextarea) {
+            const editor = CodeMirror.fromTextArea(anlasmaliKurumlarTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                readOnly: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false
+            });
+            
+            // Store editor reference for potential future use
+            window.anlasmaliKurumlarDisplayEditor = editor;
+        }
+
+        // Transportation Info HTML Editor
+        const transportationInfoTextarea = document.getElementById('transportationInfoHtmlCode');
+        if (transportationInfoTextarea) {
+            const editor = CodeMirror.fromTextArea(transportationInfoTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                lineWrapping: true,
+                readOnly: true,
+                indentUnit: 2,
+                tabSize: 2,
+                indentWithTabs: false
+            });
+            
+            // Store editor reference for potential future use
+            window.transportationInfoDisplayEditor = editor;
+        }
     }
 }
 

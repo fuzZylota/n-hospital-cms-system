@@ -2009,29 +2009,31 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		SubeData := models.Subeler{
-			Sid:              lib.String(rows[0]["sid"]),
-			Name:             lib.String(rows[0]["name"]),
-			UrlName:          lib.String(rows[0]["url_name"]),
-			Description:      lib.String(rows[0]["description"]),
-			Address:          lib.String(rows[0]["address"]),
-			City:             lib.String(rows[0]["city"]),
-			District:         lib.String(rows[0]["district"]),
-			PostalCode:       lib.String(rows[0]["postal_code"]),
-			Phone:            lib.String(rows[0]["phone"]),
-			Fax:              lib.String(rows[0]["fax"]),
-			DocumentMids:     lib.StringArray(rows[0]["document_mids"]),
-			Email:            lib.String(rows[0]["email"]),
-			Website:          lib.String(rows[0]["website"]),
-			Latitude:         lib.Float64(rows[0]["latitude"]),
-			Longitude:        lib.Float64(rows[0]["longitude"]),
-			WorkingHours:     lib.String(rows[0]["working_hours"]),
-			Mid:              lib.Int64(rows[0]["mid"]),
-			IsActive:         rows[0]["is_active"].(bool),
-			CreatedAt:        rows[0]["created_at"].(time.Time),
-			UpdatedAt:        rows[0]["updated_at"].(time.Time),
-			SubeMediaPath:    lib.String(rows[0]["sube_media_path"]),
-			SubeMediaAltText: lib.String(rows[0]["sube_media_alt_text"]),
-			SubeMediaTitle:   lib.String(rows[0]["sube_media_title"]),
+			Sid:                    lib.String(rows[0]["sid"]),
+			Name:                   lib.String(rows[0]["name"]),
+			UrlName:                lib.String(rows[0]["url_name"]),
+			Description:            lib.String(rows[0]["description"]),
+			Address:                lib.String(rows[0]["address"]),
+			City:                   lib.String(rows[0]["city"]),
+			District:               lib.String(rows[0]["district"]),
+			PostalCode:             lib.String(rows[0]["postal_code"]),
+			Phone:                  lib.String(rows[0]["phone"]),
+			Fax:                    lib.String(rows[0]["fax"]),
+			DocumentMids:           lib.StringArray(rows[0]["document_mids"]),
+			Email:                  lib.String(rows[0]["email"]),
+			Website:                lib.String(rows[0]["website"]),
+			Latitude:               lib.Float64(rows[0]["latitude"]),
+			Longitude:              lib.Float64(rows[0]["longitude"]),
+			WorkingHours:           lib.String(rows[0]["working_hours"]),
+			Mid:                    lib.Int64(rows[0]["mid"]),
+			AnlasmaliKurumlarHtml:  lib.String(rows[0]["anlasmali_kurumlar_html"]),
+			TransportationInfoHtml: lib.String(rows[0]["transportation_info_html"]),
+			IsActive:               rows[0]["is_active"].(bool),
+			CreatedAt:              rows[0]["created_at"].(time.Time),
+			UpdatedAt:              rows[0]["updated_at"].(time.Time),
+			SubeMediaPath:          lib.String(rows[0]["sube_media_path"]),
+			SubeMediaAltText:       lib.String(rows[0]["sube_media_alt_text"]),
+			SubeMediaTitle:         lib.String(rows[0]["sube_media_title"]),
 		}
 
 		SubeMids := []any{}
@@ -2257,29 +2259,31 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 		}
 
 		Sube := models.Subeler{
-			Sid:              lib.String(rows[0]["sid"]),
-			Name:             lib.String(rows[0]["name"]),
-			UrlName:          lib.String(rows[0]["url_name"]),
-			Description:      lib.String(rows[0]["description"]),
-			Address:          lib.String(rows[0]["address"]),
-			City:             lib.String(rows[0]["city"]),
-			District:         lib.String(rows[0]["district"]),
-			PostalCode:       lib.String(rows[0]["postal_code"]),
-			Phone:            lib.String(rows[0]["phone"]),
-			Fax:              lib.String(rows[0]["fax"]),
-			Email:            lib.String(rows[0]["email"]),
-			Website:          lib.String(rows[0]["website"]),
-			Latitude:         lib.Float64(rows[0]["latitude"]),
-			Longitude:        lib.Float64(rows[0]["longitude"]),
-			WorkingHours:     lib.String(rows[0]["working_hours"]),
-			Mid:              lib.Int64(rows[0]["mid"]),
-			DocumentMids:     lib.StringArray(rows[0]["document_mids"]),
-			IsActive:         lib.Bool(rows[0]["is_active"]),
-			CreatedAt:        lib.Time(rows[0]["created_at"]),
-			UpdatedAt:        lib.Time(rows[0]["updated_at"]),
-			SubeMediaPath:    lib.String(rows[0]["sube_media_path"]),
-			SubeMediaAltText: lib.String(rows[0]["sube_media_alt_text"]),
-			SubeMediaTitle:   lib.String(rows[0]["sube_media_title"]),
+			Sid:                    lib.String(rows[0]["sid"]),
+			Name:                   lib.String(rows[0]["name"]),
+			UrlName:                lib.String(rows[0]["url_name"]),
+			Description:            lib.String(rows[0]["description"]),
+			Address:                lib.String(rows[0]["address"]),
+			City:                   lib.String(rows[0]["city"]),
+			District:               lib.String(rows[0]["district"]),
+			PostalCode:             lib.String(rows[0]["postal_code"]),
+			Phone:                  lib.String(rows[0]["phone"]),
+			Fax:                    lib.String(rows[0]["fax"]),
+			Email:                  lib.String(rows[0]["email"]),
+			Website:                lib.String(rows[0]["website"]),
+			Latitude:               lib.Float64(rows[0]["latitude"]),
+			Longitude:              lib.Float64(rows[0]["longitude"]),
+			AnlasmaliKurumlarHtml:  lib.String(rows[0]["anlasmali_kurumlar_html"]),
+			TransportationInfoHtml: lib.String(rows[0]["transportation_info_html"]),
+			WorkingHours:           lib.String(rows[0]["working_hours"]),
+			Mid:                    lib.Int64(rows[0]["mid"]),
+			DocumentMids:           lib.StringArray(rows[0]["document_mids"]),
+			IsActive:               lib.Bool(rows[0]["is_active"]),
+			CreatedAt:              lib.Time(rows[0]["created_at"]),
+			UpdatedAt:              lib.Time(rows[0]["updated_at"]),
+			SubeMediaPath:          lib.String(rows[0]["sube_media_path"]),
+			SubeMediaAltText:       lib.String(rows[0]["sube_media_alt_text"]),
+			SubeMediaTitle:         lib.String(rows[0]["sube_media_title"]),
 		}
 
 		SubeMids := []any{}
@@ -3730,7 +3734,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		if SortBy == "title" {
 			Doktorlar.OrderByField("d.title", []string{SortOrder})
 		} else {
-			Doktorlar.OrderBy("d."+SortBy, SortOrder)
+			Doktorlar.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END")
 		}
 
 		Doktorlar.Limit(int(itemsPerPage))
