@@ -2273,6 +2273,8 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 			Website:                lib.String(rows[0]["website"]),
 			Latitude:               lib.Float64(rows[0]["latitude"]),
 			Longitude:              lib.Float64(rows[0]["longitude"]),
+			TransportationInfo:     lib.String(rows[0]["transportation_info"]),
+			GoogleMapIframe:        lib.String(rows[0]["google_map_iframe"]),
 			AnlasmaliKurumlarHtml:  lib.String(rows[0]["anlasmali_kurumlar_html"]),
 			TransportationInfoHtml: lib.String(rows[0]["transportation_info_html"]),
 			WorkingHours:           lib.String(rows[0]["working_hours"]),
