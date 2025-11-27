@@ -3734,7 +3734,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		if SortBy == "title" {
 			Doktorlar.OrderByField("d.title", []string{SortOrder})
 		} else {
-			Doktorlar.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END")
+			Doktorlar.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		}
 
 		Doktorlar.Limit(int(itemsPerPage))

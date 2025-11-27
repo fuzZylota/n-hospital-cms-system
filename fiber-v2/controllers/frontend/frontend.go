@@ -1232,7 +1232,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
 		GetDoctors.Where("s.url_name", "=", subeName)
 		GetDoctors.And("d.is_active", "=", true)
-		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END")
+		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		GetDoctors.Finish()
 
 		fmt.Printf("%v\n", GetDoctors.Query)
@@ -1352,7 +1352,7 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
 		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
 		GetDoctors.And("d.is_active", "=", true)
-		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END")
+		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		GetDoctors.Limit(int(ItemsPerPage))
 		GetDoctors.Offset(Offset)
 		GetDoctors.Finish()
