@@ -42,7 +42,7 @@
                 {{ range index, Doctor := Doctors }}
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card-three wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='{{ index * 100 }}ms'>
-                        <a class="team-card-three__link-overlay" href="/subelerimiz/{{ Doctor.SubeUrlName }}/doktorlar/{{ Doctor.UrlName }}" aria-label="{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}"></a>
+                        <a class="team-card-three__link-overlay" href="/doktorlarimiz/{{ Doctor.UrlName }}" aria-label="{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}"></a>
                         <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? PathOnStart + Doctor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}")'></div><!-- /.team-card-three__image -->
                         <div class="team-card-three__hover">
                             {{ if Options.Options.ShowDoctorSocialMedia }}

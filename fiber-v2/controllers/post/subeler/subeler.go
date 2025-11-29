@@ -440,6 +440,8 @@ func EditSube(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			updateSube.Set("updated_at", "NOW()")
 			updateSube.Where("sid", "=", SubeId)
 			updateSube.Finish()
+
+			fmt.Printf("updateSube: %s\n", updateSube.Query)
 			err = updateSube.Execute()
 
 			if err != nil {

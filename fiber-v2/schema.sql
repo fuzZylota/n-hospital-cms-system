@@ -170,7 +170,7 @@ CREATE TABLE subeler (
     longitude DECIMAL(11, 8),
     view_count INTEGER DEFAULT 0,
     transportation_info TEXT,
-    working_hours JSONB DEFAULT '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', -- Store working hours as JSON
+    working_hours TEXT DEFAULT '{"pazartesi": "08:00-18:00", "salı": "08:00-18:00", "çarşamba": "08:00-18:00", "perşembe": "08:00-18:00", "cuma": "08:00-18:00", "cumartesi": "08:00-13:00", "pazar": "closed"}', -- Store working hours as JSON
     mid INTEGER REFERENCES medias(mid) ON DELETE SET NULL,
     document_mids INTEGER[] DEFAULT '{}',
     is_active BOOLEAN DEFAULT TRUE,
@@ -261,8 +261,8 @@ CREATE TABLE doktorlar (
     appointment_fee DECIMAL(10,2) DEFAULT 0.00,
     online_appointment BOOLEAN DEFAULT TRUE,
     view_count INTEGER DEFAULT 0,
-    working_hours JSONB, -- Store weekly schedule as JSON
-    vacation_dates JSONB, -- Store vacation periods as JSON
+    working_hours TEXT, -- Store weekly schedule as JSON
+    vacation_dates TEXT, -- Store vacation periods as JSON
     facebook_url VARCHAR(500),
     x_url VARCHAR(500),
     instagram_url VARCHAR(500),
