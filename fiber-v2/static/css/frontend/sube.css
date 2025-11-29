@@ -24,6 +24,23 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.contact-row i {
+    flex-shrink: 0;
+}
+
+.contact-label {
+    flex-shrink: 0;
+}
+
+.contact-value {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Contact row variants for different contact types */
@@ -523,20 +540,30 @@
         padding: 8px 10px;
         width: 100%;
         border-radius: 6px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        min-height: auto;
     }
     
     .contact-label {
-        font-size: 8px;
+        font-size: 9px;
+        flex-shrink: 0;
+        margin-right: 6px;
     }
     
     .contact-value {
-        font-size: 9px;
-        max-width: 140px;
+        font-size: 10px;
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
     
     .contact-row i {
-        font-size: 10px;
-        width: 10px;
+        font-size: 12px;
+        width: 12px;
+        flex-shrink: 0;
+        margin-right: 6px;
     }
 }
 
@@ -546,22 +573,31 @@
     }
     
     .contact-row {
-        padding: 4px 8px;
-        height: 24px;
+        padding: 6px 8px;
+        min-height: auto;
         border-radius: 4px;
+        flex-wrap: wrap;
+        align-items: flex-start;
     }
     
     .contact-label {
-        font-size: 7px;
+        font-size: 8px;
+        flex-shrink: 0;
+        margin-right: 4px;
     }
     
     .contact-value {
-        font-size: 8px;
-        max-width: 120px;
+        font-size: 9px;
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
     
     .contact-row i {
-        font-size: 9px;
-        width: 9px;
+        font-size: 11px;
+        width: 11px;
+        flex-shrink: 0;
+        margin-right: 4px;
     }
 }

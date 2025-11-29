@@ -83,7 +83,7 @@
                         </div>
                         <div class="sube-card-actions">
                             <a href="/subelerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
-                            <a href="/subelerimiz/{{ .UrlName }}/doktorlar" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
+                            <a href="/doktorlarimiz" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
                         </div>
                     </div>
                 </div>
