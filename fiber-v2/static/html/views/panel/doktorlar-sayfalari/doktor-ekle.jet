@@ -77,6 +77,12 @@
                                    placeholder="Diploma numarası">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="calistigi_subeler_text" class="form-label">Çalıştığı Şubeler</label>
+                        <textarea id="calistigi_subeler_text" name="calistigi_subeler_text" class="form-textarea" 
+                                  rows="3" placeholder="Doktorun çalıştığı şubeler hakkında bilgi..."></textarea>
+                        <div class="form-help">Doktorun çalıştığı şubeler hakkında açıklama metni</div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="phone" class="form-label">Telefon</label>

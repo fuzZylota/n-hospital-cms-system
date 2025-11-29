@@ -138,6 +138,14 @@
                                 <div class="info-value">{{ Doktor.DiplomaNo }}</div>
                             </div>
                             {{end}}
+                            {{if Doktor.CalistigiSubelerText}}
+                            <div class="info-item full-width">
+                                <label class="info-label">Çalıştığı Şubeler</label>
+                                <div class="info-value">
+                                    <div class="text-content">{{ Doktor.CalistigiSubelerText }}</div>
+                                </div>
+                            </div>
+                            {{end}}
                             {{if Doktor.ExperienceYears > 0}}
                             <div class="info-item">
                                 <label class="info-label">Deneyim</label>

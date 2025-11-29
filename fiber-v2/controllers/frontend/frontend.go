@@ -1135,16 +1135,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			})
 		}
 
-		GetDoctorCount := Orm.Count("doktorlar")
-		GetDoctorCount.Where("sid", "=", Sube.Sid)
-		GetDoctorCount.Finish()
-		err = GetDoctorCount.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		DoctorCount := GetDoctorCount.Length()
-
 		GetAnlasmaliKurumCount := Orm.Count("anlasmali_kurumlar")
 		GetAnlasmaliKurumCount.Where("sid", "=", Sube.Sid)
 		GetAnlasmaliKurumCount.Finish()
@@ -1197,7 +1187,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"User":                OurUser,
 			"Sube":                Sube,
 			"BranchCount":         BranchCount,
-			"DoctorCount":         DoctorCount,
 			"AnlasmaliKurumCount": AnlasmaliKurumCount,
 			"AnlasmaliKurumlar":   AnlasmaliKurumlar,
 			"SubeDocuments":       SubeDocumentsArray,
@@ -1346,7 +1335,7 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 		Offset := (Page - 1) * int(ItemsPerPage)
 
 		Doctors := []models.DoktorForHomePage{}
-		GetDoctors := Orm.Select([]string{"d.drid", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoctors := Orm.Select([]string{"d.drid", "d.calistigi_subeler_text", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
 		GetDoctors.Table("doktorlar d")
 		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
@@ -1372,22 +1361,23 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		for _, row := range rows {
 			Doctors = append(Doctors, models.DoktorForHomePage{
-				Drid:         lib.String(row["drid"]),
-				Title:        lib.String(row["title"]),
-				FirstName:    lib.String(row["first_name"]),
-				LastName:     lib.String(row["last_name"]),
-				UrlName:      lib.String(row["url_name"]),
-				PhotoPath:    lib.String(row["photo_path"]),
-				PhotoAltText: lib.String(row["photo_alt_text"]),
-				PhotoTitle:   lib.String(row["photo_title"]),
-				FacebookUrl:  lib.String(row["facebook_url"]),
-				XUrl:         lib.String(row["x_url"]),
-				InstagramUrl: lib.String(row["instagram_url"]),
-				LinkedinUrl:  lib.String(row["linkedin_url"]),
-				PersonalUrl:  lib.String(row["personal_url"]),
-				SubeUrlName:  lib.String(row["sube_url_name"]),
-				BransName:    lib.String(row["brans_name"]),
-				BransUrlName: lib.String(row["brans_url_name"]),
+				Drid:                 lib.String(row["drid"]),
+				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
+				Title:                lib.String(row["title"]),
+				FirstName:            lib.String(row["first_name"]),
+				LastName:             lib.String(row["last_name"]),
+				UrlName:              lib.String(row["url_name"]),
+				PhotoPath:            lib.String(row["photo_path"]),
+				PhotoAltText:         lib.String(row["photo_alt_text"]),
+				PhotoTitle:           lib.String(row["photo_title"]),
+				FacebookUrl:          lib.String(row["facebook_url"]),
+				XUrl:                 lib.String(row["x_url"]),
+				InstagramUrl:         lib.String(row["instagram_url"]),
+				LinkedinUrl:          lib.String(row["linkedin_url"]),
+				PersonalUrl:          lib.String(row["personal_url"]),
+				SubeUrlName:          lib.String(row["sube_url_name"]),
+				BransName:            lib.String(row["brans_name"]),
+				BransUrlName:         lib.String(row["brans_url_name"]),
 			})
 		}
 
@@ -1455,30 +1445,31 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		Doktor := models.Doktorlar{}
 		for _, row := range rows {
 			Doktor = models.Doktorlar{
-				Drid:           lib.String(row["drid"]),
-				Title:          lib.String(row["title"]),
-				FirstName:      lib.String(row["first_name"]),
-				LastName:       lib.String(row["last_name"]),
-				PhotoPath:      lib.String(row["photo_path"]),
-				PhotoAltText:   lib.String(row["photo_alt_text"]),
-				PhotoTitle:     lib.String(row["photo_title"]),
-				SubeName:       lib.String(row["sube_name"]),
-				BranchName:     lib.String(row["brans_name"]),
-				FacebookUrl:    lib.String(row["facebook_url"]),
-				XUrl:           lib.String(row["x_url"]),
-				InstagramUrl:   lib.String(row["instagram_url"]),
-				LinkedinUrl:    lib.String(row["linkedin_url"]),
-				PersonalUrl:    lib.String(row["personal_url"]),
-				AppointmentFee: lib.Float64(row["appointment_fee"]),
-				Phone:          lib.String(row["phone"]),
-				Email:          lib.String(row["email"]),
-				Biography:      lib.String(row["biography"]),
-				Education:      lib.String(row["education"]),
-				Languages:      lib.String(row["languages"]),
-				BirthDate:      lib.Time(row["birth_date"]),
-				WorkingHours:   lib.String(row["working_hours"]),
-				Experiences:    []models.DoctorExperiences{},
-				Expertises:     []models.DoctorExpertises{},
+				Drid:                 lib.String(row["drid"]),
+				Title:                lib.String(row["title"]),
+				FirstName:            lib.String(row["first_name"]),
+				LastName:             lib.String(row["last_name"]),
+				PhotoPath:            lib.String(row["photo_path"]),
+				PhotoAltText:         lib.String(row["photo_alt_text"]),
+				PhotoTitle:           lib.String(row["photo_title"]),
+				SubeName:             lib.String(row["sube_name"]),
+				BranchName:           lib.String(row["brans_name"]),
+				FacebookUrl:          lib.String(row["facebook_url"]),
+				XUrl:                 lib.String(row["x_url"]),
+				InstagramUrl:         lib.String(row["instagram_url"]),
+				LinkedinUrl:          lib.String(row["linkedin_url"]),
+				PersonalUrl:          lib.String(row["personal_url"]),
+				AppointmentFee:       lib.Float64(row["appointment_fee"]),
+				Phone:                lib.String(row["phone"]),
+				Email:                lib.String(row["email"]),
+				Biography:            lib.String(row["biography"]),
+				Education:            lib.String(row["education"]),
+				Languages:            lib.String(row["languages"]),
+				BirthDate:            lib.Time(row["birth_date"]),
+				WorkingHours:         lib.String(row["working_hours"]),
+				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
+				Experiences:          []models.DoctorExperiences{},
+				Expertises:           []models.DoctorExpertises{},
 			}
 		}
 

@@ -45,6 +45,7 @@
                         <input type="hidden" name="old_url_name" value="{{ Doktor.UrlName }}">
                         <input type="hidden" name="old_tc_kimlik" value="{{ Doktor.TcKimlik }}">
                         <input type="hidden" name="old_diploma_no" value="{{ Doktor.DiplomaNo }}">
+                        <input type="hidden" name="old_calistigi_subeler_text" value="{{ Doktor.CalistigiSubelerText }}">
                         <input type="hidden" name="old_phone" value="{{ Doktor.Phone }}">
                         <input type="hidden" name="old_email" value="{{ Doktor.Email }}">
                         <input type="hidden" name="old_biography" value="{{ Doktor.Biography }}">
@@ -109,6 +110,12 @@
                                     <input type="text" id="diploma_no" name="diploma_no" class="form-input" 
                                            value="{{ Doktor.DiplomaNo }}">
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="calistigi_subeler_text" class="form-label">Çalıştığı Şubeler</label>
+                                <textarea id="calistigi_subeler_text" name="calistigi_subeler_text" class="form-textarea" 
+                                          rows="3" placeholder="Doktorun çalıştığı şubeler hakkında bilgi...">{{ Doktor.CalistigiSubelerText }}</textarea>
+                                <div class="form-help">Doktorun çalıştığı şubeler hakkında açıklama metni</div>
                             </div>
                         </div>
 

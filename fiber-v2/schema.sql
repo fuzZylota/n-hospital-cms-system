@@ -243,6 +243,7 @@ CREATE TABLE doktorlar (
     url_name VARCHAR(200) UNIQUE NOT NULL,
     tc_kimlik VARCHAR(11),
     diploma_no VARCHAR(50),
+    calistigi_subeler_text TEXT DEFAULT NULL,
     phone VARCHAR(20),
     email VARCHAR(100),
     biography TEXT,

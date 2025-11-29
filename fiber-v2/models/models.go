@@ -87,25 +87,26 @@ type NewsLink struct {
 }
 
 type DoktorForHomePage struct {
-	Drid         string
-	Sid          string
-	SubeUrlName  string
-	Brid         string
-	BransName    string
-	BransUrlName string
-	PhotoMid     int64
-	PhotoPath    string
-	PhotoAltText string
-	PhotoTitle   string
-	Title        string
-	FirstName    string
-	LastName     string
-	UrlName      string
-	FacebookUrl  string
-	XUrl         string
-	InstagramUrl string
-	LinkedinUrl  string
-	PersonalUrl  string
+	Drid                 string
+	CalistigiSubelerText string
+	Sid                  string
+	SubeUrlName          string
+	Brid                 string
+	BransName            string
+	BransUrlName         string
+	PhotoMid             int64
+	PhotoPath            string
+	PhotoAltText         string
+	PhotoTitle           string
+	Title                string
+	FirstName            string
+	LastName             string
+	UrlName              string
+	FacebookUrl          string
+	XUrl                 string
+	InstagramUrl         string
+	LinkedinUrl          string
+	PersonalUrl          string
 }
 
 type SubeForFrontendPages struct {
@@ -739,44 +740,45 @@ type BranslarEdit struct {
 }
 
 type Doktorlar struct {
-	Drid                string    `form:"drid" json:"drid"`
-	Title               string    `form:"title" json:"title"`
-	FirstName           string    `form:"first_name" json:"first_name"`
-	LastName            string    `form:"last_name" json:"last_name"`
-	UrlName             string    `form:"url_name" json:"url_name"`
-	TcKimlik            string    `form:"tc_kimlik" json:"tc_kimlik"`
-	DiplomaNo           string    `form:"diploma_no" json:"diploma_no"`
-	Phone               string    `form:"phone" json:"phone"`
-	Email               string    `form:"email" json:"email"`
-	Biography           string    `form:"biography" json:"biography"`
-	Education           string    `form:"education" json:"education"`
-	ExperienceYears     int64     `form:"experience_years" json:"experience_years"`
-	Languages           string    `form:"languages" json:"languages"`
-	BirthDate           time.Time `form:"birth_date" json:"birth_date"`
-	Gender              string    `form:"gender" json:"gender"`
-	PhotoMid            int64     `form:"photo_mid" json:"photo_mid"`
-	CvFileMid           int64     `form:"cv_file_mid" json:"cv_file_mid"`
-	PhotoPath           string    `form:"photo_path" json:"photo_path"`
-	PhotoAltText        string    `form:"photo_alt_text" json:"photo_alt_text"`
-	PhotoTitle          string    `form:"photo_title" json:"photo_title"`
-	CvFilePath          string    `form:"cv_file_path" json:"cv_file_path"`
-	Brid                string    `form:"brid" json:"brid"`
-	Sid                 string    `form:"sid" json:"sid"`
-	HeadDrid            string    `form:"head_drid" json:"head_drid"`
-	RoomNumber          string    `form:"room_number" json:"room_number"`
-	AppointmentDuration int64     `form:"appointment_duration" json:"appointment_duration"`
-	AppointmentFee      float64   `form:"appointment_fee" json:"appointment_fee"`
-	OnlineAppointment   bool      `form:"online_appointment" json:"online_appointment"`
-	WorkingHours        string    `form:"working_hours" json:"working_hours"`
-	VacationDates       string    `form:"vacation_dates" json:"vacation_dates"`
-	FacebookUrl         string    `form:"facebook_url" json:"facebook_url"`
-	LinkedinUrl         string    `form:"linkedin_url" json:"linkedin_url"`
-	InstagramUrl        string    `form:"instagram_url" json:"instagram_url"`
-	XUrl                string    `form:"x_url" json:"x_url"`
-	PersonalUrl         string    `form:"personal_url" json:"personal_url"`
-	IsActive            bool      `form:"is_active" json:"is_active"`
-	CreatedAt           time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt           time.Time `form:"updated_at" json:"updated_at"`
+	Drid                 string    `form:"drid" json:"drid"`
+	Title                string    `form:"title" json:"title"`
+	FirstName            string    `form:"first_name" json:"first_name"`
+	LastName             string    `form:"last_name" json:"last_name"`
+	UrlName              string    `form:"url_name" json:"url_name"`
+	TcKimlik             string    `form:"tc_kimlik" json:"tc_kimlik"`
+	DiplomaNo            string    `form:"diploma_no" json:"diploma_no"`
+	CalistigiSubelerText string    `form:"calistigi_subeler_text" json:"calistigi_subeler_text"`
+	Phone                string    `form:"phone" json:"phone"`
+	Email                string    `form:"email" json:"email"`
+	Biography            string    `form:"biography" json:"biography"`
+	Education            string    `form:"education" json:"education"`
+	ExperienceYears      int64     `form:"experience_years" json:"experience_years"`
+	Languages            string    `form:"languages" json:"languages"`
+	BirthDate            time.Time `form:"birth_date" json:"birth_date"`
+	Gender               string    `form:"gender" json:"gender"`
+	PhotoMid             int64     `form:"photo_mid" json:"photo_mid"`
+	CvFileMid            int64     `form:"cv_file_mid" json:"cv_file_mid"`
+	PhotoPath            string    `form:"photo_path" json:"photo_path"`
+	PhotoAltText         string    `form:"photo_alt_text" json:"photo_alt_text"`
+	PhotoTitle           string    `form:"photo_title" json:"photo_title"`
+	CvFilePath           string    `form:"cv_file_path" json:"cv_file_path"`
+	Brid                 string    `form:"brid" json:"brid"`
+	Sid                  string    `form:"sid" json:"sid"`
+	HeadDrid             string    `form:"head_drid" json:"head_drid"`
+	RoomNumber           string    `form:"room_number" json:"room_number"`
+	AppointmentDuration  int64     `form:"appointment_duration" json:"appointment_duration"`
+	AppointmentFee       float64   `form:"appointment_fee" json:"appointment_fee"`
+	OnlineAppointment    bool      `form:"online_appointment" json:"online_appointment"`
+	WorkingHours         string    `form:"working_hours" json:"working_hours"`
+	VacationDates        string    `form:"vacation_dates" json:"vacation_dates"`
+	FacebookUrl          string    `form:"facebook_url" json:"facebook_url"`
+	LinkedinUrl          string    `form:"linkedin_url" json:"linkedin_url"`
+	InstagramUrl         string    `form:"instagram_url" json:"instagram_url"`
+	XUrl                 string    `form:"x_url" json:"x_url"`
+	PersonalUrl          string    `form:"personal_url" json:"personal_url"`
+	IsActive             bool      `form:"is_active" json:"is_active"`
+	CreatedAt            time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt            time.Time `form:"updated_at" json:"updated_at"`
 	// fields that'll use with that struct:
 	Experiences []DoctorExperiences `form:"doctor_experiences" json:"doctor_experiences"`
 	Expertises  []DoctorExpertises  `form:"doctor_expertises" json:"doctor_expertises"`
@@ -786,73 +788,75 @@ type Doktorlar struct {
 }
 
 type DoktorlarEdit struct {
-	Drid                   string    `form:"drid" json:"drid"`
-	Title                  string    `form:"title" json:"title"`
-	OldTitle               string    `form:"old_title" json:"old_title"`
-	FirstName              string    `form:"first_name" json:"first_name"`
-	OldFirstName           string    `form:"old_first_name" json:"old_first_name"`
-	LastName               string    `form:"last_name" json:"last_name"`
-	OldLastName            string    `form:"old_last_name" json:"old_last_name"`
-	UrlName                string    `form:"url_name" json:"url_name"`
-	OldUrlName             string    `form:"old_url_name" json:"old_url_name"`
-	TcKimlik               string    `form:"tc_kimlik" json:"tc_kimlik"`
-	OldTcKimlik            string    `form:"old_tc_kimlik" json:"old_tc_kimlik"`
-	DiplomaNo              string    `form:"diploma_no" json:"diploma_no"`
-	OldDiplomaNo           string    `form:"old_diploma_no" json:"old_diploma_no"`
-	Phone                  string    `form:"phone" json:"phone"`
-	OldPhone               string    `form:"old_phone" json:"old_phone"`
-	Email                  string    `form:"email" json:"email"`
-	OldEmail               string    `form:"old_email" json:"old_email"`
-	Biography              string    `form:"biography" json:"biography"`
-	OldBiography           string    `form:"old_biography" json:"old_biography"`
-	Education              string    `form:"education" json:"education"`
-	OldEducation           string    `form:"old_education" json:"old_education"`
-	ExperienceYears        int64     `form:"experience_years" json:"experience_years"`
-	OldExperienceYears     int64     `form:"old_experience_years" json:"old_experience_years"`
-	Languages              string    `form:"languages" json:"languages"`
-	OldLanguages           string    `form:"old_languages" json:"old_languages"`
-	BirthDate              time.Time `form:"birth_date" json:"birth_date"`
-	OldBirthDate           time.Time `form:"old_birth_date" json:"old_birth_date"`
-	Gender                 string    `form:"gender" json:"gender"`
-	OldGender              string    `form:"old_gender" json:"old_gender"`
-	PhotoMid               int64     `form:"photo_mid" json:"photo_mid"`
-	OldPhotoMid            int64     `form:"old_photo_mid" json:"old_photo_mid"`
-	CvFileMid              int64     `form:"cv_file_mid" json:"cv_file_mid"`
-	OldCvFileMid           int64     `form:"old_cv_file_mid" json:"old_cv_file_mid"`
-	Brid                   string    `form:"brid" json:"brid"`
-	OldBrid                string    `form:"old_brid" json:"old_brid"`
-	Sid                    string    `form:"sid" json:"sid"`
-	OldSid                 string    `form:"old_sid" json:"old_sid"`
-	HeadDrid               string    `form:"head_drid" json:"head_drid"`
-	OldHeadDrid            string    `form:"old_head_drid" json:"old_head_drid"`
-	RoomNumber             string    `form:"room_number" json:"room_number"`
-	OldRoomNumber          string    `form:"old_room_number" json:"old_room_number"`
-	AppointmentDuration    int64     `form:"appointment_duration" json:"appointment_duration"`
-	OldAppointmentDuration int64     `form:"old_appointment_duration" json:"old_appointment_duration"`
-	AppointmentFee         float64   `form:"appointment_fee" json:"appointment_fee"`
-	OldAppointmentFee      float64   `form:"old_appointment_fee" json:"old_appointment_fee"`
-	OnlineAppointment      bool      `form:"online_appointment" json:"online_appointment"`
-	OldOnlineAppointment   bool      `form:"old_online_appointment" json:"old_online_appointment"`
-	WorkingHours           string    `form:"working_hours" json:"working_hours"`
-	OldWorkingHours        string    `form:"old_working_hours" json:"old_working_hours"`
-	VacationDates          string    `form:"vacation_dates" json:"vacation_dates"`
-	OldVacationDates       string    `form:"old_vacation_dates" json:"old_vacation_dates"`
-	FacebookUrl            string    `form:"facebook_url" json:"facebook_url"`
-	OldFacebookUrl         string    `form:"old_facebook_url" json:"old_facebook_url"`
-	LinkedinUrl            string    `form:"linkedin_url" json:"linkedin_url"`
-	OldLinkedinUrl         string    `form:"old_linkedin_url" json:"old_linkedin_url"`
-	InstagramUrl           string    `form:"instagram_url" json:"instagram_url"`
-	OldInstagramUrl        string    `form:"old_instagram_url" json:"old_instagram_url"`
-	XUrl                   string    `form:"x_url" json:"x_url"`
-	OldXUrl                string    `form:"old_x_url" json:"old_x_url"`
-	PersonalUrl            string    `form:"personal_url" json:"personal_url"`
-	OldPersonalUrl         string    `form:"old_personal_url" json:"old_personal_url"`
-	IsActive               bool      `form:"is_active" json:"is_active"`
-	OldIsActive            bool      `form:"old_is_active" json:"old_is_active"`
-	CreatedAt              time.Time `form:"created_at" json:"created_at"`
-	OldCreatedAt           time.Time `form:"old_created_at" json:"old_created_at"`
-	UpdatedAt              time.Time `form:"updated_at" json:"updated_at"`
-	OldUpdatedAt           time.Time `form:"old_updated_at" json:"old_updated_at"`
+	Drid                    string    `form:"drid" json:"drid"`
+	Title                   string    `form:"title" json:"title"`
+	OldTitle                string    `form:"old_title" json:"old_title"`
+	FirstName               string    `form:"first_name" json:"first_name"`
+	OldFirstName            string    `form:"old_first_name" json:"old_first_name"`
+	LastName                string    `form:"last_name" json:"last_name"`
+	OldLastName             string    `form:"old_last_name" json:"old_last_name"`
+	UrlName                 string    `form:"url_name" json:"url_name"`
+	OldUrlName              string    `form:"old_url_name" json:"old_url_name"`
+	TcKimlik                string    `form:"tc_kimlik" json:"tc_kimlik"`
+	OldTcKimlik             string    `form:"old_tc_kimlik" json:"old_tc_kimlik"`
+	CalistigiSubelerText    string    `form:"calistigi_subeler_text" json:"calistigi_subeler_text"`
+	OldCalistigiSubelerText string    `form:"old_calistigi_subeler_text" json:"old_calistigi_subeler_text"`
+	DiplomaNo               string    `form:"diploma_no" json:"diploma_no"`
+	OldDiplomaNo            string    `form:"old_diploma_no" json:"old_diploma_no"`
+	Phone                   string    `form:"phone" json:"phone"`
+	OldPhone                string    `form:"old_phone" json:"old_phone"`
+	Email                   string    `form:"email" json:"email"`
+	OldEmail                string    `form:"old_email" json:"old_email"`
+	Biography               string    `form:"biography" json:"biography"`
+	OldBiography            string    `form:"old_biography" json:"old_biography"`
+	Education               string    `form:"education" json:"education"`
+	OldEducation            string    `form:"old_education" json:"old_education"`
+	ExperienceYears         int64     `form:"experience_years" json:"experience_years"`
+	OldExperienceYears      int64     `form:"old_experience_years" json:"old_experience_years"`
+	Languages               string    `form:"languages" json:"languages"`
+	OldLanguages            string    `form:"old_languages" json:"old_languages"`
+	BirthDate               time.Time `form:"birth_date" json:"birth_date"`
+	OldBirthDate            time.Time `form:"old_birth_date" json:"old_birth_date"`
+	Gender                  string    `form:"gender" json:"gender"`
+	OldGender               string    `form:"old_gender" json:"old_gender"`
+	PhotoMid                int64     `form:"photo_mid" json:"photo_mid"`
+	OldPhotoMid             int64     `form:"old_photo_mid" json:"old_photo_mid"`
+	CvFileMid               int64     `form:"cv_file_mid" json:"cv_file_mid"`
+	OldCvFileMid            int64     `form:"old_cv_file_mid" json:"old_cv_file_mid"`
+	Brid                    string    `form:"brid" json:"brid"`
+	OldBrid                 string    `form:"old_brid" json:"old_brid"`
+	Sid                     string    `form:"sid" json:"sid"`
+	OldSid                  string    `form:"old_sid" json:"old_sid"`
+	HeadDrid                string    `form:"head_drid" json:"head_drid"`
+	OldHeadDrid             string    `form:"old_head_drid" json:"old_head_drid"`
+	RoomNumber              string    `form:"room_number" json:"room_number"`
+	OldRoomNumber           string    `form:"old_room_number" json:"old_room_number"`
+	AppointmentDuration     int64     `form:"appointment_duration" json:"appointment_duration"`
+	OldAppointmentDuration  int64     `form:"old_appointment_duration" json:"old_appointment_duration"`
+	AppointmentFee          float64   `form:"appointment_fee" json:"appointment_fee"`
+	OldAppointmentFee       float64   `form:"old_appointment_fee" json:"old_appointment_fee"`
+	OnlineAppointment       bool      `form:"online_appointment" json:"online_appointment"`
+	OldOnlineAppointment    bool      `form:"old_online_appointment" json:"old_online_appointment"`
+	WorkingHours            string    `form:"working_hours" json:"working_hours"`
+	OldWorkingHours         string    `form:"old_working_hours" json:"old_working_hours"`
+	VacationDates           string    `form:"vacation_dates" json:"vacation_dates"`
+	OldVacationDates        string    `form:"old_vacation_dates" json:"old_vacation_dates"`
+	FacebookUrl             string    `form:"facebook_url" json:"facebook_url"`
+	OldFacebookUrl          string    `form:"old_facebook_url" json:"old_facebook_url"`
+	LinkedinUrl             string    `form:"linkedin_url" json:"linkedin_url"`
+	OldLinkedinUrl          string    `form:"old_linkedin_url" json:"old_linkedin_url"`
+	InstagramUrl            string    `form:"instagram_url" json:"instagram_url"`
+	OldInstagramUrl         string    `form:"old_instagram_url" json:"old_instagram_url"`
+	XUrl                    string    `form:"x_url" json:"x_url"`
+	OldXUrl                 string    `form:"old_x_url" json:"old_x_url"`
+	PersonalUrl             string    `form:"personal_url" json:"personal_url"`
+	OldPersonalUrl          string    `form:"old_personal_url" json:"old_personal_url"`
+	IsActive                bool      `form:"is_active" json:"is_active"`
+	OldIsActive             bool      `form:"old_is_active" json:"old_is_active"`
+	CreatedAt               time.Time `form:"created_at" json:"created_at"`
+	OldCreatedAt            time.Time `form:"old_created_at" json:"old_created_at"`
+	UpdatedAt               time.Time `form:"updated_at" json:"updated_at"`
+	OldUpdatedAt            time.Time `form:"old_updated_at" json:"old_updated_at"`
 }
 
 type DoctorExperiences struct {

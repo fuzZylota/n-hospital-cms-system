@@ -153,6 +153,10 @@ func AddDoctor(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			columns = append(columns, "sid")
 			values = append(values, inputs.Sid)
 		}
+		if inputs.CalistigiSubelerText != "" {
+			columns = append(columns, "calistigi_subeler_text")
+			values = append(values, inputs.CalistigiSubelerText)
+		}
 
 		// Start transaction
 		err = Orm.Begin()
@@ -588,6 +592,11 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		if inputs.AppointmentFee != inputs.OldAppointmentFee {
 			updateDoktor.Set("appointment_fee", inputs.AppointmentFee)
+			SomethingSet = true
+		}
+
+		if inputs.CalistigiSubelerText != inputs.OldCalistigiSubelerText {
+			updateDoktor.Set("calistigi_subeler_text", inputs.CalistigiSubelerText)
 			SomethingSet = true
 		}
 

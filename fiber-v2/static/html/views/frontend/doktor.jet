@@ -75,7 +75,11 @@
                         </span>
                         <div class="team-details__contact__content">
                             <h3 class="team-details__contact__title">Çalıştığı Merkez</h3>
-                            <span class="team-details__contact__link">{{ Doktor.SubeName }}</span>
+                            {{ if Doktor.CalistigiSubelerText != "" }}
+                                <span class="team-details__contact__link">{{ Doktor.CalistigiSubelerText }}</span>
+                            {{ else }}
+                                <span class="team-details__contact__link">{{ Doktor.SubeName }}</span>
+                            {{ end }}
                         </div>
                     </li><!-- /.item -->
                     {{ if Options.Options.ShowDoctorSocialMedia }}
