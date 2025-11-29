@@ -144,13 +144,6 @@
                                 </li>
                                 {{ end }}
                                 
-                                {{ if BranchCount }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Branşlar:</span>
-                                    <span class="portfolio-sidebar__info__text">{{ len(BranchCount) }} branş</span>
-                                </li>
-                                {{ end }}
-                                
                                 {{ if Sube.Latitude != 0 && Sube.Longitude != 0 }}
                                 <li>
                                     <span class="portfolio-sidebar__info__title">Koordinatlar:</span>

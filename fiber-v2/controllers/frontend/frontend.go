@@ -1112,29 +1112,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			}
 		}
 
-		GetBranchCount := Orm.Select([]string{"COUNT(*) as count", "name as branch_name"})
-		GetBranchCount.Table("branslar")
-		GetBranchCount.Where("sid", "=", rows[0]["sid"])
-		GetBranchCount.GroupBy("name")
-		GetBranchCount.Finish()
-		err = GetBranchCount.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		rows, err = GetBranchCount.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		BranchCount := []models.BranchCount{}
-		for _, row := range rows {
-			BranchCount = append(BranchCount, models.BranchCount{
-				Count:      lib.Int64(row["count"]),
-				BranchName: lib.String(row["branch_name"]),
-			})
-		}
-
 		GetAnlasmaliKurumCount := Orm.Count("anlasmali_kurumlar")
 		GetAnlasmaliKurumCount.Where("sid", "=", Sube.Sid)
 		GetAnlasmaliKurumCount.Finish()
@@ -1186,7 +1163,6 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"Options":             Options,
 			"User":                OurUser,
 			"Sube":                Sube,
-			"BranchCount":         BranchCount,
 			"AnlasmaliKurumCount": AnlasmaliKurumCount,
 			"AnlasmaliKurumlar":   AnlasmaliKurumlar,
 			"SubeDocuments":       SubeDocumentsArray,
@@ -1532,6 +1508,145 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		return c.Render("views/frontend/doktor", fiber.Map{
 			"PathOnStart": "../../../",
 			"Route":       "/doktorlar/" + subeName + "/doktorlar/" + doktorName,
+			"Options":     Options,
+			"User":        OurUser,
+			"Doktor":      Doktor,
+			"Title":       Doktor.Title + Doktor.FirstName + Doktor.LastName + " | " + Options.Options.SiteName,
+			"Description": "Bu sayfa, hastanemizin doktorlarından olan " + Doktor.Title + Doktor.FirstName + Doktor.LastName + " hakkında bilgi içeren sayfadır.",
+		}, "layouts/main/main")
+	}
+}
+
+func DoktorPageForDoktorlarimiz(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+
+		Orm := utilities.Orm
+
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+		doktorName := c.Params("doktor")
+
+		GetDoktor := Orm.Select([]string{"d.*", "s.name as sube_name", "s.url_name as sube_url_name", "b.name as brans_name", "b.url_name as brans_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoktor.Table("doktorlar d")
+		GetDoktor.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
+		GetDoktor.LeftJoin("subeler s", "d.sid", "=", "s.sid")
+		GetDoktor.LeftJoin("branslar b", "d.brid", "=", "b.brid")
+		GetDoktor.Where("d.url_name", "=", doktorName)
+		GetDoktor.And("d.is_active", "=", true)
+		GetDoktor.Finish()
+
+		err := GetDoktor.Execute()
+
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		rows, err := GetDoktor.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		if len(rows) == 0 {
+			return c.Redirect("/doktorlarimiz")
+		}
+
+		Doktor := models.Doktorlar{}
+		for _, row := range rows {
+			Doktor = models.Doktorlar{
+				Drid:                 lib.String(row["drid"]),
+				Title:                lib.String(row["title"]),
+				FirstName:            lib.String(row["first_name"]),
+				LastName:             lib.String(row["last_name"]),
+				PhotoPath:            lib.String(row["photo_path"]),
+				PhotoAltText:         lib.String(row["photo_alt_text"]),
+				PhotoTitle:           lib.String(row["photo_title"]),
+				SubeName:             lib.String(row["sube_name"]),
+				BranchName:           lib.String(row["brans_name"]),
+				FacebookUrl:          lib.String(row["facebook_url"]),
+				XUrl:                 lib.String(row["x_url"]),
+				InstagramUrl:         lib.String(row["instagram_url"]),
+				LinkedinUrl:          lib.String(row["linkedin_url"]),
+				PersonalUrl:          lib.String(row["personal_url"]),
+				AppointmentFee:       lib.Float64(row["appointment_fee"]),
+				Phone:                lib.String(row["phone"]),
+				Email:                lib.String(row["email"]),
+				Biography:            lib.String(row["biography"]),
+				Education:            lib.String(row["education"]),
+				Languages:            lib.String(row["languages"]),
+				BirthDate:            lib.Time(row["birth_date"]),
+				WorkingHours:         lib.String(row["working_hours"]),
+				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
+				Experiences:          []models.DoctorExperiences{},
+				Expertises:           []models.DoctorExpertises{},
+			}
+		}
+
+		GetDoctorExperiences := Orm.Select([]string{"de.name", "de.description", "de.start_date", "de.end_date", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
+		GetDoctorExperiences.Table("doctor_experiences de")
+		GetDoctorExperiences.LeftJoin("medias m", "de.cover_mid", "=", "m.mid")
+		GetDoctorExperiences.Where("drid", "=", Doktor.Drid)
+		GetDoctorExperiences.Finish()
+		err = GetDoctorExperiences.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		rows, err = GetDoctorExperiences.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		DoctorExperiences := []models.DoctorExperiences{}
+		for _, row := range rows {
+			DoctorExperiences = append(DoctorExperiences, models.DoctorExperiences{
+				Name:        lib.String(row["name"]),
+				Description: lib.String(row["description"]),
+				StartDate:   lib.Time(row["start_date"]),
+				EndDate:     lib.Time(row["end_date"]),
+			})
+		}
+
+		Doktor.Experiences = DoctorExperiences
+
+		GetDoctorExpertises := Orm.Select([]string{"u.name", "u.description", "de.certification_date", "de.certification_institution", "de.is_primary"})
+		GetDoctorExpertises.Table("doctor_expertises de")
+		GetDoctorExpertises.LeftJoin("uzmanliklar u", "de.uzid", "=", "u.uzid")
+		GetDoctorExpertises.Where("drid", "=", Doktor.Drid)
+		GetDoctorExpertises.Finish()
+		err = GetDoctorExpertises.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		rows, err = GetDoctorExpertises.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		DoctorExpertises := []models.DoctorExpertises{}
+		for _, row := range rows {
+			DoctorExpertises = append(DoctorExpertises, models.DoctorExpertises{
+				UzmanlikName:             lib.String(row["name"]),
+				UzmanlikDescription:      lib.String(row["description"]),
+				CertificationDate:        lib.Time(row["certification_date"]),
+				CertificationInstitution: lib.String(row["certification_institution"]),
+				IsPrimary:                lib.Bool(row["is_primary"]),
+			})
+		}
+
+		Doktor.Expertises = DoctorExpertises
+
+		return c.Render("views/frontend/doktor", fiber.Map{
+			"PathOnStart": "../../../",
+			"Route":       "/doktorlarimiz/" + Doktor.UrlName,
 			"Options":     Options,
 			"User":        OurUser,
 			"Doktor":      Doktor,
