@@ -1335,7 +1335,7 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 		Offset := (Page - 1) * int(ItemsPerPage)
 
 		Doctors := []models.DoktorForHomePage{}
-		GetDoctors := Orm.Select([]string{"d.drid", "d.calistigi_subeler_text", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoctors := Orm.Select([]string{"d.drid", "d.calistigi_subeler_text", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.name as sube_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
 		GetDoctors.Table("doktorlar d")
 		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
@@ -1376,6 +1376,7 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 				LinkedinUrl:          lib.String(row["linkedin_url"]),
 				PersonalUrl:          lib.String(row["personal_url"]),
 				SubeUrlName:          lib.String(row["sube_url_name"]),
+				SubeName:             lib.String(row["sube_name"]),
 				BransName:            lib.String(row["brans_name"]),
 				BransUrlName:         lib.String(row["brans_url_name"]),
 			})

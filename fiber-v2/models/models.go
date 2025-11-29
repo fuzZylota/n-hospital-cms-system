@@ -91,6 +91,7 @@ type DoktorForHomePage struct {
 	CalistigiSubelerText string
 	Sid                  string
 	SubeUrlName          string
+	SubeName             string
 	Brid                 string
 	BransName            string
 	BransUrlName         string

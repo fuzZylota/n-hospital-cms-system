@@ -84,6 +84,11 @@
                                     <span>{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</span>
                                 </h3><!-- /.team-card-three__name -->
                                 <p class="team-card-three__designation">{{ Doctor.BransName }}</p><!-- /.team-card-three__designation -->
+                                {{ if Doctor.CalistigiSubelerText != "" }}
+                                    <p class="team-card-three__designation">{{ Doctor.CalistigiSubelerText }}</p><!-- /.team-card-three__designation -->
+                                {{ else }}
+                                    <p class="team-card-three__designation">{{ Doctor.SubeName }}</p><!-- /.team-card-three__designation -->
+                                {{ end }}
                             </div><!-- /.team-card-three__identity -->
                         </div><!-- /.team-card-three__hover -->
                     </div><!-- /.team-card-three -->
