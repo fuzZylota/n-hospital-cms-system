@@ -20,80 +20,6 @@
     </div><!-- /.container-fluid -->
 </section><!-- /.page-header -->
 
-<!-- Şubeler Information Section -->
-{{ if len(Subeler) > 0 }}
-<section class="subeler-info section-space">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="sec-title text-center">
-                    <div class="sec-title__top">
-                        <span class="sec-title__img iletisim-icon spin" aria-label="şubeler">
-                            <svg height="512" viewBox="0 0 64 64" width="512" xmlns="http://www.w3.org/2000/svg" fill="currentColor" role="img" focusable="false">
-                                <g id="Pin">
-                                    <path d="m32 0a24.0319 24.0319 0 0 0 -24 24c0 17.23 22.36 38.81 23.31 39.72a.99.99 0 0 0 1.38 0c.95-.91 23.31-22.49 23.31-39.72a24.0319 24.0319 0 0 0 -24-24zm0 35a11 11 0 1 1 11-11 11.0066 11.0066 0 0 1 -11 11z"/>
-                                </g>
-                            </svg>
-                        </span>
-                    </div>
-                    <h3 class="sec-title__title">Tüm <span>Merkezlerimiz</span></h3>
-                </div>
-            </div>
-        </div>
-        <div class="row gutter-y-30">
-            {{ range Subeler }}
-            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
-                <div class="sube-card">
-                    <div class="sube-card__image">
-                        {{ if .MediaPath }}
-                            <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
-                        {{ else }}
-                            <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ .Name }}" class="sube-card__img">
-                        {{ end }}
-                    </div>
-                    <div class="sube-card__header">
-                        <h4 class="sube-card__title">{{ .Name }}</h4>
-                    </div>
-                    <div class="sube-card__content">
-                        <div class="sube-card__info">
-                            {{ if .City != "" }}
-                                <div class="sube-card__info-item">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>{{ .City }}, {{ .District }}</span>
-                                </div>
-                            {{ end }}
-                            {{ if .Phone != "" }}
-                                <div class="sube-card__info-item">
-                                    <i class="fas fa-phone"></i>
-                                    <a href="tel:{{ .Phone }}">{{ .Phone }}</a>
-                                </div>
-                            {{ end }}
-                            {{ if .Email != "" }}
-                                <div class="sube-card__info-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <a href="mailto:{{ .Email }}">{{ .Email }}</a>
-                                </div>
-                            {{ end }}
-                            {{ if .TransportationInfo != "" }}
-                                <div class="sube-card__info-item">
-                                    <i class="fas fa-bus"></i>
-                                    <span>{{ .TransportationInfo }}</span>
-                                </div>
-                            {{ end }}
-                        </div>
-                        <div class="sube-card-actions">
-                            <a href="/subelerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
-                            <a href="/doktorlarimiz" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{ end }}
-        </div>
-    </div>
-</section>
-{{ end }}
-
 <section class="contact-page section-space-top">
     <div class="contact-page__inner section-space">
         <div class="container">
@@ -158,6 +84,9 @@
                                     </svg>
                                 </span>
                             </div><!-- /.sec-title__top -->
+                            <p class="sec-title__tagline" style="margin-bottom: 6px; color: #6b7280; font-size: 14px;">
+                                görüş öneri ve şikayetleriniz için bizimle iletişime geçin.
+                            </p>
                             <h3 class="sec-title__title">Bizimle <span>İletişime Geçin!</span></h3><!-- /.sec-title__title -->
                         </div><!-- /.sec-title -->
                         <div class="contact-page__info__inner wow fadeInUp" data-wow-duration="1500ms">
