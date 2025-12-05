@@ -34,7 +34,8 @@ class RandevuTalepleriListManager {
     setupEventListeners() {
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.actions-wrapper')) {
+            // Don't close if clicking on toggle-status button or its parent dropdown
+            if (!e.target.closest('.actions-wrapper') && !e.target.closest('.action-item.toggle-status')) {
                 this.closeAllDropdowns();
             }
             
@@ -88,9 +89,22 @@ class RandevuTalepleriListManager {
         deleteButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const id = button.getAttribute('data-id');
                 const name = button.getAttribute('data-name');
                 this.showDeleteConfirmation(id, name);
+            });
+        });
+
+        // Setup toggle status buttons
+        const toggleStatusButtons = document.querySelectorAll('.action-item.toggle-status');
+        toggleStatusButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = button.getAttribute('data-id');
+                const status = button.getAttribute('data-status');
+                this.toggleRandevuTalepStatus(id, status, button);
             });
         });
     }
@@ -517,6 +531,98 @@ class RandevuTalepleriListManager {
         setTimeout(() => {
             alert.style.display = 'none';
         }, 300);
+    }
+
+    /**
+     * Get status text in Turkish
+     */
+    getStatusText(status) {
+        const statusMap = {
+            'yeni': 'Yeni',
+            'randevu-verildi': 'Randevu Verildi',
+            'randevu-verilemedi': 'Randevu Verilemedi',
+            'ulasilamadi': 'Ulaşılamadı',
+            'gelmedi': 'Gelmedi',
+            'hasta-vazgecti': 'Hasta Vazgeçti'
+        };
+        return statusMap[status] || status;
+    }
+
+    /**
+     * Toggle randevu talep status
+     */
+    async toggleRandevuTalepStatus(rrid, currentStatus, button) {
+        if (!rrid || !currentStatus) return;
+
+        const originalText = button.querySelector('span').textContent;
+        const icon = button.querySelector('i');
+        const originalIconClass = icon.className;
+
+        try {
+            // Show loading state
+            button.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin';
+            button.querySelector('span').textContent = 'Değiştiriliyor...';
+
+            const response = await fetch(`/backend/randevu-request/${rrid}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    status: currentStatus
+                })
+            });
+
+            const responseData = await response.json().catch(() => ({}));
+
+            if (responseData.status === 201 && responseData.new_status) {
+                const newStatus = responseData.new_status;
+
+                // Update status badge in table view
+                const tableRow = document.querySelector(`tr[data-id="${rrid}"]`);
+                if (tableRow) {
+                    const statusCell = tableRow.querySelector('.status-badge');
+                    if (statusCell) {
+                        statusCell.className = `status-badge status-badge--${newStatus}`;
+                        statusCell.textContent = this.getStatusText(newStatus);
+                    }
+                }
+
+                // Update status badge in grid view
+                const gridCard = document.querySelector(`.randevu-talebi-card[data-id="${rrid}"]`);
+                if (gridCard) {
+                    const statusBadge = gridCard.querySelector('.status-badge');
+                    if (statusBadge) {
+                        statusBadge.className = `status-badge status-badge--${newStatus}`;
+                        statusBadge.textContent = this.getStatusText(newStatus);
+                    }
+                }
+
+                // Update button data-status attribute
+                button.setAttribute('data-status', newStatus);
+
+                // Update data in pageData if exists
+                if (this.data && this.data.randevuTalepleri) {
+                    const talep = this.data.randevuTalepleri.find(t => t.rrid === rrid);
+                    if (talep) {
+                        talep.status = newStatus;
+                    }
+                }
+
+            } else {
+                this.showAlert(responseData.message || 'Server Hatası: Lütfen daha sonra tekrar deneyin.', 'error');
+            }
+        } catch (error) {
+            console.error('Toggle status error:', error);
+            this.showAlert('Bağlantı hatası oluştu.', 'error');
+        } finally {
+            // Reset button state
+            button.disabled = false;
+            icon.className = originalIconClass;
+            button.querySelector('span').textContent = originalText;
+        }
     }
 
     /**

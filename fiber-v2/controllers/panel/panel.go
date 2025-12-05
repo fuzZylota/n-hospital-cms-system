@@ -5967,7 +5967,7 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		// Build query with filters
-		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "s.name"})
+		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "rt.status", "s.name as sube_name"})
 		RandevuTalepleri.Table("randevu_talepleri rt")
 		RandevuTalepleri.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
 		if Query != "" {
@@ -6023,6 +6023,8 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 				Message:          lib.String(row["message"]),
 				Drid:             lib.String(row["drid"]),
 				Sid:              lib.String(row["sid"]),
+				SubeName:         lib.String(row["sube_name"]),
+				Status:           lib.String(row["status"]),
 				CreatedAt:        row["created_at"].(time.Time),
 				UpdatedAt:        row["updated_at"].(time.Time),
 			})

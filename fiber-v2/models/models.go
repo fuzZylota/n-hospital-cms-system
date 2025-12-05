@@ -1269,6 +1269,7 @@ type RandevuRequests struct {
 	Message          string    `form:"message" json:"message"`
 	Drid             string    `form:"drid" json:"drid"`
 	Sid              string    `form:"sid" json:"sid"`
+	SubeName         string    `form:"sube_name" json:"sube_name"`
 	Status           string    `form:"status" json:"status"`
 	RecaptchaToken   string    `form:"recaptcha_token" json:"recaptcha_token"`
 	CreatedAt        time.Time `form:"created_at" json:"created_at"`

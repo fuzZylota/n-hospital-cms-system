@@ -136,19 +136,18 @@
                                 <span>Telefon</span>
                                 <i class="fas fa-sort sort-icon"></i>
                             </th>
-                            <th>
-                                <span>E-posta</span>
-                            </th>
-                            <th class="sortable" data-column="preferred_date">
-                                <span>Tercih Edilen Tarih</span>
+                            <th class="sortable" data-column="created_at">
+                                <span>Talep Tarihi</span>
                                 <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th>
+                                <span>Tercih Edilen Şube</span>
                             </th>
                             <th>
                                 <span>Mesaj</span>
                             </th>
-                            <th class="sortable" data-column="created_at">
-                                <span>Talep Tarihi</span>
-                                <i class="fas fa-sort sort-icon"></i>
+                            <th>
+                                <span>Durum</span>
                             </th>
                             <th class="actions-column">İşlemler</th>
                         </tr>
@@ -173,20 +172,13 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        {{if .PatientEmail}}
-                                        <a href="mailto:{{ .PatientEmail }}" class="email-link">{{ .PatientEmail }}</a>
-                                        {{else}}
-                                        <span class="text-muted">-</span>
-                                        {{end}}
+                                        <div class="primary-text">{{ mthr(.CreatedAt, User.Timezone) }}</div>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        {{if .PreferredDate}}
-                                        <div class="primary-text">{{ mthr(.PreferredDate, User.Timezone) }}</div>
-                                        {{if .PreferredTime}}
-                                        <div class="secondary-text">{{ mthr(.PreferredTime, User.Timezone) }}</div>
-                                        {{end}}
+                                        {{if .SubeName}}
+                                        <div class="primary-text">{{ .SubeName }}</div>
                                         {{else}}
                                         <span class="text-muted">Belirtilmemiş</span>
                                         {{end}}
@@ -203,7 +195,7 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        <div class="primary-text">{{ mthr(.CreatedAt, User.Timezone) }}</div>
+                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else }}{{ .Status }}{{ end }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -217,6 +209,11 @@
                                                 <span>Görüntüle</span>
                                             </a>
                                             <div class="action-divider"></div>
+                                            <button class="action-item toggle-status" data-id="{{ .Rrid }}" data-status="{{ .Status }}">
+                                                <i class="fas fa-sync-alt"></i>
+                                                <span>Durumu Değiştir</span>
+                                            </button>
+                                            <div class="action-divider"></div>
                                             <button class="action-item delete" data-id="{{ .Rrid }}" data-name="{{ .PatientFirstName }} {{ .PatientLastName }}">
                                                 <i class="fas fa-trash"></i>
                                                 <span>Sil</span>
@@ -228,7 +225,7 @@
                             {{end}}
                         {{else}}
                             <tr class="empty-row">
-                                <td colspan="7">
+                                <td colspan="6">
                                     <div class="empty-state">
                                         <div class="empty-icon">
                                             <i class="fas fa-calendar-check"></i>
@@ -256,10 +253,15 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="action-dropdown">
-                                        <a href="/panel/randevular/{{ .Rrid }}" class="action-item view">
+                                        <a href="/panel/randevu-talepleri/{{ .Rrid }}" class="action-item view">
                                             <i class="fas fa-eye"></i>
                                             <span>Görüntüle</span>
                                         </a>
+                                        <div class="action-divider"></div>
+                                        <button class="action-item toggle-status" data-id="{{ .Rrid }}" data-status="{{ .Status }}">
+                                            <i class="fas fa-sync-alt"></i>
+                                            <span>Durumu Değiştir</span>
+                                        </button>
                                         <div class="action-divider"></div>
                                         <button class="action-item delete" data-id="{{ .Rrid }}" data-name="{{ .PatientFirstName }} {{ .PatientLastName }}">
                                             <i class="fas fa-trash"></i>
@@ -279,25 +281,26 @@
                                         {{end}}
                                     </div>
                                 </div>
-                                {{if .PatientEmail}}
                                 <div class="card-field">
-                                    <div class="field-label">E-posta</div>
+                                    <div class="field-label">Talep Tarihi</div>
                                     <div class="field-value">
-                                        <a href="mailto:{{ .PatientEmail }}" class="email-link">{{ .PatientEmail }}</a>
+                                        {{ mthr(.CreatedAt, User.Timezone) }}
                                     </div>
                                 </div>
-                                {{end}}
                                 <div class="card-field">
-                                    <div class="field-label">Tercih Edilen Tarih</div>
+                                    <div class="field-label">Tercih Edilen Şube</div>
                                     <div class="field-value">
-                                        {{if .PreferredDate}}
-                                            {{ mthr(.PreferredDate, User.Timezone) }}
-                                        {{if .PreferredTime}}
-                                            {{ mthr(.PreferredTime, User.Timezone) }}
-                                        {{end}}
+                                        {{if .SubeName}}
+                                            {{ .SubeName }}
                                         {{else}}
                                         <span class="text-muted">Belirtilmemiş</span>
                                         {{end}}
+                                    </div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Durum</div>
+                                    <div class="field-value">
+                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else }}{{ .Status }}{{ end }}</span>
                                     </div>
                                 </div>
                                 {{if .Message}}
@@ -308,7 +311,7 @@
                                 {{end}}
                             </div>
                             <div class="card-footer">
-                                <div class="card-date">{{ mthr(.CreatedAt, User.Timezone) }}</div>
+                                <div class="card-date"></div>
                             </div>
                         </div>
                         {{end}}
