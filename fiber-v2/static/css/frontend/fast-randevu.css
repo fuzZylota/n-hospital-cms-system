@@ -159,7 +159,8 @@
 }
 
 .fast-randevu__field input,
-.fast-randevu__field textarea {
+.fast-randevu__field textarea,
+.fast-randevu__field select {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.08);
@@ -175,10 +176,20 @@
 }
 
 .fast-randevu__field input:focus,
-.fast-randevu__field textarea:focus {
+.fast-randevu__field textarea:focus,
+.fast-randevu__field select:focus {
     border-color: var(--theme-accent-color, #33c1ed);
     background: rgba(255, 255, 255, 0.12);
     outline: none;
+}
+
+.fast-randevu__select {
+    cursor: pointer;
+}
+
+.fast-randevu__select option {
+    background: var(--mediox-black2);
+    color: #fff;
 }
 
 .fast-randevu__kvkk {

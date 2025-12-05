@@ -63,6 +63,31 @@ window.onRecaptchaExpiredFast = function() {
     updateFastRandevuSubmitState();
 };
 
+async function loadSubeler() {
+    const subeSelect = document.getElementById('fastRandevuSube');
+    if (!subeSelect) return;
+
+    try {
+        const response = await fetch('/backend/get-all-subeler', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+        if (data && data.status === 200 && data.data) {
+            subeSelect.innerHTML = '<option value="">Şube Seçiniz</option>';
+            data.data.forEach(sube => {
+                const option = document.createElement('option');
+                option.value = sube.sid;
+                option.textContent = sube.name;
+                subeSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Şubeler yüklenirken hata oluştu:', error);
+    }
+}
+
 function setFastRandevuOpenState(isOpen) {
     const container = document.getElementById('fastRandevu');
     const toggleButton = document.getElementById('fastRandevuToggle');
@@ -72,6 +97,7 @@ function setFastRandevuOpenState(isOpen) {
 
     if (isOpen) {
         container.classList.add('is-open');
+        loadSubeler();
     } else {
         container.classList.remove('is-open');
     }
@@ -195,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstNameInput = document.getElementById('fastRandevuName');
         const lastNameInput = document.getElementById('fastRandevuSurname');
         const phoneInput = document.getElementById('fastRandevuPhone');
+        const subeSelect = document.getElementById('fastRandevuSube');
         const recaptchaWidget = document.querySelector('#fastRandevu .g-recaptcha');
         const tokenInput = document.getElementById('fastRandevuRecaptchaToken');
         const submitButton = document.getElementById('fastRandevuSubmit');
@@ -259,6 +286,10 @@ document.addEventListener('DOMContentLoaded', () => {
             patient_phone: phoneInput.value.trim(),
             message: 'Hızlı randevu formu üzerinden iletilmiştir.'
         };
+
+        if (subeSelect && subeSelect.value) {
+            payload.sid = subeSelect.value;
+        }
 
         if (recaptchaToken) {
             payload.recaptcha_token = recaptchaToken;

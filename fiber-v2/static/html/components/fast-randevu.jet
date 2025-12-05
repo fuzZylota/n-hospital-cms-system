@@ -22,6 +22,11 @@
             <div class="fast-randevu__field">
                 <input type="tel" name="patient_phone" id="fastRandevuPhone" placeholder="Telefon Numaranız*" required>
             </div>
+            <div class="fast-randevu__field">
+                <select name="sid" id="fastRandevuSube" class="fast-randevu__select">
+                    <option value="">Şube Seçiniz</option>
+                </select>
+            </div>
             <div class="fast-randevu__kvkk">
                 <label for="fastRandevuKVKK" class="checkbox-label">
                     <input type="checkbox" id="fastRandevuKVKK" required>
