@@ -1601,21 +1601,12 @@ func DeleteSubeDocument(states *models.AppState, utilities *models.Utilities) fi
 
 func GetAllSubeler(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		_, err := lib.CheckAuth(c)
-
-		if err != nil {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden: Admin access required",
-			})
-		}
-
 		Orm := utilities.Orm
 		GetAllSubeler := Orm.Select([]string{"sid", "name"})
 		GetAllSubeler.Table("subeler")
 		GetAllSubeler.Finish()
 
-		err = GetAllSubeler.Execute()
+		err := GetAllSubeler.Execute()
 
 		if err != nil {
 			log.Printf("Cannot get all subeler: %v\n", err)
