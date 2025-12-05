@@ -4553,7 +4553,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					}
 
 					Columns := []string{"message", "notification_type", "notification_level", "link"}
-					Values := []interface{}{bildirimMetni, "info", "moderator", bildirimLink}
+					Values := []interface{}{bildirimMetni, "info", "santral", bildirimLink}
 
 					if RandevuTalebi.Sid != "" {
 						Columns = append(Columns, "sid")
@@ -4649,7 +4649,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 
 					InsertNotification := Orm.Insert(
 						[]string{"message", "notification_type", "notification_level", "link"},
-						[]interface{}{bildirimMetni, "info", "moderator", bildirimLink},
+						[]interface{}{bildirimMetni, "info", "ik", bildirimLink},
 					)
 
 					InsertNotification.Table("notifications")
@@ -4721,7 +4721,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 
 					InsertNotification := Orm.Insert(
 						[]string{"message", "notification_type", "notification_level", "link"},
-						[]interface{}{bildirimMetni, "info", "moderator", bildirimLink},
+						[]interface{}{bildirimMetni, "info", "all", bildirimLink},
 					)
 
 					InsertNotification.Table("notifications")

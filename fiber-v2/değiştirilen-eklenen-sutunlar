@@ -1,0 +1,14 @@
+users:
+
+sid -> şubelerle bağlantısı kuruluyor
+role -> check'e "ik" ve "santral" değerleri de eklendi
+
+randevu_talepleri:
+
+status -> randevu talebinin durumunu işaret eden sütun.
+last_modified_uid -> randevu talebini son düzenleyen kullanıcı'nın uid'i.
+
+notifications:
+
+sid -> şubelerle bağlantısı kuruluyorü
+notification_level -> check'e "ik" ve "santral" değerleri de eklendi

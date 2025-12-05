@@ -1209,16 +1209,34 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 
 	GetNotifications := db.Select([]string{"n.nid", "n.message", "n.notification_type", "n.notification_level", "n.link", "n.is_read", "n.created_at", "n.sid"})
 	GetNotifications.Table("notifications n")
+	GetNotifications.LeftJoin("users u", "u.uid", "=", lib.String(User.Uid))
+	GetNotifications.LeftJoin("subeler s", "s.sid", "=", "n.sid")
 	GetNotifications.Where("n.created_at", ">", User.CreatedAt)
 
-	if User.Role == "moderator" {
-		GetNotifications.Where("n.notification_level", "=", "moderator")
+	if User.Role == "santral" {
+		GetNotifications.OpenParenthesis("AND")
+		GetNotifications.AndExpr("u.sid", "=", "n.sid")
+		GetNotifications.OpenParenthesis("AND")
+		GetNotifications.Or("n.notification_level", "=", "santral")
+		GetNotifications.Or("n.notification_level", "=", "all")
+		GetNotifications.CloseParenthesis()
+		GetNotifications.CloseParenthesis()
+	}
+
+	if User.Role == "ik" {
+		GetNotifications.OpenParenthesis("AND")
+		GetNotifications.And("n.notification_level", "=", "ik")
+		GetNotifications.Or("n.notification_level", "=", "all")
+		GetNotifications.CloseParenthesis()
 	}
 
 	GetNotifications.OrderBy("n.is_read", "ASC")
 	GetNotifications.OrderBy("n.created_at", "DESC")
 	GetNotifications.Limit(5)
 	GetNotifications.Finish()
+
+	fmt.Printf("GetNotifications: %s\n", GetNotifications.Query)
+
 	err = GetNotifications.Execute()
 
 	if err != nil {
@@ -1244,6 +1262,8 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 			CreatedAt:         lib.Time(row["created_at"]),
 		})
 	}
+
+	fmt.Printf("Notifications: %v\n", len(Notifications))
 
 	Options.Notifications = &Notifications
 

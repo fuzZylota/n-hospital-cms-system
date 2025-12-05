@@ -505,7 +505,7 @@ CREATE TABLE notifications (
     nid SERIAL PRIMARY KEY,
     message TEXT NOT NULL,
     notification_type VARCHAR(20) CHECK (notification_type IN ('success', 'warning', 'danger', 'info')),
-    notification_level VARCHAR(20) CHECK (notification_level IN ('moderator', 'admin', 'santral', 'ik')),
+    notification_level VARCHAR(20) CHECK (notification_level IN ('moderator', 'admin', 'santral', 'ik', 'all')),
     is_read BOOLEAN DEFAULT FALSE,
     sid INTEGER REFERENCES subeler(sid) ON DELETE SET NULL,
     link VARCHAR(200),
