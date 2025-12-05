@@ -24,6 +24,7 @@ class RandevuTalebiViewManager {
         this.setupDeleteButton();
         this.setupCreateAppointmentButton();
         this.setupViewRelatedAppointmentButton();
+        this.setupToggleStatusButton();
         this.setupTimeInput();
         this.setupKeyboardShortcuts();
     }
@@ -209,6 +210,94 @@ class RandevuTalebiViewManager {
                 window.location.href = `/panel/randevular/${rid}`;
             }
         });
+    }
+
+    /**
+     * Setup toggle status button
+     */
+    setupToggleStatusButton() {
+        const toggleBtn = document.getElementById('toggleStatusBtn');
+        if (!toggleBtn) return;
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentStatus = toggleBtn.getAttribute('data-status');
+            this.toggleStatus(currentStatus, toggleBtn);
+        });
+    }
+
+    /**
+     * Get status text in Turkish
+     */
+    getStatusText(status) {
+        const statusMap = {
+            'yeni': 'Yeni',
+            'randevu-verildi': 'Randevu Verildi',
+            'randevu-verilemedi': 'Randevu Verilemedi',
+            'ulasilamadi': 'Ulaşılamadı',
+            'gelmedi': 'Gelmedi',
+            'hasta-vazgecti': 'Hasta Vazgeçti'
+        };
+        return statusMap[status] || status;
+    }
+
+    /**
+     * Toggle status
+     */
+    async toggleStatus(currentStatus, button) {
+        if (!currentStatus || !this.randevuTalebiData.rrid) return;
+
+        const statusBadge = document.getElementById('statusBadge');
+        if (!statusBadge) return;
+
+        const originalText = button.querySelector('.btn-text').textContent;
+        const icon = button.querySelector('i');
+        const originalIconClass = icon.className;
+
+        try {
+            // Show loading state
+            this.setButtonLoading(button, true);
+            icon.className = 'fas fa-spinner fa-spin';
+
+            const response = await fetch(`/backend/randevu-request/${this.randevuTalebiData.rrid}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    status: currentStatus
+                })
+            });
+
+            const responseData = await response.json().catch(() => ({}));
+
+            if (responseData.status === 201 && responseData.new_status) {
+                const newStatus = responseData.new_status;
+
+                // Update status badge
+                statusBadge.className = `status-badge status-badge--${newStatus}`;
+                statusBadge.setAttribute('data-status', newStatus);
+                statusBadge.textContent = this.getStatusText(newStatus);
+
+                // Update button data-status attribute
+                button.setAttribute('data-status', newStatus);
+
+                // Update data
+                this.randevuTalebiData.status = newStatus;
+
+                this.showAlert('Durum başarıyla güncellendi.', 'success');
+            } else {
+                this.showAlert(responseData.message || 'Server Hatası: Lütfen daha sonra tekrar deneyin.', 'error');
+            }
+        } catch (error) {
+            console.error('Toggle status error:', error);
+            this.showAlert('Bağlantı hatası oluştu.', 'error');
+        } finally {
+            // Reset button state
+            this.setButtonLoading(button, false);
+            icon.className = originalIconClass;
+        }
     }
 
     /**

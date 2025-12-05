@@ -5891,6 +5891,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 			Message:          lib.String(rows[0]["message"]),
 			Drid:             lib.String(rows[0]["drid"]),
 			Sid:              lib.String(rows[0]["sid"]),
+			Status:           lib.String(rows[0]["status"]),
 			CreatedAt:        lib.Time(rows[0]["created_at"]),
 			UpdatedAt:        lib.Time(rows[0]["updated_at"]),
 		}
