@@ -5967,31 +5967,32 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		var offset int = (Page - 1) * int(itemsPerPage)
 
 		// Build query with filters
-		RandevuTalepleri := Orm.Select([]string{"rrid", "patient_first_name", "patient_last_name", "patient_phone", "patient_email", "preferred_date", "preferred_time", "message", "drid", "sid", "created_at", "updated_at"})
-		RandevuTalepleri.Table("randevu_talepleri")
+		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "s.name"})
+		RandevuTalepleri.Table("randevu_talepleri rt")
+		RandevuTalepleri.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
 		if Query != "" {
 			RandevuTalepleri.OpenParenthesis("WHERE")
-			RandevuTalepleri.Like("WHERE", "patient_first_name", Query, "contains")
-			RandevuTalepleri.Like("OR", "patient_last_name", Query, "contains")
-			RandevuTalepleri.Like("OR", "patient_phone", Query, "contains")
-			RandevuTalepleri.Like("OR", "patient_email", Query, "contains")
-			RandevuTalepleri.Like("OR", "message", Query, "contains")
+			RandevuTalepleri.Like("WHERE", "rt.patient_first_name", Query, "contains")
+			RandevuTalepleri.Like("OR", "rt.patient_last_name", Query, "contains")
+			RandevuTalepleri.Like("OR", "rt.patient_phone", Query, "contains")
+			RandevuTalepleri.Like("OR", "rt.patient_email", Query, "contains")
+			RandevuTalepleri.Like("OR", "rt.message", Query, "contains")
 			RandevuTalepleri.CloseParenthesis()
 
 			if Status != "all" {
-				RandevuTalepleri.And("status", "=", Status == "active")
+				RandevuTalepleri.And("rt.status", "=", Status == "active")
 			}
 		}
 
 		if Status != "all" {
 			if strings.Contains(RandevuTalepleri.Query, "WHERE") {
-				RandevuTalepleri.And("status", "=", Status == "active")
+				RandevuTalepleri.And("rt.status", "=", Status == "active")
 			} else {
-				RandevuTalepleri.Where("status", "=", Status == "active")
+				RandevuTalepleri.Where("rt.status", "=", Status == "active")
 			}
 		}
 
-		RandevuTalepleri.OrderBy(SortBy, SortOrder)
+		RandevuTalepleri.OrderBy("rt."+SortBy, SortOrder)
 		RandevuTalepleri.Limit(int(itemsPerPage))
 		RandevuTalepleri.Offset(offset)
 		RandevuTalepleri.Finish()

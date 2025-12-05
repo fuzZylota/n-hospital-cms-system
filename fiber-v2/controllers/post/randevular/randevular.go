@@ -660,6 +660,158 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 	}
 }
 
+func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ourUser, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{
+				"status":  401,
+				"message": "Unauthorized",
+			})
+		}
+
+		Orm := utilities.Orm
+
+		inputs := models.RandevuRequests{}
+		if err := c.BodyParser(&inputs); err != nil {
+			log.Printf("Body parse error: %v\n", err)
+			return c.JSON(fiber.Map{
+				"status":  400,
+				"message": "Geçersiz veri formatı",
+			})
+		}
+
+		if inputs.Status == "" {
+			return c.Status(400).JSON(fiber.Map{
+				"status":  400,
+				"message": "Status is required",
+			})
+		}
+
+		if ourUser.Role != "admin" {
+			if ourUser.Role != "santral" {
+				return c.Status(403).JSON(fiber.Map{
+					"status":  403,
+					"message": "Forbidden: Admin or Santral access required",
+				})
+			} else {
+				CheckIfSantralUsersExists := Orm.Count("users")
+				CheckIfSantralUsersExists.Where("role", "=", "santral")
+				CheckIfSantralUsersExists.And("uid", "=", ourUser.Uid)
+				CheckIfSantralUsersExists.And("sid", "=", inputs.Sid)
+				CheckIfSantralUsersExists.Finish()
+				err = CheckIfSantralUsersExists.Execute()
+
+				if err != nil {
+					log.Printf("%v\n", err)
+					return c.Status(500).JSON(fiber.Map{
+						"status":  500,
+						"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+					})
+				}
+
+				if CheckIfSantralUsersExists.Length() == 0 {
+					return c.Status(403).JSON(fiber.Map{
+						"status":  403,
+						"message": "Forbidden: Santral users not found",
+					})
+				}
+			}
+		}
+
+		Rrid := c.Params("rrid")
+		if Rrid == "" {
+			return c.Status(400).JSON(fiber.Map{
+				"status":  400,
+				"message": "Request ID is required",
+			})
+		}
+
+		NewStatus := ""
+		switch inputs.Status {
+		case "yeni":
+			NewStatus = "randevu-verildi"
+		case "randevu-verildi":
+			NewStatus = "randevu-verilemedi"
+		case "randevu-verilemedi":
+			NewStatus = "ulasilamadi"
+		case "ulasilamadi":
+			NewStatus = "gelmedi"
+		case "gelmedi":
+			NewStatus = "hasta-vazgecti"
+		case "hasta-vazgecti":
+			NewStatus = "yeni"
+		default:
+			return c.Status(400).JSON(fiber.Map{
+				"status":  400,
+				"message": "Invalid status",
+			})
+		}
+
+		CheckIfRequestExists := Orm.Count("randevu_talepleri")
+		CheckIfRequestExists.Where("rrid", "=", Rrid)
+		CheckIfRequestExists.Finish()
+		err = CheckIfRequestExists.Execute()
+
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Status(500).JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		if CheckIfRequestExists.Length() == 0 {
+			return c.Status(404).JSON(fiber.Map{
+				"status":  404,
+				"message": "Randevu talebi bulunamadı",
+			})
+		}
+
+		UpdateRequest := Orm.Update()
+		UpdateRequest.Table("randevu_talepleri")
+		UpdateRequest.Set("status", NewStatus)
+		UpdateRequest.Where("rrid", "=", Rrid)
+		UpdateRequest.Finish()
+		err = UpdateRequest.Execute()
+
+		if err != nil {
+			Orm.Rollback()
+			log.Printf("%v\n", err)
+			return c.Status(500).JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		ra, err := UpdateRequest.RowsAffected()
+		if err != nil {
+			Orm.Rollback()
+			log.Printf("%v\n", err)
+			return c.Status(500).JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+
+		if ra == 0 {
+			Orm.Rollback()
+			return c.Status(404).JSON(fiber.Map{
+				"status":  404,
+				"message": "Randevu talebi bulunamadı.",
+			})
+		}
+
+		Orm.Commit()
+
+		return c.JSON(fiber.Map{
+			"status":     201,
+			"message":    "Randevu talebi başarıyla güncellendi.",
+			"new_status": NewStatus,
+		})
+	}
+}
+
 func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)

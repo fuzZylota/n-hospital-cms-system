@@ -247,6 +247,7 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/randevu/:rid/delete", randevular.DeleteRandevu(states, utilities))
 	routes.Post("/add-randevu-request", randevular.AddRandevuRequest(states, utilities))
 	routes.Post("/randevu-request/:rrid/delete", randevular.DeleteRandevuRequest(states, utilities))
+	routes.Post("/randevu-request/:rrid/toggle-status", randevular.ToggleRandevuRequestStatus(states, utilities))
 	routes.Post("/add-contact-request", post.AddContactRequest(states, utilities))
 	routes.Post("/contact-request/:crid/delete", post.DeleteContactRequest(states, utilities))
 	routes.Post("/contact-request/:crid/respond", post.RespondToContactRequest(states, utilities))
