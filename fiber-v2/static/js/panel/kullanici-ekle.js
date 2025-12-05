@@ -20,6 +20,7 @@ class UserFormHandler {
         this.setupFormValidation();
         this.setupToggleSwitches();
         this.setupPasswordToggles();
+        this.loadSubeler();
         this.handleUrlErrors();
     }
 
@@ -300,13 +301,47 @@ class UserFormHandler {
         // This could be extended to show role-specific information
         const roleDescriptions = {
             admin: 'Tam sistem erişimi ve tüm yönetim yetkilerine sahiptir',
-            moderator: 'Sınırlı yönetim yetkilerine sahiptir'
+            moderator: 'Sınırlı yönetim yetkilerine sahiptir',
+            santral: 'Santral operatörü yetkilerine sahiptir',
+            ik: 'İnsan kaynakları yetkilerine sahiptir'
         };
         
         // Update help text if needed
         const helpText = this.form.querySelector('#role').parentNode.querySelector('.form-help');
         if (helpText && roleDescriptions[role]) {
             helpText.textContent = roleDescriptions[role];
+        }
+    }
+
+    /**
+     * Load subeler from backend
+     */
+    async loadSubeler() {
+        const select = document.getElementById('sid');
+        if (!select) return;
+
+        try {
+            const response = await fetch('/backend/get-all-subeler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 200 && data.data) {
+                select.innerHTML = '<option value="">Şube seçiniz...</option>';
+                
+                data.data.forEach(sube => {
+                    const option = document.createElement('option');
+                    option.value = sube.sid;
+                    option.textContent = sube.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading subeler:', error);
         }
     }
 

@@ -203,6 +203,11 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 		columns := []string{"name", "surname", "password", "email", "phone", "role", "is_active", "timezone"}
 		values := []interface{}{inputs.Name, inputs.Surname, encryptedPassword, inputs.Email, inputs.Phone, inputs.Role, inputs.IsActive, inputs.Timezone}
 
+		if inputs.Sid != "" {
+			columns = append(columns, "sid")
+			values = append(values, inputs.Sid)
+		}
+
 		InsertUser := Orm.Insert(columns, values)
 		InsertUser.Table("users")
 		InsertUser.Finish()
@@ -346,6 +351,11 @@ func EditUser(states *models.AppState, utilities *models.Utilities) fiber.Handle
 				UpdateUser.Set("timezone", inputs.Timezone)
 				SomethingSet = true
 			}
+
+			if inputs.Sid != inputs.OldSid {
+				UpdateUser.Set("sid", inputs.Sid)
+				SomethingSet = true
+			}
 		}
 
 		if !SomethingSet {
@@ -385,8 +395,6 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 				"message": "Forbidden",
 			})
 		}
-
-		fmt.Printf("%s", string(c.Body()))
 
 		inputs := models.UsersEdit{}
 		c.BodyParser(&inputs)
@@ -616,10 +624,6 @@ func BanUnbanUser(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		Orm := utilities.Orm
 
 		if OurUser.Role != "admin" || OurUser.Uid == UserUid {
-			fmt.Printf("banlama izni yok!\n")
-			fmt.Printf("OurUser.Role: %s\n", OurUser.Role)
-			fmt.Printf("OurUser.Uid: %s\n", OurUser.Uid)
-			fmt.Printf("UserUid: %s\n", UserUid)
 			return c.JSON(fiber.Map{
 				"status":  403,
 				"message": "Only admins can ban/unban users",

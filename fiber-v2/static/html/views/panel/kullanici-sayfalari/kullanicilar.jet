@@ -145,9 +145,8 @@
                                 <span>E-posta</span>
                                 <i class="fas fa-sort sort-icon"></i>
                             </th>
-                            <th class="sortable" data-column="phone">
-                                <span>Telefon</span>
-                                <i class="fas fa-sort sort-icon"></i>
+                            <th>
+                                <span>Şube</span>
                             </th>
                             <th class="sortable" data-column="role">
                                 <span>Rol</span>
@@ -188,7 +187,11 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        <a href="tel:{{ .Phone }}" class="phone-link">{{ .Phone }}</a>
+                                        {{if .SubeName}}
+                                        <a href="/panel/subeler/{{ .Sid }}" class="link">{{ .SubeName }}</a>
+                                        {{else}}
+                                        <span class="text-muted">-</span>
+                                        {{end}}
                                     </div>
                                 </td>
                                 <td>
@@ -200,6 +203,12 @@
                                             {{else if .Role == "moderator"}}
                                             <i class="fas fa-user-cog"></i>
                                             Moderatör
+                                            {{else if .Role == "santral"}}
+                                            <i class="fas fa-phone"></i>
+                                            Santral
+                                            {{else if .Role == "ik"}}
+                                            <i class="fas fa-briefcase"></i>
+                                            İnsan Kaynakları
                                             {{end}}
                                         </span>
                                     </div>
@@ -332,9 +341,13 @@
                                     </div>
                                 </div>
                                 <div class="card-field">
-                                    <div class="field-label">Telefon</div>
+                                    <div class="field-label">Şube</div>
                                     <div class="field-value">
-                                        <a href="tel:{{ .Phone }}" class="phone-link">{{ .Phone }}</a>
+                                        {{if .SubeName}}
+                                        <a href="/panel/subeler/{{ .Sid }}" class="link">{{ .SubeName }}</a>
+                                        {{else}}
+                                        <span class="text-muted">-</span>
+                                        {{end}}
                                     </div>
                                 </div>
                                 <div class="card-field">
@@ -347,6 +360,12 @@
                                             {{else if .Role == "moderator"}}
                                             <i class="fas fa-user-cog"></i>
                                             Moderatör
+                                            {{else if .Role == "santral"}}
+                                            <i class="fas fa-phone"></i>
+                                            Santral
+                                            {{else if .Role == "ik"}}
+                                            <i class="fas fa-briefcase"></i>
+                                            İnsan Kaynakları
                                             {{end}}
                                         </span>
                                     </div>

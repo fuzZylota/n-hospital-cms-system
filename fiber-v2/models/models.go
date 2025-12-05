@@ -395,6 +395,8 @@ type Users struct {
 	Surname         string    `form:"surname" json:"surname"`
 	Role            string    `form:"role" json:"role"`
 	Timezone        string    `form:"timezone" json:"timezone"`
+	Sid             string    `form:"sid" json:"sid"`
+	SubeName        string    `form:"sube_name" json:"sube_name"`
 	IsActive        bool      `form:"is_active" json:"is_active"`
 	LastLogin       time.Time `form:"last_login" json:"last_login"`
 	CreatedAt       time.Time `form:"created_at" json:"created_at"`
@@ -418,6 +420,8 @@ type UsersEdit struct {
 	OldRole         string    `form:"old_role" json:"old_role"`
 	IsActive        bool      `form:"is_active" json:"is_active"`
 	OldIsActive     bool      `form:"old_is_active" json:"old_is_active"`
+	Sid             string    `form:"sid" json:"sid"`
+	OldSid          string    `form:"old_sid" json:"old_sid"`
 	Timezone        string    `form:"timezone" json:"timezone"`
 	OldTimezone     string    `form:"old_timezone" json:"old_timezone"`
 	LastLogin       time.Time `form:"last_login" json:"last_login"`
@@ -1259,21 +1263,23 @@ type RandevularEdit struct {
 }
 
 type RandevuRequests struct {
-	Rrid             string    `form:"rrid" json:"rrid"`
-	PatientFirstName string    `form:"patient_first_name" json:"patient_first_name"`
-	PatientLastName  string    `form:"patient_last_name" json:"patient_last_name"`
-	PatientPhone     string    `form:"patient_phone" json:"patient_phone"`
-	PatientEmail     string    `form:"patient_email" json:"patient_email"`
-	PreferredDate    time.Time `form:"preferred_date" json:"preferred_date"`
-	PreferredTime    time.Time `form:"preferred_time" json:"preferred_time"`
-	Message          string    `form:"message" json:"message"`
-	Drid             string    `form:"drid" json:"drid"`
-	Sid              string    `form:"sid" json:"sid"`
-	SubeName         string    `form:"sube_name" json:"sube_name"`
-	Status           string    `form:"status" json:"status"`
-	RecaptchaToken   string    `form:"recaptcha_token" json:"recaptcha_token"`
-	CreatedAt        time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt        time.Time `form:"updated_at" json:"updated_at"`
+	Rrid                 string    `form:"rrid" json:"rrid"`
+	PatientFirstName     string    `form:"patient_first_name" json:"patient_first_name"`
+	PatientLastName      string    `form:"patient_last_name" json:"patient_last_name"`
+	PatientPhone         string    `form:"patient_phone" json:"patient_phone"`
+	PatientEmail         string    `form:"patient_email" json:"patient_email"`
+	PreferredDate        time.Time `form:"preferred_date" json:"preferred_date"`
+	PreferredTime        time.Time `form:"preferred_time" json:"preferred_time"`
+	Message              string    `form:"message" json:"message"`
+	Drid                 string    `form:"drid" json:"drid"`
+	Sid                  string    `form:"sid" json:"sid"`
+	SubeName             string    `form:"sube_name" json:"sube_name"`
+	LastModifiedUid      string    `form:"last_modified_uid" json:"last_modified_uid"`
+	LastModifiedUserName string    `form:"last_modified_user_name" json:"last_modified_user_name"`
+	Status               string    `form:"status" json:"status"`
+	RecaptchaToken       string    `form:"recaptcha_token" json:"recaptcha_token"`
+	CreatedAt            time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt            time.Time `form:"updated_at" json:"updated_at"`
 }
 
 type ContactRequests struct {
@@ -1451,6 +1457,7 @@ type Notification struct {
 	NotificationLevel string    `form:"notification_level" json:"notification_level"`
 	Link              string    `form:"link" json:"link"`
 	IsRead            bool      `form:"is_read" json:"is_read"`
+	Sid               string    `form:"sid" json:"sid"`
 	CreatedAt         time.Time `form:"created_at" json:"created_at"`
 	UpdatedAt         time.Time `form:"updated_at" json:"updated_at"`
 }

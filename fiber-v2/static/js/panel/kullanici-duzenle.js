@@ -17,6 +17,7 @@ class UserEditHandler {
         this.setupFormValidation();
         this.setupToggleSwitches();
         this.setupRoleHandling();
+        this.loadSubeler();
     }
 
     /**
@@ -184,7 +185,9 @@ class UserEditHandler {
     updateRoleInfo(role) {
         const roleDescriptions = {
             admin: 'Tam sistem erişimi ve tüm yönetim yetkilerine sahiptir',
-            moderator: 'Sınırlı yönetim yetkilerine sahiptir'
+            moderator: 'Sınırlı yönetim yetkilerine sahiptir',
+            santral: 'Santral operatörü yetkilerine sahiptir',
+            ik: 'İnsan kaynakları yetkilerine sahiptir'
         };
         
         // Update help text
@@ -193,6 +196,42 @@ class UserEditHandler {
             helpText.textContent = roleDescriptions[role];
         } else if (helpText) {
             helpText.textContent = 'Kullanıcının sistem yetkilerini belirler';
+        }
+    }
+
+    /**
+     * Load subeler from backend
+     */
+    async loadSubeler() {
+        const select = document.getElementById('sid');
+        if (!select) return;
+
+        try {
+            const response = await fetch('/backend/get-all-subeler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 200 && data.data) {
+                const currentSid = window.pageData?.sid || '';
+                select.innerHTML = '<option value="">Şube seçiniz...</option>';
+                
+                data.data.forEach(sube => {
+                    const option = document.createElement('option');
+                    option.value = sube.sid;
+                    option.textContent = sube.name;
+                    if (sube.sid === currentSid) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading subeler:', error);
         }
     }
 

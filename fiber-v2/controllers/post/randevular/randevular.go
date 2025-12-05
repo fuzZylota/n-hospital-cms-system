@@ -771,6 +771,7 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 		UpdateRequest := Orm.Update()
 		UpdateRequest.Table("randevu_talepleri")
 		UpdateRequest.Set("status", NewStatus)
+		UpdateRequest.Set("last_modified_uid", ourUser.Uid)
 		UpdateRequest.Where("rrid", "=", Rrid)
 		UpdateRequest.Finish()
 		err = UpdateRequest.Execute()

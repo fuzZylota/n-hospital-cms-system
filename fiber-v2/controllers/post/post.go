@@ -4552,9 +4552,17 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 						RequestLink: bildirimLink,
 					}
 
+					Columns := []string{"message", "notification_type", "notification_level", "link"}
+					Values := []interface{}{bildirimMetni, "info", "moderator", bildirimLink}
+
+					if RandevuTalebi.Sid != "" {
+						Columns = append(Columns, "sid")
+						Values = append(Values, RandevuTalebi.Sid)
+					}
+
 					InsertNotification := Orm.Insert(
-						[]string{"message", "notification_type", "notification_level", "link"},
-						[]interface{}{bildirimMetni, "info", "moderator", bildirimLink},
+						Columns,
+						Values,
 					)
 
 					InsertNotification.Table("notifications")
@@ -4584,7 +4592,44 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					}
 
 					room.BroadcastIf(NewWebsocketMessageBytes, nil, func(c *wsb.Connection) bool {
-						return lib.String(c.Data) == "kullanici"
+						if lib.String(c.Data) != "kullanici" {
+							return false
+						}
+
+						GetUserRole := Orm.Select([]string{"role", "sid"})
+						GetUserRole.Table("users")
+						GetUserRole.Where("uid", "=", lib.String(c.Id))
+						GetUserRole.Finish()
+
+						err = GetUserRole.Execute()
+
+						// eğer bu kullanıcı randevuyu oluşturan ziyaretçiyse, buradaki hata'dan çıkış
+						// yapılıyor.
+						if err != nil {
+							return false
+						}
+
+						rows, err := GetUserRole.Rows()
+						if err != nil {
+							return false
+						}
+
+						if len(rows) == 0 {
+							return false
+						}
+
+						Role := lib.String(rows[0]["role"])
+						Sid := lib.String(rows[0]["sid"])
+
+						if Role == "admin" {
+							return true
+						}
+
+						if Role == "santral" && Sid == RandevuTalebi.Sid {
+							return true
+						}
+
+						return false
 					})
 				}
 
@@ -4634,7 +4679,29 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					}
 
 					room.BroadcastIf(NewWebsocketMessageBytes, nil, func(c *wsb.Connection) bool {
-						return lib.String(c.Data) == "kullanici"
+						if lib.String(c.Data) != "kullanici" {
+							return false
+						}
+
+						CheckIfUserIsAdminOrIk := Orm.Count("users")
+						CheckIfUserIsAdminOrIk.Where("uid", "=", lib.String(c.Id))
+						CheckIfUserIsAdminOrIk.OpenParenthesis("AND")
+						CheckIfUserIsAdminOrIk.And("role", "=", "admin")
+						CheckIfUserIsAdminOrIk.Or("role", "=", "ik")
+						CheckIfUserIsAdminOrIk.CloseParenthesis()
+						CheckIfUserIsAdminOrIk.Finish()
+
+						err = CheckIfUserIsAdminOrIk.Execute()
+
+						if err != nil {
+							return false
+						}
+
+						if CheckIfUserIsAdminOrIk.Length() == 0 {
+							return false
+						}
+
+						return true
 					})
 				}
 

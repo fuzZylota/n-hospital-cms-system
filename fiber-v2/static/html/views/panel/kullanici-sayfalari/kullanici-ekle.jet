@@ -154,8 +154,17 @@
                                 <option value="">Rol seçin</option>
                                 <option value="admin">Admin</option>
                                 <option value="moderator">Moderatör</option>
+                                <option value="santral">Santral</option>
+                                <option value="ik">İnsan Kaynakları</option>
                             </select>
                             <div class="form-help">Kullanıcının sistem yetkilerini belirler</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sid" class="form-label">Şube</label>
+                            <select id="sid" name="sid" class="form-select">
+                                <option value="">Şube seçiniz...</option>
+                            </select>
+                            <div class="form-help">Kullanıcının bağlı olduğu şube</div>
                         </div>
                         <div class="form-group">
                             <label for="timezone" class="form-label">Zaman Dilimi</label>

@@ -46,6 +46,7 @@
                         <input type="hidden" name="old_role" value="{{ IndividualUser.Role }}">
                         <input type="hidden" name="old_is_active" value="{{ IndividualUser.IsActive }}">
                         <input type="hidden" name="old_timezone" value="{{ IndividualUser.Timezone }}">
+                        <input type="hidden" name="old_sid" value="{{ IndividualUser.Sid }}">
                         <input type="hidden" name="uid" value="{{ IndividualUser.Uid }}">
 
                         <!-- Personal Information -->
@@ -96,8 +97,20 @@
                                         <option value="">Rol seçin</option>
                                         <option value="admin" {{ if IndividualUser.Role == "admin" }}selected{{ end }}>Admin</option>
                                         <option value="moderator" {{ if IndividualUser.Role == "moderator" }}selected{{ end }}>Moderatör</option>
+                                        <option value="santral" {{ if IndividualUser.Role == "santral" }}selected{{ end }}>Santral</option>
+                                        <option value="ik" {{ if IndividualUser.Role == "ik" }}selected{{ end }}>İnsan Kaynakları</option>
                                     </select>
                                     <div class="form-help">Kullanıcının sistem yetkilerini belirler</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sid" class="form-label">Şube</label>
+                                    <select id="sid" name="sid" class="form-select">
+                                        <option value="">Şube seçiniz...</option>
+                                        {{ range Subeler }}
+                                            <option value="{{ .Sid }}" {{ if .Sid == IndividualUser.Sid }}selected{{ end }}>{{ .Name }}</option>
+                                        {{ end }}
+                                    </select>
+                                    <div class="form-help">Kullanıcının bağlı olduğu şube</div>
                                 </div>
                                 <div class="form-group">
                                     <label for="timezone" class="form-label">Zaman Dilimi</label>
@@ -275,7 +288,8 @@
 <script>
     // Pass data to JavaScript
     window.pageData = {
-        uid: {{ IndividualUser.Uid }}
+        uid: {{ IndividualUser.Uid }},
+        sid: "{{ IndividualUser.Sid }}"
     };
 </script>
 <script src="{{ PathOnStart }}js/panel/kullanici-duzenle.js"></script>

@@ -172,6 +172,12 @@
                                 {{else if IndividualUser.Role == "moderator"}}
                                 <i class="fas fa-user-cog"></i>
                                 Moderatör
+                                {{else if IndividualUser.Role == "santral"}}
+                                <i class="fas fa-phone"></i>
+                                Santral
+                                {{else if IndividualUser.Role == "ik"}}
+                                <i class="fas fa-briefcase"></i>
+                                İnsan Kaynakları
                                 {{end}}
                             </span>
                         </div>
@@ -199,6 +205,17 @@
                             </span>
                         </div>
                     </div>
+                    {{if IndividualUser.SubeName}}
+                    <div class="info-item">
+                        <label class="info-label">Şube</label>
+                        <div class="info-value">
+                            <a href="/panel/subeler/{{ IndividualUser.Sid }}" class="link">
+                                <i class="fas fa-building"></i>
+                                {{ IndividualUser.SubeName }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
                 </div>
             </div>
         </div>

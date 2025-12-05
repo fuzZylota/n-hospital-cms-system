@@ -403,6 +403,7 @@ CREATE TABLE randevu_talepleri (
     message TEXT,
     drid INTEGER REFERENCES doktorlar(drid) ON DELETE SET NULL ON UPDATE CASCADE,
     sid INTEGER REFERENCES subeler(sid) ON DELETE SET NULL ON UPDATE CASCADE,
+    last_modified_uid INTEGER REFERENCES users(uid) ON DELETE SET NULL ON UPDATE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -504,8 +505,9 @@ CREATE TABLE notifications (
     nid SERIAL PRIMARY KEY,
     message TEXT NOT NULL,
     notification_type VARCHAR(20) CHECK (notification_type IN ('success', 'warning', 'danger', 'info')),
-    notification_level VARCHAR(20) CHECK (notification_level IN ('moderator', 'admin')),
+    notification_level VARCHAR(20) CHECK (notification_level IN ('moderator', 'admin', 'santral', 'ik')),
     is_read BOOLEAN DEFAULT FALSE,
+    sid INTEGER REFERENCES subeler(sid) ON DELETE SET NULL,
     link VARCHAR(200),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

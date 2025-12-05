@@ -912,44 +912,44 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
-		Users := utilities.Orm.Select([]string{"uid", "name", "surname", "email", "phone", "role", "is_active", "last_login"})
-		Users.Table("users")
+		Users := utilities.Orm.Select([]string{"u.uid", "u.name", "u.surname", "u.email", "u.phone", "u.role", "u.is_active", "u.last_login", "u.sid", "s.name as sube_name"})
+		Users.Table("users u")
+		Users.LeftJoin("subeler s", "u.sid", "=", "s.sid")
 
 		if Query != "" {
 			Users.OpenParenthesis("WHERE")
-			Users.Like("WHERE", "name", Query, "contains")
-			Users.Like("OR", "surname", Query, "contains")
-			Users.Like("OR", "email", Query, "contains")
-			Users.Like("OR", "phone", Query, "contains")
+			Users.Like("WHERE", "u.name", Query, "contains")
+			Users.Like("OR", "u.surname", Query, "contains")
+			Users.Like("OR", "u.email", Query, "contains")
+			Users.Like("OR", "u.phone", Query, "contains")
 			Users.CloseParenthesis()
 
 			if Status != "all" {
-				Users.And("is_active", "=", Status == "active")
+				Users.And("u.is_active", "=", Status == "active")
 			}
 
 			if Role != "all" {
-				Users.And("role", "=", Role)
+				Users.And("u.role", "=", Role)
 			}
 		}
 
 		if Status != "all" {
 			if strings.Contains(Users.Query, "WHERE") {
-				Users.And("is_active", "=", Status == "active")
+				Users.And("u.is_active", "=", Status == "active")
 			} else {
-				Users.Where("is_active", "=", Status == "active")
+				Users.Where("u.is_active", "=", Status == "active")
 			}
 		}
 
 		if Role != "all" {
 			if strings.Contains(Users.Query, "WHERE") {
-				Users.And("role", "=", Role)
+				Users.And("u.role", "=", Role)
 			} else {
-				Users.Where("role", "=", Role)
+				Users.Where("u.role", "=", Role)
 			}
 		}
 
-		Users.OrderBy(SortBy, SortOrder)
-
+		Users.OrderBy("u."+SortBy, SortOrder)
 		Users.Limit(int(itemsPerPage))
 		Users.Offset(offset)
 		Users.Finish()
@@ -977,6 +977,8 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 				Role:      row["role"].(string),
 				IsActive:  row["is_active"].(bool),
 				LastLogin: row["last_login"].(time.Time),
+				Sid:       lib.String(row["sid"]),
+				SubeName:  lib.String(row["sube_name"]),
 			})
 		}
 
@@ -1017,9 +1019,10 @@ func KullaniciPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			return c.Redirect("/giris")
 		}
 
-		Users := Orm.Select("*")
-		Users.Table("users")
-		Users.Where("uid", "=", Oid)
+		Users := Orm.Select([]string{"u.*", "s.name as sube_name"})
+		Users.Table("users u")
+		Users.LeftJoin("subeler s", "u.sid", "=", "s.sid")
+		Users.Where("u.uid", "=", Oid)
 		Users.Finish()
 		err = Users.Execute()
 
@@ -1043,8 +1046,12 @@ func KullaniciPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			Surname:   lib.String(rows[0]["surname"]),
 			Role:      lib.String(rows[0]["role"]),
 			Timezone:  lib.String(rows[0]["timezone"]),
-			IsActive:  rows[0]["is_active"].(bool),
-			LastLogin: rows[0]["last_login"].(time.Time),
+			IsActive:  lib.Bool(rows[0]["is_active"]),
+			LastLogin: lib.Time(rows[0]["last_login"]),
+			Sid:       lib.String(rows[0]["sid"]),
+			SubeName:  lib.String(rows[0]["sube_name"]),
+			CreatedAt: lib.Time(rows[0]["created_at"]),
+			UpdatedAt: lib.Time(rows[0]["updated_at"]),
 		}
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanici", fiber.Map{
@@ -1075,11 +1082,36 @@ func KullaniciEklePage(states *models.AppState, utilities *models.Utilities) fib
 			return c.Redirect("/giris")
 		}
 
+		GetSubeler := Orm.Select([]string{"sid", "name"})
+		GetSubeler.Table("subeler")
+		GetSubeler.Where("is_active", "=", true)
+		GetSubeler.Finish()
+		err = GetSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/giris")
+		}
+
+		rows, err := GetSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/giris")
+		}
+
+		Subeler := []models.Subeler{}
+		for _, row := range rows {
+			Subeler = append(Subeler, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
+		}
+
 		return c.Render("views/panel/kullanici-sayfalari/kullanici-ekle", fiber.Map{
 			"PathOnStart": "../",
 			"PageTitle":   "N-Hospital | Kullanıcı Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
+			"Subeler":     Subeler,
 		}, "layouts/panel/panel")
 	}
 }
@@ -1128,8 +1160,34 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 			Name:      lib.String(rows[0]["name"]),
 			Surname:   lib.String(rows[0]["surname"]),
 			Role:      lib.String(rows[0]["role"]),
-			IsActive:  rows[0]["is_active"].(bool),
-			LastLogin: rows[0]["last_login"].(time.Time),
+			Sid:       lib.String(rows[0]["sid"]),
+			Timezone:  lib.String(rows[0]["timezone"]),
+			CreatedAt: lib.Time(rows[0]["created_at"]),
+			UpdatedAt: lib.Time(rows[0]["updated_at"]),
+		}
+
+		GetSubeler := Orm.Select([]string{"sid", "name"})
+		GetSubeler.Table("subeler")
+		GetSubeler.Where("is_active", "=", true)
+		GetSubeler.Finish()
+		err = GetSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/giris")
+		}
+
+		rows, err = GetSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/giris")
+		}
+
+		Subeler := []models.Subeler{}
+		for _, row := range rows {
+			Subeler = append(Subeler, models.Subeler{
+				Sid:  lib.String(row["sid"]),
+				Name: lib.String(row["name"]),
+			})
 		}
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
@@ -1138,6 +1196,7 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 			"User":           ourUser,
 			"IndividualUser": User,
 			"Options":        GetOptions,
+			"Subeler":        Subeler,
 		}, "layouts/panel/panel")
 	}
 }
