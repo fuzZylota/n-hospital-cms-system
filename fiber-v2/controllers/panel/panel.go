@@ -5880,6 +5880,28 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := utilities.Orm
 
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" {
+			if ourUser.Role != "santral" {
+				return c.Redirect("/panel")
+			}
+
+			CheckIfUserHasAccessToSube := Orm.Count("randevu_talepleri rt")
+			CheckIfUserHasAccessToSube.LeftJoin("users u", "u.sid", "=", "rt.sid")
+			CheckIfUserHasAccessToSube.Where("rt.rrid", "=", Rrid)
+			CheckIfUserHasAccessToSube.AndExpr("rt.sid", "=", "u.sid")
+			CheckIfUserHasAccessToSube.Finish()
+			err = CheckIfUserHasAccessToSube.Execute()
+
+			if err != nil {
+				log.Printf("%v\n", err)
+				return c.Redirect("/panel")
+			}
+
+			if CheckIfUserHasAccessToSube.Length() == 0 {
+				return c.Redirect("/panel/randevu-talepleri")
+			}
+		}
+
 		if c.Query("notification") == "true" {
 			GetOriginalUrl := c.OriginalURL()
 
@@ -5999,6 +6021,10 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/giris")
 		}
 
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
+			return c.Redirect("/panel")
+		}
+
 		Page := 1
 		if c.Query("page") != "" {
 			NewPage, err := strconv.Atoi(c.Query("page"))
@@ -6018,6 +6044,24 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
+		GetUserSid := Orm.Select([]string{"sid"})
+		GetUserSid.Table("users")
+		GetUserSid.Where("uid", "=", ourUser.Uid)
+		GetUserSid.Finish()
+		err = GetUserSid.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err := GetUserSid.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		UserSid := lib.String(rows[0]["sid"])
+
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
 		SortBy := c.Query("sort_by", "patient_first_name")
@@ -6029,7 +6073,8 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		// Build query with filters
 		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "rt.status", "s.name as sube_name"})
 		RandevuTalepleri.Table("randevu_talepleri rt")
-		RandevuTalepleri.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
+		RandevuTalepleri.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
+
 		if Query != "" {
 			RandevuTalepleri.OpenParenthesis("WHERE")
 			RandevuTalepleri.Like("WHERE", "rt.patient_first_name", Query, "contains")
@@ -6052,6 +6097,10 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			}
 		}
 
+		if ourUser.Role == "santral" && UserSid != "" {
+			RandevuTalepleri.And("rt.sid", "=", UserSid)
+		}
+
 		RandevuTalepleri.OrderBy("rt."+SortBy, SortOrder)
 		RandevuTalepleri.Limit(int(itemsPerPage))
 		RandevuTalepleri.Offset(offset)
@@ -6064,7 +6113,7 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
-		rows, err := RandevuTalepleri.Rows()
+		rows, err = RandevuTalepleri.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")

@@ -688,18 +688,28 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 			})
 		}
 
-		if ourUser.Role != "admin" {
+		Rrid := c.Params("rrid")
+		if Rrid == "" {
+			return c.Status(400).JSON(fiber.Map{
+				"status":  400,
+				"message": "Request ID is required",
+			})
+		}
+
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" {
 			if ourUser.Role != "santral" {
 				return c.Status(403).JSON(fiber.Map{
 					"status":  403,
-					"message": "Forbidden: Admin or Santral access required",
+					"message": "Forbidden: Admin, Moderator or Santral access required",
 				})
 			} else {
-				CheckIfSantralUsersExists := Orm.Count("users")
-				CheckIfSantralUsersExists.Where("role", "=", "santral")
-				CheckIfSantralUsersExists.And("uid", "=", ourUser.Uid)
-				CheckIfSantralUsersExists.And("sid", "=", inputs.Sid)
+				CheckIfSantralUsersExists := Orm.Count("users u")
+				CheckIfSantralUsersExists.LeftJoin("subeler s", "s.sid", "=", "u.sid")
+				CheckIfSantralUsersExists.LeftJoin("randevu_talepleri rt", "rt.sid", "=", "s.sid")
+				CheckIfSantralUsersExists.Where("rt.rrid", "=", Rrid)
+				CheckIfSantralUsersExists.And("u.role", "=", "santral")
 				CheckIfSantralUsersExists.Finish()
+
 				err = CheckIfSantralUsersExists.Execute()
 
 				if err != nil {
@@ -717,14 +727,6 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 					})
 				}
 			}
-		}
-
-		Rrid := c.Params("rrid")
-		if Rrid == "" {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Request ID is required",
-			})
 		}
 
 		NewStatus := ""
