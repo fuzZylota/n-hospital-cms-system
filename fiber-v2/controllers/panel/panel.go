@@ -5886,7 +5886,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			CheckIfUserHasAccessToSube := Orm.Count("randevu_talepleri rt")
-			CheckIfUserHasAccessToSube.LeftJoin("users u", "u.sid", "=", "rt.sid")
+			CheckIfUserHasAccessToSube.LeftJoin("users u", "u.uid", "=", ourUser.Uid)
 			CheckIfUserHasAccessToSube.Where("rt.rrid", "=", Rrid)
 			CheckIfUserHasAccessToSube.AndExpr("rt.sid", "=", "u.sid")
 			CheckIfUserHasAccessToSube.Finish()
