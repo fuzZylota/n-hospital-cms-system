@@ -2,6 +2,7 @@ package panel
 
 import (
 	"database"
+	"fmt"
 	lib "lib"
 	"log"
 	"models"
@@ -5902,6 +5903,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
+		fmt.Printf("Geldik!\n")
 		if c.Query("notification") == "true" {
 			GetOriginalUrl := c.OriginalURL()
 
@@ -5937,11 +5939,12 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		// Fetch the randevu talebi
-		RandevuTalebi := Orm.Select([]string{"rt.*", "d.title as doctor_title", "d.first_name as doctor_first_name", "d.last_name as doctor_last_name", "s.name as sube_name", "s.city as sube_city", "r.rid as related_appointment_rid", "r.appointment_date as related_appointment_date", "r.appointment_time as related_appointment_time", "r.status as related_appointment_status"})
+		RandevuTalebi := Orm.Select([]string{"rt.*", "d.title as doctor_title", "d.first_name as doctor_first_name", "d.last_name as doctor_last_name", "s.name as sube_name", "s.city as sube_city", "r.rid as related_appointment_rid", "r.appointment_date as related_appointment_date", "r.appointment_time as related_appointment_time", "r.status as related_appointment_status", "u.name as user_first_name", "u.surname as user_surname", "u.email as user_email", "u.role as user_role"})
 		RandevuTalebi.Table("randevu_talepleri rt")
 		RandevuTalebi.LeftJoin("doktorlar d", "rt.drid", "=", "d.drid")
 		RandevuTalebi.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
 		RandevuTalebi.LeftJoin("randevular r", "rt.rrid", "=", "r.rrid")
+		RandevuTalebi.LeftJoin("users u", "u.uid", "=", "rt.last_modified_uid")
 		RandevuTalebi.Where("rt.rrid", "=", Rrid)
 		RandevuTalebi.Finish()
 		err = RandevuTalebi.Execute()
@@ -5962,19 +5965,24 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		RandevuTalebiData := models.RandevuRequests{
-			Rrid:             lib.String(rows[0]["rrid"]),
-			PatientFirstName: lib.String(rows[0]["patient_first_name"]),
-			PatientLastName:  lib.String(rows[0]["patient_last_name"]),
-			PatientPhone:     lib.String(rows[0]["patient_phone"]),
-			PatientEmail:     lib.String(rows[0]["patient_email"]),
-			PreferredDate:    lib.Time(rows[0]["preferred_date"]),
-			PreferredTime:    lib.Time(rows[0]["preferred_time"]),
-			Message:          lib.String(rows[0]["message"]),
-			Drid:             lib.String(rows[0]["drid"]),
-			Sid:              lib.String(rows[0]["sid"]),
-			Status:           lib.String(rows[0]["status"]),
-			CreatedAt:        lib.Time(rows[0]["created_at"]),
-			UpdatedAt:        lib.Time(rows[0]["updated_at"]),
+			Rrid:                    lib.String(rows[0]["rrid"]),
+			PatientFirstName:        lib.String(rows[0]["patient_first_name"]),
+			PatientLastName:         lib.String(rows[0]["patient_last_name"]),
+			PatientPhone:            lib.String(rows[0]["patient_phone"]),
+			PatientEmail:            lib.String(rows[0]["patient_email"]),
+			PreferredDate:           lib.Time(rows[0]["preferred_date"]),
+			PreferredTime:           lib.Time(rows[0]["preferred_time"]),
+			Message:                 lib.String(rows[0]["message"]),
+			Drid:                    lib.String(rows[0]["drid"]),
+			Sid:                     lib.String(rows[0]["sid"]),
+			Status:                  lib.String(rows[0]["status"]),
+			CreatedAt:               lib.Time(rows[0]["created_at"]),
+			UpdatedAt:               lib.Time(rows[0]["updated_at"]),
+			LastModifiedUid:         lib.String(rows[0]["last_modified_uid"]),
+			LastModifiedUserName:    lib.String(rows[0]["user_first_name"]),
+			LastModifiedUserSurname: lib.String(rows[0]["user_surname"]),
+			LastModifiedUserEmail:   lib.String(rows[0]["user_email"]),
+			LastModifiedUserRole:    lib.String(rows[0]["user_role"]),
 		}
 
 		// Fetch doctor info if drid is set
@@ -6918,6 +6926,10 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 			return c.Redirect("/giris")
 		}
 
+		if ourUser.Role == "santral" {
+			return c.Redirect("/panel")
+		}
+
 		Orm := utilities.Orm
 
 		GetOptions := database.Options{}
@@ -7049,6 +7061,10 @@ func JobApplicationPage(states *models.AppState, utilities *models.Utilities) fi
 
 		if err != nil {
 			return c.Redirect("/giris")
+		}
+
+		if ourUser.Role == "santral" {
+			return c.Redirect("/panel")
 		}
 
 		Orm := utilities.Orm
@@ -7192,6 +7208,10 @@ func RespondToJobApplicationPage(states *models.AppState, utilities *models.Util
 
 		if err != nil {
 			return c.Redirect("/giris")
+		}
+
+		if ourUser.Role == "santral" {
+			return c.Redirect("/panel")
 		}
 
 		Orm := utilities.Orm

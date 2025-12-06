@@ -110,36 +110,6 @@
             </div>
         </div>
 
-        <!-- Preferred Date and Time -->
-        <div class="content-card">
-            <div class="card-header">
-                <div class="card-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h3 class="card-title">Tercih Edilen Tarih ve Saat</h3>
-            </div>
-            <div class="card-content">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <label class="info-label">Tercih Edilen Tarih</label>
-                        <div class="info-value">
-                            {{if RandevuTalebi.PreferredDate}}
-                            {{ mthr(RandevuTalebi.PreferredDate, User.Timezone) }}
-                            {{else}}
-                            <span class="text-muted">Belirtilmemiş</span>
-                            {{end}}
-                        </div>
-                    </div>
-                    {{if RandevuTalebi.PreferredTime}}
-                    <div class="info-item">
-                        <label class="info-label">Tercih Edilen Saat</label>
-                        <div class="info-value">{{ mthr(RandevuTalebi.PreferredTime, User.Timezone) }}</div>
-                    </div>
-                    {{end}}
-                </div>
-            </div>
-        </div>
-
         <!-- Doctor and Branch Information -->
         {{if DoktorInfo.Drid || SubeInfo.Sid}}
         <div class="content-card">
@@ -168,6 +138,63 @@
                         </div>
                     </div>
                     {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Last Modified User Information -->
+        {{if RandevuTalebi.LastModifiedUid}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h3 class="card-title">Son Düzenleyen</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ad Soyad</label>
+                        <div class="info-value">
+                            <a href="/panel/kullanicilar/{{ RandevuTalebi.LastModifiedUid }}" class="link">
+                                {{ RandevuTalebi.LastModifiedUserName }} {{ RandevuTalebi.LastModifiedUserSurname }}
+                            </a>
+                        </div>
+                    </div>
+                    {{if RandevuTalebi.LastModifiedUserEmail}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ RandevuTalebi.LastModifiedUserEmail }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ RandevuTalebi.LastModifiedUserEmail }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Rol</label>
+                        <div class="info-value">
+                            <span class="role-badge {{ RandevuTalebi.LastModifiedUserRole }}">
+                                {{if RandevuTalebi.LastModifiedUserRole == "admin"}}
+                                <i class="fas fa-user-shield"></i>
+                                Admin
+                                {{else if RandevuTalebi.LastModifiedUserRole == "moderator"}}
+                                <i class="fas fa-user-cog"></i>
+                                Moderatör
+                                {{else if RandevuTalebi.LastModifiedUserRole == "santral"}}
+                                <i class="fas fa-phone"></i>
+                                Santral
+                                {{else if RandevuTalebi.LastModifiedUserRole == "ik"}}
+                                <i class="fas fa-briefcase"></i>
+                                İnsan Kaynakları
+                                {{else}}
+                                {{ RandevuTalebi.LastModifiedUserRole }}
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

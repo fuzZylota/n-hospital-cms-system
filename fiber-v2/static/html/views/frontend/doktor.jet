@@ -118,7 +118,9 @@
                 <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
                     <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
                     <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
-                    <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> {{ Doktor.WorkingHours != "" ? "" : "-" }}<span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours }}</span></p>
+                    {{ if Doktor.WorkingHours != "" }}
+                        <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours }}</span></p>
+                    {{ end }}
                 </div>
             </div>
             {{ if Options.Options.ShowDoctorAppointmentFee }}
@@ -140,31 +142,6 @@
         <div class="row gutter-y-30">
             <div class="col-lg-6">
                 <h3 class="team-skills-one__title doc-section-title">Deneyimler</h3>
-                {{ if len(Doktor.Experiences) > 0 }}
-                <div>
-                    {{ range index, Exp := Doktor.Experiences }}
-                    <div class="doc-card">
-                        <div class="doc-card__thumb {{ Exp.CoverPath == "" ? "doc-card__thumb--primary" : "" }}">
-                            {{ if Exp.CoverPath != "" }}
-                                <img class="doc-card__media" src="{{ PathOnStart + Exp.CoverPath }}" alt="{{ Exp.CoverAltText != "" ? Exp.CoverAltText : Exp.Name }}" title="{{ Exp.CoverTitle != "" ? Exp.CoverTitle : Exp.Name }}">
-                            {{ else }}
-                                <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/experience/experience-default.svg" alt="Experience">
-                            {{ end }}
-                        </div>
-                        <div class="doc-card__body">
-                            <h4 class="doc-card__title">{{ Exp.Name }}</h4>
-                            <div class="doc-card__meta">{{ ctdf(Exp.StartDate) }} - {{ Exp.EndDate != nil ? ctdf(Exp.EndDate) : "Devam Ediyor" }}</div>
-                            {{ if Exp.Description != "" }}<div class="doc-card__desc">{{ Exp.Description }}</div>{{ end }}
-                        </div>
-                    </div>
-                    {{ end }}
-                </div>
-                {{ else }}
-                <p style="color:#6b7280;">Deneyim bilgisi bulunamadı.</p>
-                {{ end }}
-            </div>
-            <div class="col-lg-6">
-                <h3 class="team-skills-one__title doc-section-title">Uzmanlıklar</h3>
                 {{ if len(Doktor.Expertises) > 0 }}
                 <div>
                     {{ range index, Uz := Doktor.Expertises }}
@@ -174,7 +151,7 @@
                         </div>
                         <div class="doc-card__body">
                             <h4 class="doc-card__title">{{ Uz.UzmanlikName }} {{ if Uz.IsPrimary }}<span style="background: var(--theme-primary-color); color:#fff; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">Birincil</span>{{ end }}</h4>
-                            <div class="doc-card__meta">{{ Uz.CertificationInstitution }} {{ Uz.CertificationDate }}</div>
+                            <div class="doc-card__meta">{{ Uz.CertificationInstitution }}</div>
                             {{ if Uz.UzmanlikDescription != "" }}<div class="doc-card__desc">{{ Uz.UzmanlikDescription }}</div>{{ end }}
                         </div>
                     </div>

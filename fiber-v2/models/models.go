@@ -1263,23 +1263,26 @@ type RandevularEdit struct {
 }
 
 type RandevuRequests struct {
-	Rrid                 string    `form:"rrid" json:"rrid"`
-	PatientFirstName     string    `form:"patient_first_name" json:"patient_first_name"`
-	PatientLastName      string    `form:"patient_last_name" json:"patient_last_name"`
-	PatientPhone         string    `form:"patient_phone" json:"patient_phone"`
-	PatientEmail         string    `form:"patient_email" json:"patient_email"`
-	PreferredDate        time.Time `form:"preferred_date" json:"preferred_date"`
-	PreferredTime        time.Time `form:"preferred_time" json:"preferred_time"`
-	Message              string    `form:"message" json:"message"`
-	Drid                 string    `form:"drid" json:"drid"`
-	Sid                  string    `form:"sid" json:"sid"`
-	SubeName             string    `form:"sube_name" json:"sube_name"`
-	LastModifiedUid      string    `form:"last_modified_uid" json:"last_modified_uid"`
-	LastModifiedUserName string    `form:"last_modified_user_name" json:"last_modified_user_name"`
-	Status               string    `form:"status" json:"status"`
-	RecaptchaToken       string    `form:"recaptcha_token" json:"recaptcha_token"`
-	CreatedAt            time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt            time.Time `form:"updated_at" json:"updated_at"`
+	Rrid                    string    `form:"rrid" json:"rrid"`
+	PatientFirstName        string    `form:"patient_first_name" json:"patient_first_name"`
+	PatientLastName         string    `form:"patient_last_name" json:"patient_last_name"`
+	PatientPhone            string    `form:"patient_phone" json:"patient_phone"`
+	PatientEmail            string    `form:"patient_email" json:"patient_email"`
+	PreferredDate           time.Time `form:"preferred_date" json:"preferred_date"`
+	PreferredTime           time.Time `form:"preferred_time" json:"preferred_time"`
+	Message                 string    `form:"message" json:"message"`
+	Drid                    string    `form:"drid" json:"drid"`
+	Sid                     string    `form:"sid" json:"sid"`
+	SubeName                string    `form:"sube_name" json:"sube_name"`
+	LastModifiedUid         string    `form:"last_modified_uid" json:"last_modified_uid"`
+	LastModifiedUserName    string    `form:"last_modified_user_name" json:"last_modified_user_name"`
+	LastModifiedUserSurname string    `form:"last_modified_user_surname" json:"last_modified_user_surname"`
+	LastModifiedUserEmail   string    `form:"last_modified_user_email" json:"last_modified_user_email"`
+	LastModifiedUserRole    string    `form:"last_modified_user_role" json:"last_modified_user_role"`
+	Status                  string    `form:"status" json:"status"`
+	RecaptchaToken          string    `form:"recaptcha_token" json:"recaptcha_token"`
+	CreatedAt               time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt               time.Time `form:"updated_at" json:"updated_at"`
 }
 
 type ContactRequests struct {
