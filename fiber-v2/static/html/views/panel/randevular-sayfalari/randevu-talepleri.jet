@@ -42,8 +42,12 @@
             <div class="filter-group">
                 <select id="statusFilter" class="filter-select">
                     <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
-                    <option value="active"{{if Status == "active"}} selected{{end}}>Aktif</option>
-                    <option value="inactive"{{if Status == "inactive"}} selected{{end}}>Pasif</option>
+                    <option value="yeni"{{if Status == "yeni"}} selected{{end}}>Yeni</option>
+                    <option value="randevu-verildi"{{if Status == "randevu-verildi"}} selected{{end}}>Randevu Verildi</option>
+                    <option value="randevu-verilemedi"{{if Status == "randevu-verilemedi"}} selected{{end}}>Randevu Verilemedi</option>
+                    <option value="ulasilamadi"{{if Status == "ulasilamadi"}} selected{{end}}>Ulaşılamadı</option>
+                    <option value="gelmedi"{{if Status == "gelmedi"}} selected{{end}}>Gelmedi</option>
+                    <option value="hasta-vazgecti"{{if Status == "hasta-vazgecti"}} selected{{end}}>Hasta Vazgeçti</option>
                 </select>
                 <select id="sortBy" class="filter-select">
                     <option value="patient_first_name"{{if SortBy == "patient_first_name" || SortBy == ""}} selected{{end}}>Hasta Adı</option>
@@ -431,7 +435,7 @@
                 params.append('query', query);
             }
             if (status && status !== 'all') {
-                params.append('is_active', status);
+                params.append('status', status);
             }
             if (sortByValue) {
                 params.append('sort_by', sortByValue);

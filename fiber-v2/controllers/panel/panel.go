@@ -6052,23 +6052,27 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
-		GetUserSid := Orm.Select([]string{"sid"})
-		GetUserSid.Table("users")
-		GetUserSid.Where("uid", "=", ourUser.Uid)
-		GetUserSid.Finish()
-		err = GetUserSid.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
+		UserSid := ""
 
-		rows, err := GetUserSid.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
+		if ourUser.Role == "santral" {
+			GetUserSid := Orm.Select([]string{"sid"})
+			GetUserSid.Table("users")
+			GetUserSid.Where("uid", "=", ourUser.Uid)
+			GetUserSid.Finish()
+			err = GetUserSid.Execute()
+			if err != nil {
+				log.Printf("%v\n", err)
+				return c.Redirect("/panel")
+			}
 
-		UserSid := lib.String(rows[0]["sid"])
+			rows, err := GetUserSid.Rows()
+			if err != nil {
+				log.Printf("%v\n", err)
+				return c.Redirect("/panel")
+			}
+
+			UserSid = lib.String(rows[0]["sid"])
+		}
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
@@ -6093,15 +6097,15 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			RandevuTalepleri.CloseParenthesis()
 
 			if Status != "all" {
-				RandevuTalepleri.And("rt.status", "=", Status == "active")
+				RandevuTalepleri.And("rt.status", "=", Status)
 			}
 		}
 
 		if Status != "all" {
 			if strings.Contains(RandevuTalepleri.Query, "WHERE") {
-				RandevuTalepleri.And("rt.status", "=", Status == "active")
+				RandevuTalepleri.And("rt.status", "=", Status)
 			} else {
-				RandevuTalepleri.Where("rt.status", "=", Status == "active")
+				RandevuTalepleri.Where("rt.status", "=", Status)
 			}
 		}
 
@@ -6114,14 +6118,21 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		RandevuTalepleri.Offset(offset)
 		RandevuTalepleri.Finish()
 
-		err = RandevuTalepleri.Execute()
+		FinishedQuery := RandevuTalepleri.GetFullQuery()
+
+		GetQuery := strings.Split(FinishedQuery, " FROM ")
+
+		GetQuery1 := strings.Split(GetQuery[1], " ORDER BY ")
+
+		RandevuTalepleri2 := Orm.CustomSelectQuery(FinishedQuery)
+		err = RandevuTalepleri2.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
 		}
 
-		rows, err = RandevuTalepleri.Rows()
+		rows, err := RandevuTalepleri2.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/panel")
@@ -6147,12 +6158,34 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
+		GetQuery2 := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
+
+		ActualLengthOfQuery := Orm.CustomSelectQuery(GetQuery2)
+		err = ActualLengthOfQuery.Execute()
+
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		rows, err = ActualLengthOfQuery.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
+		}
+
+		var Length int64 = 0
+
+		if len(rows) != 0 {
+			Length = lib.Int64(rows[0]["length"])
+		}
+
 		return c.Render("views/panel/randevular-sayfalari/randevu-talepleri", fiber.Map{
 			"PathOnStart":      "../",
 			"PageTitle":        "N-Hospital | Randevu Talepleri",
 			"Page":             c.Query("page"),
 			"RandevuTalepleri": RandevuTalepleriArray,
-			"Count":            len(RandevuTalepleriArray),
+			"Count":            Length,
 			"User":             ourUser,
 			"Options":          GetOptions,
 			"Query":            Query,
