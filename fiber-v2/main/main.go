@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"frontend"
 	lib "lib"
 	"log"
 	"os"
@@ -49,6 +50,7 @@ func main() {
 	}
 
 	htmlFiles.AddFunc("mthr", lib.MakeTimeHumanReadable)
+	htmlFiles.AddFunc("mthrwn", lib.MakeTimeHumanReadableWithoutNormalization)
 	htmlFiles.AddFunc("ctdi", lib.ConvertTimeForTheDateInput)
 	htmlFiles.AddFunc("ctdli", lib.ConvertTimeForDateTimeLocalInput)
 	htmlFiles.AddFunc("ctdf", lib.ConvertTimeForTheDateForFrontend)
@@ -106,6 +108,7 @@ func main() {
 	baserouter.FrontendRouter(server, &AppState, &Utilities)
 	baserouter.PanelRouter(server, &AppState, &Utilities)
 	baserouter.BackendRouter(server, &AppState, &Utilities)
+	server.Use(frontend.FallbackPage(&AppState, &Utilities))
 
 	log.Printf("Routes loaded")
 

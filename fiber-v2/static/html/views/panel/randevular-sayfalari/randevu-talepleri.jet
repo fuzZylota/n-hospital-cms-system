@@ -176,7 +176,7 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        <div class="primary-text">{{ mthr(.CreatedAt, User.Timezone) }}</div>
+                                        <div class="primary-text">{{ mthrwn(.CreatedAt) }}</div>
                                     </div>
                                 </td>
                                 <td>
@@ -288,7 +288,7 @@
                                 <div class="card-field">
                                     <div class="field-label">Talep Tarihi</div>
                                     <div class="field-value">
-                                        {{ mthr(.CreatedAt, User.Timezone) }}
+                                        {{ mthrwn(.CreatedAt) }}
                                     </div>
                                 </div>
                                 <div class="card-field">

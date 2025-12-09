@@ -47,6 +47,7 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 	routes.Get("/subelerimiz/:sube/doktorlar/:doktor", frontend.DoktorPage(states, utilities))
 	routes.Get("/doktorlarimiz", frontend.TumDoktorlarPage(states, utilities))
 	routes.Get("/doktorlarimiz/:doktor", frontend.DoktorPageForDoktorlarimiz(states, utilities))
+	//routes.Get("*", frontend.FallbackPage(states, utilities))
 }
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
@@ -140,6 +141,8 @@ func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.U
 	routes.Get("/dosya-yukle", panel.AddFilePage(states, utilities))
 	routes.Get("/dosyalar", panel.ListFilesPage(states, utilities))
 	routes.Get("/dokumantasyon", panel.DocumentationPage(states, utilities))
+
+	//routes.Get("*", panel.FallbackPage(states, utilities))
 }
 
 func BackendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {

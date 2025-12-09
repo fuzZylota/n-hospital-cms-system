@@ -741,6 +741,10 @@ func MakeTimeHumanReadable(GivenTime time.Time, UserTimezone string) string {
 	return localTime.Format("15:04, 02/01/2006")
 }
 
+func MakeTimeHumanReadableWithoutNormalization(GivenTime time.Time) string {
+	return GivenTime.Format("15:04, 02/01/2006")
+}
+
 func ConvertTimeForTheDateInput(GivenTime time.Time, UserTimezone string) string {
 	loc, err := time.LoadLocation(UserTimezone)
 	if err != nil {

@@ -35,15 +35,15 @@
             {{ range index2, TedkikLink := Options.TedkiklerLinks }}
                 {{ if index2 < 4 }}
                     <div class="col-xl-3 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                        <div class="services-three__item">
+                        <a href="/tetkikler/{{ TedkikLink.UrlName }}" class="services-three__item services-three__item--link">
                             <div class="services-three__item__bg" style="background-image: url(files/defaults/other/eye-examination.jpg);"></div>
                             <div class="services-three__item__content">
                                 <img src="files/shapes/actual-eye-shape.png" alt="shape" class="services-three__item__shape">
                                 <h3 class="services-three__item__title">
-                                    <a href="/tetkikler/{{ TedkikLink.UrlName }}">{{ TedkikLink.Name }}</a>
+                                    {{ TedkikLink.Name }}
                                 </h3><!-- /.services-three__item__title -->
                             </div><!-- /.services-three__item__content -->
-                        </div><!-- /.services-three__item -->
+                        </a><!-- /.services-three__item -->
                     </div><!-- /.col-xl-3 col-md-6 -->
                 {{ end }}
             {{ end }}

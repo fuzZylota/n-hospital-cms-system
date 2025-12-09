@@ -6076,7 +6076,7 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "patient_first_name")
+		SortBy := c.Query("sort_by", "created_at")
 		SortOrder := c.Query("sort_order", "DESC")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -6153,8 +6153,8 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 				Sid:              lib.String(row["sid"]),
 				SubeName:         lib.String(row["sube_name"]),
 				Status:           lib.String(row["status"]),
-				CreatedAt:        row["created_at"].(time.Time),
-				UpdatedAt:        row["updated_at"].(time.Time),
+				CreatedAt:        lib.Time(row["created_at"]),
+				UpdatedAt:        lib.Time(row["updated_at"]),
 			})
 		}
 
@@ -7322,6 +7322,35 @@ func DocumentationPage(states *models.AppState, utilities *models.Utilities) fib
 		return c.Render("views/panel/dokumantasyon", fiber.Map{
 			"PathOnStart": "../",
 			"PageTitle":   "N-Hospital | Dosya Ekle",
+			"User":        ourUser,
+			"Options":     GetOptions,
+		}, "layouts/panel/panel")
+	}
+}
+
+func FallbackPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ourUser, err := lib.CheckAuth(c)
+
+		if err != nil {
+			return c.Redirect("/giris")
+		}
+
+		Orm := utilities.Orm
+
+		GetOptions := database.Options{}
+		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
+
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/giris")
+		}
+
+		return c.Render("views/panel/fallback", fiber.Map{
+			"PathOnStart": "../",
+			"Route":       "*",
+			"Title":       "Sayfa Bulunamadı | " + GetOptions.Options.SiteName,
+			"Description": "Bu sayfa, " + GetOptions.Options.SiteName + " sitesinin sayfa bulunamadı sayfasıdır.",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")

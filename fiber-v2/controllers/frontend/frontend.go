@@ -1935,3 +1935,28 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}, "layouts/main/main")
 	}
 }
+
+func FallbackPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+		Orm := utilities.Orm
+
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+		return c.Render("views/frontend/fallback", fiber.Map{
+			"PathOnStart": "../",
+			"Route":       "*",
+			"Options":     Options,
+			"User":        OurUser,
+			"Title":       "Sayfa Bulunamadı | " + Options.Options.SiteName,
+			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin sayfa bulunamadı sayfasıdır.",
+		}, "layouts/main/main")
+	}
+}
