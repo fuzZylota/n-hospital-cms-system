@@ -4621,7 +4621,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 						Role := lib.String(rows[0]["role"])
 						Sid := lib.String(rows[0]["sid"])
 
-						if Role == "admin" {
+						if Role == "admin" || Role == "moderator" {
 							return true
 						}
 
@@ -4687,6 +4687,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 						CheckIfUserIsAdminOrIk.Where("uid", "=", lib.String(c.Id))
 						CheckIfUserIsAdminOrIk.OpenParenthesis("AND")
 						CheckIfUserIsAdminOrIk.And("role", "=", "admin")
+						CheckIfUserIsAdminOrIk.Or("role", "=", "moderator")
 						CheckIfUserIsAdminOrIk.Or("role", "=", "ik")
 						CheckIfUserIsAdminOrIk.CloseParenthesis()
 						CheckIfUserIsAdminOrIk.Finish()
