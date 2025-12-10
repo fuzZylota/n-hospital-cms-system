@@ -73,6 +73,15 @@
     color: #ffffff;
 }
 
+.mobile-nav__btn span {
+  background-color: var(--mediox-white) !important;
+}
+
+/* Ensure hamburger lines turn white on transparent header */
+.transparent-bg-on-homepage .mobile-nav__btn span {
+    background-color: #ffffff !important;
+}
+
 /* Banner Styles */
 
 .main-slider-three__title__inner {
