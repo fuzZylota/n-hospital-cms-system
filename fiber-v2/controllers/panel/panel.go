@@ -6201,11 +6201,11 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		// Calculate today's count
 		var TodayCount int64 = 0
-		TodayCountQueryStr := GetQuery2
-		if strings.Contains(GetQuery2, "WHERE") {
-			TodayCountQueryStr = GetQuery2 + " AND DATE(rt.created_at) = CURDATE()"
+		TodayCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
+		if strings.Contains(GetQuery1[0], "WHERE") {
+			TodayCountQueryStr = TodayCountQueryStr + " AND DATE(rt.created_at) = CURDATE()"
 		} else {
-			TodayCountQueryStr = GetQuery2 + " WHERE DATE(rt.created_at) = CURDATE()"
+			TodayCountQueryStr = TodayCountQueryStr + " WHERE DATE(rt.created_at) = CURDATE()"
 		}
 		TodayCountQuery := Orm.CustomSelectQuery(TodayCountQueryStr)
 		err = TodayCountQuery.Execute()
@@ -6218,11 +6218,11 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		// Calculate this week's count
 		var WeekCount int64 = 0
-		WeekCountQueryStr := GetQuery2
-		if strings.Contains(GetQuery2, "WHERE") {
-			WeekCountQueryStr = GetQuery2 + " AND YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
+		WeekCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
+		if strings.Contains(GetQuery1[0], "WHERE") {
+			WeekCountQueryStr = WeekCountQueryStr + " AND YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
 		} else {
-			WeekCountQueryStr = GetQuery2 + " WHERE YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
+			WeekCountQueryStr = WeekCountQueryStr + " WHERE YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
 		}
 		WeekCountQuery := Orm.CustomSelectQuery(WeekCountQueryStr)
 		err = WeekCountQuery.Execute()
@@ -6235,11 +6235,11 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		// Calculate this month's count
 		var MonthCount int64 = 0
-		MonthCountQueryStr := GetQuery2
-		if strings.Contains(GetQuery2, "WHERE") {
-			MonthCountQueryStr = GetQuery2 + " AND YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
+		MonthCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
+		if strings.Contains(GetQuery1[0], "WHERE") {
+			MonthCountQueryStr = MonthCountQueryStr + " AND YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
 		} else {
-			MonthCountQueryStr = GetQuery2 + " WHERE YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
+			MonthCountQueryStr = MonthCountQueryStr + " WHERE YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
 		}
 		MonthCountQuery := Orm.CustomSelectQuery(MonthCountQueryStr)
 		err = MonthCountQuery.Execute()
