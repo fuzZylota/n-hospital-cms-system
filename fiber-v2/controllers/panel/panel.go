@@ -6101,7 +6101,13 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		itemsPerPage := int(GivenItemsPerPage)
 
-		var offset int = (Page - 1) * itemsPerPage
+		var offset int = 0
+
+		if Page > 1 {
+			offset = (Page - 1) * itemsPerPage
+		} else {
+			offset = 0
+		}
 
 		// Build query with filters
 		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "rt.status", "s.name as sube_name"})
