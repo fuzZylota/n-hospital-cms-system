@@ -7,6 +7,7 @@ class TedkikViewManager {
     constructor() {
         this.tedkikData = window.tedkikData || {};
         this.currentZoomedImage = null;
+        this.codeEditors = {};
         
         this.init();
     }
@@ -19,6 +20,7 @@ class TedkikViewManager {
         this.formatDates();
         this.setupCopyToClipboard();
         this.setupKeyboardShortcuts();
+        this.setupCodeEditors();
     }
 
     /**
@@ -668,6 +670,64 @@ class TedkikViewManager {
     }
 
     /**
+     * Setup CodeMirror editors for readonly code display
+     */
+    setupCodeEditors() {
+        // Wait for CodeMirror to be loaded
+        if (typeof CodeMirror === 'undefined') {
+            setTimeout(() => this.setupCodeEditors(), 100);
+            return;
+        }
+
+        this.codeEditors = {};
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('htmlContent');
+        if (htmlTextarea) {
+            // Hide textarea before CodeMirror initialization
+            htmlTextarea.style.display = 'none';
+            
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('cssContent');
+        if (cssTextarea) {
+            // Hide textarea before CodeMirror initialization
+            cssTextarea.style.display = 'none';
+            
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('jsContent');
+        if (jsTextarea) {
+            // Hide textarea before CodeMirror initialization
+            jsTextarea.style.display = 'none';
+            
+            this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                readOnly: true,
+                lineWrapping: true
+            });
+        }
+    }
+
+    /**
      * Setup tooltips for truncated text
      */
     setupTooltips() {
@@ -784,6 +844,72 @@ window.closeAlert = function(alertId) {
         setTimeout(() => {
             alert.style.display = 'none';
         }, 300);
+    }
+};
+
+window.copyToClipboard = function(textareaId) {
+    const manager = window.tedkikViewManager;
+    if (!manager) return;
+    
+    // Try to get text from CodeMirror instance first
+    let text = '';
+    const editorMap = {
+        'htmlContent': 'html',
+        'cssContent': 'css',
+        'jsContent': 'javascript'
+    };
+    
+    const editorKey = editorMap[textareaId];
+    if (editorKey && manager.codeEditors && manager.codeEditors[editorKey]) {
+        text = manager.codeEditors[editorKey].getValue();
+    } else {
+        // Fallback to textarea
+        const textarea = document.getElementById(textareaId);
+        if (textarea) {
+            text = textarea.value || textarea.textContent || '';
+        }
+    }
+    
+    if (!text) {
+        alert('Kopyalanacak içerik bulunamadı.');
+        return;
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            manager.showAlert('Kod kopyalandı!', 'success');
+        }).catch(() => {
+            alert('Kopyalama işlemi başarısız oldu.');
+        });
+    } else {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        
+        manager.showAlert('Kod kopyalandı!', 'success');
+    }
+};
+
+window.toggleCodeExpansion = function(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+    
+    const codeContainer = textarea.closest('.code-container');
+    if (!codeContainer) return;
+    
+    const isExpanded = codeContainer.classList.contains('expanded');
+    if (isExpanded) {
+        codeContainer.classList.remove('expanded');
+        codeContainer.style.maxHeight = '400px';
+    } else {
+        codeContainer.classList.add('expanded');
+        codeContainer.style.maxHeight = 'none';
     }
 };
 

@@ -452,6 +452,9 @@ class TibbiBirimViewManager {
         // HTML Editor
         const htmlTextarea = document.getElementById('htmlContent');
         if (htmlTextarea) {
+            // Hide textarea before CodeMirror initialization
+            htmlTextarea.style.display = 'none';
+            
             this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
                 mode: 'htmlmixed',
                 theme: 'monokai',
@@ -464,6 +467,9 @@ class TibbiBirimViewManager {
         // CSS Editor
         const cssTextarea = document.getElementById('cssContent');
         if (cssTextarea) {
+            // Hide textarea before CodeMirror initialization
+            cssTextarea.style.display = 'none';
+            
             this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
                 mode: 'css',
                 theme: 'monokai',
@@ -476,6 +482,9 @@ class TibbiBirimViewManager {
         // JavaScript Editor
         const jsTextarea = document.getElementById('jsContent');
         if (jsTextarea) {
+            // Hide textarea before CodeMirror initialization
+            jsTextarea.style.display = 'none';
+            
             this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
                 mode: 'javascript',
                 theme: 'monokai',

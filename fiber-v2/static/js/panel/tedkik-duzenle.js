@@ -12,6 +12,7 @@ class TedkikEditHandler {
         this.pictureSubmitBtn = document.getElementById('pictureSubmitBtn');
         this.currentDeleteTarget = null;
         this.originalValues = {};
+        this.codeEditors = {};
         
         this.init();
     }
@@ -25,6 +26,7 @@ class TedkikEditHandler {
         this.setupToggleSwitches();
         this.setupPictureDeletion();
         this.setupUrlGeneration();
+        this.setupCodeEditors();
     }
 
     /**
@@ -48,6 +50,13 @@ class TedkikEditHandler {
     setupGeneralForm() {
         this.generalForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Sync CodeMirror content with form data before submit
+            Object.keys(this.codeEditors).forEach(key => {
+                if (this.codeEditors[key]) {
+                    this.codeEditors[key].save();
+                }
+            });
             
             if (!this.validateGeneralForm()) {
                 return;
@@ -351,6 +360,80 @@ class TedkikEditHandler {
                 }
             });
         }
+    }
+
+    /**
+     * Setup CodeMirror editors for HTML, CSS, and JavaScript
+     */
+    setupCodeEditors() {
+        // Wait for CodeMirror to be loaded
+        if (typeof CodeMirror === 'undefined') {
+            setTimeout(() => this.setupCodeEditors(), 100);
+            return;
+        }
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('html_content');
+        if (htmlTextarea) {
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('css_content');
+        if (cssTextarea) {
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('javascript_content');
+        if (jsTextarea) {
+            this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // Sync CodeMirror content with form data
+        Object.keys(this.codeEditors).forEach(key => {
+            if (this.codeEditors[key]) {
+                this.codeEditors[key].on('change', () => {
+                    this.codeEditors[key].save();
+                });
+            }
+        });
     }
 
     /**

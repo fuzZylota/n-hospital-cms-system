@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/tedkik-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -112,6 +116,60 @@
                 </div>
             </div>
 
+            <!-- HTML Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-code"></i>
+                        HTML İçeriği
+                    </h2>
+                    <p class="section-description">Tedkik için HTML içeriği yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="html_content" class="form-label">HTML Kodu</label>
+                        <textarea id="html_content" name="html_content" class="form-textarea code-editor" rows="10" placeholder="HTML kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-palette"></i>
+                        CSS Stilleri
+                    </h2>
+                    <p class="section-description">Tedkik için CSS stillerini yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="css_content" class="form-label">CSS Kodu</label>
+                        <textarea id="css_content" name="css_content" class="form-textarea code-editor" rows="10" placeholder="CSS kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-settings"></i>
+                        JavaScript Kodu
+                    </h2>
+                    <p class="section-description">Tedkik için JavaScript kodunu yazın</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="javascript_content" class="form-label">JavaScript Kodu</label>
+                        <textarea id="javascript_content" name="javascript_content" class="form-textarea code-editor" rows="10" placeholder="JavaScript kodunuzu buraya yazın..."></textarea>
+                        <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="window.history.back()">
@@ -156,5 +214,17 @@
         </div>
     </div>
 </div>
-
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
 <script src="{{ PathOnStart }}js/panel/tedkik-ekle.js"></script>

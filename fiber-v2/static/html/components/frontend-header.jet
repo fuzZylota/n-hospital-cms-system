@@ -70,7 +70,7 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                                     <ul>
                                         {{ range index2, SubeLink := Options.SubelerLinks }}
                                         <li>
-                                            <a href="/subelerimiz/{{ SubeLink.UrlName }}">{{ SubeLink.Name }}</a>
+                                            <a href="/merkezlerimiz/{{ SubeLink.UrlName }}">{{ SubeLink.Name }}</a>
                                             {{ if len(SubeLink.Documents) > 0 }}
                                                 <ul>
                                                     {{ range index3, Document := SubeLink.Documents }}

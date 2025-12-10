@@ -32,11 +32,27 @@
                         <img class="tedkik-detail__image {{ Tedkik.CoverPath == "" ? "is-placeholder" : "" }}" src="{{ Tedkik.CoverPath != "" ? PathOnStart + Tedkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}" alt="{{ Tedkik.CoverAltText != "" ? Tedkik.CoverAltText : Tedkik.Name }}" title="{{ Tedkik.CoverTitle != "" ? Tedkik.CoverTitle : Tedkik.Name }}">
                     </div>
                     <div class="tedkik-detail__content">
-                        <h1 class="tedkik-detail__title">{{ Tedkik.Name != "" ? Tedkik.Name : "Tetkik" }}</h1>
-                        {{ if Tedkik.Description != "" }}
-                            <p class="tedkik-detail__desc">{{ Tedkik.Description }}</p>
+                        {{ if Tedkik.HtmlContent != "" }}
+                            {{ if Tedkik.CssContent != "" }}
+                                <style>
+                                    {{ Tedkik.CssContent | raw }}
+                                </style>
+                            {{ end }}
+                            <div class="tedkik-detail__html-content">
+                                {{ Tedkik.HtmlContent | raw }}
+                            </div>
+                            {{ if Tedkik.JavascriptContent != "" }}
+                                <script>
+                                    {{ Tedkik.JavascriptContent | raw }}
+                                </script>
+                            {{ end }}
                         {{ else }}
-                            <p class="tedkik-detail__desc">Bu tetkik hakkında yakında detaylı bilgiler eklenecektir.</p>
+                            <h1 class="tedkik-detail__title">{{ Tedkik.Name != "" ? Tedkik.Name : "Tetkik" }}</h1>
+                            {{ if Tedkik.Description != "" }}
+                                <p class="tedkik-detail__desc">{{ Tedkik.Description }}</p>
+                            {{ else }}
+                                <p class="tedkik-detail__desc">Bu tetkik hakkında yakında detaylı bilgiler eklenecektir.</p>
+                            {{ end }}
                         {{ end }}
                     </div>
                 </div>
