@@ -24,7 +24,7 @@ class RandevuTalepleriListManager {
         this.setupPagination();
         this.setupViewToggle();
         this.setupTableSorting();
-        this.updateStatistics();
+        //this.updateStatistics();
         this.bindRefreshButton();
     }
 
