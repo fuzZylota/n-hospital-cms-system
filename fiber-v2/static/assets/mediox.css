@@ -3307,7 +3307,7 @@ h6 {
   background-color: var(--mediox-black, #0A2241);
 }
 .main-header--three .mobile-nav__btn span {
-  background-color: var(--mediox-white, #FFFFFF);
+  background-color: var(--mediox-white);
 }
 .main-header--three .main-header__nav {
   margin-right: 59px;
@@ -3576,7 +3576,7 @@ h6 {
 .mobile-nav__btn span {
   width: 100%;
   height: 2px;
-  background-color: var(--mediox-black, #0A2241);
+  background-color: var(--mediox-white);
   transition: all 500ms ease;
 }
 .mobile-nav__btn span:nth-child(2) {

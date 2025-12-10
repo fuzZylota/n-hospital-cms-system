@@ -308,8 +308,8 @@
 
     .fast-randevu__mobile-line {
         display: flex;
-        width: min(500px, calc(100% - 20px));
-        max-width: 500px;
+        width: min(250px, calc(100% - 20px));
+        max-width: 400px;
         height: 56px;
         border-radius: 40px;
         border: none;
