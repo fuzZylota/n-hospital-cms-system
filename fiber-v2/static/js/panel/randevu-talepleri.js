@@ -216,17 +216,6 @@ class RandevuTalepleriListManager {
      */
     setupPagination() {
         this.renderPagination();
-        
-        // Per page selector
-        const perPageSelect = document.getElementById('perPage');
-        if (perPageSelect) {
-            perPageSelect.value = this.perPage;
-            perPageSelect.addEventListener('change', (e) => {
-                this.perPage = parseInt(e.target.value);
-                this.currentPage = 1;
-                this.filterAndReload();
-            });
-        }
     }
 
     /**
@@ -309,7 +298,6 @@ class RandevuTalepleriListManager {
             // Build query parameters
             const params = new URLSearchParams();
             params.set('page', this.currentPage);
-            params.set('per_page', this.perPage);
             
             // Preserve existing query parameters
             const query = urlParams.get('query');
