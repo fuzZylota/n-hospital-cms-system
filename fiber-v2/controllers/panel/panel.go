@@ -4472,19 +4472,22 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 
 		TibbiBirimData := models.TibbiBirimler{
-			Tbid:         lib.String(rows[0]["tbid"]),
-			Name:         lib.String(rows[0]["name"]),
-			UrlName:      lib.String(rows[0]["url_name"]),
-			Description:  lib.String(rows[0]["description"]),
-			CoverMid:     lib.Int64(rows[0]["cover_mid"]),
-			CoverPath:    lib.String(rows[0]["cover_path"]),
-			CoverAltText: lib.String(rows[0]["cover_alt_text"]),
-			CoverTitle:   lib.String(rows[0]["cover_title"]),
-			VideoMid:     lib.Int64(rows[0]["video_mid"]),
-			VideoPath:    lib.String(rows[0]["video_path"]),
-			IsActive:     lib.Bool(rows[0]["is_active"]),
-			CreatedAt:    lib.Time(rows[0]["created_at"]),
-			UpdatedAt:    lib.Time(rows[0]["updated_at"]),
+			Tbid:              lib.String(rows[0]["tbid"]),
+			Name:              lib.String(rows[0]["name"]),
+			UrlName:           lib.String(rows[0]["url_name"]),
+			Description:       lib.String(rows[0]["description"]),
+			HtmlContent:       lib.String(rows[0]["html_content"]),
+			JavascriptContent: lib.String(rows[0]["javascript_content"]),
+			CssContent:        lib.String(rows[0]["css_content"]),
+			CoverMid:          lib.Int64(rows[0]["cover_mid"]),
+			CoverPath:         lib.String(rows[0]["cover_path"]),
+			CoverAltText:      lib.String(rows[0]["cover_alt_text"]),
+			CoverTitle:        lib.String(rows[0]["cover_title"]),
+			VideoMid:          lib.Int64(rows[0]["video_mid"]),
+			VideoPath:         lib.String(rows[0]["video_path"]),
+			IsActive:          lib.Bool(rows[0]["is_active"]),
+			CreatedAt:         lib.Time(rows[0]["created_at"]),
+			UpdatedAt:         lib.Time(rows[0]["updated_at"]),
 		}
 
 		// Fetch doctors in this tibbi_birim
@@ -4633,19 +4636,22 @@ func TibbiBirimDuzenlePage(states *models.AppState, utilities *models.Utilities)
 		}
 
 		TibbiBirim := models.TibbiBirimler{
-			Tbid:         lib.String(rows[0]["tbid"]),
-			Name:         lib.String(rows[0]["name"]),
-			UrlName:      lib.String(rows[0]["url_name"]),
-			Description:  lib.String(rows[0]["description"]),
-			CoverMid:     lib.Int64(rows[0]["cover_mid"]),
-			CoverPath:    lib.String(rows[0]["cover_path"]),
-			CoverAltText: lib.String(rows[0]["cover_alt_text"]),
-			CoverTitle:   lib.String(rows[0]["cover_title"]),
-			VideoMid:     lib.Int64(rows[0]["video_mid"]),
-			VideoPath:    lib.String(rows[0]["video_path"]),
-			IsActive:     lib.Bool(rows[0]["is_active"]),
-			CreatedAt:    lib.Time(rows[0]["created_at"]),
-			UpdatedAt:    lib.Time(rows[0]["updated_at"]),
+			Tbid:              lib.String(rows[0]["tbid"]),
+			Name:              lib.String(rows[0]["name"]),
+			UrlName:           lib.String(rows[0]["url_name"]),
+			Description:       lib.String(rows[0]["description"]),
+			HtmlContent:       lib.String(rows[0]["html_content"]),
+			JavascriptContent: lib.String(rows[0]["javascript_content"]),
+			CssContent:        lib.String(rows[0]["css_content"]),
+			CoverMid:          lib.Int64(rows[0]["cover_mid"]),
+			CoverPath:         lib.String(rows[0]["cover_path"]),
+			CoverAltText:      lib.String(rows[0]["cover_alt_text"]),
+			CoverTitle:        lib.String(rows[0]["cover_title"]),
+			VideoMid:          lib.Int64(rows[0]["video_mid"]),
+			VideoPath:         lib.String(rows[0]["video_path"]),
+			IsActive:          lib.Bool(rows[0]["is_active"]),
+			CreatedAt:         lib.Time(rows[0]["created_at"]),
+			UpdatedAt:         lib.Time(rows[0]["updated_at"]),
 		}
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim-duzenle", fiber.Map{
@@ -5753,17 +5759,20 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		TedkikData := models.Tedkikler{
-			Tid:          lib.String(rows[0]["tid"]),
-			Name:         lib.String(rows[0]["name"]),
-			UrlName:      lib.String(rows[0]["url_name"]),
-			Description:  lib.String(rows[0]["description"]),
-			CoverMid:     lib.Int64(rows[0]["cover_mid"]),
-			CoverPath:    lib.String(rows[0]["cover_path"]),
-			CoverAltText: lib.String(rows[0]["cover_alt_text"]),
-			CoverTitle:   lib.String(rows[0]["cover_title"]),
-			IsActive:     lib.Bool(rows[0]["is_active"]),
-			CreatedAt:    lib.Time(rows[0]["created_at"]),
-			UpdatedAt:    lib.Time(rows[0]["updated_at"]),
+			Tid:               lib.String(rows[0]["tid"]),
+			Name:              lib.String(rows[0]["name"]),
+			UrlName:           lib.String(rows[0]["url_name"]),
+			Description:       lib.String(rows[0]["description"]),
+			HtmlContent:       lib.String(rows[0]["html_content"]),
+			JavascriptContent: lib.String(rows[0]["javascript_content"]),
+			CssContent:        lib.String(rows[0]["css_content"]),
+			CoverMid:          lib.Int64(rows[0]["cover_mid"]),
+			CoverPath:         lib.String(rows[0]["cover_path"]),
+			CoverAltText:      lib.String(rows[0]["cover_alt_text"]),
+			CoverTitle:        lib.String(rows[0]["cover_title"]),
+			IsActive:          lib.Bool(rows[0]["is_active"]),
+			CreatedAt:         lib.Time(rows[0]["created_at"]),
+			UpdatedAt:         lib.Time(rows[0]["updated_at"]),
 		}
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkik", fiber.Map{
@@ -5842,17 +5851,20 @@ func TedkikDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		Tedkik := models.Tedkikler{
-			Tid:          lib.String(rows[0]["tid"]),
-			Name:         lib.String(rows[0]["name"]),
-			UrlName:      lib.String(rows[0]["url_name"]),
-			Description:  lib.String(rows[0]["description"]),
-			IsActive:     rows[0]["is_active"].(bool),
-			CoverMid:     lib.Int64(rows[0]["cover_mid"]),
-			CoverPath:    lib.String(rows[0]["cover_path"]),
-			CoverAltText: lib.String(rows[0]["cover_alt_text"]),
-			CoverTitle:   lib.String(rows[0]["cover_title"]),
-			CreatedAt:    rows[0]["created_at"].(time.Time),
-			UpdatedAt:    rows[0]["updated_at"].(time.Time),
+			Tid:               lib.String(rows[0]["tid"]),
+			Name:              lib.String(rows[0]["name"]),
+			UrlName:           lib.String(rows[0]["url_name"]),
+			Description:       lib.String(rows[0]["description"]),
+			HtmlContent:       lib.String(rows[0]["html_content"]),
+			JavascriptContent: lib.String(rows[0]["javascript_content"]),
+			CssContent:        lib.String(rows[0]["css_content"]),
+			IsActive:          lib.Bool(rows[0]["is_active"]),
+			CoverMid:          lib.Int64(rows[0]["cover_mid"]),
+			CoverPath:         lib.String(rows[0]["cover_path"]),
+			CoverAltText:      lib.String(rows[0]["cover_alt_text"]),
+			CoverTitle:        lib.String(rows[0]["cover_title"]),
+			CreatedAt:         lib.Time(rows[0]["created_at"]),
+			UpdatedAt:         lib.Time(rows[0]["updated_at"]),
 		}
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkik-duzenle", fiber.Map{

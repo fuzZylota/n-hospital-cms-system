@@ -1006,12 +1006,12 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/frontend/subeler", fiber.Map{
 			"PathOnStart": "",
-			"Route":       "/subelerimiz",
+			"Route":       "/merkezlerimiz",
 			"Options":     Options,
 			"User":        OurUser,
 			"Subeler":     Subeler,
 			"Title":       "Merkezlerimiz | " + Options.Options.SiteName,
-			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin şubeler sayfası olup, bu sayfada hastanemizin şubeleri hakkında bilgi bulabilirsiniz.",
+			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin merkezlerimiz sayfası olup, bu sayfada hastanemizin merkezleri hakkında bilgi bulabilirsiniz.",
 		}, "layouts/main/main")
 	}
 }
@@ -1049,7 +1049,7 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/subeler")
+			return c.Redirect("/merkezlerimiz")
 		}
 
 		Sube := models.Subeler{
@@ -1160,7 +1160,7 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		return c.Render("views/frontend/sube", fiber.Map{
 			"PathOnStart":         "../../",
-			"Route":               "/subelerimiz/" + subeName,
+			"Route":               "/merkezlerimiz/" + subeName,
 			"Options":             Options,
 			"User":                OurUser,
 			"Sube":                Sube,
@@ -1168,7 +1168,7 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"AnlasmaliKurumlar":   AnlasmaliKurumlar,
 			"SubeDocuments":       SubeDocumentsArray,
 			"Title":               Sube.Name + " | " + Options.Options.SiteName,
-			"Description":         "Bu sayfa, " + Options.Options.SiteName + " hastaneleri'nin " + Sube.Name + " şubesinin sayfası olup, bu sayfada " + Sube.Name + " şubesinin hakkında bilgi bulabilirsiniz.",
+			"Description":         "Bu sayfa, " + Options.Options.SiteName + " hastaneleri'nin " + Sube.Name + " merkezinin sayfası olup, bu sayfada " + Sube.Name + " merkezinin hakkında bilgi bulabilirsiniz.",
 		}, "layouts/main/main")
 	}
 }
@@ -1801,17 +1801,20 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		TibbiBirim := models.TibbiBirimler{}
 		for _, row := range rows {
 			TibbiBirim = models.TibbiBirimler{
-				Name:         lib.String(row["name"]),
-				UrlName:      lib.String(row["url_name"]),
-				CoverPath:    lib.String(row["cover_path"]),
-				CoverAltText: lib.String(row["cover_alt_text"]),
-				CoverTitle:   lib.String(row["cover_title"]),
-				Description:  lib.String(row["description"]),
-				IsActive:     lib.Bool(row["is_active"]),
-				CreatedAt:    lib.Time(row["created_at"]),
-				UpdatedAt:    lib.Time(row["updated_at"]),
-				VideoMid:     lib.Int64(row["video_mid"]),
-				VideoPath:    lib.String(row["video_path"]),
+				Name:              lib.String(row["name"]),
+				UrlName:           lib.String(row["url_name"]),
+				CoverPath:         lib.String(row["cover_path"]),
+				CoverAltText:      lib.String(row["cover_alt_text"]),
+				CoverTitle:        lib.String(row["cover_title"]),
+				Description:       lib.String(row["description"]),
+				HtmlContent:       lib.String(row["html_content"]),
+				JavascriptContent: lib.String(row["javascript_content"]),
+				CssContent:        lib.String(row["css_content"]),
+				IsActive:          lib.Bool(row["is_active"]),
+				CreatedAt:         lib.Time(row["created_at"]),
+				UpdatedAt:         lib.Time(row["updated_at"]),
+				VideoMid:          lib.Int64(row["video_mid"]),
+				VideoPath:         lib.String(row["video_path"]),
 			}
 		}
 
@@ -1915,12 +1918,15 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		Tedkik := models.Tedkikler{}
 		for _, row := range rows {
 			Tedkik = models.Tedkikler{
-				Name:         lib.String(row["name"]),
-				UrlName:      lib.String(row["url_name"]),
-				Description:  lib.String(row["description"]),
-				CoverPath:    lib.String(row["cover_path"]),
-				CoverAltText: lib.String(row["cover_alt_text"]),
-				CoverTitle:   lib.String(row["cover_title"]),
+				Name:              lib.String(row["name"]),
+				UrlName:           lib.String(row["url_name"]),
+				Description:       lib.String(row["description"]),
+				HtmlContent:       lib.String(row["html_content"]),
+				JavascriptContent: lib.String(row["javascript_content"]),
+				CssContent:        lib.String(row["css_content"]),
+				CoverPath:         lib.String(row["cover_path"]),
+				CoverAltText:      lib.String(row["cover_alt_text"]),
+				CoverTitle:        lib.String(row["cover_title"]),
 			}
 		}
 

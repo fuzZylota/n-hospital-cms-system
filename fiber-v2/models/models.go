@@ -937,47 +937,56 @@ type DoctorExpertisesEdit struct {
 }
 
 type TibbiBirimler struct {
-	Tbid         string    `form:"tbid" json:"tbid"`
-	Name         string    `form:"name" json:"name"`
-	UrlName      string    `form:"url_name" json:"url_name"`
-	Description  string    `form:"description" json:"description"`
-	IsActive     bool      `form:"is_active" json:"is_active"`
-	CreatedAt    time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt    time.Time `form:"updated_at" json:"updated_at"`
-	VideoMid     int64     `form:"video_mid" json:"video_mid"`
-	VideoPath    string    `form:"video_path" json:"video_path"`
-	CoverPath    string    `form:"cover_path" json:"cover_path"`
-	CoverAltText string    `form:"cover_alt_text" json:"cover_alt_text"`
-	CoverTitle   string    `form:"cover_title" json:"cover_title"`
-	CoverMid     int64     `form:"cover_mid" json:"cover_mid"`
+	Tbid              string    `form:"tbid" json:"tbid"`
+	Name              string    `form:"name" json:"name"`
+	UrlName           string    `form:"url_name" json:"url_name"`
+	Description       string    `form:"description" json:"description"`
+	HtmlContent       string    `form:"html_content" json:"html_content"`
+	JavascriptContent string    `form:"javascript_content" json:"javascript_content"`
+	CssContent        string    `form:"css_content" json:"css_content"`
+	IsActive          bool      `form:"is_active" json:"is_active"`
+	CreatedAt         time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt         time.Time `form:"updated_at" json:"updated_at"`
+	VideoMid          int64     `form:"video_mid" json:"video_mid"`
+	VideoPath         string    `form:"video_path" json:"video_path"`
+	CoverPath         string    `form:"cover_path" json:"cover_path"`
+	CoverAltText      string    `form:"cover_alt_text" json:"cover_alt_text"`
+	CoverTitle        string    `form:"cover_title" json:"cover_title"`
+	CoverMid          int64     `form:"cover_mid" json:"cover_mid"`
 }
 
 type TibbiBirimlerEdit struct {
-	Tbid            string    `form:"tbid" json:"tbid"`
-	Name            string    `form:"name" json:"name"`
-	OldName         string    `form:"old_name" json:"old_name"`
-	UrlName         string    `form:"url_name" json:"url_name"`
-	OldUrlName      string    `form:"old_url_name" json:"old_url_name"`
-	Description     string    `form:"description" json:"description"`
-	OldDescription  string    `form:"old_description" json:"old_description"`
-	IsActive        bool      `form:"is_active" json:"is_active"`
-	OldIsActive     bool      `form:"old_is_active" json:"old_is_active"`
-	CreatedAt       time.Time `form:"created_at" json:"created_at"`
-	OldCreatedAt    time.Time `form:"old_created_at" json:"old_created_at"`
-	UpdatedAt       time.Time `form:"updated_at" json:"updated_at"`
-	OldUpdatedAt    time.Time `form:"old_updated_at" json:"old_updated_at"`
-	VideoMid        int64     `form:"video_mid" json:"video_mid"`
-	OldVideoMid     int64     `form:"old_video_mid" json:"old_video_mid"`
-	VideoPath       string    `form:"video_path" json:"video_path"`
-	OldVideoPath    string    `form:"old_video_path" json:"old_video_path"`
-	CoverPath       string    `form:"cover_path" json:"cover_path"`
-	OldCoverPath    string    `form:"old_cover_path" json:"old_cover_path"`
-	CoverAltText    string    `form:"cover_alt_text" json:"cover_alt_text"`
-	OldCoverAltText string    `form:"old_cover_alt_text" json:"old_cover_alt_text"`
-	CoverTitle      string    `form:"cover_title" json:"cover_title"`
-	OldCoverTitle   string    `form:"old_cover_title" json:"old_cover_title"`
-	CoverMid        int64     `form:"cover_mid" json:"cover_mid"`
-	OldCoverMid     int64     `form:"old_cover_mid" json:"old_cover_mid"`
+	Tbid                 string    `form:"tbid" json:"tbid"`
+	Name                 string    `form:"name" json:"name"`
+	OldName              string    `form:"old_name" json:"old_name"`
+	UrlName              string    `form:"url_name" json:"url_name"`
+	OldUrlName           string    `form:"old_url_name" json:"old_url_name"`
+	Description          string    `form:"description" json:"description"`
+	OldDescription       string    `form:"old_description" json:"old_description"`
+	HtmlContent          string    `form:"html_content" json:"html_content"`
+	OldHtmlContent       string    `form:"old_html_content" json:"old_html_content"`
+	JavascriptContent    string    `form:"javascript_content" json:"javascript_content"`
+	OldJavascriptContent string    `form:"old_javascript_content" json:"old_javascript_content"`
+	CssContent           string    `form:"css_content" json:"css_content"`
+	OldCssContent        string    `form:"old_css_content" json:"old_css_content"`
+	IsActive             bool      `form:"is_active" json:"is_active"`
+	OldIsActive          bool      `form:"old_is_active" json:"old_is_active"`
+	CreatedAt            time.Time `form:"created_at" json:"created_at"`
+	OldCreatedAt         time.Time `form:"old_created_at" json:"old_created_at"`
+	UpdatedAt            time.Time `form:"updated_at" json:"updated_at"`
+	OldUpdatedAt         time.Time `form:"old_updated_at" json:"old_updated_at"`
+	VideoMid             int64     `form:"video_mid" json:"video_mid"`
+	OldVideoMid          int64     `form:"old_video_mid" json:"old_video_mid"`
+	VideoPath            string    `form:"video_path" json:"video_path"`
+	OldVideoPath         string    `form:"old_video_path" json:"old_video_path"`
+	CoverPath            string    `form:"cover_path" json:"cover_path"`
+	OldCoverPath         string    `form:"old_cover_path" json:"old_cover_path"`
+	CoverAltText         string    `form:"cover_alt_text" json:"cover_alt_text"`
+	OldCoverAltText      string    `form:"old_cover_alt_text" json:"old_cover_alt_text"`
+	CoverTitle           string    `form:"cover_title" json:"cover_title"`
+	OldCoverTitle        string    `form:"old_cover_title" json:"old_cover_title"`
+	CoverMid             int64     `form:"cover_mid" json:"cover_mid"`
+	OldCoverMid          int64     `form:"old_cover_mid" json:"old_cover_mid"`
 }
 
 type HomepageContents struct {
@@ -1135,39 +1144,48 @@ type HaberlerEdit struct {
 }
 
 type Tedkikler struct {
-	Tid          string    `form:"tid" json:"tid"`
-	Name         string    `form:"name" json:"name"`
-	UrlName      string    `form:"url_name" json:"url_name"`
-	Description  string    `form:"description" json:"description"`
-	IsActive     bool      `form:"is_active" json:"is_active"`
-	CoverMid     int64     `form:"cover_mid" json:"cover_mid"`
-	CoverPath    string    `form:"cover_path" json:"cover_path"`
-	CoverAltText string    `form:"cover_alt_text" json:"cover_alt_text"`
-	CoverTitle   string    `form:"cover_title" json:"cover_title"`
-	CreatedAt    time.Time `form:"created_at" json:"created_at"`
-	UpdatedAt    time.Time `form:"updated_at" json:"updated_at"`
+	Tid               string    `form:"tid" json:"tid"`
+	Name              string    `form:"name" json:"name"`
+	UrlName           string    `form:"url_name" json:"url_name"`
+	Description       string    `form:"description" json:"description"`
+	HtmlContent       string    `form:"html_content" json:"html_content"`
+	JavascriptContent string    `form:"javascript_content" json:"javascript_content"`
+	CssContent        string    `form:"css_content" json:"css_content"`
+	IsActive          bool      `form:"is_active" json:"is_active"`
+	CoverMid          int64     `form:"cover_mid" json:"cover_mid"`
+	CoverPath         string    `form:"cover_path" json:"cover_path"`
+	CoverAltText      string    `form:"cover_alt_text" json:"cover_alt_text"`
+	CoverTitle        string    `form:"cover_title" json:"cover_title"`
+	CreatedAt         time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt         time.Time `form:"updated_at" json:"updated_at"`
 }
 
 type TedkiklerEdit struct {
-	Tid             string    `form:"tid" json:"tid"`
-	Name            string    `form:"name" json:"name"`
-	OldName         string    `form:"old_name" json:"old_name"`
-	UrlName         string    `form:"url_name" json:"url_name"`
-	OldUrlName      string    `form:"old_url_name" json:"old_url_name"`
-	Description     string    `form:"description" json:"description"`
-	OldDescription  string    `form:"old_description" json:"old_description"`
-	IsActive        bool      `form:"is_active" json:"is_active"`
-	OldIsActive     bool      `form:"old_is_active" json:"old_is_active"`
-	CoverMid        int64     `form:"cover_mid" json:"cover_mid"`
-	OldCoverMid     int64     `form:"old_cover_mid" json:"old_cover_mid"`
-	CoverAltText    string    `form:"cover_alt_text" json:"cover_alt_text"`
-	OldCoverAltText string    `form:"old_cover_alt_text" json:"old_cover_alt_text"`
-	CoverTitle      string    `form:"cover_title" json:"cover_title"`
-	OldCoverTitle   string    `form:"old_cover_title" json:"old_cover_title"`
-	CreatedAt       time.Time `form:"created_at" json:"created_at"`
-	OldCreatedAt    time.Time `form:"old_created_at" json:"old_created_at"`
-	UpdatedAt       time.Time `form:"updated_at" json:"updated_at"`
-	OldUpdatedAt    time.Time `form:"old_updated_at" json:"old_updated_at"`
+	Tid                  string    `form:"tid" json:"tid"`
+	Name                 string    `form:"name" json:"name"`
+	OldName              string    `form:"old_name" json:"old_name"`
+	UrlName              string    `form:"url_name" json:"url_name"`
+	OldUrlName           string    `form:"old_url_name" json:"old_url_name"`
+	Description          string    `form:"description" json:"description"`
+	OldDescription       string    `form:"old_description" json:"old_description"`
+	HtmlContent          string    `form:"html_content" json:"html_content"`
+	OldHtmlContent       string    `form:"old_html_content" json:"old_html_content"`
+	JavascriptContent    string    `form:"javascript_content" json:"javascript_content"`
+	OldJavascriptContent string    `form:"old_javascript_content" json:"old_javascript_content"`
+	CssContent           string    `form:"css_content" json:"css_content"`
+	OldCssContent        string    `form:"old_css_content" json:"old_css_content"`
+	IsActive             bool      `form:"is_active" json:"is_active"`
+	OldIsActive          bool      `form:"old_is_active" json:"old_is_active"`
+	CoverMid             int64     `form:"cover_mid" json:"cover_mid"`
+	OldCoverMid          int64     `form:"old_cover_mid" json:"old_cover_mid"`
+	CoverAltText         string    `form:"cover_alt_text" json:"cover_alt_text"`
+	OldCoverAltText      string    `form:"old_cover_alt_text" json:"old_cover_alt_text"`
+	CoverTitle           string    `form:"cover_title" json:"cover_title"`
+	OldCoverTitle        string    `form:"old_cover_title" json:"old_cover_title"`
+	CreatedAt            time.Time `form:"created_at" json:"created_at"`
+	OldCreatedAt         time.Time `form:"old_created_at" json:"old_created_at"`
+	UpdatedAt            time.Time `form:"updated_at" json:"updated_at"`
+	OldUpdatedAt         time.Time `form:"old_updated_at" json:"old_updated_at"`
 }
 
 type Randevular struct {

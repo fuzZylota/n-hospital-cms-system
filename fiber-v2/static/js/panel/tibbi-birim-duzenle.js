@@ -6,11 +6,14 @@ class TibbiBirimEditHandler {
         this.generalForm = document.getElementById('generalForm');
         this.pictureForm = document.getElementById('pictureForm');
         this.videoForm = document.getElementById('videoForm');
+        this.codeForm = document.getElementById('codeForm');
         this.generalSubmitBtn = document.getElementById('generalSubmitBtn');
         this.pictureSubmitBtn = document.getElementById('pictureSubmitBtn');
         this.videoSubmitBtn = document.getElementById('videoSubmitBtn');
+        this.codeSubmitBtn = document.getElementById('codeSubmitBtn');
         this.currentDeleteTarget = null;
         this.originalValues = {};
+        this.codeEditors = {};
         this.init();
     }
 
@@ -19,11 +22,13 @@ class TibbiBirimEditHandler {
         this.setupGeneralForm();
         this.setupPictureForm();
         this.setupVideoForm();
+        this.setupCodeForm();
         this.setupFileUploads();
         this.setupToggleSwitches();
         this.setupPictureDeletion();
         this.setupVideoDeletion();
         this.setupUrlGeneration();
+        this.setupCodeEditors();
     }
 
     initializeOriginalValues() {
@@ -107,6 +112,123 @@ class TibbiBirimEditHandler {
                 this.showErrorModal(err.message || 'Server Hatası: Lütfen daha sonra tekrar deneyin.');
             } finally {
                 this.setVideoLoadingState(false);
+            }
+        });
+    }
+
+    setupCodeForm() {
+        if (!this.codeForm) return;
+        this.codeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Sync CodeMirror content with form data before submit
+            Object.keys(this.codeEditors).forEach(key => {
+                if (this.codeEditors[key]) {
+                    this.codeEditors[key].save();
+                }
+            });
+
+            this.setCodeLoadingState(true);
+            try {
+                const data = {};
+                const allInputs = this.codeForm.querySelectorAll('input, textarea');
+                allInputs.forEach(input => {
+                    if (input.type !== 'hidden') {
+                        data[input.name] = input.value;
+                    } else {
+                        data[input.name] = input.value;
+                    }
+                });
+
+                const res = await fetch(`/backend/tibbi-birim/${this.tbid}/update-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.status === 201) {
+                    this.showSuccessModal('HTML, CSS ve JavaScript kodları başarıyla güncellendi.');
+                } else {
+                    throw new Error(result.message || 'Kod güncelleme işlemi başarısız oldu.');
+                }
+            } catch (err) {
+                this.showErrorModal(err.message || 'Server Hatası: Lütfen daha sonra tekrar deneyin.');
+            } finally {
+                this.setCodeLoadingState(false);
+            }
+        });
+    }
+
+    /**
+     * Setup CodeMirror editors for HTML, CSS, and JavaScript
+     */
+    setupCodeEditors() {
+        // Wait for CodeMirror to be loaded
+        if (typeof CodeMirror === 'undefined') {
+            setTimeout(() => this.setupCodeEditors(), 100);
+            return;
+        }
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('html_content');
+        if (htmlTextarea) {
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('css_content');
+        if (cssTextarea) {
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('javascript_content');
+        if (jsTextarea) {
+            this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // Sync CodeMirror content with form data
+        Object.keys(this.codeEditors).forEach(key => {
+            if (this.codeEditors[key]) {
+                this.codeEditors[key].on('change', () => {
+                    this.codeEditors[key].save();
+                });
             }
         });
     }
@@ -315,6 +437,21 @@ class TibbiBirimEditHandler {
     setGeneralLoadingState(loading) { if (loading) { this.generalSubmitBtn.disabled = true; this.generalSubmitBtn.querySelector('.btn-text').style.opacity='0'; this.generalSubmitBtn.querySelector('.btn-loader').style.display='block'; this.generalForm.classList.add('form-loading'); } else { this.generalSubmitBtn.disabled=false; this.generalSubmitBtn.querySelector('.btn-text').style.opacity='1'; this.generalSubmitBtn.querySelector('.btn-loader').style.display='none'; this.generalForm.classList.remove('form-loading'); } }
     setPictureLoadingState(loading) { if (loading) { this.pictureSubmitBtn.disabled = true; this.pictureSubmitBtn.querySelector('.btn-text').style.opacity='0'; this.pictureSubmitBtn.querySelector('.btn-loader').style.display='block'; this.pictureForm.classList.add('form-loading'); } else { this.pictureSubmitBtn.disabled=false; this.pictureSubmitBtn.querySelector('.btn-text').style.opacity='1'; this.pictureSubmitBtn.querySelector('.btn-loader').style.display='none'; this.pictureForm.classList.remove('form-loading'); } }
     setVideoLoadingState(loading) { if (loading) { this.videoSubmitBtn.disabled = true; this.videoSubmitBtn.querySelector('.btn-text').style.opacity='0'; this.videoSubmitBtn.querySelector('.btn-loader').style.display='block'; this.videoForm.classList.add('form-loading'); } else { this.videoSubmitBtn.disabled=false; this.videoSubmitBtn.querySelector('.btn-text').style.opacity='1'; this.videoSubmitBtn.querySelector('.btn-loader').style.display='none'; this.videoForm.classList.remove('form-loading'); } }
+
+    setCodeLoadingState(loading) {
+        if (!this.codeSubmitBtn) return;
+        if (loading) {
+            this.codeSubmitBtn.disabled = true;
+            this.codeSubmitBtn.querySelector('.btn-text').style.opacity = '0';
+            this.codeSubmitBtn.querySelector('.btn-loader').style.display = 'block';
+            if (this.codeForm) this.codeForm.classList.add('form-loading');
+        } else {
+            this.codeSubmitBtn.disabled = false;
+            this.codeSubmitBtn.querySelector('.btn-text').style.opacity = '1';
+            this.codeSubmitBtn.querySelector('.btn-loader').style.display = 'none';
+            if (this.codeForm) this.codeForm.classList.remove('form-loading');
+        }
+    }
     setDeletePictureLoadingState(loading) { const btn = document.getElementById('confirmDeletePictureBtn'); if (!btn) return; if (loading) { btn.disabled=true; btn.querySelector('.btn-text').style.opacity='0'; btn.querySelector('.btn-loader').style.display='block'; } else { btn.disabled=false; btn.querySelector('.btn-text').style.opacity='1'; btn.querySelector('.btn-loader').style.display='none'; } }
     setDeleteVideoLoadingState(loading) { const btn = document.getElementById('confirmDeleteVideoBtn'); if (!btn) return; if (loading) { btn.disabled=true; btn.querySelector('.btn-text').style.opacity='0'; btn.querySelector('.btn-loader').style.display='block'; } else { btn.disabled=false; btn.querySelector('.btn-text').style.opacity='1'; btn.querySelector('.btn-loader').style.display='none'; } }
 

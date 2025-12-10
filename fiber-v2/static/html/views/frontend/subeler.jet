@@ -26,7 +26,7 @@
                 {{ range Subeler }}
                 <div class="col-xl-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
                     <div class="sube-card">
-                        <a href="/subelerimiz/{{ .UrlName }}" class="sube-card__image">
+                        <a href="/merkezlerimiz/{{ .UrlName }}" class="sube-card__image">
                             {{ if .MediaPath }}
                                 <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
                             {{ else }}
@@ -64,7 +64,7 @@
                                 {{ end }}
                             </div>
                             <div class="d-flex" style="gap:10px;">
-                                <a href="/subelerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
+                                <a href="/merkezlerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
                                 <a href="/doktorlarimiz" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
                             </div>
                         </div>

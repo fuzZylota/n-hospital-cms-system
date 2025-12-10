@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/tibbi-birim.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -217,6 +221,90 @@
             </div>
         </div>
         {{end}}
+
+        <!-- HTML Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-html5"></i>
+                </div>
+                <h3 class="card-title">HTML İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">HTML Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('htmlContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('htmlContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="htmlContent" class="code-editor" readonly>{{ if TibbiBirim.HtmlContent }}{{ TibbiBirim.HtmlContent }}{{ else }}<!-- HTML kodu bulunmuyor -->{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-css3-alt"></i>
+                </div>
+                <h3 class="card-title">CSS İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">CSS Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('cssContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('cssContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="cssContent" class="code-editor" readonly>{{ if TibbiBirim.CssContent }}{{ TibbiBirim.CssContent }}{{ else }}/* CSS kodu bulunmuyor */{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-js-square"></i>
+                </div>
+                <h3 class="card-title">JavaScript İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">JavaScript Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('jsContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('jsContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="jsContent" class="code-editor" readonly>{{ if TibbiBirim.JavascriptContent }}{{ TibbiBirim.JavascriptContent }}{{ else }}// JavaScript kodu bulunmuyor{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -290,7 +378,16 @@
     // Pass data to JavaScript
     window.tibbiBirimData = {
         id: parseInt("{{ TibbiBirim.Tbid }}"),
-        name: "{{ TibbiBirim.Name }}"
+        name: "{{ TibbiBirim.Name }}",
+        htmlContent: `{{ TibbiBirim.HtmlContent }}`,
+        cssContent: `{{ TibbiBirim.CssContent }}`,
+        jsContent: `{{ TibbiBirim.JavascriptContent }}`
     };
 </script>
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
 <script src="{{ PathOnStart }}js/panel/tibbi-birim.js"></script>

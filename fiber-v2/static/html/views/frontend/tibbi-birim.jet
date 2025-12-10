@@ -49,11 +49,20 @@
                         {{ end }}
                     </div>
                     <div class="tibbi-birim__content">
-                        <h1 class="tibbi-birim__title">{{ TibbiBirim.Name != "" ? TibbiBirim.Name : "Tıbbi Birim" }}</h1>
-                        {{ if TibbiBirim.Description != "" }}
-                            <p class="tibbi-birim__desc">{{ TibbiBirim.Description }}</p>
-                        {{ else }}
-                            <p class="tibbi-birim__desc">Bu tıbbi birim hakkında yakında detaylı bilgiler eklenecektir.</p>
+                        {{ if TibbiBirim.CssContent != "" }}
+                            <style>
+                                {{ TibbiBirim.CssContent | raw }}
+                            </style>
+                        {{ end }}
+                        {{ if TibbiBirim.HtmlContent != "" }}
+                            <div class="tibbi-birim__html-content">
+                                {{ TibbiBirim.HtmlContent | raw }}
+                            </div>
+                        {{ end }}
+                        {{ if TibbiBirim.JavascriptContent != "" }}
+                            <script>
+                                {{ TibbiBirim.JavascriptContent | raw }}
+                            </script>
                         {{ end }}
                     </div>
                 </div>

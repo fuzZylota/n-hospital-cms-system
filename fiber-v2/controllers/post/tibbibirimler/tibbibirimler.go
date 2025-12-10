@@ -40,6 +40,18 @@ func AddTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.H
 			columns = append(columns, "description")
 			values = append(values, inputs.Description)
 		}
+		if inputs.HtmlContent != "" {
+			columns = append(columns, "html_content")
+			values = append(values, inputs.HtmlContent)
+		}
+		if inputs.JavascriptContent != "" {
+			columns = append(columns, "javascript_content")
+			values = append(values, inputs.JavascriptContent)
+		}
+		if inputs.CssContent != "" {
+			columns = append(columns, "css_content")
+			values = append(values, inputs.CssContent)
+		}
 
 		Orm := utilities.Orm
 
@@ -288,6 +300,18 @@ func EditTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 		if inputs.IsActive != inputs.OldIsActive {
 			update.Set("is_active", inputs.IsActive)
+			somethingSet = true
+		}
+		if inputs.HtmlContent != inputs.OldHtmlContent {
+			update.Set("html_content", inputs.HtmlContent)
+			somethingSet = true
+		}
+		if inputs.JavascriptContent != inputs.OldJavascriptContent {
+			update.Set("javascript_content", inputs.JavascriptContent)
+			somethingSet = true
+		}
+		if inputs.CssContent != inputs.OldCssContent {
+			update.Set("css_content", inputs.CssContent)
 			somethingSet = true
 		}
 

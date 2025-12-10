@@ -44,6 +44,18 @@ func AddTedkik(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			columns = append(columns, "description")
 			values = append(values, inputs.Description)
 		}
+		if inputs.HtmlContent != "" {
+			columns = append(columns, "html_content")
+			values = append(values, inputs.HtmlContent)
+		}
+		if inputs.JavascriptContent != "" {
+			columns = append(columns, "javascript_content")
+			values = append(values, inputs.JavascriptContent)
+		}
+		if inputs.CssContent != "" {
+			columns = append(columns, "css_content")
+			values = append(values, inputs.CssContent)
+		}
 
 		Orm := utilities.Orm
 
@@ -238,6 +250,19 @@ func EditTedkik(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		if inputs.IsActive != inputs.OldIsActive {
 			updateTedkik.Set("is_active", inputs.IsActive)
+			SomethingSet = true
+		}
+
+		if inputs.HtmlContent != inputs.OldHtmlContent {
+			updateTedkik.Set("html_content", inputs.HtmlContent)
+			SomethingSet = true
+		}
+		if inputs.JavascriptContent != inputs.OldJavascriptContent {
+			updateTedkik.Set("javascript_content", inputs.JavascriptContent)
+			SomethingSet = true
+		}
+		if inputs.CssContent != inputs.OldCssContent {
+			updateTedkik.Set("css_content", inputs.CssContent)
 			SomethingSet = true
 		}
 

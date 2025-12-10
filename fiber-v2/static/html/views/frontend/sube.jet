@@ -47,7 +47,7 @@
                         </div>
                         {{ end }}
                         
-                        <div class="sube-contact-info">
+                       <!--<div class="sube-contact-info">
                             <h4>📞 İletişim Bilgileri</h4>
                             <div class="contact-list">
                                 {{ if Sube.Address }}
@@ -106,7 +106,7 @@
                                 </div>
                                 {{ end }}
                             </div>
-                        </div>
+                        </div>-->
                         
                         {{ if Sube.AnlasmaliKurumlarHtml }}
                         <div class="sube-anlasmali-kurumlar-html">

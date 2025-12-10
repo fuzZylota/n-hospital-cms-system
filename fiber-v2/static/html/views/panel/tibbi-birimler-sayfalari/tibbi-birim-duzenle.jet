@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/tibbi-birim-duzenle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <div class="page-header">
@@ -40,6 +44,10 @@
                 <input type="hidden" name="old_url_name" value="{{ TibbiBirim.UrlName }}">
                 <input type="hidden" name="old_description" value="{{ TibbiBirim.Description }}">
                 <input type="hidden" name="old_is_active" value="{{ TibbiBirim.IsActive }}">
+                <input type="hidden" name="old_html_content" value="{{ TibbiBirim.HtmlContent }}">
+                <input type="hidden" name="old_css_content" value="{{ TibbiBirim.CssContent }}">
+                <input type="hidden" name="old_javascript_content" value="{{ TibbiBirim.JavascriptContent }}">
+                
 
                 <div class="form-row">
                     <div class="form-group">
@@ -57,6 +65,35 @@
                 <div class="form-group">
                     <label for="description" class="form-label">Açıklama</label>
                     <textarea id="description" name="description" class="form-textarea" rows="3">{{ TibbiBirim.Description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-group-section">
+                        <h3 class="group-title">HTML İçeriği</h3>
+                        <div class="form-group">
+                            <label for="html_content" class="form-label">HTML Kodu</label>
+                            <textarea id="html_content" name="html_content" class="form-textarea code-editor" rows="10">{{ TibbiBirim.HtmlContent }}</textarea>
+                            <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                        </div>
+                    </div>
+        
+                    <div class="form-group-section">
+                        <h3 class="group-title">CSS Stilleri</h3>
+                        <div class="form-group">
+                            <label for="css_content" class="form-label">CSS Kodu</label>
+                            <textarea id="css_content" name="css_content" class="form-textarea code-editor" rows="10">{{ TibbiBirim.CssContent }}</textarea>
+                            <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                        </div>
+                    </div>
+        
+                    <div class="form-group-section">
+                        <h3 class="group-title">JavaScript Kodu</h3>
+                        <div class="form-group">
+                            <label for="javascript_content" class="form-label">JavaScript Kodu</label>
+                            <textarea id="javascript_content" name="javascript_content" class="form-textarea code-editor" rows="10">{{ TibbiBirim.JavascriptContent }}</textarea>
+                            <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -157,6 +194,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary" id="pictureSubmitBtn">
                     <i class="icon-check"></i>
@@ -301,5 +339,18 @@
 
 <script>
     window.pageData = { tbid: "{{ TibbiBirim.Tbid }}" };
-    </script>
+</script>
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
 <script src="{{ PathOnStart }}js/panel/tibbi-birim-duzenle.js"></script>
