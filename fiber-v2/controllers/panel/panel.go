@@ -6090,13 +6090,13 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		Status := c.Query("status", "all")
 		SortBy := c.Query("sort_by", "created_at")
 		SortOrder := c.Query("sort_order", "DESC")
-		PerPage := c.Query("per_page", "10")
+		PerPage := c.Query("per_page")
 
-		GivenItemsPerPage := lib.Int64(PerPage)
-		if GivenItemsPerPage == 0 {
-			GivenItemsPerPage = 10
-		} else {
+		var GivenItemsPerPage int64 = 0
+		if PerPage == "" {
 			GivenItemsPerPage = GetOptions.Options.ItemsPerPage
+		} else {
+			GivenItemsPerPage = lib.Int64(PerPage)
 		}
 
 		itemsPerPage := int(GivenItemsPerPage)
