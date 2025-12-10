@@ -107,6 +107,26 @@ function setFastRandevuOpenState(isOpen) {
     logFastRandevuState(isOpen ? 'open' : 'close');
 }
 
+function handleFastRandevuOutsideInteraction(event) {
+    const container = document.getElementById('fastRandevu');
+    if (!container || !container.classList.contains('is-open')) return;
+
+    const panel = container.querySelector('.fast-randevu__panel');
+    const toggleButton = document.getElementById('fastRandevuToggle');
+    const closeButton = document.getElementById('fastRandevuClose');
+    const mobileLineButton = document.getElementById('fastRandevuMobileLine');
+
+    const target = event.target;
+
+    // Ignore clicks/taps inside panel or on known controls
+    if (panel && panel.contains(target)) return;
+    if (toggleButton && toggleButton.contains(target)) return;
+    if (closeButton && closeButton.contains(target)) return;
+    if (mobileLineButton && mobileLineButton.contains(target)) return;
+
+    setFastRandevuOpenState(false);
+}
+
 function logFastRandevuState(source = 'manual') {
     const container = document.getElementById('fastRandevu');
     const mobileLine = document.getElementById('fastRandevuMobileLine');
@@ -208,6 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => logFastRandevuState('resize'), 200);
     });
+
+    // Close when clicking/touching outside the panel
+    document.addEventListener('click', handleFastRandevuOutsideInteraction);
+    document.addEventListener('touchstart', handleFastRandevuOutsideInteraction, { passive: true });
 
     window.fastRandevuLogState = () => logFastRandevuState('manual-call');
 
