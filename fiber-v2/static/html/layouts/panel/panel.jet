@@ -6,9 +6,9 @@
     <title>{{ PageTitle }}</title>
 
     <!-- favicons Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}files/defaults/favicon/n-hospital-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}files/defaults/favicon/nivgoz-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}files/defaults/favicon/nivgoz-icon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}files/defaults/favicon/nivgoz-icon.png" />
     <meta name="author" content="Nermefraz Bilişim Teknolojileri, Yazılım ve Danışmanlık. Nermefraz Information Technologies, Software Consulting and Development Company.">
     <meta name="description" content="N-Hospital Gelişmiş Hastane Cms Sistemi'nin İdare Paneli." />
 
