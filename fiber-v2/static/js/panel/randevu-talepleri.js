@@ -334,35 +334,9 @@ class RandevuTalepleriListManager {
      * Update statistics cards
      */
     updateStatistics() {
-        const randevuTalepleri = this.data.randevuTalepleri || [];
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        
-        const todayCount = randevuTalepleri.filter(talep => {
-            const talepDate = new Date(talep.created_at);
-            return talepDate >= today;
-        }).length;
-        
-        const weekCount = randevuTalepleri.filter(talep => {
-            const talepDate = new Date(talep.created_at);
-            return talepDate >= weekStart;
-        }).length;
-        
-        const monthCount = randevuTalepleri.filter(talep => {
-            const talepDate = new Date(talep.created_at);
-            return talepDate >= monthStart;
-        }).length;
-
-        // Update DOM
-        const todayCountEl = document.getElementById('todayCount');
-        const weekCountEl = document.getElementById('weekCount');
-        const monthCountEl = document.getElementById('monthCount');
-
-        if (todayCountEl) todayCountEl.textContent = todayCount;
-        if (weekCountEl) weekCountEl.textContent = weekCount;
-        if (monthCountEl) monthCountEl.textContent = monthCount;
+        // Statistics are now loaded from backend and displayed in HTML
+        // This function is kept for compatibility but no longer needed
+        // as values are set directly in the template
     }
 
     /**

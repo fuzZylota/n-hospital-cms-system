@@ -6199,12 +6199,66 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			Length = lib.Int64(rows[0]["length"])
 		}
 
+		// Calculate today's count
+		var TodayCount int64 = 0
+		TodayCountQueryStr := GetQuery2
+		if strings.Contains(GetQuery2, "WHERE") {
+			TodayCountQueryStr = GetQuery2 + " AND DATE(rt.created_at) = CURDATE()"
+		} else {
+			TodayCountQueryStr = GetQuery2 + " WHERE DATE(rt.created_at) = CURDATE()"
+		}
+		TodayCountQuery := Orm.CustomSelectQuery(TodayCountQueryStr)
+		err = TodayCountQuery.Execute()
+		if err == nil {
+			todayRows, _ := TodayCountQuery.Rows()
+			if len(todayRows) != 0 {
+				TodayCount = lib.Int64(todayRows[0]["length"])
+			}
+		}
+
+		// Calculate this week's count
+		var WeekCount int64 = 0
+		WeekCountQueryStr := GetQuery2
+		if strings.Contains(GetQuery2, "WHERE") {
+			WeekCountQueryStr = GetQuery2 + " AND YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
+		} else {
+			WeekCountQueryStr = GetQuery2 + " WHERE YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
+		}
+		WeekCountQuery := Orm.CustomSelectQuery(WeekCountQueryStr)
+		err = WeekCountQuery.Execute()
+		if err == nil {
+			weekRows, _ := WeekCountQuery.Rows()
+			if len(weekRows) != 0 {
+				WeekCount = lib.Int64(weekRows[0]["length"])
+			}
+		}
+
+		// Calculate this month's count
+		var MonthCount int64 = 0
+		MonthCountQueryStr := GetQuery2
+		if strings.Contains(GetQuery2, "WHERE") {
+			MonthCountQueryStr = GetQuery2 + " AND YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
+		} else {
+			MonthCountQueryStr = GetQuery2 + " WHERE YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
+		}
+		MonthCountQuery := Orm.CustomSelectQuery(MonthCountQueryStr)
+		err = MonthCountQuery.Execute()
+		if err == nil {
+			monthRows, _ := MonthCountQuery.Rows()
+			if len(monthRows) != 0 {
+				MonthCount = lib.Int64(monthRows[0]["length"])
+			}
+		}
+
 		return c.Render("views/panel/randevular-sayfalari/randevu-talepleri", fiber.Map{
 			"PathOnStart":      "../",
 			"PageTitle":        "N-Hospital | Randevu Talepleri",
 			"Page":             c.Query("page"),
 			"RandevuTalepleri": RandevuTalepleriArray,
 			"Count":            Length,
+			"TodayCount":       TodayCount,
+			"WeekCount":        WeekCount,
+			"MonthCount":       MonthCount,
 			"User":             ourUser,
 			"Options":          GetOptions,
 			"Query":            Query,
