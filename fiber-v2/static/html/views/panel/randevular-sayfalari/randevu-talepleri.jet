@@ -398,17 +398,8 @@
 </div>
 
 <script>
-    function decodeHtmlEntities(encoded) {
-        const txt = document.createElement('textarea');
-        txt.innerHTML = encoded;
-        return txt.value;
-    }
-
-    const escaped = '{{stj(RandevuTalepleri)}}';
-    const decoded = decodeHtmlEntities(escaped);
-    const data = decoded ? JSON.parse(decoded) : [];
     window.pageData = {
-        randevuTalepleri: data,
+        randevuTalepleri: [],
         count: parseInt("{{ Count ? Count : 0 }}"),
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
         perPage: parseInt("{{ ItemsPerPage ? ItemsPerPage : 10 }}")
