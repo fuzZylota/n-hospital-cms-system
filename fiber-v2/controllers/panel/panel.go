@@ -6090,9 +6090,18 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		Status := c.Query("status", "all")
 		SortBy := c.Query("sort_by", "created_at")
 		SortOrder := c.Query("sort_order", "DESC")
+		PerPage := c.Query("per_page", "10")
 
-		itemsPerPage := GetOptions.Options.ItemsPerPage
-		var offset int = (Page - 1) * int(itemsPerPage)
+		GivenItemsPerPage := lib.Int64(PerPage)
+		if GivenItemsPerPage == 0 {
+			GivenItemsPerPage = 10
+		} else {
+			GivenItemsPerPage = GetOptions.Options.ItemsPerPage
+		}
+
+		itemsPerPage := int(GivenItemsPerPage)
+
+		var offset int = (Page - 1) * itemsPerPage
 
 		// Build query with filters
 		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "rt.status", "s.name as sube_name"})
@@ -6202,6 +6211,7 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			"Options":          GetOptions,
 			"Query":            Query,
 			"Status":           Status,
+			"ItemsPerPage":     itemsPerPage,
 			"SortBy":           SortBy,
 			"SortOrder":        SortOrder,
 		}, "layouts/panel/panel")

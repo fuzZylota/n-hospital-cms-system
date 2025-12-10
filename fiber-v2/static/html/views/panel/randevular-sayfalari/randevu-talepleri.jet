@@ -346,10 +346,10 @@
         </div>
         <div class="pagination-controls">
             <select id="perPage" class="per-page-select">
-                <option value="10">10 / sayfa</option>
-                <option value="25">25 / sayfa</option>
-                <option value="50">50 / sayfa</option>
-                <option value="100">100 / sayfa</option>
+                <option value="10"{{if ItemsPerPage == 10}} selected{{end}}>10 / sayfa</option>
+                <option value="25"{{if ItemsPerPage == 25}} selected{{end}}>25 / sayfa</option>
+                <option value="50"{{if ItemsPerPage == 50}} selected{{end}}>50 / sayfa</option>
+                <option value="100"{{if ItemsPerPage == 100}} selected{{end}}>100 / sayfa</option>
             </select>
         </div>
     </div>
@@ -411,7 +411,7 @@
         randevuTalepleri: data,
         count: parseInt("{{ Count ? Count : 0 }}"),
         currentPage: parseInt("{{ Page ? Page : 1 }}"),
-        perPage: parseInt("{{ 10 }}")
+        perPage: parseInt("{{ ItemsPerPage ? ItemsPerPage : 10 }}")
     };
     
     // Filter functionality
@@ -428,8 +428,16 @@
             const sortByValue = sortBy.value;
             const sortOrderValue = sortOrder.value;
             
+            // Get current URL parameters to preserve per_page
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentPerPage = urlParams.get('per_page') || '{{ ItemsPerPage ? ItemsPerPage : 10 }}';
+            
             // Build query parameters
             const params = new URLSearchParams();
+            
+            // Reset to page 1 when filtering
+            params.append('page', '1');
+            params.append('per_page', currentPerPage);
             
             if (query) {
                 params.append('query', query);
