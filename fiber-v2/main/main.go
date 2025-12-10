@@ -83,10 +83,12 @@ func main() {
 	server.Use(lib.JWTMiddleware())
 	server.Use(lib.HandleUserBanning(&Db))
 
-	server.Use(func(c *fiber.Ctx) error {
-		fmt.Println("Request came:", c.Path())
-		return c.Next()
-	})
+	if os.Getenv("ENVIRONMENT") == "dev" || os.Getenv("ENVIRONMENT") == "development" {
+		server.Use(func(c *fiber.Ctx) error {
+			fmt.Println("Request came:", c.Path())
+			return c.Next()
+		})
+	}
 
 	server.Use("/backend/notifications", lib.WebsocketHandshake)
 
