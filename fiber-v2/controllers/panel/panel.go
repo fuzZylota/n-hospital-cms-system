@@ -6045,16 +6045,6 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			return c.Redirect("/panel")
 		}
 
-		Page := 1
-		if c.Query("page") != "" {
-			NewPage, err := strconv.Atoi(c.Query("page"))
-			if err != nil {
-				Page = 1
-			} else {
-				Page = NewPage
-			}
-		}
-
 		Orm := utilities.Orm
 
 		GetOptions := database.Options{}
@@ -6086,25 +6076,27 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			UserSid = lib.String(rows[0]["sid"])
 		}
 
+		Page := 1
+		if c.Query("page") != "" {
+			NewPage, err := strconv.Atoi(c.Query("page"))
+			if err != nil {
+				Page = 1
+			} else {
+				Page = NewPage
+			}
+		}
+
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
 		SortBy := c.Query("sort_by", "created_at")
 		SortOrder := c.Query("sort_order", "DESC")
-		PerPage := c.Query("per_page")
 
-		var GivenItemsPerPage int64 = 0
-		if PerPage == "" {
-			GivenItemsPerPage = GetOptions.Options.ItemsPerPage
-		} else {
-			GivenItemsPerPage = lib.Int64(PerPage)
-		}
-
-		itemsPerPage := int(GivenItemsPerPage)
+		itemsPerPage := GetOptions.Options.ItemsPerPage
 
 		var offset int = 0
 
 		if Page > 1 {
-			offset = (Page - 1) * itemsPerPage
+			offset = (Page - 1) * int(itemsPerPage)
 		} else {
 			offset = 0
 		}
