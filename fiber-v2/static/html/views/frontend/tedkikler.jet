@@ -31,17 +31,17 @@
             {{ if len(Tetkikler) > 0 }}
                 {{ range index, Tetkik := Tetkikler }}
                 <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="tedkik-card wow FadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 50 }}ms">
+                    <a href="/tetkikler/{{ Tetkik.UrlName }}" class="tedkik-card tedkik-card--link wow FadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 50 }}ms">
                         <div class="tedkik-card__media">
                             <img class="tedkik-card__image {{ Tetkik.CoverPath == "" ? "is-placeholder" : "" }}" src="{{ Tetkik.CoverPath != "" ? PathOnStart + Tetkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}" alt="{{ Tetkik.CoverAltText != "" ? Tetkik.CoverAltText : Tetkik.Name }}" title="{{ Tetkik.CoverTitle != "" ? Tetkik.CoverTitle : Tetkik.Name }}">
                         </div>
                         <div class="tedkik-card__content">
-                            <h3 class="tedkik-card__title"><a href="/tetkikler/{{ Tetkik.UrlName }}">{{ Tetkik.Name }}</a></h3>
-                            <a href="/tetkikler/{{ Tetkik.UrlName }}" class="tedkik-card__link" aria-label="Detay">
+                            <h3 class="tedkik-card__title">{{ Tetkik.Name }}</h3>
+                            <span class="tedkik-card__link" aria-label="Detay">
                                 <i class="icon-up-right-arrow"></i>
-                            </a>
+                            </span>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 {{ end }}
             {{ else }}
