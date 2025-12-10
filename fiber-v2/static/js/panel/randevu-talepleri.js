@@ -24,6 +24,7 @@ class RandevuTalepleriListManager {
         this.setupPagination();
         this.setupViewToggle();
         this.setupTableSorting();
+        this.updateStatistics();
         this.bindRefreshButton();
     }
 
@@ -215,6 +216,17 @@ class RandevuTalepleriListManager {
      */
     setupPagination() {
         this.renderPagination();
+        
+        // Per page selector
+        const perPageSelect = document.getElementById('perPage');
+        if (perPageSelect) {
+            perPageSelect.value = this.perPage;
+            perPageSelect.addEventListener('change', (e) => {
+                this.perPage = parseInt(e.target.value);
+                this.currentPage = 1;
+                this.filterAndReload();
+            });
+        }
     }
 
     /**
@@ -291,34 +303,18 @@ class RandevuTalepleriListManager {
      */
     async filterAndReload() {
         try {
-            // Get current URL parameters to preserve existing filters
-            const urlParams = new URLSearchParams(window.location.search);
-            
             // Build query parameters
             const params = new URLSearchParams();
             params.set('page', this.currentPage);
+            params.set('per_page', this.perPage);
+            params.set('sort_by', this.currentSort.column);
+            params.set('sort_order', this.currentSort.order);
             
-            // Preserve existing query parameters
-            const query = urlParams.get('query');
-            const status = urlParams.get('status');
-            const sortBy = urlParams.get('sort_by');
-            const sortOrder = urlParams.get('sort_order');
-            
-            if (query) {
-                params.set('query', query);
+            if (this.currentFilters.search) {
+                params.set('search', this.currentFilters.search);
             }
-            if (status && status !== 'all') {
-                params.set('status', status);
-            }
-            if (sortBy) {
-                params.set('sort_by', sortBy);
-            } else {
-                params.set('sort_by', this.currentSort.column);
-            }
-            if (sortOrder) {
-                params.set('sort_order', sortOrder);
-            } else {
-                params.set('sort_order', this.currentSort.order);
+            if (this.currentFilters.date) {
+                params.set('date', this.currentFilters.date);
             }
 
             // Reload page with new parameters
@@ -333,9 +329,35 @@ class RandevuTalepleriListManager {
      * Update statistics cards
      */
     updateStatistics() {
-        // Statistics are now loaded from backend and displayed in HTML
-        // This function is kept for compatibility but no longer needed
-        // as values are set directly in the template
+        const randevuTalepleri = this.data.randevuTalepleri || [];
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const todayCount = randevuTalepleri.filter(talep => {
+            const talepDate = new Date(talep.created_at);
+            return talepDate >= today;
+        }).length;
+        
+        const weekCount = randevuTalepleri.filter(talep => {
+            const talepDate = new Date(talep.created_at);
+            return talepDate >= weekStart;
+        }).length;
+        
+        const monthCount = randevuTalepleri.filter(talep => {
+            const talepDate = new Date(talep.created_at);
+            return talepDate >= monthStart;
+        }).length;
+
+        // Update DOM
+        const todayCountEl = document.getElementById('todayCount');
+        const weekCountEl = document.getElementById('weekCount');
+        const monthCountEl = document.getElementById('monthCount');
+
+        if (todayCountEl) todayCountEl.textContent = todayCount;
+        if (weekCountEl) weekCountEl.textContent = weekCount;
+        if (monthCountEl) monthCountEl.textContent = monthCount;
     }
 
     /**

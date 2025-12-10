@@ -6199,55 +6199,29 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			Length = lib.Int64(rows[0]["length"])
 		}
 
-		// Calculate today's count
-		var TodayCount int64 = 0
-		TodayCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
-		if strings.Contains(GetQuery1[0], "WHERE") {
-			TodayCountQueryStr = TodayCountQueryStr + " AND DATE(rt.created_at) = CURDATE()"
-		} else {
-			TodayCountQueryStr = TodayCountQueryStr + " WHERE DATE(rt.created_at) = CURDATE()"
-		}
-		TodayCountQuery := Orm.CustomSelectQuery(TodayCountQueryStr)
-		err = TodayCountQuery.Execute()
-		if err == nil {
-			todayRows, _ := TodayCountQuery.Rows()
-			if len(todayRows) != 0 {
-				TodayCount = lib.Int64(todayRows[0]["length"])
-			}
+		LengthsString := "SELECT COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('day', now())) AS today_length, COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('week', now())) AS this_week_length, COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('month', now())) AS this_month_length FROM " + GetQuery1[0]
+
+		LengthsQuery := Orm.CustomSelectQuery(LengthsString)
+		err = LengthsQuery.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
 		}
 
-		// Calculate this week's count
-		var WeekCount int64 = 0
-		WeekCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
-		if strings.Contains(GetQuery1[0], "WHERE") {
-			WeekCountQueryStr = WeekCountQueryStr + " AND YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
-		} else {
-			WeekCountQueryStr = WeekCountQueryStr + " WHERE YEARWEEK(rt.created_at, 1) = YEARWEEK(CURDATE(), 1)"
-		}
-		WeekCountQuery := Orm.CustomSelectQuery(WeekCountQueryStr)
-		err = WeekCountQuery.Execute()
-		if err == nil {
-			weekRows, _ := WeekCountQuery.Rows()
-			if len(weekRows) != 0 {
-				WeekCount = lib.Int64(weekRows[0]["length"])
-			}
+		rows, err = LengthsQuery.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+			return c.Redirect("/panel")
 		}
 
-		// Calculate this month's count
-		var MonthCount int64 = 0
-		MonthCountQueryStr := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
-		if strings.Contains(GetQuery1[0], "WHERE") {
-			MonthCountQueryStr = MonthCountQueryStr + " AND YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
-		} else {
-			MonthCountQueryStr = MonthCountQueryStr + " WHERE YEAR(rt.created_at) = YEAR(CURDATE()) AND MONTH(rt.created_at) = MONTH(CURDATE())"
-		}
-		MonthCountQuery := Orm.CustomSelectQuery(MonthCountQueryStr)
-		err = MonthCountQuery.Execute()
-		if err == nil {
-			monthRows, _ := MonthCountQuery.Rows()
-			if len(monthRows) != 0 {
-				MonthCount = lib.Int64(monthRows[0]["length"])
-			}
+		var TodayLength int64 = 0
+		var WeekLength int64 = 0
+		var MonthLength int64 = 0
+
+		if len(rows) != 0 {
+			TodayLength = lib.Int64(rows[0]["today_length"])
+			WeekLength = lib.Int64(rows[0]["this_week_length"])
+			MonthLength = lib.Int64(rows[0]["this_month_length"])
 		}
 
 		return c.Render("views/panel/randevular-sayfalari/randevu-talepleri", fiber.Map{
@@ -6256,11 +6230,11 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			"Page":             c.Query("page"),
 			"RandevuTalepleri": RandevuTalepleriArray,
 			"Count":            Length,
-			"TodayCount":       TodayCount,
-			"WeekCount":        WeekCount,
-			"MonthCount":       MonthCount,
 			"User":             ourUser,
 			"Options":          GetOptions,
+			"TodayLength":      TodayLength,
+			"WeekLength":       WeekLength,
+			"MonthLength":      MonthLength,
 			"Query":            Query,
 			"Status":           Status,
 			"ItemsPerPage":     itemsPerPage,
