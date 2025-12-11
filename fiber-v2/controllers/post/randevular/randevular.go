@@ -704,8 +704,8 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 				})
 			} else {
 				CheckIfSantralUserHasSid := Orm.Count("users u")
-				CheckIfSantralUserHasSid.Where("u.role", "=", "santral")
-				CheckIfSantralUserHasSid.And("u.sid", "=", ourUser.Sid)
+				CheckIfSantralUserHasSid.Where("u.uid", "=", ourUser.Uid)
+				CheckIfSantralUserHasSid.And("u.sid", "!=", nil)
 				CheckIfSantralUserHasSid.Finish()
 				err = CheckIfSantralUserHasSid.Execute()
 				if err != nil {
