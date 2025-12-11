@@ -119,7 +119,7 @@
                     <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
                     <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
                     {{ if Doktor.WorkingHours != "" }}
-                        <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours }}</span></p>
+                        <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours | raw }}</span></p>
                     {{ end }}
                 </div>
             </div>
@@ -186,7 +186,7 @@ function formatWorkingHours(workingHoursJson, element) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('.doctor-working-hours');
     elements.forEach(function(element) {
         try {
@@ -199,6 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     .replace(/&lt;/g, '<')
                     .replace(/&gt;/g, '>');
 
+                // Remove wrapping quotes if present to avoid stray " characters in UI
+                cleanJson = cleanJson.replace(/^"(.*)"$/, '$1');
+
                 if (cleanJson.startsWith('{') && cleanJson.endsWith('}')) {
                     const jsonObj = JSON.parse(cleanJson);
                     formatWorkingHours(jsonObj, element);
@@ -207,7 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const jsonObj = JSON.parse(unwrapped);
                     formatWorkingHours(jsonObj, element);
                 } else {
-                    element.innerHTML = decoded;
+                    // Non-JSON fallback: strip wrapping quotes before showing
+                    element.innerHTML = cleanJson;
                 }
             } else {
                 const raw = element.getAttribute('data-raw-hours') || element.textContent;
@@ -222,5 +226,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
+});*/
 </script>
