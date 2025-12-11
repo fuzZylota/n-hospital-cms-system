@@ -36,7 +36,7 @@
                 <div class="action-buttons">
                     <div class="status-section">
                         <label class="status-label">Durum:</label>
-                        <span class="status-badge status-badge--{{ RandevuTalebi.Status }}" id="statusBadge" data-status="{{ RandevuTalebi.Status }}">{{ if RandevuTalebi.Status == "yeni" }}Yeni{{ else if RandevuTalebi.Status == "randevu-verildi" }}Randevu Verildi{{ else if RandevuTalebi.Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if RandevuTalebi.Status == "ulasilamadi" }}Ulaşılamadı{{ else if RandevuTalebi.Status == "gelmedi" }}Gelmedi{{ else if RandevuTalebi.Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else }}{{ RandevuTalebi.Status }}{{ end }}</span>
+                        <span class="status-badge status-badge--{{ RandevuTalebi.Status }}" id="statusBadge" data-status="{{ RandevuTalebi.Status }}">{{ if RandevuTalebi.Status == "yeni" }}Yeni{{ else if RandevuTalebi.Status == "randevu-verildi" }}Randevu Verildi{{ else if RandevuTalebi.Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if RandevuTalebi.Status == "ulasilamadi" }}Ulaşılamadı{{ else if RandevuTalebi.Status == "gelmedi" }}Gelmedi{{ else if RandevuTalebi.Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else if RandevuTalebi.Status == "hasta-arandi" }}Hasta Arandı{{ else }}{{ RandevuTalebi.Status }}{{ end }}</span>
                         <button class="btn btn-secondary btn-sm" id="toggleStatusBtn" data-status="{{ RandevuTalebi.Status }}">
                             <i class="fas fa-sync-alt"></i>
                             <span class="btn-text">Durumu Değiştir</span>

@@ -266,6 +266,13 @@ func EditUser(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			})
 		}
 
+		if OurUser.Role != "admin" && (inputs.Sid != inputs.OldSid) {
+			return c.JSON(fiber.Map{
+				"status":  403,
+				"message": "Only admins can edit users sube status",
+			})
+		}
+
 		if inputs.Email != inputs.OldEmail {
 			CheckIfEmailExists := Orm.Count("users")
 			CheckIfEmailExists.Where("email", "=", inputs.Email)

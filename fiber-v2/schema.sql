@@ -405,7 +405,7 @@ CREATE TABLE randevu_talepleri (
     patient_email VARCHAR(100),
     preferred_date DATE,
     preferred_time TIME,
-    status VARCHAR(20) DEFAULT 'yeni' CHECK (status IN ('yeni', 'randevu-verildi', 'randevu-verilemedi', 'ulasilamadi', 'gelmedi', 'hasta-vazgecti')),
+    status VARCHAR(20) DEFAULT 'yeni' CHECK (status IN ('yeni', 'randevu-verildi', 'randevu-verilemedi', 'ulasilamadi', 'gelmedi', 'hasta-vazgecti', 'hasta-arandi')),
     message TEXT,
     drid INTEGER REFERENCES doktorlar(drid) ON DELETE SET NULL ON UPDATE CASCADE,
     sid INTEGER REFERENCES subeler(sid) ON DELETE SET NULL ON UPDATE CASCADE,

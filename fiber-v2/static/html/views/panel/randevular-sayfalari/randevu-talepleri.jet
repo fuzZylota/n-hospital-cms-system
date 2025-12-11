@@ -48,6 +48,7 @@
                     <option value="ulasilamadi"{{if Status == "ulasilamadi"}} selected{{end}}>Ulaşılamadı</option>
                     <option value="gelmedi"{{if Status == "gelmedi"}} selected{{end}}>Gelmedi</option>
                     <option value="hasta-vazgecti"{{if Status == "hasta-vazgecti"}} selected{{end}}>Hasta Vazgeçti</option>
+                    <option value="hasta-arandi"{{if Status == "hasta-arandi"}} selected{{end}}>Hasta Arandı</option>
                 </select>
                 <select id="sortBy" class="filter-select">
                     <option value="patient_first_name"{{if SortBy == "patient_first_name" || SortBy == ""}} selected{{end}}>Hasta Adı</option>
@@ -199,7 +200,7 @@
                                 </td>
                                 <td>
                                     <div class="cell-content">
-                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else }}{{ .Status }}{{ end }}</span>
+                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else if .Status == "hasta-arandi" }}Hasta Arandı{{ else }}{{ .Status }}{{ end }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -304,7 +305,7 @@
                                 <div class="card-field">
                                     <div class="field-label">Durum</div>
                                     <div class="field-value">
-                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else }}{{ .Status }}{{ end }}</span>
+                                        <span class="status-badge status-badge--{{ .Status }}" data-status="{{ .Status }}">{{ if .Status == "yeni" }}Yeni{{ else if .Status == "randevu-verildi" }}Randevu Verildi{{ else if .Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if .Status == "ulasilamadi" }}Ulaşılamadı{{ else if .Status == "gelmedi" }}Gelmedi{{ else if .Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else if .Status == "hasta-arandi" }}Hasta Arandı{{ else }}{{ .Status }}{{ end }}</span>
                                     </div>
                                 </div>
                                 {{if .Message}}

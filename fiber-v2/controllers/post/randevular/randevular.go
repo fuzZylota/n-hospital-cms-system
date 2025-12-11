@@ -703,15 +703,11 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 					"message": "Forbidden: Admin, Moderator or Santral access required",
 				})
 			} else {
-				CheckIfSantralUsersExists := Orm.Count("users u")
-				CheckIfSantralUsersExists.LeftJoin("subeler s", "s.sid", "=", "u.sid")
-				CheckIfSantralUsersExists.LeftJoin("randevu_talepleri rt", "rt.sid", "=", "s.sid")
-				CheckIfSantralUsersExists.Where("rt.rrid", "=", Rrid)
-				CheckIfSantralUsersExists.And("u.role", "=", "santral")
-				CheckIfSantralUsersExists.Finish()
-
-				err = CheckIfSantralUsersExists.Execute()
-
+				CheckIfSantralUserHasSid := Orm.Count("users u")
+				CheckIfSantralUserHasSid.Where("u.role", "=", "santral")
+				CheckIfSantralUserHasSid.And("u.sid", "=", ourUser.Sid)
+				CheckIfSantralUserHasSid.Finish()
+				err = CheckIfSantralUserHasSid.Execute()
 				if err != nil {
 					log.Printf("%v\n", err)
 					return c.Status(500).JSON(fiber.Map{
@@ -720,11 +716,30 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 					})
 				}
 
-				if CheckIfSantralUsersExists.Length() == 0 {
-					return c.Status(403).JSON(fiber.Map{
-						"status":  403,
-						"message": "Forbidden: Santral users not found",
-					})
+				if CheckIfSantralUserHasSid.Length() != 0 {
+					CheckIfSantralUsersExists := Orm.Count("users u")
+					CheckIfSantralUsersExists.LeftJoin("subeler s", "s.sid", "=", "u.sid")
+					CheckIfSantralUsersExists.LeftJoin("randevu_talepleri rt", "rt.sid", "=", "s.sid")
+					CheckIfSantralUsersExists.Where("rt.rrid", "=", Rrid)
+					CheckIfSantralUsersExists.And("u.role", "=", "santral")
+					CheckIfSantralUsersExists.Finish()
+
+					err = CheckIfSantralUsersExists.Execute()
+
+					if err != nil {
+						log.Printf("%v\n", err)
+						return c.Status(500).JSON(fiber.Map{
+							"status":  500,
+							"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+						})
+					}
+
+					if CheckIfSantralUsersExists.Length() == 0 {
+						return c.Status(403).JSON(fiber.Map{
+							"status":  403,
+							"message": "Forbidden: Santral users not found",
+						})
+					}
 				}
 			}
 		}
@@ -736,6 +751,8 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 		case "randevu-verildi":
 			NewStatus = "randevu-verilemedi"
 		case "randevu-verilemedi":
+			NewStatus = "hasta-arandi"
+		case "hasta-arandi":
 			NewStatus = "ulasilamadi"
 		case "ulasilamadi":
 			NewStatus = "gelmedi"

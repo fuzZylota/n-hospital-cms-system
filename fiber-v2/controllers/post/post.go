@@ -162,6 +162,15 @@ func AuthenticationController(states *models.AppState, utilities *models.Utiliti
 
 		c.Cookie(&cookie)
 
+		switch authenticatedUser.Role {
+		case "admin", "moderator":
+			return c.Redirect("/panel")
+		case "santral":
+			return c.Redirect("/panel/randevu-talepleri")
+		case "ik":
+			return c.Redirect("/panel/iletisim-istekleri")
+		}
+
 		return c.Redirect("/panel")
 	}
 }
