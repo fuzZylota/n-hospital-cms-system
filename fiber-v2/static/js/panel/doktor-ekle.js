@@ -7,6 +7,7 @@ class DoktorFormHandler {
     constructor() {
         this.form = document.getElementById('doktorForm');
         this.submitBtn = document.getElementById('submitBtn');
+        this.codeEditors = {};
         this.init();
     }
 
@@ -17,6 +18,10 @@ class DoktorFormHandler {
         this.setupToggleSwitches();
         this.setupNameToUrlSync();
         this.setupSubeBransFetching();
+        // Setup CodeMirror editors after a delay to ensure CodeMirror is loaded
+        setTimeout(() => {
+            this.setupCodeEditors();
+        }, 100);
     }
 
     /**
@@ -24,6 +29,9 @@ class DoktorFormHandler {
      */
     setupFormSubmission() {
         this.form.addEventListener('submit', (e) => {
+            // Save CodeMirror content to textareas before submit
+            this.saveCodeEditorContent();
+
             // Validate before submit; block submit if invalid
             if (!this.validateForm()) {
                 e.preventDefault();
@@ -35,6 +43,93 @@ class DoktorFormHandler {
 
             // Allow natural form submission to the action URL
         });
+    }
+
+    /**
+     * Setup CodeMirror editors for HTML, CSS, and JavaScript
+     */
+    setupCodeEditors() {
+        // Check if CodeMirror is loaded
+        if (typeof CodeMirror === 'undefined') {
+            console.warn('CodeMirror is not loaded yet');
+            return;
+        }
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('doctor_infos_html');
+        if (htmlTextarea) {
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('doctor_infos_css');
+        if (cssTextarea) {
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('doctor_infos_js');
+        if (jsTextarea) {
+            this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // Sync CodeMirror content with form data
+        Object.keys(this.codeEditors).forEach(key => {
+            this.codeEditors[key].on('change', () => {
+                this.codeEditors[key].save();
+            });
+        });
+    }
+
+    /**
+     * Save CodeMirror editor content to textareas before form submission
+     */
+    saveCodeEditorContent() {
+        if (this.codeEditors.html) {
+            this.codeEditors.html.save();
+        }
+        if (this.codeEditors.css) {
+            this.codeEditors.css.save();
+        }
+        if (this.codeEditors.javascript) {
+            this.codeEditors.javascript.save();
+        }
     }
 
     /**

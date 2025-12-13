@@ -68,6 +68,9 @@
                         <input type="hidden" name="old_personal_url" value="{{ Doktor.PersonalUrl }}">
                         <input type="hidden" name="old_online_appointment" value="{{ Doktor.OnlineAppointment }}">
                         <input type="hidden" name="old_is_active" value="{{ Doktor.IsActive }}">
+                        <input type="hidden" name="old_doctor_infos_html" value="{{ Doktor.DoctorInfosHtml }}">
+                        <input type="hidden" name="old_doctor_infos_css" value="{{ Doktor.DoctorInfosCss }}">
+                        <input type="hidden" name="old_doctor_infos_js" value="{{ Doktor.DoctorInfosJs }}">
 
                         <!-- Basic Information -->
                         <div class="form-group-section">

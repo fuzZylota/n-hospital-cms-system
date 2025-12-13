@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/doktor-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <div id="requestStatusBanner" style="display:none; position:fixed; top:20px; right:20px; z-index:9999; padding:12px 16px; border-radius:8px; background:rgba(0,0,0,0.8); color:#fff; font-weight:600; box-shadow:0 6px 24px rgba(0,0,0,0.2);"></div>
@@ -220,6 +224,63 @@
                             </div>
                         </div>
                     </div>
+
+                            <!-- HTML Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-code"></i>
+                                HTML İçeriği
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel HTML içeriği</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_html" class="form-label">HTML Kodu</label>
+                                <textarea id="doctor_infos_html" name="doctor_infos_html" class="form-textarea code-editor" 
+                                        rows="10" placeholder="HTML kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSS Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-palette"></i>
+                                CSS Stilleri
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel CSS stilleri</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_css" class="form-label">CSS Kodu</label>
+                                <textarea id="doctor_infos_css" name="doctor_infos_css" class="form-textarea code-editor" 
+                                        rows="10" placeholder="CSS kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-settings"></i>
+                                JavaScript Kodu
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel JavaScript kodu</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_js" class="form-label">JavaScript Kodu</label>
+                                <textarea id="doctor_infos_js" name="doctor_infos_js" class="form-textarea code-editor" 
+                                        rows="10" placeholder="JavaScript kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -348,4 +409,17 @@
     </div>
 </div>
 
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
 <script src="{{ PathOnStart }}js/panel/doktor-ekle.js"></script>
