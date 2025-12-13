@@ -35,7 +35,7 @@ func AddFilePage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/panel/dosya-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Dosya Ekle",
+			"PageTitle":   "Dosya Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -68,7 +68,7 @@ func ListFilesPage(states *models.AppState, utilities *models.Utilities) fiber.H
 				log.Printf("Cannot get current working directory: %v", err)
 				return c.Render("views/panel/dosyalar", fiber.Map{
 					"PathOnStart": "../",
-					"PageTitle":   "N-Hospital | Dosyalar",
+					"PageTitle":   "Dosyalar",
 					"User":        ourUser,
 					"Files":       []models.File{},
 				}, "layouts/panel/panel")
@@ -84,7 +84,7 @@ func ListFilesPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			log.Printf("Cannot read uploads directory: %v\n", err)
 			return c.Render("views/panel/dosyalar", fiber.Map{
 				"PathOnStart": "../",
-				"PageTitle":   "N-Hospital | Dosyalar",
+				"PageTitle":   "Dosyalar",
 				"User":        ourUser,
 				"Files":       []models.File{},
 			}, "layouts/panel/panel")
@@ -160,7 +160,7 @@ func ListFilesPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/dosyalar", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Dosyalar",
+			"PageTitle":   "Dosyalar",
 			"User":        ourUser,
 			"Files":       Files,
 			"Options":     GetOptions,
@@ -502,7 +502,7 @@ func PanelPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		return c.Render("views/panel/panel", fiber.Map{
 			"PathOnStart": "",
-			"PageTitle":   "N-Hospital | Yönetim Paneli",
+			"PageTitle":   "Yönetim Paneli",
 			"User":        ourUser,
 			"Options":     GetOptions,
 			"Statistics":  PanelStatistics,
@@ -606,7 +606,7 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		return c.Render("views/panel/secenek-sayfalari/secenekler", fiber.Map{
 			"PathOnStart":  "../",
-			"PageTitle":    "N-Hospital | Seçenekler",
+			"PageTitle":    "Seçenekler",
 			"Page":         c.Query("page"),
 			"OptionsToGet": OptionsArray,
 			"Count":        len(OptionsArray),
@@ -725,7 +725,7 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/panel/secenek-sayfalari/secenek", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Seçenek",
+			"PageTitle":   "Seçenek",
 			"User":        ourUser,
 			"Option":      Option,
 			"Options":     GetOptions,
@@ -753,7 +753,7 @@ func SecenekEklePage(states *models.AppState, utilities *models.Utilities) fiber
 
 		return c.Render("views/panel/secenek-sayfalari/secenek-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Seçenek Ekle",
+			"PageTitle":   "Seçenek Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -867,7 +867,7 @@ func SecenekDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/secenek-sayfalari/secenek-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Seçenek Düzenle",
+			"PageTitle":   "Seçenek Düzenle",
 			"User":        ourUser,
 			"Option":      Option,
 			"Options":     GetOptions,
@@ -985,7 +985,7 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanicilar", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Kullanıcılar",
+			"PageTitle":   "Kullanıcılar",
 			"Page":        c.Query("page"),
 			"Users":       UsersArray,
 			"Count":       len(UsersArray),
@@ -1057,7 +1057,7 @@ func KullaniciPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanici", fiber.Map{
 			"PathOnStart":    "../../",
-			"PageTitle":      "N-Hospital | Kullanıcı",
+			"PageTitle":      "Kullanıcı",
 			"User":           ourUser,
 			"IndividualUser": User,
 			"Options":        GetOptions,
@@ -1109,7 +1109,7 @@ func KullaniciEklePage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanici-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Kullanıcı Ekle",
+			"PageTitle":   "Kullanıcı Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 			"Subeler":     Subeler,
@@ -1193,7 +1193,7 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 
 		return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
 			"PathOnStart":    "../../../",
-			"PageTitle":      "N-Hospital | Kullanıcı Düzenle",
+			"PageTitle":      "Kullanıcı Düzenle",
 			"User":           ourUser,
 			"IndividualUser": User,
 			"Options":        GetOptions,
@@ -1320,7 +1320,7 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/header-tuslari-sayfalari/header-tuslari", fiber.Map{
 			"PathOnStart":   "../",
-			"PageTitle":     "N-Hospital | Header Tuşları",
+			"PageTitle":     "Header Tuşları",
 			"User":          ourUser,
 			"HeaderButtons": HeaderButtonsArray,
 			"Count":         CountOfHeaderButtons,
@@ -1413,7 +1413,7 @@ func HeaderTusPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/header-tuslari-sayfalari/header-tusu", fiber.Map{
 			"PathOnStart":            "../../",
-			"PageTitle":              "N-Hospital | Header Tuş",
+			"PageTitle":              "Header Tuş",
 			"User":                   ourUser,
 			"IndividualHeaderButton": HeaderButton,
 			"ParentButtons":          ParentButtonsArray,
@@ -1466,7 +1466,7 @@ func HeaderTusEklePage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/header-tuslari-sayfalari/header-tusu-ekle", fiber.Map{
 			"PathOnStart":   "../",
-			"PageTitle":     "N-Hospital | Header Tuş Ekle",
+			"PageTitle":     "Header Tuş Ekle",
 			"User":          ourUser,
 			"ParentButtons": ParentButtons,
 			"Options":       GetOptions,
@@ -1552,7 +1552,7 @@ func HeaderTusDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 
 		return c.Render("views/panel/header-tuslari-sayfalari/header-tusu-duzenle", fiber.Map{
 			"PathOnStart":            "../../../",
-			"PageTitle":              "N-Hospital | Header Tuş Düzenle",
+			"PageTitle":              "Header Tuş Düzenle",
 			"User":                   ourUser,
 			"IndividualHeaderButton": HeaderButton,
 			"ParentButtons":          ParentButtonsArray,
@@ -1659,7 +1659,7 @@ func TestimonialsPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/testimonials/musteri-yorumlari", fiber.Map{
 			"PathOnStart":  "../",
-			"PageTitle":    "N-Hospital | Müşteri Yorumları",
+			"PageTitle":    "Müşteri Yorumları",
 			"Page":         c.Query("page"),
 			"Testimonials": TestimonialsArray,
 			"Count":        len(TestimonialsArray),
@@ -1693,7 +1693,7 @@ func TestimonialsEklePage(states *models.AppState, utilities *models.Utilities) 
 
 		return c.Render("views/panel/testimonials/musteri-yorumu-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Müşteri Yorumları",
+			"PageTitle":   "Müşteri Yorumları",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -1760,7 +1760,7 @@ func TestimonialPage(states *models.AppState, utilities *models.Utilities) fiber
 
 		return c.Render("views/panel/testimonials/musteri-yorumu", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Müşteri Yorumu",
+			"PageTitle":   "Müşteri Yorumu",
 			"User":        ourUser,
 			"Options":     GetOptions,
 			"Testimonial": Testimonial,
@@ -1828,7 +1828,7 @@ func TestimonialsDuzenlePage(states *models.AppState, utilities *models.Utilitie
 
 		return c.Render("views/panel/testimonials/musteri-yorumu-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Müşteri Yorumu Düzenle",
+			"PageTitle":   "Müşteri Yorumu Düzenle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 			"Testimonial": Testimonial,
@@ -1978,7 +1978,7 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/panel/subeler/subeler", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Şubeler",
+			"PageTitle":   "Şubeler",
 			"Page":        c.Query("page"),
 			"Subeler":     SubelerArray,
 			"Count":       len(SubelerArray),
@@ -2014,7 +2014,7 @@ func SubelerEklePage(states *models.AppState, utilities *models.Utilities) fiber
 
 		return c.Render("views/panel/subeler/sube-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Şube Ekle",
+			"PageTitle":   "Şube Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -2266,7 +2266,7 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		return c.Render("views/panel/subeler/sube", fiber.Map{
 			"PathOnStart":       "../../",
-			"PageTitle":         "N-Hospital | " + SubeData.Name,
+			"PageTitle":         "" + SubeData.Name,
 			"Options":           GetOptions,
 			"User":              ourUser,
 			"Sube":              SubeData,
@@ -2385,7 +2385,7 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 
 		return c.Render("views/panel/subeler/sube-duzenle", fiber.Map{
 			"PathOnStart":   "../../../",
-			"PageTitle":     "N-Hospital | Şube Düzenle",
+			"PageTitle":     "Şube Düzenle",
 			"User":          ourUser,
 			"Sube":          Sube,
 			"Options":       GetOptions,
@@ -2513,7 +2513,7 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 
 		return c.Render("views/panel/anlasmali-kurumlar-sayfalari/anlasmali-kurumlar", fiber.Map{
 			"PathOnStart":       "../",
-			"PageTitle":         "N-Hospital | Anlaşmalı Kurumlar",
+			"PageTitle":         "Anlaşmalı Kurumlar",
 			"Page":              c.Query("page"),
 			"AnlasmaliKurumlar": AnlasmaliKurumlarArray,
 			"Count":             len(AnlasmaliKurumlarArray),
@@ -2566,7 +2566,7 @@ func AnlasmaliKurumlarEklePage(states *models.AppState, utilities *models.Utilit
 
 		return c.Render("views/panel/anlasmali-kurumlar-sayfalari/anlasmali-kurum-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Anlaşmalı Kurumlar Ekle",
+			"PageTitle":   "Anlaşmalı Kurumlar Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 			"Subeler":     SubelerArray,
@@ -2657,7 +2657,7 @@ func AnlasmaliKurumPage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/anlasmali-kurumlar-sayfalari/anlasmali-kurum", fiber.Map{
 			"PathOnStart":    "../../",
-			"PageTitle":      "N-Hospital | " + AnlasmaliKurumData.Name,
+			"PageTitle":      "" + AnlasmaliKurumData.Name,
 			"User":           ourUser,
 			"AnlasmaliKurum": AnlasmaliKurumData,
 			"Options":        GetOptions,
@@ -2752,7 +2752,7 @@ func AnlasmaliKurumlarDuzenlePage(states *models.AppState, utilities *models.Uti
 
 		return c.Render("views/panel/anlasmali-kurumlar-sayfalari/anlasmali-kurum-duzenle", fiber.Map{
 			"PathOnStart":    "../../../",
-			"PageTitle":      "N-Hospital | Anlaşmalı Kurum Düzenle",
+			"PageTitle":      "Anlaşmalı Kurum Düzenle",
 			"User":           ourUser,
 			"AnlasmaliKurum": AnlasmaliKurum,
 			"Options":        GetOptions,
@@ -2851,7 +2851,7 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 
 		return c.Render("views/panel/uzmanliklar-sayfalari/uzmanliklar", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Uzmanlıklar",
+			"PageTitle":   "Uzmanlıklar",
 			"Page":        c.Query("page"),
 			"Uzmanliklar": UzmanliklarArray,
 			"Count":       len(UzmanliklarArray),
@@ -3025,7 +3025,7 @@ func UzmanlikPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		return c.Render("views/panel/uzmanliklar-sayfalari/uzmanlik", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | " + UzmanlikData.Name,
+			"PageTitle":   "" + UzmanlikData.Name,
 			"User":        ourUser,
 			"Uzmanlik":    UzmanlikData,
 			"Doktorlar":   DoktorlarArray,
@@ -3056,7 +3056,7 @@ func UzmanlikEklePage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/uzmanliklar-sayfalari/uzmanlik-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Uzmanlik Ekle",
+			"PageTitle":   "Uzmanlik Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -3122,7 +3122,7 @@ func UzmanlikDuzenlePage(states *models.AppState, utilities *models.Utilities) f
 
 		return c.Render("views/panel/uzmanliklar-sayfalari/uzmanlik-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | " + UzmanlikData.Name + " Düzenle",
+			"PageTitle":   "" + UzmanlikData.Name + " Düzenle",
 			"User":        ourUser,
 			"Uzmanlik":    UzmanlikData,
 			"Options":     GetOptions,
@@ -3292,7 +3292,7 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		return c.Render("views/panel/branslar-sayfalari/branslar", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Bölümler",
+			"PageTitle":   "Bölümler",
 			"Page":        c.Query("page"),
 			"Branslar":    BranslarArray,
 			"Count":       len(BranslarArray),
@@ -3458,7 +3458,7 @@ func BransPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		return c.Render("views/panel/branslar-sayfalari/brans", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | " + BransData.Name,
+			"PageTitle":   "" + BransData.Name,
 			"User":        ourUser,
 			"Brans":       BransData,
 			"Doktorlar":   DoktorlarArray,
@@ -3543,7 +3543,7 @@ func BransEklePage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/branslar-sayfalari/brans-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Bölüm Ekle",
+			"PageTitle":   "Bölüm Ekle",
 			"User":        ourUser,
 			"HeadDoctors": HeadDoctorsArray,
 			"Subeler":     SubelerArray,
@@ -3644,7 +3644,7 @@ func BransDuzenlePage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/branslar-sayfalari/brans-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | " + Brans.Name + " Düzenle",
+			"PageTitle":   "" + Brans.Name + " Düzenle",
 			"User":        ourUser,
 			"Brans":       Brans,
 			"Subeler":     SubelerArray,
@@ -3842,7 +3842,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/doktorlar-sayfalari/doktorlar", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Doktorlar",
+			"PageTitle":   "Doktorlar",
 			"Page":        c.Query("page"),
 			"Doktorlar":   DoktorlarArray,
 			"Count":       len(DoktorlarArray),
@@ -4041,7 +4041,7 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		return c.Render("views/panel/doktorlar-sayfalari/doktor", fiber.Map{
 			"PathOnStart":       "../../",
-			"PageTitle":         "N-Hospital | " + DoktorData.Title + " " + DoktorData.FirstName + " " + DoktorData.LastName,
+			"PageTitle":         "" + DoktorData.Title + " " + DoktorData.FirstName + " " + DoktorData.LastName,
 			"User":              ourUser,
 			"Doktor":            DoktorData,
 			"DoctorExpertises":  DoctorExpertisesArray,
@@ -4126,7 +4126,7 @@ func DoktorEklePage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		return c.Render("views/panel/doktorlar-sayfalari/doktor-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Doktor Ekle",
+			"PageTitle":   "Doktor Ekle",
 			"User":        ourUser,
 			"Branches":    BranchesArray,
 			"Subeler":     SubelerArray,
@@ -4292,7 +4292,7 @@ func DoktorDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/doktorlar-sayfalari/doktor-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Doktor Düzenle",
+			"PageTitle":   "Doktor Düzenle",
 			"User":        ourUser,
 			"Doktor":      Doktor,
 			"Branches":    BranchesArray,
@@ -4416,7 +4416,7 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birimler", fiber.Map{
 			"PathOnStart":   "../",
-			"PageTitle":     "N-Hospital | Tıbbi Birimler",
+			"PageTitle":     "Tıbbi Birimler",
 			"Page":          c.Query("page"),
 			"TibbiBirimler": TibbiBirimlerArray,
 			"Count":         len(TibbiBirimlerArray),
@@ -4565,7 +4565,7 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | " + TibbiBirimData.Name,
+			"PageTitle":   "" + TibbiBirimData.Name,
 			"User":        ourUser,
 			"TibbiBirim":  TibbiBirimData,
 			"Doktorlar":   DoktorlarArray,
@@ -4595,7 +4595,7 @@ func TibbiBirimEklePage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Tıbbi Birim Ekle",
+			"PageTitle":   "Tıbbi Birim Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -4662,7 +4662,7 @@ func TibbiBirimDuzenlePage(states *models.AppState, utilities *models.Utilities)
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Tıbbi Birim Düzenle",
+			"PageTitle":   "Tıbbi Birim Düzenle",
 			"User":        ourUser,
 			"TibbiBirim":  TibbiBirim,
 			"Options":     GetOptions,
@@ -4777,7 +4777,7 @@ func HomepageContentsPage(states *models.AppState, utilities *models.Utilities) 
 
 		return c.Render("views/panel/homepage-contents-sayfalari/homepage-contents", fiber.Map{
 			"PathOnStart":      "../",
-			"PageTitle":        "N-Hospital | Anasayfa İçerikleri",
+			"PageTitle":        "Anasayfa İçerikleri",
 			"Page":             c.Query("page"),
 			"HomepageContents": HomepageContentsArray,
 			"Count":            len(HomepageContentsArray),
@@ -4856,7 +4856,7 @@ func HomepageContentPage(states *models.AppState, utilities *models.Utilities) f
 
 		return c.Render("views/panel/homepage-contents-sayfalari/homepage-content", fiber.Map{
 			"PathOnStart":     "../../",
-			"PageTitle":       "N-Hospital | " + HomepageContentData.Name,
+			"PageTitle":       "" + HomepageContentData.Name,
 			"User":            ourUser,
 			"HomepageContent": HomepageContentData,
 			"Options":         GetOptions,
@@ -4884,7 +4884,7 @@ func HomepageContentEklePage(states *models.AppState, utilities *models.Utilitie
 
 		return c.Render("views/panel/homepage-contents-sayfalari/homepage-content-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Anasayfa İçeriği Ekle",
+			"PageTitle":   "Anasayfa İçeriği Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -4946,7 +4946,7 @@ func HomepageContentDuzenlePage(states *models.AppState, utilities *models.Utili
 
 		return c.Render("views/panel/homepage-contents-sayfalari/homepage-content-duzenle", fiber.Map{
 			"PathOnStart":     "../../../",
-			"PageTitle":       "N-Hospital | Anasayfa İçeriği Düzenle",
+			"PageTitle":       "Anasayfa İçeriği Düzenle",
 			"User":            ourUser,
 			"HomepageContent": HomepageContent,
 			"Options":         GetOptions,
@@ -5060,7 +5060,7 @@ func CustomContentsPage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/custom-contents-sayfalari/custom-contents", fiber.Map{
 			"PathOnStart":    "../",
-			"PageTitle":      "N-Hospital | Özel İçerikler",
+			"PageTitle":      "Özel İçerikler",
 			"Page":           c.Query("page"),
 			"CustomContents": CustomContentsArray,
 			"Count":          len(CustomContentsArray),
@@ -5139,7 +5139,7 @@ func CustomContentPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/custom-contents-sayfalari/custom-content", fiber.Map{
 			"PathOnStart":   "../../",
-			"PageTitle":     "N-Hospital | " + CustomContentData.Name,
+			"PageTitle":     "" + CustomContentData.Name,
 			"User":          ourUser,
 			"CustomContent": CustomContentData,
 			"Options":       GetOptions,
@@ -5167,7 +5167,7 @@ func CustomContentEklePage(states *models.AppState, utilities *models.Utilities)
 
 		return c.Render("views/panel/custom-contents-sayfalari/custom-content-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Özel İçerik Ekle",
+			"PageTitle":   "Özel İçerik Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -5229,7 +5229,7 @@ func CustomContentDuzenlePage(states *models.AppState, utilities *models.Utiliti
 
 		return c.Render("views/panel/custom-contents-sayfalari/custom-content-duzenle", fiber.Map{
 			"PathOnStart":   "../../../",
-			"PageTitle":     "N-Hospital | Özel İçerik Düzenle",
+			"PageTitle":     "Özel İçerik Düzenle",
 			"User":          ourUser,
 			"CustomContent": CustomContent,
 			"Options":       GetOptions,
@@ -5387,7 +5387,7 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/haberler-sayfalari/haberler", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Haberler",
+			"PageTitle":   "Haberler",
 			"Page":        c.Query("page"),
 			"Haberler":    HaberlerArray,
 			"Count":       len(HaberlerArray),
@@ -5488,7 +5488,7 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		return c.Render("views/panel/haberler-sayfalari/haber", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | " + haber.Title,
+			"PageTitle":   "" + haber.Title,
 			"Haber":       haber,
 			"User":        ourUser,
 			"Options":     GetOptions,
@@ -5516,7 +5516,7 @@ func HaberEklePage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/haberler-sayfalari/haber-ekle", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Haber Ekle",
+			"PageTitle":   "Haber Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -5599,7 +5599,7 @@ func HaberDuzenlePage(states *models.AppState, utilities *models.Utilities) fibe
 
 		return c.Render("views/panel/haberler-sayfalari/haber-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Haber Düzenle",
+			"PageTitle":   "Haber Düzenle",
 			"User":        ourUser,
 			"Haber":       Haber,
 			"Options":     GetOptions,
@@ -5703,7 +5703,7 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkikler", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Tedkikler",
+			"PageTitle":   "Tedkikler",
 			"Page":        c.Query("page"),
 			"Tedkikler":   TedkiklerArray,
 			"Count":       len(TedkiklerArray),
@@ -5783,7 +5783,7 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkik", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | " + TedkikData.Name,
+			"PageTitle":   "" + TedkikData.Name,
 			"User":        ourUser,
 			"Tedkik":      TedkikData,
 			"Options":     GetOptions,
@@ -5811,7 +5811,7 @@ func TedkikEklePage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkik-ekle", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Tedkik Ekle",
+			"PageTitle":   "Tedkik Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
@@ -5875,7 +5875,7 @@ func TedkikDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/tedkikler-sayfalari/tedkik-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Tedkik Düzenle",
+			"PageTitle":   "Tedkik Düzenle",
 			"User":        ourUser,
 			"Tedkik":      Tedkik,
 			"Options":     GetOptions,
@@ -6027,7 +6027,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/randevular-sayfalari/randevu-talebi", fiber.Map{
 			"PathOnStart":           "../../",
-			"PageTitle":             "N-Hospital | Randevu Talebi #" + RandevuTalebiData.Rrid,
+			"PageTitle":             "Randevu Talebi #" + RandevuTalebiData.Rrid,
 			"User":                  ourUser,
 			"RandevuTalebi":         RandevuTalebiData,
 			"DoktorInfo":            DoktorInfo,
@@ -6232,7 +6232,7 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		return c.Render("views/panel/randevular-sayfalari/randevu-talepleri", fiber.Map{
 			"PathOnStart":      "../",
-			"PageTitle":        "N-Hospital | Randevu Talepleri",
+			"PageTitle":        "Randevu Talepleri",
 			"Page":             c.Query("page"),
 			"RandevuTalepleri": RandevuTalepleriArray,
 			"Count":            Length,
@@ -6435,7 +6435,7 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		return c.Render("views/panel/randevular-sayfalari/randevular", fiber.Map{
 			"PathOnStart": "../../",
-			"PageTitle":   "N-Hospital | Randevular",
+			"PageTitle":   "Randevular",
 			"User":        ourUser,
 			"Randevular":  RandevularArray,
 			"Count":       Count,
@@ -6596,7 +6596,7 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		return c.Render("views/panel/randevular-sayfalari/randevu", fiber.Map{
 			"PathOnStart":        "../../",
-			"PageTitle":          "N-Hospital | Randevu #" + RandevuData.Rid,
+			"PageTitle":          "Randevu #" + RandevuData.Rid,
 			"User":               ourUser,
 			"Randevu":            RandevuData,
 			"DoktorInfo":         DoktorInfo,
@@ -6695,7 +6695,7 @@ func RandevuDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/randevular-sayfalari/randevu-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
-			"PageTitle":   "N-Hospital | Randevu Düzenle #" + RandevuData.Rid,
+			"PageTitle":   "Randevu Düzenle #" + RandevuData.Rid,
 			"User":        ourUser,
 			"Randevu":     RandevuData,
 			"Options":     GetOptions,
@@ -6821,7 +6821,7 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 
 		return c.Render("views/panel/contact-requests-sayfalari/contact-requests", fiber.Map{
 			"PathOnStart":     "../",
-			"PageTitle":       "N-Hospital | İletişim Talepleri",
+			"PageTitle":       "İletişim Talepleri",
 			"Page":            c.Query("page"),
 			"ContactRequests": ContactRequestsArray,
 			"Count":           len(ContactRequestsArray),
@@ -6933,7 +6933,7 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/contact-requests-sayfalari/contact-request", fiber.Map{
 			"PathOnStart":    "../../",
-			"PageTitle":      "N-Hospital | İletişim Talebi",
+			"PageTitle":      "İletişim Talebi",
 			"ContactRequest": ContactRequestData,
 			"User":           ourUser,
 			"Options":        GetOptions,
@@ -6997,7 +6997,7 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 
 		return c.Render("views/panel/contact-requests-sayfalari/respond-to-contact-request", fiber.Map{
 			"PathOnStart":     "../",
-			"PageTitle":       "N-Hospital | İletişim Talebine Cevap Ver",
+			"PageTitle":       "İletişim Talebine Cevap Ver",
 			"ContactRequests": ContactRequestsArray,
 			"User":            ourUser,
 			"Options":         GetOptions,
@@ -7126,7 +7126,7 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 
 		return c.Render("views/panel/job-applications-sayfalari/job-applications", fiber.Map{
 			"PathOnStart":     "../",
-			"PageTitle":       "N-Hospital | İş Başvuruları",
+			"PageTitle":       "İş Başvuruları",
 			"JobApplications": JobApplicationsArray,
 			"Count":           totalCount,
 			"Page":            pageInt,
@@ -7281,7 +7281,7 @@ func JobApplicationPage(states *models.AppState, utilities *models.Utilities) fi
 
 		return c.Render("views/panel/job-applications-sayfalari/job-application", fiber.Map{
 			"PathOnStart":    "../../",
-			"PageTitle":      "N-Hospital | İş Başvurusu",
+			"PageTitle":      "İş Başvurusu",
 			"JobApplication": JobApplicationData,
 			"User":           ourUser,
 			"Options":        GetOptions,
@@ -7347,7 +7347,7 @@ func RespondToJobApplicationPage(states *models.AppState, utilities *models.Util
 
 		return c.Render("views/panel/job-applications-sayfalari/respond-to-job-application", fiber.Map{
 			"PathOnStart":     "../../",
-			"PageTitle":       "N-Hospital | İş Başvurusuna Cevap Ver",
+			"PageTitle":       "İş Başvurusuna Cevap Ver",
 			"JobApplications": JobApplicationsArray,
 			"User":            ourUser,
 			"Options":         GetOptions,
@@ -7375,7 +7375,7 @@ func DocumentationPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/dokumantasyon", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "N-Hospital | Dosya Ekle",
+			"PageTitle":   "Dosya Ekle",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
