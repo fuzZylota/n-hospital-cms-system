@@ -1446,6 +1446,9 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				BirthDate:            lib.Time(row["birth_date"]),
 				WorkingHours:         lib.String(row["working_hours"]),
 				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
+				DoctorInfosHtml:      lib.String(row["doctor_infos_html"]),
+				DoctorInfosCss:       lib.String(row["doctor_infos_css"]),
+				DoctorInfosJs:        lib.String(row["doctor_infos_js"]),
 				Experiences:          []models.DoctorExperiences{},
 				Expertises:           []models.DoctorExpertises{},
 			}
@@ -1585,6 +1588,9 @@ func DoktorPageForDoktorlarimiz(states *models.AppState, utilities *models.Utili
 				BirthDate:            lib.Time(row["birth_date"]),
 				WorkingHours:         lib.String(row["working_hours"]),
 				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
+				DoctorInfosHtml:      lib.String(row["doctor_infos_html"]),
+				DoctorInfosCss:       lib.String(row["doctor_infos_css"]),
+				DoctorInfosJs:        lib.String(row["doctor_infos_js"]),
 				Experiences:          []models.DoctorExperiences{},
 				Expertises:           []models.DoctorExpertises{},
 			}

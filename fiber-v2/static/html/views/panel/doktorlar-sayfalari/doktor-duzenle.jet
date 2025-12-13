@@ -1,4 +1,8 @@
 <link rel="stylesheet" href="{{ PathOnStart }}css/panel/doktor-duzenle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
 
 <div class="page-container">
     <!-- Page Header -->
@@ -293,6 +297,29 @@
                             </div>
                         </div>
 
+                        <!-- HTML, CSS, JavaScript Content -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">HTML, CSS ve JavaScript İçerikleri</h3>
+                            <div class="form-group">
+                                <label for="doctor_infos_html" class="form-label">HTML Kodu</label>
+                                <textarea id="doctor_infos_html" name="doctor_infos_html" class="form-textarea code-editor" 
+                                          rows="10" placeholder="HTML kodunuzu buraya yazın...">{{ Doktor.DoctorInfosHtml }}</textarea>
+                                <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="doctor_infos_css" class="form-label">CSS Kodu</label>
+                                <textarea id="doctor_infos_css" name="doctor_infos_css" class="form-textarea code-editor" 
+                                          rows="10" placeholder="CSS kodunuzu buraya yazın...">{{ Doktor.DoctorInfosCss }}</textarea>
+                                <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="doctor_infos_js" class="form-label">JavaScript Kodu</label>
+                                <textarea id="doctor_infos_js" name="doctor_infos_js" class="form-textarea code-editor" 
+                                          rows="10" placeholder="JavaScript kodunuzu buraya yazın...">{{ Doktor.DoctorInfosJs }}</textarea>
+                                <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary" id="generalSubmitBtn">
                                 <i class="fas fa-save"></i>
@@ -536,6 +563,20 @@
         </div>
     </div>
 </div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
 
 <script>
     // Pass data to JavaScript

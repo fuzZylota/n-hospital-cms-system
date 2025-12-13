@@ -14,6 +14,7 @@ class DoktorEditHandler {
         this.cvSubmitBtn = document.getElementById('cvSubmitBtn');
         this.currentDeleteTarget = null;
         this.originalValues = {};
+        this.codeEditors = {};
         
         this.init();
     }
@@ -29,6 +30,10 @@ class DoktorEditHandler {
         this.setupFileDeletion();
         this.setupUrlGeneration();
         this.setupSubeToBransFetching();
+        // Setup CodeMirror editors after a delay to ensure CodeMirror is loaded
+        setTimeout(() => {
+            this.setupCodeEditors();
+        }, 100);
     }
 
     /**
@@ -137,11 +142,92 @@ class DoktorEditHandler {
     }
 
     /**
+     * Setup CodeMirror editors for HTML, CSS, and JavaScript
+     */
+    setupCodeEditors() {
+        // Wait for CodeMirror to be loaded
+        if (typeof CodeMirror === 'undefined') {
+            setTimeout(() => this.setupCodeEditors(), 100);
+            return;
+        }
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('doctor_infos_html');
+        if (htmlTextarea) {
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('doctor_infos_css');
+        if (cssTextarea) {
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('doctor_infos_js');
+        if (jsTextarea) {
+            this.codeEditors.javascript = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                tabSize: 2,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+        }
+
+        // Sync CodeMirror content with form data
+        Object.keys(this.codeEditors).forEach(key => {
+            if (this.codeEditors[key]) {
+                this.codeEditors[key].on('change', () => {
+                    this.codeEditors[key].save();
+                });
+            }
+        });
+    }
+
+    /**
      * Setup general settings form (AJAX JSON submission)
      */
     setupGeneralForm() {
         this.generalForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Save CodeMirror content to textareas before submit
+            Object.keys(this.codeEditors).forEach(key => {
+                if (this.codeEditors[key]) {
+                    this.codeEditors[key].save();
+                }
+            });
             
             if (!this.validateGeneralForm()) {
                 return;

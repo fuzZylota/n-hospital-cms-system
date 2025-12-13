@@ -489,3 +489,93 @@
 .section-content::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
+
+/* Code Editor Styles */
+.code-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: #272822;
+    color: #f8f8f2;
+}
+
+.code-editor:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* CodeMirror Override Styles */
+.CodeMirror {
+    height: auto;
+    min-height: 300px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.CodeMirror:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.CodeMirror-focused {
+    border-color: var(--primary-color);
+}
+
+.CodeMirror-cursor {
+    border-left: 1px solid #f8f8f2;
+}
+
+.CodeMirror-selected {
+    background: #49483e;
+}
+
+.CodeMirror-lines {
+    padding: 16px;
+}
+
+.CodeMirror-line {
+    padding: 0;
+}
+
+.CodeMirror-gutters {
+    background: #272822;
+    border-right: 1px solid #3e3d32;
+}
+
+.CodeMirror-linenumber {
+    color: #75715e;
+    padding: 0 8px;
+}
+
+.CodeMirror-hint {
+    color: #f8f8f2;
+    background: #272822;
+    border: 1px solid #3e3d32;
+}
+
+.CodeMirror-hint-active {
+    background: #49483e;
+    color: #f8f8f2;
+}
+
+/* CodeMirror scrollbar positioning */
+.CodeMirror-scroll {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+.CodeMirror-hscrollbar {
+    bottom: 0 !important;
+    height: 12px !important;
+}
+
+.CodeMirror-vscrollbar {
+    right: 0 !important;
+    width: 12px !important;
+}

@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css">
+
 <section class="page-header" style="margin-top: 200px;">
     <div class="container-fluid">
         <div class="page-header__inner">
@@ -110,60 +112,74 @@
     </div><!-- /.container -->
 </section><!-- /.team-details section-space-top -->
 
-<section class="team-skills-one">
-    <div class="container">
-        <div class="row gutter-y-40">
-            <div class="col-lg-6">
-                <h3 class="team-skills-one__title">Eğitim ve Diller</h3>
-                <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                    <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
-                    <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
-                    {{ if Doktor.WorkingHours != "" }}
-                        <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours | raw }}</span></p>
-                    {{ end }}
-                </div>
-            </div>
-            {{ if Options.Options.ShowDoctorAppointmentFee }}
-            <div class="col-lg-6">
-                <h3 class="team-skills-one__title">Ücret Bilgisi</h3>
-                <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                    <p class="team-skills-one__text"><strong>Muayene Ücreti:</strong> {{ Doktor.AppointmentFee != 0.0 ? Doktor.AppointmentFee : "Bilgi yok" }}{{ Doktor.AppointmentFee != 0.0 ? " TL" : "" }}</p>
-                    <p class="team-skills-one__text"><strong>Branş:</strong> {{ Doktor.BranchName }}</p>
-                </div>
-            </div>
-            {{ end }}
-        </div>
-    </div><!-- /.container -->
-</section><!-- /.team-skills-one -->
+{{ if Doktor.DoctorInfosHtml != "" }}
+    <style>
+        {{ Doktor.DoctorInfosCss | raw }}
+    </style>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css">
-<section class="section-space">
-    <div class="container">
-        <div class="row gutter-y-30">
-            <div class="col-lg-6">
-                <h3 class="team-skills-one__title doc-section-title">Deneyimler</h3>
-                {{ if len(Doktor.Expertises) > 0 }}
-                <div>
-                    {{ range index, Uz := Doktor.Expertises }}
-                    <div class="doc-card">
-                        <div class="doc-card__thumb doc-card__thumb--primary">
-                            <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/expertise/expertise-default.svg" alt="Expertise">
-                        </div>
-                        <div class="doc-card__body">
-                            <h4 class="doc-card__title">{{ Uz.UzmanlikName }} {{ if Uz.IsPrimary }}<span style="background: var(--theme-primary-color); color:#fff; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">Birincil</span>{{ end }}</h4>
-                            <div class="doc-card__meta">{{ Uz.CertificationInstitution }}</div>
-                            {{ if Uz.UzmanlikDescription != "" }}<div class="doc-card__desc">{{ Uz.UzmanlikDescription }}</div>{{ end }}
-                        </div>
+    {{ Doktor.DoctorInfosHtml | raw }}
+
+    <script>
+        {{ Doktor.DoctorInfosJs | raw }}
+    </script>
+{{ else }}
+    <section class="team-skills-one">
+        <div class="container">
+            <div class="row gutter-y-40">
+                <div class="col-lg-6">
+                    <h3 class="team-skills-one__title">Eğitim ve Diller</h3>
+                    <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                        <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
+                        <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
+                        {{ if Doktor.WorkingHours != "" }}
+                            <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours | raw }}</span></p>
+                        {{ end }}
                     </div>
-                    {{ end }}
                 </div>
-                {{ else }}
-                <p style="color:#6b7280;">Uzmanlık bilgisi bulunamadı.</p>
+                {{ if Options.Options.ShowDoctorAppointmentFee }}
+                <div class="col-lg-6">
+                    <h3 class="team-skills-one__title">Ücret Bilgisi</h3>
+                    <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                        <p class="team-skills-one__text"><strong>Muayene Ücreti:</strong> {{ Doktor.AppointmentFee != 0.0 ? Doktor.AppointmentFee : "Bilgi yok" }}{{ Doktor.AppointmentFee != 0.0 ? " TL" : "" }}</p>
+                        <p class="team-skills-one__text"><strong>Branş:</strong> {{ Doktor.BranchName }}</p>
+                    </div>
+                </div>
                 {{ end }}
             </div>
+        </div><!-- /.container -->
+    </section><!-- /.team-skills-one -->
+
+
+    <section class="section-space">
+        <div class="container">
+            <div class="row gutter-y-30">
+                <div class="col-lg-6">
+                    <h3 class="team-skills-one__title doc-section-title">Deneyimler</h3>
+                    {{ if len(Doktor.Expertises) > 0 }}
+                    <div>
+                        {{ range index, Uz := Doktor.Expertises }}
+                        <div class="doc-card">
+                            <div class="doc-card__thumb doc-card__thumb--primary">
+                                <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/expertise/expertise-default.svg" alt="Expertise">
+                            </div>
+                            <div class="doc-card__body">
+                                <h4 class="doc-card__title">{{ Uz.UzmanlikName }} {{ if Uz.IsPrimary }}<span style="background: var(--theme-primary-color); color:#fff; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">Birincil</span>{{ end }}</h4>
+                                <div class="doc-card__meta">{{ Uz.CertificationInstitution }}</div>
+                                {{ if Uz.UzmanlikDescription != "" }}<div class="doc-card__desc">{{ Uz.UzmanlikDescription }}</div>{{ end }}
+                            </div>
+                        </div>
+                        {{ end }}
+                    </div>
+                    {{ else }}
+                    <p style="color:#6b7280;">Uzmanlık bilgisi bulunamadı.</p>
+                    {{ end }}
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+{{ end }}
+
+
 
 <script>
 function decodeHtmlEntities(encoded) {
