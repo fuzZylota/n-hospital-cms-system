@@ -16,6 +16,7 @@
     <!-- Navigation -->
     <nav class="sidebar-nav">
         <!-- Dashboard Section -->
+        {{ if User.Role == "admin" || User.Role == "moderator" }}
         <div class="nav-section">
             <div class="nav-section-title">Ana Menü</div>
             
@@ -27,7 +28,8 @@
                 <div class="nav-tooltip">Dashboard</div>
             </a>
         </div>
-        
+        {{ end }}
+
         {{ if User.Role != "ik" }}
             <!-- Patient Management Section -->
             <div class="nav-section">
@@ -216,6 +218,7 @@
             </div>
         {{ end }}
         
+        {{ if User.Role != "santral" }}
         <!-- Communications Section -->
         <div class="nav-section">
             <div class="nav-section-title">İletişim</div>
@@ -235,24 +238,22 @@
                 </div>
             </div>
             
-            {{ if User.Role != "santral" }}
-                <div class="nav-group">
-                    <button class="nav-group-header" data-group="applications">
-                        <div class="nav-group-icon">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <span class="nav-group-text">İş Başvuruları</span>
-                        <i class="fas fa-chevron-right nav-group-arrow"></i>
-                        <div class="nav-tooltip">İş Başvuruları</div>
-                    </button>
-                    <div class="nav-group-items" data-group-items="applications">
-                        <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
-                        <a href="/panel/is-basvurusu-cevapla" class="nav-item">Cevapla</a>
+            <div class="nav-group">
+                <button class="nav-group-header" data-group="applications">
+                    <div class="nav-group-icon">
+                        <i class="fas fa-briefcase"></i>
                     </div>
+                    <span class="nav-group-text">İş Başvuruları</span>
+                    <i class="fas fa-chevron-right nav-group-arrow"></i>
+                    <div class="nav-tooltip">İş Başvuruları</div>
+                </button>
+                <div class="nav-group-items" data-group-items="applications">
+                    <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
+                    <a href="/panel/is-basvurusu-cevapla" class="nav-item">Cevapla</a>
                 </div>
-            {{ end }}
+            </div>
         </div>
-        
+        {{ end }}
         <!-- System Section -->
         <div class="nav-section">
             <div class="nav-section-title">Sistem</div>
