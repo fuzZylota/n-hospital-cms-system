@@ -63,9 +63,6 @@
                     <button class="view-btn active" data-view="grid" title="Grid Görünümü">
                         <i class="fas fa-th"></i>
                     </button>
-                    <button class="view-btn" data-view="list" title="Liste Görünümü">
-                        <i class="fas fa-list"></i>
-                    </button>
                 </div>
             </div>
 

@@ -249,6 +249,9 @@ CREATE TABLE doktorlar (
     email VARCHAR(100),
     biography TEXT,
     education TEXT,
+    doctor_infos_html TEXT DEFAULT NULL,
+    doctor_infos_css TEXT DEFAULT NULL,
+    doctor_infos_js TEXT DEFAULT NULL,
     experience_years INTEGER DEFAULT 0,
     languages VARCHAR(200), -- Comma separated languages
     birth_date DATE,

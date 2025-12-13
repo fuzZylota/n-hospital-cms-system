@@ -135,9 +135,9 @@
                         <button class="view-btn active" data-view="table">
                             <i class="fas fa-list"></i>
                         </button>
-                        <button class="view-btn" data-view="grid">
+                        <!--<button class="view-btn" data-view="grid">
                             <i class="fas fa-th"></i>
-                        </button>
+                        </button>-->
                     </div>
                 </div>
             </div>

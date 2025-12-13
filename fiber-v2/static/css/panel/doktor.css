@@ -1525,3 +1525,150 @@
         height: 100px;
     }
 }
+
+/* Code Section */
+.code-section {
+    background: var(--bg-darker);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.code-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-secondary);
+}
+
+.btn-icon:hover {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border-color: var(--primary-color);
+}
+
+.code-container {
+    position: relative;
+    max-height: 400px;
+    overflow: visible;
+    transition: max-height 0.3s ease;
+}
+
+.code-container.expanded {
+    max-height: none;
+}
+
+.code-editor {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    background: transparent;
+    color: #f8f8f2;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 16px;
+    resize: none;
+    outline: none;
+    display: none;
+}
+
+/* CodeMirror Overrides */
+.CodeMirror {
+    height: auto !important;
+    min-height: 200px;
+    max-height: 400px;
+    background: #272822 !important;
+    color: #f8f8f2 !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+}
+
+.CodeMirror {
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+.CodeMirror-scroll {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-height: 400px !important;
+    margin-bottom: 0 !important;
+}
+
+.code-container.expanded .CodeMirror-scroll {
+    max-height: none !important;
+}
+
+.CodeMirror-sizer {
+    min-height: 200px !important;
+    padding-bottom: 0 !important;
+}
+
+.CodeMirror-lines {
+    padding-bottom: 0 !important;
+}
+
+.CodeMirror-hscrollbar {
+    bottom: 0 !important;
+    height: 12px !important;
+}
+
+.CodeMirror-vscrollbar {
+    right: 0 !important;
+    width: 12px !important;
+}
+
+.CodeMirror.cm-s-monokai {
+    background: #272822 !important;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-gutters {
+    background: #272822 !important;
+    border-right: 1px solid #3e3d32 !important;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-linenumber {
+    color: #75715e !important;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-cursor {
+    border-left: 1px solid #f8f8f2 !important;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-selected {
+    background: #49483e !important;
+}
+
+.CodeMirror.cm-s-monokai .CodeMirror-line::selection,
+.CodeMirror.cm-s-monokai .CodeMirror-line > span::selection,
+.CodeMirror.cm-s-monokai .CodeMirror-line > span > span::selection {
+    background: #49483e !important;
+}

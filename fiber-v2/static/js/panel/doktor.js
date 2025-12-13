@@ -7,6 +7,7 @@ class DoktorViewManager {
     constructor() {
         this.doktorData = window.doktorData || {};
         this.currentZoomedImage = null;
+        this.codeEditors = {};
         
         this.init();
     }
@@ -24,6 +25,10 @@ class DoktorViewManager {
         this.formatDates();
         this.setupCopyToClipboard();
         this.setupKeyboardShortcuts();
+        // Setup CodeMirror editors after a delay to ensure CodeMirror is loaded
+        setTimeout(() => {
+            this.setupCodeEditors();
+        }, 100);
     }
 
     /**
@@ -901,6 +906,13 @@ class DoktorViewManager {
                 // Recalculate modal position if needed
             }
         });
+        
+        // Refresh CodeMirror editors on resize
+        Object.values(this.codeEditors).forEach(editor => {
+            if (editor) {
+                editor.refresh();
+            }
+        });
     }
 
     /**
@@ -1355,6 +1367,129 @@ class DoktorViewManager {
             currentCoverContainer.innerHTML = '';
         }, 300);
     }
+
+    /**
+     * Setup CodeMirror editors for syntax highlighting
+     */
+    setupCodeEditors() {
+        // Check if CodeMirror is loaded
+        if (typeof CodeMirror === 'undefined') {
+            console.warn('CodeMirror is not loaded yet');
+            return;
+        }
+
+        // HTML Editor
+        const htmlTextarea = document.getElementById('htmlContent');
+        if (htmlTextarea) {
+            this.codeEditors.html = CodeMirror.fromTextArea(htmlTextarea, {
+                mode: 'htmlmixed',
+                theme: 'monokai',
+                readOnly: true,
+                lineNumbers: true,
+                lineWrapping: true,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+            });
+            // Hide original textarea
+            htmlTextarea.style.display = 'none';
+        }
+
+        // CSS Editor
+        const cssTextarea = document.getElementById('cssContent');
+        if (cssTextarea) {
+            this.codeEditors.css = CodeMirror.fromTextArea(cssTextarea, {
+                mode: 'css',
+                theme: 'monokai',
+                readOnly: true,
+                lineNumbers: true,
+                lineWrapping: true,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+            });
+            // Hide original textarea
+            cssTextarea.style.display = 'none';
+        }
+
+        // JavaScript Editor
+        const jsTextarea = document.getElementById('jsContent');
+        if (jsTextarea) {
+            this.codeEditors.js = CodeMirror.fromTextArea(jsTextarea, {
+                mode: 'javascript',
+                theme: 'monokai',
+                readOnly: true,
+                lineNumbers: true,
+                lineWrapping: true,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+            });
+            // Hide original textarea
+            jsTextarea.style.display = 'none';
+        }
+    }
+
+    /**
+     * Copy text to clipboard
+     */
+    async copyToClipboard(elementId) {
+        try {
+            let text = '';
+            
+            // Map elementId to CodeMirror editor key
+            const editorKey = elementId.replace('Content', '');
+            if (this.codeEditors[editorKey]) {
+                // Get text from CodeMirror editor
+                text = this.codeEditors[editorKey].getValue();
+            } else {
+                // Fallback to textarea
+                const element = document.getElementById(elementId);
+                if (element) {
+                    text = element.value;
+                }
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+            }
+            
+            this.showAlert('Kod kopyalandı!', 'success');
+        } catch (error) {
+            console.error('Copy to clipboard failed:', error);
+            this.showAlert('Kopyalama işlemi başarısız oldu.', 'error');
+        }
+    }
+
+    /**
+     * Toggle code expansion
+     */
+    toggleCodeExpansion(elementId) {
+        const textarea = document.getElementById(elementId);
+        if (!textarea) return;
+        
+        const container = textarea.closest('.code-container');
+        if (container) {
+            container.classList.toggle('expanded');
+            const button = container.closest('.code-section').querySelector('.expand-btn i');
+            if (button) {
+                if (container.classList.contains('expanded')) {
+                    button.className = 'fas fa-compress-arrows-alt';
+                } else {
+                    button.className = 'fas fa-expand-arrows-alt';
+                }
+            }
+        }
+    }
 }
 
 // Global functions for HTML onclick attributes
@@ -1409,6 +1544,18 @@ function downloadImage() {
 function openImageInNewTab() {
     if (window.doktorViewManager) {
         window.doktorViewManager.openImageInNewTab();
+    }
+}
+
+function copyToClipboard(elementId) {
+    if (window.doktorViewManager) {
+        window.doktorViewManager.copyToClipboard(elementId);
+    }
+}
+
+function toggleCodeExpansion(elementId) {
+    if (window.doktorViewManager) {
+        window.doktorViewManager.toggleCodeExpansion(elementId);
     }
 }
 

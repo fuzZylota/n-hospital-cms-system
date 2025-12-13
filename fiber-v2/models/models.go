@@ -753,6 +753,9 @@ type Doktorlar struct {
 	TcKimlik             string    `form:"tc_kimlik" json:"tc_kimlik"`
 	DiplomaNo            string    `form:"diploma_no" json:"diploma_no"`
 	CalistigiSubelerText string    `form:"calistigi_subeler_text" json:"calistigi_subeler_text"`
+	DoctorInfosHtml      string    `form:"doctor_infos_html" json:"doctor_infos_html"`
+	DoctorInfosCss       string    `form:"doctor_infos_css" json:"doctor_infos_css"`
+	DoctorInfosJs        string    `form:"doctor_infos_js" json:"doctor_infos_js"`
 	Phone                string    `form:"phone" json:"phone"`
 	Email                string    `form:"email" json:"email"`
 	Biography            string    `form:"biography" json:"biography"`
@@ -806,6 +809,12 @@ type DoktorlarEdit struct {
 	OldTcKimlik             string    `form:"old_tc_kimlik" json:"old_tc_kimlik"`
 	CalistigiSubelerText    string    `form:"calistigi_subeler_text" json:"calistigi_subeler_text"`
 	OldCalistigiSubelerText string    `form:"old_calistigi_subeler_text" json:"old_calistigi_subeler_text"`
+	DoctorInfosHtml         string    `form:"doctor_infos_html" json:"doctor_infos_html"`
+	OldDoctorInfosHtml      string    `form:"old_doctor_infos_html" json:"old_doctor_infos_html"`
+	DoctorInfosCss          string    `form:"doctor_infos_css" json:"doctor_infos_css"`
+	OldDoctorInfosCss       string    `form:"old_doctor_infos_css" json:"old_doctor_infos_css"`
+	DoctorInfosJs           string    `form:"doctor_infos_js" json:"doctor_infos_js"`
+	OldDoctorInfosJs        string    `form:"old_doctor_infos_js" json:"old_doctor_infos_js"`
 	DiplomaNo               string    `form:"diploma_no" json:"diploma_no"`
 	OldDiplomaNo            string    `form:"old_diploma_no" json:"old_diploma_no"`
 	Phone                   string    `form:"phone" json:"phone"`

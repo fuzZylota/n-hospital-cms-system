@@ -219,40 +219,40 @@
         {{ end }}
         
         {{ if User.Role != "santral" }}
-        <!-- Communications Section -->
-        <div class="nav-section">
-            <div class="nav-section-title">İletişim</div>
-            
-            <div class="nav-group">
-                <button class="nav-group-header" data-group="communications">
-                    <div class="nav-group-icon">
-                        <i class="fas fa-envelope"></i>
+            <!-- Communications Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">İletişim</div>
+                
+                <div class="nav-group">
+                    <button class="nav-group-header" data-group="communications">
+                        <div class="nav-group-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <span class="nav-group-text">Mesajlar</span>
+                        <i class="fas fa-chevron-right nav-group-arrow"></i>
+                        <div class="nav-tooltip">Mesajlar</div>
+                    </button>
+                    <div class="nav-group-items" data-group-items="communications">
+                        <a href="/panel/iletisim-istekleri" class="nav-item">İletişim Talepleri</a>
+                        <a href="/panel/iletisim-istegi-cevapla" class="nav-item">Cevapla</a>
                     </div>
-                    <span class="nav-group-text">Mesajlar</span>
-                    <i class="fas fa-chevron-right nav-group-arrow"></i>
-                    <div class="nav-tooltip">Mesajlar</div>
-                </button>
-                <div class="nav-group-items" data-group-items="communications">
-                    <a href="/panel/iletisim-istekleri" class="nav-item">İletişim Talepleri</a>
-                    <a href="/panel/iletisim-istegi-cevapla" class="nav-item">Cevapla</a>
+                </div>
+                
+                <div class="nav-group">
+                    <button class="nav-group-header" data-group="applications">
+                        <div class="nav-group-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <span class="nav-group-text">İş Başvuruları</span>
+                        <i class="fas fa-chevron-right nav-group-arrow"></i>
+                        <div class="nav-tooltip">İş Başvuruları</div>
+                    </button>
+                    <div class="nav-group-items" data-group-items="applications">
+                        <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
+                        <a href="/panel/is-basvurusu-cevapla" class="nav-item">Cevapla</a>
+                    </div>
                 </div>
             </div>
-            
-            <div class="nav-group">
-                <button class="nav-group-header" data-group="applications">
-                    <div class="nav-group-icon">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <span class="nav-group-text">İş Başvuruları</span>
-                    <i class="fas fa-chevron-right nav-group-arrow"></i>
-                    <div class="nav-tooltip">İş Başvuruları</div>
-                </button>
-                <div class="nav-group-items" data-group-items="applications">
-                    <a href="/panel/is-basvurulari" class="nav-item">Tüm Başvurular</a>
-                    <a href="/panel/is-basvurusu-cevapla" class="nav-item">Cevapla</a>
-                </div>
-            </div>
-        </div>
         {{ end }}
         <!-- System Section -->
         <div class="nav-section">

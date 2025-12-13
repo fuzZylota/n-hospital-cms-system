@@ -123,12 +123,11 @@
             </div><!-- /.col-xl-8 col-lg-7 -->
             <div class="col-xl-4 col-lg-5">
                 <aside class="portfolio-sidebar">
-                    <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="00ms">
+                    <!--<div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="00ms">
                         <div class="portfolio-sidebar__info">
                             <div class="portfolio-sidebar__info__top">
                                 <h3 class="portfolio-sidebar__title">Merkez Bilgileri</h3>
-                                <!-- /.portfolio-sidebar__title -->
-                            </div><!-- /.portfolio-sidebar__info__top -->
+                            </div>
                             <ul class="portfolio-sidebar__info__list">
                                 {{ if Sube.City }}
                                 <li>
@@ -157,9 +156,9 @@
                                     <span class="portfolio-sidebar__info__text">{{ len(AnlasmaliKurumlar) }} kurum</span>
                                 </li>
                                 {{ end }}
-                            </ul><!-- /.portfolio-sidebar__info__list -->
-                        </div><!-- /.portfolio-sidebar__info -->
-                    </div><!-- /.portfolio-sidebar__item -->
+                            </ul>
+                        </div>
+                    </div>-->
                     
                     <!-- Anlaşmalı Kurumlar Section -->
                     {{ if len(AnlasmaliKurumlar) > 0 }}

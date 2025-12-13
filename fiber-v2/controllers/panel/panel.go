@@ -3957,6 +3957,9 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			SubeName:             lib.String(rows[0]["sube_name"]),
 			SubeCity:             lib.String(rows[0]["sube_city"]),
 			CalistigiSubelerText: lib.String(rows[0]["calistigi_subeler_text"]),
+			DoctorInfosHtml:      lib.String(rows[0]["doctor_infos_html"]),
+			DoctorInfosCss:       lib.String(rows[0]["doctor_infos_css"]),
+			DoctorInfosJs:        lib.String(rows[0]["doctor_infos_js"]),
 		}
 
 		// Fetch doctor expertises
@@ -4216,6 +4219,9 @@ func DoktorDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 			CreatedAt:            lib.Time(rows[0]["created_at"]),
 			UpdatedAt:            lib.Time(rows[0]["updated_at"]),
 			CalistigiSubelerText: lib.String(rows[0]["calistigi_subeler_text"]),
+			DoctorInfosHtml:      lib.String(rows[0]["doctor_infos_html"]),
+			DoctorInfosCss:       lib.String(rows[0]["doctor_infos_css"]),
+			DoctorInfosJs:        lib.String(rows[0]["doctor_infos_js"]),
 		}
 
 		// Fetch active branches for the dropdown

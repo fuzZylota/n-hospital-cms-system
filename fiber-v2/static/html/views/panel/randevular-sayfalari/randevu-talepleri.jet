@@ -192,7 +192,7 @@
                                 <td>
                                     <div class="cell-content">
                                         {{if .Message}}
-                                        <div class="primary-text truncate">{{ .Message }}</div>
+                                        <div class="primary-text truncate" title="{{ .Message }}">{{ .Message }}</div>
                                         {{else}}
                                         <span class="text-muted">-</span>
                                         {{end}}

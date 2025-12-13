@@ -12,6 +12,7 @@ class RandevuTalepleriListManager {
         this.currentSort = { column: 'created_at', order: 'desc' };
         this.currentFilters = { search: '', date: '' };
         this.currentView = 'table';
+        this.dropdownHandlers = new Map(); // Store handlers for cleanup
         
         this.init();
     }
@@ -66,12 +67,29 @@ class RandevuTalepleriListManager {
      * Setup action dropdowns
      */
     setupDropdowns() {
-        const actionTriggers = document.querySelectorAll('.action-trigger');
+        // Remove old event listeners first
+        this.removeDropdownHandlers();
+        
+        // Only setup dropdowns for the currently visible view
+        const tableView = document.getElementById('tableView');
+        const gridView = document.getElementById('gridView');
+        const isTableViewVisible = tableView && tableView.style.display !== 'none';
+        const isGridViewVisible = gridView && gridView.style.display !== 'none';
+        
+        // Get action triggers only from visible view
+        let actionTriggers = [];
+        if (isTableViewVisible) {
+            actionTriggers = Array.from(tableView.querySelectorAll('.action-trigger'));
+        } else if (isGridViewVisible) {
+            actionTriggers = Array.from(gridView.querySelectorAll('.action-trigger'));
+        }
         
         actionTriggers.forEach(trigger => {
-            trigger.addEventListener('click', (e) => {
+            const handler = (e) => {
                 e.stopPropagation();
                 const dropdown = trigger.parentNode.querySelector('.action-dropdown');
+                if (!dropdown) return;
+                
                 const isOpen = dropdown.classList.contains('show');
                 
                 // Close all dropdowns first
@@ -81,32 +99,63 @@ class RandevuTalepleriListManager {
                 if (!isOpen) {
                     dropdown.classList.add('show');
                 }
-            });
+            };
+            
+            trigger.addEventListener('click', handler);
+            this.dropdownHandlers.set(trigger, handler);
         });
 
-        // Setup delete buttons
-        const deleteButtons = document.querySelectorAll('.action-item.delete');
+        // Setup delete buttons (only from visible view)
+        let deleteButtons = [];
+        if (isTableViewVisible) {
+            deleteButtons = Array.from(tableView.querySelectorAll('.action-item.delete'));
+        } else if (isGridViewVisible) {
+            deleteButtons = Array.from(gridView.querySelectorAll('.action-item.delete'));
+        }
+        
         deleteButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
+            const handler = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const id = button.getAttribute('data-id');
                 const name = button.getAttribute('data-name');
                 this.showDeleteConfirmation(id, name);
-            });
+            };
+            
+            button.addEventListener('click', handler);
+            this.dropdownHandlers.set(button, handler);
         });
 
-        // Setup toggle status buttons
-        const toggleStatusButtons = document.querySelectorAll('.action-item.toggle-status');
+        // Setup toggle status buttons (only from visible view)
+        let toggleStatusButtons = [];
+        if (isTableViewVisible) {
+            toggleStatusButtons = Array.from(tableView.querySelectorAll('.action-item.toggle-status'));
+        } else if (isGridViewVisible) {
+            toggleStatusButtons = Array.from(gridView.querySelectorAll('.action-item.toggle-status'));
+        }
+        
         toggleStatusButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
+            const handler = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const id = button.getAttribute('data-id');
                 const status = button.getAttribute('data-status');
                 this.toggleRandevuTalepStatus(id, status, button);
-            });
+            };
+            
+            button.addEventListener('click', handler);
+            this.dropdownHandlers.set(button, handler);
         });
+    }
+
+    /**
+     * Remove all dropdown event handlers
+     */
+    removeDropdownHandlers() {
+        this.dropdownHandlers.forEach((handler, element) => {
+            element.removeEventListener('click', handler);
+        });
+        this.dropdownHandlers.clear();
     }
 
     /**
@@ -204,9 +253,10 @@ class RandevuTalepleriListManager {
                 }
                 
                 // Re-setup dropdowns for the active view
-                setTimeout(() => {
+                // Use requestAnimationFrame to ensure DOM is updated
+                requestAnimationFrame(() => {
                     this.setupDropdowns();
-                }, 100);
+                });
             });
         });
     }

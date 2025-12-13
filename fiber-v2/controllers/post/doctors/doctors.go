@@ -157,6 +157,18 @@ func AddDoctor(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			columns = append(columns, "calistigi_subeler_text")
 			values = append(values, inputs.CalistigiSubelerText)
 		}
+		if inputs.DoctorInfosHtml != "" {
+			columns = append(columns, "doctor_infos_html")
+			values = append(values, inputs.DoctorInfosHtml)
+		}
+		if inputs.DoctorInfosCss != "" {
+			columns = append(columns, "doctor_infos_css")
+			values = append(values, inputs.DoctorInfosCss)
+		}
+		if inputs.DoctorInfosJs != "" {
+			columns = append(columns, "doctor_infos_js")
+			values = append(values, inputs.DoctorInfosJs)
+		}
 
 		// Start transaction
 		err = Orm.Begin()
@@ -651,6 +663,21 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		if inputs.IsActive != inputs.OldIsActive {
 			updateDoktor.Set("is_active", inputs.IsActive)
+			SomethingSet = true
+		}
+
+		if inputs.DoctorInfosHtml != inputs.OldDoctorInfosHtml {
+			updateDoktor.Set("doctor_infos_html", inputs.DoctorInfosHtml)
+			SomethingSet = true
+		}
+
+		if inputs.DoctorInfosCss != inputs.OldDoctorInfosCss {
+			updateDoktor.Set("doctor_infos_css", inputs.DoctorInfosCss)
+			SomethingSet = true
+		}
+
+		if inputs.DoctorInfosJs != inputs.OldDoctorInfosJs {
+			updateDoktor.Set("doctor_infos_js", inputs.DoctorInfosJs)
 			SomethingSet = true
 		}
 

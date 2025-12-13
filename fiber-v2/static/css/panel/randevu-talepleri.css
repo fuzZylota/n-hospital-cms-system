@@ -406,6 +406,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 200px;
+}
+
+/* Message column specific truncation */
+.data-table td:nth-child(5) .truncate {
+    max-width: 150px;
+}
+
+.randevu-talebi-card .card-field .field-value.truncate {
+    max-width: 250px;
 }
 
 .text-muted {
