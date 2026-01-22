@@ -1,1 +1,0 @@
-Santral ve ik kullanıcılarına alakasız yan tuşlar kapatılacak

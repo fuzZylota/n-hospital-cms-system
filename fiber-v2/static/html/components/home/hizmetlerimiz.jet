@@ -36,7 +36,7 @@
                 {{ if index2 < 4 }}
                     <div class="col-xl-3 col-md-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
                         <a href="/tetkikler/{{ TedkikLink.UrlName }}" class="services-three__item services-three__item--link">
-                            <div class="services-three__item__bg" style="background-image: url(files/defaults/other/eye-examination.jpg);"></div>
+                            <div class="services-three__item__bg" style="background-image: url({{ PathOnStart }}{{ TedkikLink.CoverPath != "" ? TedkikLink.CoverPath : "files/defaults/other/eye-examination.jpg" }});"></div>
                             <div class="services-three__item__content">
                                 <img src="files/shapes/actual-eye-shape.png" alt="shape" class="services-three__item__shape">
                                 <h3 class="services-three__item__title">

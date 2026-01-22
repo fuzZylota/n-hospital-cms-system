@@ -135,7 +135,7 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 						EnableTestimonials:            lib.Bool(rows[i]["enable_testimonials"]),
 						EnableOurHistory:              lib.Bool(rows[i]["enable_our_history"]),
 						MaximumSublinksOnAMenuItem:    lib.Int64(rows[i]["maximum_sublinks_on_a_menu_item"]),
-						ShowDoctorSocialMedia:         lib.Bool(rows[0]["show_doctor_social_media"]),
+						ShowDoctorSocialMedia:         lib.Bool(rows[i]["show_doctor_social_media"]),
 						ShowDoctorAppointmentFee:      lib.Bool(rows[i]["show_doctor_appointment_fee"]),
 						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
 						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
@@ -425,6 +425,8 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 		Options.SubelerLinks = &CurrentOptions.States.SubelerLinks
 	}
 
+	fmt.Printf("maximum sublinks on a menu item: %d\n", Options.Options.MaximumSublinksOnAMenuItem)
+
 	if len(CurrentOptions.States.TibbiBirimlerLinks) == 0 {
 		GetTibbiBirimler := CurrentOptions.Database.Select([]string{"tb.tbid", "tb.name", "tb.url_name"})
 		GetTibbiBirimler.Table("tibbi_birimler tb")
@@ -462,8 +464,9 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 	}
 
 	if len(CurrentOptions.States.TedkiklerLinks) == 0 {
-		GetTedkikler := CurrentOptions.Database.Select([]string{"tid", "name", "url_name"})
-		GetTedkikler.Table("tedkikler")
+		GetTedkikler := CurrentOptions.Database.Select([]string{"tid", "name", "url_name", "m.file_path as cover_path"})
+		GetTedkikler.Table("tedkikler t")
+		GetTedkikler.LeftJoin("medias m", "t.cover_mid", "=", "m.mid")
 		GetTedkikler.Where("is_active", "=", true)
 		GetTedkikler.OrderBy("tid", "ASC")
 		GetTedkikler.Limit(int(Options.Options.MaximumSublinksOnAMenuItem))
@@ -481,9 +484,10 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 
 		for _, row := range rows {
 			TedkiklerLinks = append(TedkiklerLinks, models.TedkikLink{
-				Tid:     lib.String(row["tid"]),
-				Name:    lib.String(row["name"]),
-				UrlName: lib.String(row["url_name"]),
+				Tid:       lib.String(row["tid"]),
+				Name:      lib.String(row["name"]),
+				UrlName:   lib.String(row["url_name"]),
+				CoverPath: lib.String(row["cover_path"]),
 			})
 		}
 

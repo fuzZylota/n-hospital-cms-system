@@ -70,9 +70,10 @@ type TibbiBirimLink struct {
 }
 
 type TedkikLink struct {
-	Tid     string
-	Name    string
-	UrlName string
+	Tid       string
+	Name      string
+	UrlName   string
+	CoverPath string
 }
 
 type NewsLink struct {
