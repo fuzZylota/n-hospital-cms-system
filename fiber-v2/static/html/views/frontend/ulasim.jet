@@ -1,0 +1,73 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Ulaşım</span></li>
+        </ul>
+    </div>
+</div>
+
+{{ range index1, CssContent := CssContents }}
+    <style>
+        {{ CssContent | raw }}
+    </style>
+{{ end }}
+
+<style>
+  /* Ulaşım header: gerçek dikey ortalama */
+  .page-header .page-header__inner.ulasim-header{
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;   /* dikey ortala */
+      justify-content: center !important;/* yatay ortala */
+
+      /* Yükseklik/padding: burada kontrol et */
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      min-height: 220px !important; /* İstersen 200-260 arası oynat */
+  }
+
+  /* İç container default padding/margin yüzünden aşağı kaymasın */
+  .page-header .page-header__inner.ulasim-header > .container{
+      width: 100% !important;
+      margin: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+  }
+
+  .page-header .page-header__inner.ulasim-header .page-header__content{
+      margin: 0 !important;
+      padding: 0 !important;
+      text-align: center !important;
+  }
+
+  /* BG garanti */
+  .page-header .page-header__bg{
+      position: absolute;
+      inset: 0;
+  }
+
+  /* Alt içerik padding */
+  .service-details.section-space{
+      padding-top: 15px !important;
+      padding-bottom: 30px !important;
+  }
+</style>
+
+<section class="service-details section-space">
+    <div class="container">
+        <div class="row gutter-y-50">
+            <div class="col-12">
+                {{ range index1, HtmlContent := HtmlContents }}
+                    {{ HtmlContent | raw }}
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{{ range index1, JavascriptContent := JavascriptContents }}
+    <script>
+        {{ JavascriptContent | raw }}
+    </script>
+{{ end }}
