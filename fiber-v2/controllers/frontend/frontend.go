@@ -2,7 +2,6 @@ package frontend
 
 import (
 	"database"
-	"fmt"
 	"log"
 	"models"
 	"strconv"
