@@ -7,6 +7,18 @@
     {{ FontRaw := Options.Options.FontFamily != "" ? Options.Options.FontFamily : "Poppins" }}
     {{ FontSafe := contains("|Poppins|Roboto|Open Sans|Lato|Montserrat|Manrope|Inter|Oswald|Noto Sans|Raleway|Ubuntu|Playfair Display|Work Sans|Outfit|", "|" + FontRaw + "|") ? FontRaw : "Poppins" }}
 
+    {{ if FontSafe == "Manrope" }}
+        <!-- Manrope'un latin + latin-ext (Turkce karakterler icin) dosyalari
+             400/500/600/700 agirliklarinin hepsinde ayni degisken font
+             dosyasina isaret ediyor (fonts.googleapis.com/css2 yanitindan
+             dogrulandi) - bu yuzden tek bir preload cifti tum agirliklari
+             kapsiyor. Sadece FontSafe == "Manrope" oldugunda calisiyor;
+             admin panelden font degistirilirse bu preload'lar kendiliginden
+             devre disi kalir (yanlis font icin bosa preload yapilmaz). -->
+        <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSg.woff2" crossorigin>
+        <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggmxSuXd.woff2" crossorigin>
+    {{ end }}
+
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family={{ if FontSafe == "Open Sans" }}Open+Sans{{ else if FontSafe == "Noto Sans" }}Noto+Sans{{ else if FontSafe == "Playfair Display" }}Playfair+Display{{ else if FontSafe == "Work Sans" }}Work+Sans{{ else }}{{ FontSafe }}{{ end }}:wght@400;500;600;700{{ if FontSafe != "Manrope" }}&family=Manrope:wght@200..800{{ end }}&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ if FontSafe == "Open Sans" }}Open+Sans{{ else if FontSafe == "Noto Sans" }}Noto+Sans{{ else if FontSafe == "Playfair Display" }}Playfair+Display{{ else if FontSafe == "Work Sans" }}Work+Sans{{ else }}{{ FontSafe }}{{ end }}:wght@400;500;600;700{{ if FontSafe != "Manrope" }}&family=Manrope:wght@200..800{{ end }}&display=swap">
     <style>
