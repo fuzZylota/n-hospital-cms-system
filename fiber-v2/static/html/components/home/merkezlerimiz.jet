@@ -27,7 +27,7 @@
                         <a href="/merkezlerimiz/{{ Sube.UrlName }}" class="home-merkez-card">
                             <div class="home-merkez-card__img">
                                 {{ if Sube.MediaPath != "" }}
-                                    <img src="{{ Sube.MediaPath }}" alt="{{ Sube.Name }}" loading="lazy" decoding="async">
+                                    <img src="{{ Sube.MediaPath }}" alt="{{ Sube.Name }}" width="500" height="667" loading="lazy" decoding="async">
                                 {{ else }}
                                     <div class="home-merkez-card__no-img">
                                         <i class="fas fa-hospital"></i>
