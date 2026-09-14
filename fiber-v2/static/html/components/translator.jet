@@ -1,17 +1,147 @@
 <div class="nv-lang">
     <button type="button" class="nv-lang-btn" aria-expanded="false" aria-label="Dil seçimi">
-        <span class="nv-lang-label" aria-hidden="true"><img src="{{ PathOnStart }}assets/flags/tr.svg" alt="" class="nv-lang-flag" data-flag></span>
+        <span class="nv-lang-label" aria-hidden="true"><img src="{{ PathOnStart }}assets/flags/tr.svg" alt="" width="20" height="14" class="nv-lang-flag" data-flag></span>
         <i class="fas fa-chevron-down"></i>
     </button>
 
     <div class="nv-lang-menu" hidden>
-        <button type="button" class="nv-lang-item" data-lang="tr" data-label="{{ PathOnStart }}assets/flags/tr.svg" aria-label="Türkçe"><img src="{{ PathOnStart }}assets/flags/tr.svg" alt="Türkçe" class="nv-lang-flag"></button>
-        <button type="button" class="nv-lang-item" data-lang="en" data-label="{{ PathOnStart }}assets/flags/gb.svg" aria-label="English"><img src="{{ PathOnStart }}assets/flags/gb.svg" alt="English" class="nv-lang-flag"></button>
-        <button type="button" class="nv-lang-item" data-lang="ru" data-label="{{ PathOnStart }}assets/flags/ru.svg" aria-label="Русский"><img src="{{ PathOnStart }}assets/flags/ru.svg" alt="Русский" class="nv-lang-flag"></button>
-        <button type="button" class="nv-lang-item" data-lang="az" data-label="{{ PathOnStart }}assets/flags/az.svg" aria-label="Azərbaycan"><img src="{{ PathOnStart }}assets/flags/az.svg" alt="Azərbaycan" class="nv-lang-flag"></button>
-        <button type="button" class="nv-lang-item" data-lang="de" data-label="{{ PathOnStart }}assets/flags/de.svg" aria-label="Deutsch"><img src="{{ PathOnStart }}assets/flags/de.svg" alt="Deutsch" class="nv-lang-flag"></button>
+        <button type="button" class="nv-lang-item" data-lang="tr" data-label="{{ PathOnStart }}assets/flags/tr.svg" aria-label="Türkçe"><img src="{{ PathOnStart }}assets/flags/tr.svg" alt="Türkçe" width="20" height="14" class="nv-lang-flag"></button>
+        <button type="button" class="nv-lang-item" data-lang="en" data-label="{{ PathOnStart }}assets/flags/gb.svg" aria-label="English"><img src="{{ PathOnStart }}assets/flags/gb.svg" alt="English" width="20" height="14" class="nv-lang-flag"></button>
+        <button type="button" class="nv-lang-item" data-lang="ru" data-label="{{ PathOnStart }}assets/flags/ru.svg" aria-label="Русский"><img src="{{ PathOnStart }}assets/flags/ru.svg" alt="Русский" width="20" height="14" class="nv-lang-flag"></button>
+        <button type="button" class="nv-lang-item" data-lang="az" data-label="{{ PathOnStart }}assets/flags/az.svg" aria-label="Azərbaycan"><img src="{{ PathOnStart }}assets/flags/az.svg" alt="Azərbaycan" width="20" height="14" class="nv-lang-flag"></button>
+        <button type="button" class="nv-lang-item" data-lang="de" data-label="{{ PathOnStart }}assets/flags/de.svg" aria-label="Deutsch"><img src="{{ PathOnStart }}assets/flags/de.svg" alt="Deutsch" width="20" height="14" class="nv-lang-flag"></button>
     </div>
 </div>
+
+
+<style>
+.nv-lang {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    z-index: 20;
+}
+
+.nv-lang-btn {
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid rgba(255,255,255,.42);
+    border-radius: 999px;
+    background: #0b2f63;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: none;
+    transition: border-color .2s ease, transform .2s ease;
+}
+
+.nv-lang-btn:hover {
+    border-color: rgba(255,255,255,.75);
+}
+
+.nv-lang-btn i {
+    font-size: 12px;
+    transition: transform .2s ease;
+    pointer-events: none;
+}
+
+.nv-lang-btn.is-open i {
+    transform: rotate(180deg);
+}
+
+.nv-lang-label {
+    display: inline-flex;
+    align-items: center;
+    min-width: 18px;
+}
+
+.nv-lang-flag {
+    display: block;
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .25);
+}
+
+.nv-lang-item .nv-lang-flag {
+    margin: 0 auto;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, .12);
+}
+
+.nv-lang-menu {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .18);
+    padding: 6px 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
+    overflow: hidden;
+}
+
+.nv-lang-menu.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.nv-lang-item {
+    width: 100%;
+    border: 0;
+    background: #fff;
+    color: #1f2937;
+    padding: 10px 14px;
+    text-align: center;
+    cursor: pointer;
+    font: inherit;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1;
+    display: block;
+}
+
+.nv-lang-item:hover {
+    background: #f8fafc;
+}
+
+.topbar-one,
+.topbar-one__inner,
+.topbar-one__right,
+.header-four,
+.main-header,
+.main-header__inner,
+.sticky-header,
+.sticky-header--cloned {
+    overflow: visible !important;
+}
+
+@media (max-width: 991px) {
+    .nv-lang-btn {
+        height: 38px;
+        padding: 0 13px;
+        font-size: 16px;
+    }
+
+    .nv-lang-item {
+        padding: 12px 16px;
+    }
+}
+</style>
 
 <div id="google_translate_element" style="display:none"></div>
 
@@ -185,133 +315,5 @@ function nvSetLang(lang) {
 })();
 </script>
 
-<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script async src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<style>
-.nv-lang {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    z-index: 20;
-}
-
-.nv-lang-btn {
-    height: 34px;
-    padding: 0 12px;
-    border: 1px solid rgba(255,255,255,.42);
-    border-radius: 999px;
-    background: #0b2f63;
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    font: inherit;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1;
-    box-shadow: none;
-    transition: border-color .2s ease, transform .2s ease;
-}
-
-.nv-lang-btn:hover {
-    border-color: rgba(255,255,255,.75);
-}
-
-.nv-lang-btn i {
-    font-size: 12px;
-    transition: transform .2s ease;
-    pointer-events: none;
-}
-
-.nv-lang-btn.is-open i {
-    transform: rotate(180deg);
-}
-
-.nv-lang-label {
-    display: inline-flex;
-    align-items: center;
-    min-width: 18px;
-}
-
-.nv-lang-flag {
-    display: block;
-    width: 20px;
-    height: 14px;
-    object-fit: cover;
-    border-radius: 2px;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, .25);
-}
-
-.nv-lang-item .nv-lang-flag {
-    margin: 0 auto;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, .12);
-}
-
-.nv-lang-menu {
-    position: fixed;
-    top: -9999px;
-    left: -9999px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, .18);
-    padding: 6px 0;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-4px);
-    transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
-    overflow: hidden;
-}
-
-.nv-lang-menu.is-open {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-}
-
-.nv-lang-item {
-    width: 100%;
-    border: 0;
-    background: #fff;
-    color: #1f2937;
-    padding: 10px 14px;
-    text-align: center;
-    cursor: pointer;
-    font: inherit;
-    font-size: 19px;
-    font-weight: 600;
-    line-height: 1;
-    display: block;
-}
-
-.nv-lang-item:hover {
-    background: #f8fafc;
-}
-
-.topbar-one,
-.topbar-one__inner,
-.topbar-one__right,
-.header-four,
-.main-header,
-.main-header__inner,
-.sticky-header,
-.sticky-header--cloned {
-    overflow: visible !important;
-}
-
-@media (max-width: 991px) {
-    .nv-lang-btn {
-        height: 38px;
-        padding: 0 13px;
-        font-size: 16px;
-    }
-
-    .nv-lang-item {
-        padding: 12px 16px;
-    }
-}
-</style>
