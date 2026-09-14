@@ -57,6 +57,27 @@
         </div>
     </div>
 </section>
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script>
+/* Bu form, banner altinda dogrudan gorunur - hizli randevu panelinin
+ * aksine kullanici etkilesimine kadar ertelenemez (bkz. fast-randevu.jet
+ * / dd38219: recaptcha/api.js artik panel acilana kadar yuklenmiyor).
+ * Bu strip formu o script'in yan etkisine (grecaptcha global'inin
+ * zaten var olmasi) sessizce bagimliydi; panel hic acilmazsa grecaptcha
+ * hicbir zaman tanimlanmiyor ve asagidaki polling sonsuza kadar bekliyordu.
+ * window.fastRecaptchaScriptInjected bayragini fast-randevu.jet ile
+ * paylasarak script'in iki kez yuklenmesini onluyoruz. */
+(function(){
+    if (window.fastRecaptchaScriptInjected) return;
+    var s = document.createElement('script');
+    s.src = 'https://www.google.com/recaptcha/api.js';
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+    window.fastRecaptchaScriptInjected = true;
+})();
+</script>
+{{ end }}
 <script>
 var stripRecaptchaToken = '';
 window.onStripRecaptchaVerified = function(token) {
