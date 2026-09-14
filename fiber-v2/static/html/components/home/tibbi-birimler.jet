@@ -5,7 +5,7 @@
             <a href="/tibbi-birimler" class="home-all-doctors-btn">Tümünü Gör</a>
         </div>
         <div style="position:relative; padding:0 44px;">
-            <button class="team-three__nav-btn team-three__nav-btn--prev" id="tıbbıPrev"><i class="icon-arrow-left"></i></button>
+            <button class="team-three__nav-btn team-three__nav-btn--prev" id="tıbbıPrev" aria-label="Önceki tıbbi birimler"><i class="icon-arrow-left" aria-hidden="true"></i></button>
             <div class="owl-carousel owl-theme mediox-owl__carousel" id="tibbiCarousel" data-owl-options='{
                 "items": 4,
                 "margin": 20,
@@ -42,7 +42,7 @@
                     </div>
                 {{ end }}
             </div>
-            <button class="team-three__nav-btn team-three__nav-btn--next" id="tıbbıNext"><i class="icon-arrow-right"></i></button>
+            <button class="team-three__nav-btn team-three__nav-btn--next" id="tıbbıNext" aria-label="Sonraki tıbbi birimler"><i class="icon-arrow-right" aria-hidden="true"></i></button>
         </div>
     </div>
 </section>
