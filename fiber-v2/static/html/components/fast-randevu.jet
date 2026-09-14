@@ -58,7 +58,10 @@
 
 {{ if Options.Options.RecaptchaSiteKey != "" }}
 <script>
-(function() {
+/* Hızlı randevu paneli varsayılan olarak kapalı — çoğu ziyaretçi hiç
+ * açmıyor. reCAPTCHA'yı (yaklaşık 1 MB) sayfa her yüklendiğinde değil,
+ * panel ilk açıldığında yükler (bkz. fast-randevu.js setFastRandevuOpenState). */
+window.loadFastRecaptchaScript = function() {
     if (window.fastRecaptchaScriptInjected) {
         return;
     }
@@ -73,7 +76,7 @@
     recaptchaScript.defer = true;
     document.head.appendChild(recaptchaScript);
     window.fastRecaptchaScriptInjected = true;
-})();
+};
 </script>
 {{ end }}
 

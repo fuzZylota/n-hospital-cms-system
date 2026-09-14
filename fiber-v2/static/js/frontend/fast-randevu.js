@@ -98,6 +98,9 @@ function setFastRandevuOpenState(isOpen) {
     if (isOpen) {
         container.classList.add('is-open');
         loadSubeler();
+        if (typeof window.loadFastRecaptchaScript === 'function') {
+            window.loadFastRecaptchaScript();
+        }
     } else {
         container.classList.remove('is-open');
         // Formu ve feedback'i sıfırla
