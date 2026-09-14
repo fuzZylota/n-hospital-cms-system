@@ -92,10 +92,8 @@
  *   Slick: Kurulumdan once slide'lar sira disi blok eleman; hepsi
  *          alt alta yigiliyor. Kurulumda tek slide'a cokuyor.
  *
- * Cozum ikisinde de ayni: kurulumdan once yalnizca ilk ogeyi goster.
- * Boylece rezerve edilen yukseklik, kurulum sonrasi yukseklikle ayni
- * olur. Yukseklik sabit sayiyla tahmin edilmiyor, tarayici ilk ogeyi
- * olcerek kendisi buluyor.
+ * Cozum: kurulumdan once, kurulum SONRASI duzenin aynisini kur.
+ * Boylece rezerve edilen yukseklik de genislik de bastan dogru olur.
  *
  * Kurulum tamamlaninca .owl-loaded / .slick-initialized geliyor ve
  * buradaki kurallar kendiliginden devre disi kaliyor.
@@ -103,18 +101,72 @@
 
 /* ---- Owl ---- */
 
-/* Kurulum oncesi gizleme kaldirildi; yer tutabilmesi icin gorunur olmali. */
+/*
+ * Owl'un oge genisligi olcuyle dogrulandi (375 / 800 / 1200 px, uc
+ * karusel, iki farkli items degeri):
+ *
+ *     ogeGenislik = (kapsayici - margin * (items - 1)) / items
+ *
+ * Bu, gap:margin olan bir flex satirinin matematiginin birebir aynisi.
+ * Asagidaki kurallar her kirilimda o duzeni kuruyor, yani kurulumdan
+ * once ve sonra ayni genislik ve ayni yukseklik olusuyor.
+ *
+ * Degerler bilesenlerdeki data-owl-options ile eslesmeli:
+ *   doctorCarousel / tibbiCarousel : 0>2/10  768>3/16  992>4/20
+ *   merkezCarousel                 : 0>2/10  768>3/16  992>3/20
+ */
+
 .owl-carousel:not(.owl-loaded) {
-    display: block;
+    display: flex;
+    overflow: hidden;
 }
 
-/* Kurulum oncesi yalnizca ilk oge akista kalir. */
+/* Taninmayan karuseller icin guvenli varsayilan: tek oge, tam genislik. */
 .owl-carousel:not(.owl-loaded) > .item {
-    display: none;
+    flex: 0 0 100%;
 }
 
-.owl-carousel:not(.owl-loaded) > .item:first-child {
-    display: block;
+#doctorCarousel:not(.owl-loaded),
+#tibbiCarousel:not(.owl-loaded),
+#merkezCarousel:not(.owl-loaded) {
+    gap: 10px;
+}
+
+#doctorCarousel:not(.owl-loaded) > .item,
+#tibbiCarousel:not(.owl-loaded) > .item,
+#merkezCarousel:not(.owl-loaded) > .item {
+    flex: 0 0 calc((100% - 10px) / 2);
+}
+
+@media (min-width: 768px) {
+    #doctorCarousel:not(.owl-loaded),
+    #tibbiCarousel:not(.owl-loaded),
+    #merkezCarousel:not(.owl-loaded) {
+        gap: 16px;
+    }
+
+    #doctorCarousel:not(.owl-loaded) > .item,
+    #tibbiCarousel:not(.owl-loaded) > .item,
+    #merkezCarousel:not(.owl-loaded) > .item {
+        flex: 0 0 calc((100% - 32px) / 3);
+    }
+}
+
+@media (min-width: 992px) {
+    #doctorCarousel:not(.owl-loaded),
+    #tibbiCarousel:not(.owl-loaded),
+    #merkezCarousel:not(.owl-loaded) {
+        gap: 20px;
+    }
+
+    #doctorCarousel:not(.owl-loaded) > .item,
+    #tibbiCarousel:not(.owl-loaded) > .item {
+        flex: 0 0 calc((100% - 60px) / 4);
+    }
+
+    #merkezCarousel:not(.owl-loaded) > .item {
+        flex: 0 0 calc((100% - 40px) / 3);
+    }
 }
 
 /* ---- Slick (anasayfa banner) ---- */
@@ -125,8 +177,9 @@
 
 /*
  * JS kapaliysa veya kurulum hic olmazsa: Owl kendi display:none'ini
- * geri aldigimiz icin ilk oge gorunur kalir, Slick'te ilk slide
- * gorunur kalir. Her iki durumda da sayfa kullanilabilir durumda.
+ * geri aldigimiz icin kartlar yatay bir satirda gorunur kalir
+ * (overflow:hidden ile kirpilarak), Slick'te ilk slide gorunur kalir.
+ * Her iki durumda da sayfa kullanilabilir durumda.
  */
     </style>
     <style>
