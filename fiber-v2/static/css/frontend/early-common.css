@@ -1,3 +1,232 @@
+/* ---- fallback.css ---- */
+.fallback {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--theme-primary-color) 8%, transparent), transparent 35%),
+                radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--theme-secondary-color) 8%, transparent), transparent 30%),
+                color-mix(in srgb, var(--theme-background-color) 95%, #000);
+    color: var(--theme-text-color);
+    padding: 40px 16px 80px;
+    overflow: hidden;
+    font-family: var(--theme-font-family);
+}
+
+.fallback__bg-shape {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--theme-primary-color) 6%, transparent), color-mix(in srgb, var(--theme-secondary-color) 5%, transparent));
+    mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.65), transparent 60%);
+    pointer-events: none;
+}
+
+.fallback__content {
+    position: relative;
+    max-width: 640px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e8eaf0;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.12);
+    border-radius: 16px;
+    padding: 32px 28px 36px;
+    backdrop-filter: blur(10px);
+}
+
+.fallback__logo img {
+    height: 64px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--theme-primary-color) 25%, rgba(0, 0, 0, 0.25)));
+}
+
+.fallback__eyebrow {
+    margin: 18px 0 8px;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #df0024;
+}
+
+.fallback__title {
+    margin: 0 0 12px;
+    font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.2;
+    color: var(--theme-primary-color, #0A2241);
+}
+
+.fallback__text {
+    margin: 0 0 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.fallback__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.btn-primary {
+    background: var(--theme-background-color);
+    color: var(--theme-primary-color);
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--theme-background-color) 30%, rgba(0, 0, 0, 0.25));
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 38px color-mix(in srgb, var(--theme-background-color) 40%, rgba(0, 0, 0, 0.35));
+    background: color-mix(in srgb, var(--theme-background-color) 95%, var(--theme-secondary-color));
+}
+
+.btn-secondary {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--theme-background-color) 30%, transparent);
+    color: var(--theme-background-color);
+}
+
+.btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--theme-background-color) 50%, transparent);
+    background: color-mix(in srgb, var(--theme-background-color) 10%, transparent);
+}
+
+@media (max-width: 480px) {
+    .fallback__content {
+        padding: 28px 22px 32px;
+    }
+
+    .fallback__logo img {
+        height: 56px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+
+/* ── Compact Page Header (Global) ── */
+.compact-page-header {
+    margin-top: 0;
+    background: #f4f6fb;
+    padding: 0;
+    border-bottom: 1px solid #e8eaf0;
+    position: relative;
+    z-index: 10;
+    height: 48px;
+    display: flex;
+    align-items: center;
+}
+.compact-page-header .container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.compact-breadcrumb {
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    font-size: 16px !important;
+    color: #555;
+    list-style: none !important;
+    padding: 0 !important; margin: 0 !important;
+    flex-wrap: wrap;
+    visibility: visible !important;
+    opacity: 1 !important;
+    letter-spacing: 0.15px;
+}
+.compact-breadcrumb li {
+    display: flex !important;
+    align-items: center;
+    visibility: visible !important;
+    color: #555;
+}
+.compact-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.18s ease;
+}
+.compact-breadcrumb a i {
+    font-size: 12px;
+    opacity: 0.75;
+    transition: opacity 0.18s ease;
+}
+.compact-breadcrumb a:hover { color: #1a2b5e; }
+.compact-breadcrumb a:hover i { opacity: 1; }
+.compact-breadcrumb li + li::before { content: "›"; margin: 0 8px; color: #999; font-weight: 400; }
+.compact-breadcrumb .current { color: #1a2b5e; font-weight: 600; }
+.compact-breadcrumb span { color: #1a2b5e; font-weight: 600; }
+
+/* Mobilde uzun başlıklar alt satıra kaymasın - son öge tek satırda üç nokta ile kısalsın */
+@media (max-width: 767px) {
+    .compact-page-header .container {
+        overflow: hidden;
+    }
+    .compact-breadcrumb {
+        flex-wrap: nowrap !important;
+        overflow: hidden;
+        max-width: 100%;
+    }
+    .compact-breadcrumb li {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+    .compact-breadcrumb li:last-child {
+        flex-shrink: 1;
+        overflow: hidden;
+    }
+    .compact-breadcrumb li:last-child .current,
+    .compact-breadcrumb li:last-child span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ===== Fallback Buton Renk Düzeltme ===== */
+.fallback__actions .btn-primary {
+    background: var(--theme-primary-color, #0A2241) !important;
+    color: #fff !important;
+    border-color: var(--theme-primary-color, #0A2241) !important;
+}
+.fallback__actions .btn-primary:hover {
+    background: #df0024 !important;
+    border-color: #df0024 !important;
+}
+.fallback__actions .btn-secondary {
+    background: transparent !important;
+    color: var(--theme-primary-color, #0A2241) !important;
+    border-color: var(--theme-primary-color, #0A2241) !important;
+}
+.fallback__actions .btn-secondary:hover {
+    background: var(--theme-primary-color, #0A2241) !important;
+    color: #fff !important;
+}
+/* ===== /Fallback Buton Renk Düzeltme ===== */
+
+/* ---- cookie-consent.css ---- */
 /* Cookie consent banner + preferences modal.
    Consolidated from 3 overlapping/duplicated <style> blocks that used to live
    inline in main.jet (the last one used !important to patch the first two).

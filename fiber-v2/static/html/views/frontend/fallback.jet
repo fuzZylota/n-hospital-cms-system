@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fallback.css">
-
 <section class="fallback">
     <div class="fallback__bg-shape"></div>
     <div class="fallback__content">

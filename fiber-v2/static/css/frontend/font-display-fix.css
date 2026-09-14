@@ -1,0 +1,51 @@
+/* font-display-fix.css
+ *
+ * Font Awesome (assets/fontawesome/css/all.min.css) ve mediox-icons
+ * (assets/mediox-icons/style.css) @font-face kurallarini font-display:
+ * block ile tanimliyor. block, yazi tipi inene kadar metni gorunmez
+ * birakiyor (FOIT) — PageSpeed bunu "yazi tipi gorunumu" denetiminde
+ * isaretliyor.
+ *
+ * /static/assets/ tema klasorune dokunmadan bunu duzeltmek icin ayni
+ * font-family / weight / style / src ile ayni @font-face'leri burada
+ * tekrar tanimlayip yalnizca font-display: swap yapiyoruz. src URL'leri
+ * birebir ayni oldugu icin tarayici ek bir indirme yapmiyor, yalnizca
+ * hangi font-display davranisini uygulayacagini bu sonraki tanima gore
+ * guncelliyor (CSS font-face eslesmesinde sonraki tanim kazanir).
+ */
+
+@font-face {
+  font-family: "Font Awesome 5 Brands";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fontawesome/webfonts/fa-brands-400.woff2") format("woff2"),
+       url("../../assets/fontawesome/webfonts/fa-brands-400.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fontawesome/webfonts/fa-regular-400.woff2") format("woff2"),
+       url("../../assets/fontawesome/webfonts/fa-regular-400.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("../../assets/fontawesome/webfonts/fa-solid-900.woff2") format("woff2"),
+       url("../../assets/fontawesome/webfonts/fa-solid-900.woff") format("woff");
+}
+
+@font-face {
+  font-family: "icomoon";
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url("../../assets/mediox-icons/fonts/icomoon.woff?e78ee9") format("woff"),
+       url("../../assets/mediox-icons/fonts/icomoon.ttf?e78ee9") format("truetype");
+}

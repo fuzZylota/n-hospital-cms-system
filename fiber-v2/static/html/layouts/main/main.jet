@@ -37,6 +37,7 @@
     <noscript><link rel="stylesheet" href="{{ PathOnStart }}assets/animate/animate.min.css" /></noscript>
     <link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" />
     <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/font-display-fix.css" />
 
     {{ if Route == "/randevu" }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-ui/jquery-ui.css" />
@@ -44,16 +45,20 @@
     {{ end }}
 
     {{ if Route == "/" }}
-        <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
-        <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
-        <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
+        <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" media="print" onload="this.media='all'" />
+        <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" media="print" onload="this.media='all'" />
+        <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" media="print" onload="this.media='all'" />
+        <noscript>
+            <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
+            <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
+            <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
+        </noscript>
     {{ end }}
 
     <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox.css" />
     <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-dark.css" />
     <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-landing.css" />
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fallback.css" />
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/cookie-consent.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/early-common.css" />
 
     {{ if Route == "/" }}
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/transparent-bg-on-homepage.css">
