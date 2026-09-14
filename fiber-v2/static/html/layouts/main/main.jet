@@ -76,6 +76,7 @@
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header-topbar.css?v=7">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doctor-cards.css?v=3">
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/cls-guard.css?v=1">
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
     {{ end }}
