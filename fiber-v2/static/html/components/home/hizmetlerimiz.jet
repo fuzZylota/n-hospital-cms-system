@@ -37,7 +37,7 @@
                         <a href="/tetkikler/{{ TedkikLink.UrlName }}" class="services-three__item services-three__item--link">
                             <div class="services-three__item__bg" style="background-image: url({{ PathOnStart }}{{ TedkikLink.CoverPath != "" ? TedkikLink.CoverPath : "files/defaults/other/eye-examination.jpg" }});"></div>
                             <div class="services-three__item__content">
-                                <img src="files/shapes/actual-eye-shape.png" alt="shape" class="services-three__item__shape">
+                                <img src="files/shapes/actual-eye-shape.png" alt="shape" class="services-three__item__shape" loading="lazy">
                                 <h3 class="services-three__item__title">
                                     {{ TedkikLink.Name }}
                                 </h3><!-- /.services-three__item__title -->
@@ -80,7 +80,7 @@
                                         <img src="{{ TibbiBirim.CoverPath }}"
                                              alt="{{ TibbiBirim.CoverAltText != "" ? TibbiBirim.CoverAltText : TibbiBirim.Name }}"
                                              title="{{ TibbiBirim.CoverTitle != "" ? TibbiBirim.CoverTitle : TibbiBirim.Name }}"
-                                             class="service-card-two__image">
+                                             class="service-card-two__image" loading="lazy">
                                     {{ end }}
                                 </a>
                                 <h3 class="service-card-two__title"><a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a></h3><!-- /.service-card-two__title -->

@@ -1,0 +1,85 @@
+<script>
+(function(){
+    var btn = document.getElementById('nvMobileSearchBtn');
+    var bar = document.getElementById('nvMobileSearchBar');
+    var input = document.getElementById('nvMobileSearchInput');
+    var icon = btn ? btn.querySelector('i') : null;
+    var open = false;
+
+    function positionBar(){
+        var headerFour = document.querySelector('.header-four');
+        if(headerFour && bar){
+            bar.style.top = headerFour.getBoundingClientRect().bottom + 'px';
+        }
+    }
+
+    if(btn && bar){
+        btn.addEventListener('click', function(e){
+            e.stopPropagation();
+            positionBar();
+            if(!open){
+                bar.style.visibility = 'visible';
+                bar.style.opacity = '1';
+                if(icon){ icon.className = 'icon-close'; }
+                setTimeout(function(){ if(input) input.focus(); }, 200);
+                open = true;
+            } else {
+                bar.style.visibility = 'hidden';
+                bar.style.opacity = '0';
+                if(icon){ icon.className = 'icon-search'; }
+                open = false;
+            }
+        });
+        document.addEventListener('click', function(e){
+            if(open && !bar.contains(e.target) && !btn.contains(e.target)){
+                bar.style.visibility = 'hidden';
+                bar.style.opacity = '0';
+                if(icon){ icon.className = 'icon-search'; }
+                open = false;
+            }
+        });
+    }
+})();
+
+(function(){
+    // Mobil menü panelini gerçek header yüksekliğine göre konumlar
+    // ve panel açıkken arka plan kaydırmasını kilitler.
+    function positionMobileNav(){
+        var wrapper = document.querySelector('.mobile-nav__wrapper');
+        var headerFour = document.querySelector('.header-four');
+        if(wrapper && headerFour){
+            wrapper.style.setProperty('top', headerFour.getBoundingClientRect().bottom + 'px', 'important');
+        }
+    }
+
+    var togglers = document.querySelectorAll('.mobile-nav__toggler');
+    togglers.forEach(function(el){
+        el.addEventListener('click', function(){
+            positionMobileNav();
+            document.body.classList.toggle('mobile-nav-scroll-lock');
+        });
+    });
+
+    window.addEventListener('resize', function(){
+        if(document.querySelector('.mobile-nav__wrapper.expanded')){
+            positionMobileNav();
+        }
+    });
+})();
+
+(function(){
+    // mediox.js'in "current" (aktif menü) tespiti, URL'nin son parçası boşsa
+    // (anasayfa gibi trailing-slash bağlantılarda) hatalı şekilde menüdeki
+    // İLK öğeyi (Kurumsal) her zaman aktif gösteriyor. Bu düzeltme, gerçek
+    // bir eşleşme olmayan bu durumda "current" sınıfını temizler.
+    window.addEventListener('load', function(){
+        var fileName = window.location.href.split('/').reverse()[0];
+        if (fileName === '') {
+            document.querySelectorAll('.main-menu__list, .mobile-nav__container .main-menu__list').forEach(function(list){
+                var firstLi = list.children[0];
+                if (firstLi) firstLi.classList.remove('current');
+            });
+        }
+    });
+})();
+</script>

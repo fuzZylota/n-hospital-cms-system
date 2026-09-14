@@ -118,3 +118,21 @@ function drTab(btn, id) {
     document.getElementById("dr-" + id).classList.add("active");
 }
 </script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Physician",
+    "name": "{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}",
+    "url": "https://nivgoz.com/doktorlarimiz/{{ Doktor.UrlName }}",
+    {{ if Doktor.PhotoPath != "" }}
+    "image": "https://nivgoz.com/{{ Doktor.PhotoPath }}",
+    {{ end }}
+    "medicalSpecialty": "Ophthalmology",
+    "memberOf": {
+        "@type": "MedicalOrganization",
+        "name": "Nivgöz Göz Sağlığı Merkezi",
+        "url": "https://nivgoz.com"
+    }
+}
+</script>

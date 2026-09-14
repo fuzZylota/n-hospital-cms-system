@@ -3,6 +3,7 @@
 {{ include "../../components/home/popup" }}
 
 {{ include "../../components/home/banner" }}
+{{ include "../../components/frontend-header-init" }}
 {{ include "../../components/frontend-topbar-search" }}
 {{ include "../../components/home/hizli-randevu-strip" }}
 

@@ -2,7 +2,7 @@ package anlasmali_kurumlar
 
 import (
 	"database"
-	"fmt"
+	
 	lib "lib"
 	"log"
 	"models"
@@ -626,7 +626,7 @@ func UpdateAnlasmaliKurumPicture(states *models.AppState, utilities *models.Util
 			})
 		}
 
-		fmt.Printf("request came!\n")
+
 
 		AnlasmaliKurumId := c.Params("akid")
 		anlasmaliKurumMediaAltText := c.FormValue("logo_alt_text")
@@ -658,7 +658,7 @@ func UpdateAnlasmaliKurumPicture(states *models.AppState, utilities *models.Util
 
 		anlasmaliKurumMediaInput, err := c.FormFile("logo_path")
 		if err == nil {
-			fmt.Printf("file upload case\n")
+
 			// File upload case
 			err = Orm.Begin()
 			if err != nil {

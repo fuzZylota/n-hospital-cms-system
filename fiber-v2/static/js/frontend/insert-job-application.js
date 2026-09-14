@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return modal;
     };
 
+    let modalA11yCleanup = null;
+
     // Modal'ı göster
     const showModal = () => {
         let modal = document.getElementById('job-application-modal');
@@ -43,15 +45,40 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Close button event
         const closeBtn = modal.querySelector('.randevu-modal__close');
+        closeBtn.removeEventListener('click', hideModal);
         closeBtn.addEventListener('click', hideModal);
         
         // Overlay click to close
         const overlay = modal.querySelector('.randevu-modal__overlay');
-        overlay.addEventListener('click', (e) => {
+        overlay.onclick = (e) => {
             if (e.target === overlay) {
                 hideModal();
             }
-        });
+        };
+
+        // Erişilebilirlik (A11y) İyileştirmeleri
+        if (modalA11yCleanup) modalA11yCleanup();
+        
+        const previousFocus = document.activeElement;
+        const escHandler = (e) => {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                hideModal();
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+        
+        // Modal açıldığında ilk interaktif elemana focus ol
+        setTimeout(() => {
+            const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusable) focusable.focus();
+        }, 50);
+        
+        modalA11yCleanup = () => {
+            document.removeEventListener('keydown', escHandler);
+            if (previousFocus && typeof previousFocus.focus === 'function') {
+                previousFocus.focus();
+            }
+        };
     };
 
     // Modal'ı gizle
@@ -60,6 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = '';
+            
+            if (modalA11yCleanup) {
+                modalA11yCleanup();
+                modalA11yCleanup = null;
+            }
         }
     };
 

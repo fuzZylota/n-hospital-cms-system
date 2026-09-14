@@ -6,11 +6,15 @@ import (
 	lib "lib"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	env "github.com/joho/godotenv"
 
 	wsb "github.com/Necoo33/fiber-ws-broadcaster"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	jet "github.com/gofiber/template/jet/v2"
 
 	"baserouter"
@@ -68,7 +72,7 @@ func main() {
 	server := fiber.New(fiber.Config{
 		Views:       htmlFiles,
 		ViewsLayout: "layouts/main",
-		BodyLimit:   1024 * 1024 * 1024 * 10, // 10GB body limit
+		BodyLimit:   50 * 1024 * 1024,
 	})
 
 	// static files and base routes for static files
@@ -79,6 +83,18 @@ func main() {
 	server.Static("/files", "./static/files")
 
 	log.Printf("Static files loaded")
+
+	// Rate limiting: IP başına dakikada 100 istek
+	server.Use(limiter.New(limiter.Config{
+		Max:        100,
+		Expiration: 1 * time.Minute,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"status":  429,
+				"message": "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+			})
+		},
+	}))
 
 	server.Use(lib.JWTMiddleware())
 	server.Use(lib.HandleUserBanning(&Db))
@@ -117,5 +133,20 @@ func main() {
 
 	defer Db.Close()
 
-	server.Listen(":" + os.Getenv("PORT"))
+	// Graceful shutdown
+	go func() {
+		if err := server.Listen(":" + os.Getenv("PORT")); err != nil {
+			log.Fatalf("Sunucu başlatılamadı: %v", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Printf("Sunucu kapatılıyor...")
+	if err := server.Shutdown(); err != nil {
+		log.Fatalf("Sunucu kapatılırken hata: %v", err)
+	}
+	log.Printf("Sunucu başarıyla kapatıldı.")
 }

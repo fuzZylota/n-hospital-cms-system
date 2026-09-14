@@ -16,12 +16,17 @@ import (
 	"tedkikler"
 	"tibbibirimler"
 	"users"
+	lib "lib"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func FrontendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
 	routes := server.Group("/")
+
+	// SEO: robots.txt ve sitemap.xml route'ları
+	routes.Get("/robots.txt", frontend.RobotsTxt())
+	routes.Get("/sitemap.xml", frontend.SitemapXml(states, utilities))
 
 	routes.Get("/", frontend.HomePage(states, utilities))
 	routes.Get("/kurumsal/hakkimizda", frontend.AboutUsPage(states, utilities))
@@ -55,7 +60,7 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 }
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
-	routes := server.Group("/panel")
+	routes := server.Group("/panel", lib.PanelAuthMiddleware())
 
 	routes.Get("/", panel.PanelPage(states, utilities))
 	routes.Get("/secenekler", panel.SeceneklerPage(states, utilities))
@@ -151,11 +156,17 @@ func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.U
 }
 
 func BackendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
-	routes := server.Group("/backend")
+	// Public backend route'ları (auth gerektirmez)
+	publicRoutes := server.Group("/backend")
+	publicRoutes.Post("/greet", post.GreetPage(states, utilities))
+	publicRoutes.Post("/authenticate", post.AuthenticationController(states, utilities))
+	publicRoutes.Get("/logout", post.LogoutController(states, utilities))
+	publicRoutes.Post("/add-randevu-request", randevular.AddRandevuRequest(states, utilities))
+	publicRoutes.Post("/add-contact-request", post.AddContactRequest(states, utilities))
+	publicRoutes.Post("/add-job-application", post.AddJobApplication(states, utilities))
 
-	routes.Post("/greet", post.GreetPage(states, utilities))
-	routes.Post("/authenticate", post.AuthenticationController(states, utilities))
-	routes.Get("/logout", post.LogoutController(states, utilities))
+	// Korumalı backend route'ları (auth gerektirir)
+	routes := server.Group("/backend", lib.PanelAuthMiddleware())
 	routes.Post("/add-option", options.AddOption(states, utilities))
 	routes.Post("/option/:oid/edit", options.EditOption(states, utilities))
 	routes.Post("/option/:oid/delete", options.DeleteOption(states, utilities))
@@ -246,14 +257,11 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/add-randevu", randevular.AddRandevu(states, utilities))
 	routes.Post("/randevu/:rid/edit", randevular.EditRandevu(states, utilities))
 	routes.Post("/randevu/:rid/delete", randevular.DeleteRandevu(states, utilities))
-	routes.Post("/add-randevu-request", randevular.AddRandevuRequest(states, utilities))
 	routes.Post("/randevu-request/:rrid/delete", randevular.DeleteRandevuRequest(states, utilities))
 	routes.Post("/randevu-request/:rrid/toggle-status", randevular.ToggleRandevuRequestStatus(states, utilities))
-	routes.Post("/add-contact-request", post.AddContactRequest(states, utilities))
 	routes.Post("/contact-request/:crid/delete", post.DeleteContactRequest(states, utilities))
 	routes.Post("/contact-request/:crid/respond", post.RespondToContactRequest(states, utilities))
 	routes.Post("/contact-request/:crid/set-as-read", post.SetAsReadAContactRequest(states, utilities))
-	routes.Post("/add-job-application", post.AddJobApplication(states, utilities))
 	routes.Post("/job-application/:jaid/delete", post.DeleteJobApplication(states, utilities))
 	routes.Post("/job-application/:jaid/respond", post.RespondToJobApplication(states, utilities))
 	routes.Post("/job-application/:jaid/set-as-read", post.SetAsReadAJobApplication(states, utilities))

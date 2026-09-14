@@ -6,10 +6,10 @@
                     <div class="sec-title @@extraClassName wow fadeInUp" data-wow-duration="1500ms">
                         <div class="sec-title__top">
 
-                            <img src="assets/images/shapes/sec-title-s-1-1.png" alt="latest blog" class="sec-title__img">
+                            <img src="assets/images/shapes/sec-title-s-1-1.png" alt="" class="sec-title__img">
 
 
-                            <h6 class="sec-title__tagline">latest blog</h6><!-- /.sec-title__tagline -->
+                            <p class="sec-title__tagline">latest blog</p><!-- /.sec-title__tagline -->
 
                         </div><!-- /.sec-title__top -->
                         <h3 class="sec-title__title">our latest blog & news</h3><!-- /.sec-title__title -->
@@ -59,8 +59,8 @@
                 <div class="blog-card-two blog-card-two--home3 wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='000ms'>
                     <div class="blog-card-two__image">
                         <a href="" class="blog-card-two__image__item">
-                            <img src="assets/images/blog/blog-s-3-1.jpg" alt="cupidatat nonproident, sunt in culpa qui officia deserunt">
-                            <img src="assets/images/blog/blog-3-1.jpg" alt="cupidatat nonproident, sunt in culpa qui officia deserunt">
+                            <img src="assets/images/blog/blog-s-3-1.jpg" alt="Haber görseli">
+                            <img src="assets/images/blog/blog-3-1.jpg" alt="Haber görseli">
                         </a><!-- /.blog-card-two__image__item -->
                         <div class="blog-card-two__date">
                             <span class="blog-card-two__date__day">25</span>
@@ -97,8 +97,8 @@
                 <div class="blog-card-two blog-card-two--home3 wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='100ms'>
                     <div class="blog-card-two__image">
                         <a href="" class="blog-card-two__image__item">
-                            <img src="assets/images/blog/blog-s-3-2.jpg" alt="Nail jelly to the hothouse wall pixel pushing c-suite">
-                            <img src="assets/images/blog/blog-3-2.jpg" alt="Nail jelly to the hothouse wall pixel pushing c-suite">
+                            <img src="assets/images/blog/blog-s-3-2.jpg" alt="Haber görseli">
+                            <img src="assets/images/blog/blog-3-2.jpg" alt="Haber görseli">
                         </a><!-- /.blog-card-two__image__item -->
                         <div class="blog-card-two__date">
                             <span class="blog-card-two__date__day">25</span>
@@ -135,8 +135,8 @@
                 <div class="blog-card-two blog-card-two--home3 wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='200ms'>
                     <div class="blog-card-two__image">
                         <a href="" class="blog-card-two__image__item">
-                            <img src="assets/images/blog/blog-s-3-3.jpg" alt="Copy and paste from stack overflow can you put it into">
-                            <img src="assets/images/blog/blog-3-3.jpg" alt="Copy and paste from stack overflow can you put it into">
+                            <img src="assets/images/blog/blog-s-3-3.jpg" alt="Haber görseli">
+                            <img src="assets/images/blog/blog-3-3.jpg" alt="Haber görseli">
                         </a><!-- /.blog-card-two__image__item -->
                         <div class="blog-card-two__date">
                             <span class="blog-card-two__date__day">25</span>
@@ -173,8 +173,8 @@
                 <div class="blog-card-two blog-card-two--home3 wow fadeInUp" data-wow-duration='1500ms' data-wow-delay='300ms'>
                     <div class="blog-card-two__image">
                         <a href="" class="blog-card-two__image__item">
-                            <img src="assets/images/blog/blog-s-3-4.jpg" alt="catching and not too giant, yet drink from the firehose make">
-                            <img src="assets/images/blog/blog-3-4.jpg" alt="catching and not too giant, yet drink from the firehose make">
+                            <img src="assets/images/blog/blog-s-3-4.jpg" alt="Haber görseli">
+                            <img src="assets/images/blog/blog-3-4.jpg" alt="Haber görseli">
                         </a><!-- /.blog-card-two__image__item -->
                         <div class="blog-card-two__date">
                             <span class="blog-card-two__date__day">25</span>

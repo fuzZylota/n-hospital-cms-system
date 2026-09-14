@@ -5899,7 +5899,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
-		fmt.Printf("Geldik!\n")
+
 		if c.Query("notification") == "true" {
 			GetOriginalUrl := c.OriginalURL()
 

@@ -2,7 +2,7 @@ package doctors
 
 import (
 	"database"
-	"fmt"
+	
 	lib "lib"
 	"log"
 	"models"
@@ -706,7 +706,7 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			updateDoktor.Where("drid", "=", Drid)
 			updateDoktor.Finish()
 
-			fmt.Printf("query string: %s\n", updateDoktor.Query)
+			log.Printf("query string: %s", updateDoktor.Query)
 
 			err = updateDoktor.Execute()
 
@@ -720,8 +720,8 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			}
 		}
 
-		fmt.Printf("inputs.Brid: %s\n", inputs.Brid)
-		fmt.Printf("inputs.OldBrid: %s\n", inputs.OldBrid)
+		log.Printf("inputs.Brid: %s", inputs.Brid)
+		log.Printf("inputs.OldBrid: %s", inputs.OldBrid)
 
 		// Handle branch change if provided
 		if inputs.Brid != inputs.OldBrid {
@@ -2038,7 +2038,7 @@ func AddExpertiseToADoctor(states *models.AppState, utilities *models.Utilities)
 		InsertExpertise.Returning("duid")
 		InsertExpertise.Finish()
 
-		fmt.Printf("InsertExpertise Query: %v\n", InsertExpertise.Query)
+		log.Printf("InsertExpertise Query: %v", InsertExpertise.Query)
 
 		err = InsertExpertise.Execute()
 
@@ -2061,7 +2061,7 @@ func AddExpertiseToADoctor(states *models.AppState, utilities *models.Utilities)
 			})
 		}
 
-		fmt.Printf("lid: %v\n", Lid)
+		log.Printf("lid: %v", Lid)
 
 		if Lid == "" {
 			Orm.Rollback()
@@ -2326,7 +2326,7 @@ func AddDoctorExperience(states *models.AppState, utilities *models.Utilities) f
 			})
 		}
 
-		fmt.Printf("inputs: %+v\n", inputs)
+		log.Printf("inputs: %+v", inputs)
 
 		if inputs.Name == "" {
 			return c.Status(400).JSON(fiber.Map{
@@ -2571,7 +2571,7 @@ func EditDoctorExperience(states *models.AppState, utilities *models.Utilities) 
 
 		Orm := utilities.Orm
 
-		fmt.Printf("req body: %s\n", string(c.Body()))
+		log.Printf("req body: %s", string(c.Body()))
 
 		inputs := models.DoctorExperiencesEdit{}
 		if err := c.BodyParser(&inputs); err != nil {
@@ -2629,7 +2629,7 @@ func EditDoctorExperience(states *models.AppState, utilities *models.Utilities) 
 			updateExperience.Where("dtid", "=", inputs.Dtid)
 			updateExperience.Finish()
 
-			fmt.Printf("updateExperience Query: %s\n", updateExperience.Query)
+			log.Printf("updateExperience Query: %s", updateExperience.Query)
 
 			err = updateExperience.Execute()
 
@@ -2897,13 +2897,13 @@ func UpdateDoctorExperiencePicture(states *models.AppState, utilities *models.Ut
 			})
 		}
 
-		fmt.Printf("body:: %s\n", string(c.Body()))
+		log.Printf("body:: %s", string(c.Body()))
 
-		fmt.Printf("Dtid: %s\n", Dtid)
-		fmt.Printf("experienceCoverAltText: %s\n", experienceCoverAltText)
-		fmt.Printf("experienceCoverTitle: %s\n", experienceCoverTitle)
-		fmt.Printf("oldExperienceCoverAltText: %s\n", oldExperienceCoverAltText)
-		fmt.Printf("oldExperienceCoverTitle: %s\n", oldExperienceCoverTitle)
+		log.Printf("Dtid: %s", Dtid)
+		log.Printf("experienceCoverAltText: %s", experienceCoverAltText)
+		log.Printf("experienceCoverTitle: %s", experienceCoverTitle)
+		log.Printf("oldExperienceCoverAltText: %s", oldExperienceCoverAltText)
+		log.Printf("oldExperienceCoverTitle: %s", oldExperienceCoverTitle)
 
 		Orm := utilities.Orm
 		RootDir := os.Getenv("ROOT_DIRECTORY")

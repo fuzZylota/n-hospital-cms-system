@@ -87,7 +87,7 @@ func AuthenticationController(states *models.AppState, utilities *models.Utiliti
 			return c.Redirect("/giris?error=password_is_incorrect")
 		}
 
-		fmt.Printf("rows[0]['is_active']: %v\n", rows[0]["is_active"])
+		log.Printf("rows[0]['is_active']: %v", rows[0]["is_active"])
 
 		authenticatedUser := models.AuthenticatedUser{
 			Remember:  inputs.Remember,
@@ -1144,7 +1144,7 @@ func EditHomepageContent(states *models.AppState, utilities *models.Utilities) f
 				})
 			}
 
-			fmt.Printf("rows: %v\n", rows)
+			log.Printf("rows: %v", rows)
 
 			if len(rows) != 0 {
 				HcidsToChange := []any{}
@@ -1167,7 +1167,7 @@ func EditHomepageContent(states *models.AppState, utilities *models.Utilities) f
 				UpdateSortings.In("WHERE", "hcid", HcidsToChange)
 				UpdateSortings.Finish()
 
-				fmt.Printf("UpdateSortings: %v\n", UpdateSortings.Query)
+				log.Printf("UpdateSortings: %v", UpdateSortings.Query)
 
 				err = UpdateSortings.Execute()
 
@@ -1760,12 +1760,12 @@ func EditCustomContent(states *models.AppState, utilities *models.Utilities) fib
 
 		orderingChanged := (inputs.SortOrder != inputs.OldSortOrder) || (inputs.ContentType != inputs.OldContentType)
 		if orderingChanged {
-			fmt.Printf("sort_order: %v\n", inputs.SortOrder)
-			fmt.Printf("old_sort_order: %v\n", inputs.OldSortOrder)
-			fmt.Printf("content_type: %v\n", inputs.ContentType)
-			fmt.Printf("old_content_type: %v\n", inputs.OldContentType)
-			fmt.Printf("ccid: %v\n", inputs.Ccid)
-			fmt.Printf("orderingChanged: %v\n", orderingChanged)
+			log.Printf("sort_order: %v", inputs.SortOrder)
+			log.Printf("old_sort_order: %v", inputs.OldSortOrder)
+			log.Printf("content_type: %v", inputs.ContentType)
+			log.Printf("old_content_type: %v", inputs.OldContentType)
+			log.Printf("ccid: %v", inputs.Ccid)
+			log.Printf("orderingChanged: %v", orderingChanged)
 			ReorderCustomContents := Orm.SelectFunction("get_shift_for_update_for_custom_contents", inputs.SortOrder, inputs.OldSortOrder, inputs.Ccid, inputs.ContentType)
 			ReorderCustomContents.Finish()
 			err = ReorderCustomContents.Execute()
@@ -1785,7 +1785,7 @@ func EditCustomContent(states *models.AppState, utilities *models.Utilities) fib
 				})
 			}
 
-			fmt.Printf("rows: %v\n", rows)
+			log.Printf("rows: %v", rows)
 
 			if len(rows) != 0 {
 				CcidsToChange := []any{}
@@ -1808,7 +1808,7 @@ func EditCustomContent(states *models.AppState, utilities *models.Utilities) fib
 				UpdateSortings.In("WHERE", "ccid", CcidsToChange)
 				UpdateSortings.Finish()
 
-				fmt.Printf("UpdateSortings: %v\n", UpdateSortings.Query)
+				log.Printf("UpdateSortings: %v", UpdateSortings.Query)
 
 				err = UpdateSortings.Execute()
 
@@ -1938,16 +1938,16 @@ func EditCustomContent(states *models.AppState, utilities *models.Utilities) fib
 			SomethingSet = true
 		}
 
-		fmt.Printf("inputs.ContentCss: %s\n", inputs.ContentCss)
-		fmt.Printf("inputs.OldContentCss: %s\n", inputs.OldContentCss)
+		log.Printf("inputs.ContentCss: %s", inputs.ContentCss)
+		log.Printf("inputs.OldContentCss: %s", inputs.OldContentCss)
 		// Update CSS content if provided
 		if inputs.ContentCss != inputs.OldContentCss {
 			updateCustomContent.Set("content_css", inputs.ContentCss)
 			SomethingSet = true
 		}
 
-		fmt.Printf("inputs.ContentJavascript: %s\n", inputs.ContentJavascript)
-		fmt.Printf("inputs.OldContentJavascript: %s\n", inputs.OldContentJavascript)
+		log.Printf("inputs.ContentJavascript: %s", inputs.ContentJavascript)
+		log.Printf("inputs.OldContentJavascript: %s", inputs.OldContentJavascript)
 		// Update JavaScript content if provided
 		if inputs.ContentJavascript != inputs.OldContentJavascript {
 			updateCustomContent.Set("content_javascript", inputs.ContentJavascript)
@@ -3847,7 +3847,7 @@ func DeleteJobApplication(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
-		fmt.Printf("cv_file_path: %v\n", rows[0]["cv_file_path"])
+		log.Printf("cv_file_path: %v", rows[0]["cv_file_path"])
 
 		if rows[0]["cv_file_path"] != nil && rows[0]["cv_file_path"] != "" {
 			DeleteMedia := Orm.Delete()
@@ -3896,7 +3896,7 @@ func DeleteJobApplication(states *models.AppState, utilities *models.Utilities) 
 			}
 		}
 
-		fmt.Printf("diploma_file_path: %v\n", rows[0]["diploma_file_path"])
+		log.Printf("diploma_file_path: %v", rows[0]["diploma_file_path"])
 		if rows[0]["diploma_file_path"] != nil && rows[0]["diploma_file_path"] != "" {
 			DeleteMedia := Orm.Delete()
 			DeleteMedia.Table("medias")
@@ -4754,7 +4754,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 			case 2:
 				// binary message
 			case 8:
-				fmt.Printf("Close message received\n")
+				log.Printf("Close message received")
 
 				room.RemoveById(id)
 

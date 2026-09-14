@@ -1178,7 +1178,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				Html := ""
 
 				{
-					fmt.Printf("appointment time: %v\n", inputs.AppointmentTime)
+					log.Printf("appointment time: %v", inputs.AppointmentTime)
 					// Create professional HTML email template for appointment confirmation
 					dateString := fmt.Sprintf("%d.%d.%d", inputs.AppointmentDate.Day(), int(inputs.AppointmentDate.Month()), inputs.AppointmentDate.Year())
 					timeString := fmt.Sprintf("%02d:%02d", inputs.AppointmentTime.Hour(), inputs.AppointmentTime.Minute())
@@ -1404,7 +1404,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			})
 		}
 
-		fmt.Printf("req body: %s\n", string(c.Body()))
+		log.Printf("req body: %s", string(c.Body()))
 
 		Rid := c.Params("rid")
 
@@ -1692,7 +1692,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		UpdateQuery.Where("rid", "=", inputs.Rid)
 		UpdateQuery.Finish()
 
-		fmt.Printf("query string: %s\n", UpdateQuery.Query)
+		log.Printf("query string: %s", UpdateQuery.Query)
 
 		err = UpdateQuery.Execute()
 
@@ -1798,12 +1798,12 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				Html := ""
 
 				{
-					fmt.Printf("appointment time: %v\n", inputs.AppointmentTime)
+					log.Printf("appointment time: %v", inputs.AppointmentTime)
 					// Create professional HTML email template for appointment confirmation
 					dateString := fmt.Sprintf("%d.%d.%d", inputs.AppointmentDate.Day(), int(inputs.AppointmentDate.Month()), inputs.AppointmentDate.Year())
 					timeString := fmt.Sprintf("%02d:%02d", inputs.AppointmentTime.Hour(), inputs.AppointmentTime.Minute())
 
-					fmt.Printf("time string: %s\n", timeString)
+					log.Printf("time string: %s", timeString)
 					// Build doctor and clinic information
 					doctorInfo := ""
 					if DoctorName != "" {
@@ -2032,7 +2032,7 @@ func DeleteRandevu(states *models.AppState, utilities *models.Utilities) fiber.H
 			})
 		}
 
-		fmt.Printf("Rid: %s\n", Rid)
+		log.Printf("Rid: %s", Rid)
 
 		Orm := utilities.Orm
 

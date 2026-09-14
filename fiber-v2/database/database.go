@@ -26,6 +26,93 @@ func Database(connString string) orm.Neorm {
 	return database
 }
 
+// mapRowToOptions — DB satırını models.Options struct'ına dönüştürür.
+// FetchOptionsForFrontend, FetchOptionsForBackend, FetchOptionsForPanel ve
+// FetchOptionsForFrontendWithCache fonksiyonlarındaki tekrarlanan ~50 satırlık
+// mapping kodunu tek bir yerde toplar.
+func mapRowToOptions(row map[string]interface{}) models.Options {
+	return models.Options{
+		Oid:                           lib.String(row["oid"]),
+		OptionSetName:                 lib.String(row["option_set_name"]),
+		OptionSetDescription:          lib.String(row["option_set_description"]),
+		OptionSetIsActive:             lib.Bool(row["option_set_is_active"]),
+		OptionSetCreatedAt:            lib.Time(row["option_set_created_at"]),
+		OptionSetUpdatedAt:            lib.Time(row["option_set_updated_at"]),
+		SiteName:                      lib.String(row["site_name"]),
+		SiteDescription:               lib.String(row["site_description"]),
+		SiteLogoMid:                   lib.Int64(row["site_logo_mid"]),
+		SiteLightLogoMid:              lib.Int64(row["site_light_logo_mid"]),
+		FaviconMid:                    lib.Int64(row["site_favicon_mid"]),
+		DefaultPageMid:                lib.Int64(row["default_page_mid"]),
+		MaintenanceMode:               lib.Bool(row["maintenance_mode"]),
+		Preloader:                     lib.String(row["preloader"]),
+		SMTPHost:                      lib.String(row["smtp_host"]),
+		SMTPPort:                      lib.Int64(row["smtp_port"]),
+		SMTPUsername:                  lib.String(row["smtp_username"]),
+		SMTPPassword:                  lib.String(row["smtp_password"]),
+		SMTPEncryption:                lib.String(row["smtp_encryption"]),
+		FacebookUrl:                   lib.String(row["facebook_url"]),
+		TwitterUrl:                    lib.String(row["twitter_url"]),
+		InstagramUrl:                  lib.String(row["instagram_url"]),
+		LinkedinUrl:                   lib.String(row["linkedin_url"]),
+		ContactEmail:                  lib.String(row["contact_email"]),
+		ContactPhone:                  lib.String(row["contact_phone"]),
+		MainPageMetaTitle:             lib.String(row["main_page_meta_title"]),
+		MainPageMetaDescription:       lib.String(row["main_page_meta_description"]),
+		GoogleAnalytics:               lib.String(row["google_analytics"]),
+		PrimaryColor:                  lib.String(row["primary_color"]),
+		SecondaryColor:                lib.String(row["secondary_color"]),
+		AccentColor:                   lib.String(row["accent_color"]),
+		BackgroundColor:               lib.String(row["background_color"]),
+		FontColor:                     lib.String(row["font_color"]),
+		FontFamily:                    lib.String(row["font_family"]),
+		RequireStrongPassword:         lib.Bool(row["require_strong_password"]),
+		ItemsPerPage:                  lib.Int64(row["items_per_page"]),
+		ShowDoctorsOnSameCity:         lib.Bool(row["show_doctors_on_same_city"]),
+		ShowDoctorsOnSameCountry:      lib.Bool(row["show_doctors_on_same_country"]),
+		AutoRemovePartnersWhenExpired: lib.Bool(row["auto_remove_partners_when_expired"]),
+		MaxUploadSize:                 lib.Int64(row["max_upload_size"]),
+		Timezone:                      lib.String(row["timezone"]),
+		Language:                      lib.String(row["language"]),
+		EnableTestimonials:            lib.Bool(row["enable_testimonials"]),
+		EnableOurHistory:              lib.Bool(row["enable_our_history"]),
+		MaximumSublinksOnAMenuItem:    lib.Int64(row["maximum_sublinks_on_a_menu_item"]),
+		ShowDoctorSocialMedia:         lib.Bool(row["show_doctor_social_media"]),
+		ShowDoctorAppointmentFee:      lib.Bool(row["show_doctor_appointment_fee"]),
+		DefaultPageMediaPath:          lib.String(row["default_page_media_path"]),
+		DefaultPageMediaAltText:       lib.String(row["default_page_media_alt_text"]),
+		DefaultPageMediaTitle:         lib.String(row["default_page_media_title"]),
+		RecaptchaSiteKey:              lib.String(row["google_recaptcha_site_key"]),
+		RecaptchaSecretKey:            lib.String(row["google_recaptcha_secret_key"]),
+		ShowAnlasmaliKurumPictures:    lib.Bool(row["show_anlasmali_kurum_pictures"]),
+	}
+}
+
+// mapRowToFrontendMedias — DB satırından frontend için medya listesini oluşturur.
+// Logo, light logo, favicon ve default page medyasını içerir.
+func mapRowToFrontendMedias(row map[string]interface{}) []models.Medias {
+	return []models.Medias{
+		{
+			FilePath: lib.String(row["logo_path"]),
+			AltText:  lib.String(row["logo_alt_text"]),
+			Title:    lib.String(row["logo_title"]),
+		},
+		{
+			FilePath: lib.String(row["light_logo_path"]),
+			AltText:  lib.String(row["light_logo_alt_text"]),
+			Title:    lib.String(row["light_logo_title"]),
+		},
+		{
+			FilePath: lib.String(row["favicon_path"]),
+		},
+		{
+			FilePath: lib.String(row["default_page_media_path"]),
+			AltText:  lib.String(row["default_page_media_alt_text"]),
+			Title:    lib.String(row["default_page_media_title"]),
+		},
+	}
+}
+
 type Options struct {
 	Options            *models.Options
 	Medias             *[]models.Medias
@@ -89,161 +176,13 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 
 			for i, _ := range rows {
 				if lib.Bool(rows[i]["option_set_is_testing_now"]) {
-					TestingOptions = models.Options{
-						Oid:                           lib.String(rows[i]["oid"]),
-						OptionSetName:                 lib.String(rows[i]["option_set_name"]),
-						OptionSetDescription:          lib.String(rows[i]["option_set_description"]),
-						OptionSetIsActive:             lib.Bool(rows[i]["option_set_is_active"]),
-						OptionSetCreatedAt:            lib.Time(rows[i]["option_set_created_at"]),
-						OptionSetUpdatedAt:            lib.Time(rows[i]["option_set_updated_at"]),
-						SiteName:                      lib.String(rows[i]["site_name"]),
-						SiteDescription:               lib.String(rows[i]["site_description"]),
-						SiteLogoMid:                   lib.Int64(rows[i]["site_logo_mid"]),
-						SiteLightLogoMid:              lib.Int64(rows[i]["site_light_logo_mid"]),
-						FaviconMid:                    lib.Int64(rows[i]["site_favicon_mid"]),
-						DefaultPageMid:                lib.Int64(rows[i]["default_page_mid"]),
-						MaintenanceMode:               lib.Bool(rows[i]["maintenance_mode"]),
-						Preloader:                     lib.String(rows[i]["preloader"]),
-						SMTPHost:                      lib.String(rows[i]["smtp_host"]),
-						SMTPPort:                      lib.Int64(rows[i]["smtp_port"]),
-						SMTPUsername:                  lib.String(rows[i]["smtp_username"]),
-						SMTPPassword:                  lib.String(rows[i]["smtp_password"]),
-						SMTPEncryption:                lib.String(rows[i]["smtp_encryption"]),
-						FacebookUrl:                   lib.String(rows[i]["facebook_url"]),
-						TwitterUrl:                    lib.String(rows[i]["twitter_url"]),
-						InstagramUrl:                  lib.String(rows[i]["instagram_url"]),
-						LinkedinUrl:                   lib.String(rows[i]["linkedin_url"]),
-						ContactEmail:                  lib.String(rows[i]["contact_email"]),
-						ContactPhone:                  lib.String(rows[i]["contact_phone"]),
-						MainPageMetaTitle:             lib.String(rows[i]["main_page_meta_title"]),
-						MainPageMetaDescription:       lib.String(rows[i]["main_page_meta_description"]),
-						GoogleAnalytics:               lib.String(rows[i]["google_analytics"]),
-						PrimaryColor:                  lib.String(rows[i]["primary_color"]),
-						SecondaryColor:                lib.String(rows[i]["secondary_color"]),
-						AccentColor:                   lib.String(rows[i]["accent_color"]),
-						BackgroundColor:               lib.String(rows[i]["background_color"]),
-						FontColor:                     lib.String(rows[i]["font_color"]),
-						FontFamily:                    lib.String(rows[i]["font_family"]),
-						RequireStrongPassword:         lib.Bool(rows[i]["require_strong_password"]),
-						ItemsPerPage:                  lib.Int64(rows[i]["items_per_page"]),
-						ShowDoctorsOnSameCity:         lib.Bool(rows[i]["show_doctors_on_same_city"]),
-						ShowDoctorsOnSameCountry:      lib.Bool(rows[i]["show_doctors_on_same_country"]),
-						AutoRemovePartnersWhenExpired: lib.Bool(rows[i]["auto_remove_partners_when_expired"]),
-						MaxUploadSize:                 lib.Int64(rows[i]["max_upload_size"]),
-						Timezone:                      lib.String(rows[i]["timezone"]),
-						Language:                      lib.String(rows[i]["language"]),
-						EnableTestimonials:            lib.Bool(rows[i]["enable_testimonials"]),
-						EnableOurHistory:              lib.Bool(rows[i]["enable_our_history"]),
-						MaximumSublinksOnAMenuItem:    lib.Int64(rows[i]["maximum_sublinks_on_a_menu_item"]),
-						ShowDoctorSocialMedia:         lib.Bool(rows[i]["show_doctor_social_media"]),
-						ShowDoctorAppointmentFee:      lib.Bool(rows[i]["show_doctor_appointment_fee"]),
-						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
-						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
-						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
-						RecaptchaSiteKey:              lib.String(rows[i]["google_recaptcha_site_key"]),
-						RecaptchaSecretKey:            lib.String(rows[i]["google_recaptcha_secret_key"]),
-						ShowAnlasmaliKurumPictures:    lib.Bool(rows[i]["show_anlasmali_kurum_pictures"]),
-					}
-
-					TestingMedias = []models.Medias{
-						{
-							FilePath: lib.String(rows[i]["logo_path"]),
-							AltText:  lib.String(rows[i]["logo_alt_text"]),
-							Title:    lib.String(rows[i]["logo_title"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["light_logo_path"]),
-							AltText:  lib.String(rows[i]["light_logo_alt_text"]),
-							Title:    lib.String(rows[i]["light_logo_title"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["favicon_path"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["default_page_media_path"]),
-							AltText:  lib.String(rows[i]["default_page_media_alt_text"]),
-							Title:    lib.String(rows[i]["default_page_media_title"]),
-						},
-					}
+					TestingOptions = mapRowToOptions(rows[i])
+					TestingMedias = mapRowToFrontendMedias(rows[i])
 				}
 
 				if lib.Bool(rows[i]["option_set_is_active"]) {
-					ActiveOptions = models.Options{
-						Oid:                           lib.String(rows[i]["oid"]),
-						OptionSetName:                 lib.String(rows[i]["option_set_name"]),
-						OptionSetDescription:          lib.String(rows[i]["option_set_description"]),
-						OptionSetIsActive:             lib.Bool(rows[i]["option_set_is_active"]),
-						OptionSetCreatedAt:            lib.Time(rows[i]["option_set_created_at"]),
-						OptionSetUpdatedAt:            lib.Time(rows[i]["option_set_updated_at"]),
-						SiteName:                      lib.String(rows[i]["site_name"]),
-						SiteDescription:               lib.String(rows[i]["site_description"]),
-						SiteLogoMid:                   lib.Int64(rows[i]["site_logo_mid"]),
-						SiteLightLogoMid:              lib.Int64(rows[i]["site_light_logo_mid"]),
-						FaviconMid:                    lib.Int64(rows[i]["site_favicon_mid"]),
-						DefaultPageMid:                lib.Int64(rows[i]["default_page_mid"]),
-						MaintenanceMode:               lib.Bool(rows[i]["maintenance_mode"]),
-						Preloader:                     lib.String(rows[i]["preloader"]),
-						SMTPHost:                      lib.String(rows[i]["smtp_host"]),
-						SMTPPort:                      lib.Int64(rows[i]["smtp_port"]),
-						SMTPUsername:                  lib.String(rows[i]["smtp_username"]),
-						SMTPPassword:                  lib.String(rows[i]["smtp_password"]),
-						SMTPEncryption:                lib.String(rows[i]["smtp_encryption"]),
-						FacebookUrl:                   lib.String(rows[i]["facebook_url"]),
-						TwitterUrl:                    lib.String(rows[i]["twitter_url"]),
-						InstagramUrl:                  lib.String(rows[i]["instagram_url"]),
-						LinkedinUrl:                   lib.String(rows[i]["linkedin_url"]),
-						ContactEmail:                  lib.String(rows[i]["contact_email"]),
-						ContactPhone:                  lib.String(rows[i]["contact_phone"]),
-						MainPageMetaTitle:             lib.String(rows[i]["main_page_meta_title"]),
-						MainPageMetaDescription:       lib.String(rows[i]["main_page_meta_description"]),
-						GoogleAnalytics:               lib.String(rows[i]["google_analytics"]),
-						PrimaryColor:                  lib.String(rows[i]["primary_color"]),
-						SecondaryColor:                lib.String(rows[i]["secondary_color"]),
-						AccentColor:                   lib.String(rows[i]["accent_color"]),
-						BackgroundColor:               lib.String(rows[i]["background_color"]),
-						FontColor:                     lib.String(rows[i]["font_color"]),
-						FontFamily:                    lib.String(rows[i]["font_family"]),
-						RequireStrongPassword:         lib.Bool(rows[i]["require_strong_password"]),
-						ItemsPerPage:                  lib.Int64(rows[i]["items_per_page"]),
-						ShowDoctorsOnSameCity:         lib.Bool(rows[i]["show_doctors_on_same_city"]),
-						ShowDoctorsOnSameCountry:      lib.Bool(rows[i]["show_doctors_on_same_country"]),
-						AutoRemovePartnersWhenExpired: lib.Bool(rows[i]["auto_remove_partners_when_expired"]),
-						MaxUploadSize:                 lib.Int64(rows[i]["max_upload_size"]),
-						Timezone:                      lib.String(rows[i]["timezone"]),
-						Language:                      lib.String(rows[i]["language"]),
-						EnableTestimonials:            lib.Bool(rows[i]["enable_testimonials"]),
-						EnableOurHistory:              lib.Bool(rows[i]["enable_our_history"]),
-						MaximumSublinksOnAMenuItem:    lib.Int64(rows[i]["maximum_sublinks_on_a_menu_item"]),
-						ShowDoctorSocialMedia:         lib.Bool(rows[i]["show_doctor_social_media"]),
-						ShowDoctorAppointmentFee:      lib.Bool(rows[i]["show_doctor_appointment_fee"]),
-						DefaultPageMediaPath:          lib.String(rows[i]["default_page_media_path"]),
-						DefaultPageMediaAltText:       lib.String(rows[i]["default_page_media_alt_text"]),
-						DefaultPageMediaTitle:         lib.String(rows[i]["default_page_media_title"]),
-						RecaptchaSiteKey:              lib.String(rows[i]["google_recaptcha_site_key"]),
-						RecaptchaSecretKey:            lib.String(rows[i]["google_recaptcha_secret_key"]),
-						ShowAnlasmaliKurumPictures:    lib.Bool(rows[i]["show_anlasmali_kurum_pictures"]),
-					}
-
-					ActiveMedias = []models.Medias{
-						{
-							FilePath: lib.String(rows[i]["logo_path"]),
-							AltText:  lib.String(rows[i]["logo_alt_text"]),
-							Title:    lib.String(rows[i]["logo_title"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["light_logo_path"]),
-							AltText:  lib.String(rows[i]["light_logo_alt_text"]),
-							Title:    lib.String(rows[i]["light_logo_title"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["favicon_path"]),
-						},
-						{
-							FilePath: lib.String(rows[i]["default_page_media_path"]),
-							AltText:  lib.String(rows[i]["default_page_media_alt_text"]),
-							Title:    lib.String(rows[i]["default_page_media_title"]),
-						},
-					}
+					ActiveOptions = mapRowToOptions(rows[i])
+					ActiveMedias = mapRowToFrontendMedias(rows[i])
 				}
 			}
 		}
@@ -425,7 +364,7 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 		Options.SubelerLinks = &CurrentOptions.States.SubelerLinks
 	}
 
-	fmt.Printf("maximum sublinks on a menu item: %d\n", Options.Options.MaximumSublinksOnAMenuItem)
+	log.Printf("maximum sublinks on a menu item: %d", Options.Options.MaximumSublinksOnAMenuItem)
 
 	if len(CurrentOptions.States.TibbiBirimlerLinks) == 0 {
 		GetTibbiBirimler := CurrentOptions.Database.Select([]string{"tb.tbid", "tb.name", "tb.url_name"})
@@ -611,82 +550,12 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		}
 	}
 
-	newOptions := models.Options{
-		Oid:                           lib.String(rows[0]["oid"]),
-		OptionSetName:                 lib.String(rows[0]["option_set_name"]),
-		OptionSetDescription:          lib.String(rows[0]["option_set_description"]),
-		OptionSetIsActive:             lib.Bool(rows[0]["option_set_is_active"]),
-		OptionSetCreatedAt:            lib.Time(rows[0]["option_set_created_at"]),
-		OptionSetUpdatedAt:            lib.Time(rows[0]["option_set_updated_at"]),
-		SiteName:                      lib.String(rows[0]["site_name"]),
-		SiteDescription:               lib.String(rows[0]["site_description"]),
-		SiteLogoMid:                   lib.Int64(rows[0]["site_logo_mid"]),
-		SiteLightLogoMid:              lib.Int64(rows[0]["site_light_logo_mid"]),
-		FaviconMid:                    lib.Int64(rows[0]["site_favicon_mid"]),
-		DefaultPageMid:                lib.Int64(rows[0]["default_page_mid"]),
-		MaintenanceMode:               lib.Bool(rows[0]["maintenance_mode"]),
-		Preloader:                     lib.String(rows[0]["preloader"]),
-		SMTPHost:                      lib.String(rows[0]["smtp_host"]),
-		SMTPPort:                      lib.Int64(rows[0]["smtp_port"]),
-		SMTPUsername:                  lib.String(rows[0]["smtp_username"]),
-		SMTPPassword:                  lib.String(rows[0]["smtp_password"]),
-		SMTPEncryption:                lib.String(rows[0]["smtp_encryption"]),
-		FacebookUrl:                   lib.String(rows[0]["facebook_url"]),
-		TwitterUrl:                    lib.String(rows[0]["twitter_url"]),
-		InstagramUrl:                  lib.String(rows[0]["instagram_url"]),
-		LinkedinUrl:                   lib.String(rows[0]["linkedin_url"]),
-		ContactEmail:                  lib.String(rows[0]["contact_email"]),
-		ContactPhone:                  lib.String(rows[0]["contact_phone"]),
-		MainPageMetaTitle:             lib.String(rows[0]["main_page_meta_title"]),
-		MainPageMetaDescription:       lib.String(rows[0]["main_page_meta_description"]),
-		GoogleAnalytics:               lib.String(rows[0]["google_analytics"]),
-		PrimaryColor:                  lib.String(rows[0]["primary_color"]),
-		SecondaryColor:                lib.String(rows[0]["secondary_color"]),
-		AccentColor:                   lib.String(rows[0]["accent_color"]),
-		BackgroundColor:               lib.String(rows[0]["background_color"]),
-		FontColor:                     lib.String(rows[0]["font_color"]),
-		FontFamily:                    lib.String(rows[0]["font_family"]),
-		RequireStrongPassword:         lib.Bool(rows[0]["require_strong_password"]),
-		ItemsPerPage:                  lib.Int64(rows[0]["items_per_page"]),
-		ShowDoctorsOnSameCity:         lib.Bool(rows[0]["show_doctors_on_same_city"]),
-		ShowDoctorsOnSameCountry:      lib.Bool(rows[0]["show_doctors_on_same_country"]),
-		AutoRemovePartnersWhenExpired: lib.Bool(rows[0]["auto_remove_partners_when_expired"]),
-		MaxUploadSize:                 lib.Int64(rows[0]["max_upload_size"]),
-		Timezone:                      lib.String(rows[0]["timezone"]),
-		Language:                      lib.String(rows[0]["language"]),
-		EnableTestimonials:            lib.Bool(rows[0]["enable_testimonials"]),
-		EnableOurHistory:              lib.Bool(rows[0]["enable_our_history"]),
-		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
-		ShowDoctorSocialMedia:         lib.Bool(rows[0]["show_doctor_social_media"]),
-		ShowDoctorAppointmentFee:      lib.Bool(rows[0]["show_doctor_appointment_fee"]),
-		DefaultPageMediaPath:          lib.String(rows[0]["default_page_media_path"]),
-		DefaultPageMediaAltText:       lib.String(rows[0]["default_page_media_alt_text"]),
-		DefaultPageMediaTitle:         lib.String(rows[0]["default_page_media_title"]),
-		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
-	}
+	newOptions := mapRowToOptions(rows[0])
+	newMedias := mapRowToFrontendMedias(rows[0])
 
 	Options := Options{
-		Options: &newOptions,
-		Medias: &[]models.Medias{
-			{
-				FilePath: lib.String(rows[0]["logo_path"]),
-				AltText:  lib.String(rows[0]["logo_alt_text"]),
-				Title:    lib.String(rows[0]["logo_title"]),
-			},
-			{
-				FilePath: lib.String(rows[0]["light_logo_path"]),
-				AltText:  lib.String(rows[0]["light_logo_alt_text"]),
-				Title:    lib.String(rows[0]["light_logo_title"]),
-			},
-			{
-				FilePath: lib.String(rows[0]["favicon_path"]),
-			},
-			{
-				FilePath: lib.String(rows[0]["default_page_path"]),
-				AltText:  lib.String(rows[0]["default_page_alt_text"]),
-				Title:    lib.String(rows[0]["default_page_title"]),
-			},
-		},
+		Options:       &newOptions,
+		Medias:        &newMedias,
 		HeaderButtons: &[]models.HeaderButton{},
 		NewsLinks:     &[]models.NewsLink{},
 	}
@@ -828,40 +697,6 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 
 	}
 
-	/*SubeSids := []any{}
-	for _, subeLink := range subelerLinks {
-		SubeSids = append(SubeSids, subeLink.Sid)
-	}
-
-	GetDoktorlar := db.Select([]string{"drid", "title", "first_name", "last_name", "url_name", "sid"})
-	GetDoktorlar.Table("doktorlar")
-	GetDoktorlar.In("WHERE", "sid", SubeSids)
-	GetDoktorlar.Finish()
-	err = GetDoktorlar.Execute()
-
-	if err != nil {
-		return Options, err
-	}
-
-	rows, err = GetDoktorlar.Rows()
-	if err != nil {
-		return Options, err
-	}
-
-	for _, row := range rows {
-		for _, subeLink := range subelerLinks {
-			if subeLink.Sid == lib.String(row["sid"]) {
-				subeLink.DoktorLinks = append(subeLink.DoktorLinks, models.DoktorLink{
-					Drid:      lib.String(row["drid"]),
-					Sid:       lib.String(row["sid"]),
-					Title:     lib.String(row["title"]),
-					FirstName: lib.String(row["first_name"]),
-					LastName:  lib.String(row["last_name"]),
-					UrlName:   lib.String(row["url_name"]),
-				})
-			}
-		}
-	}*/
 
 	Options.SubelerLinks = &SubelerLinks
 
@@ -998,55 +833,7 @@ func (options *Options) FetchOptionsForBackend(db *orm.Neorm, otherColumns any, 
 		return Options{}, errors.New("no options found")
 	}
 
-	newOptions := models.Options{
-		Oid:                           lib.String(rows[0]["oid"]),
-		OptionSetName:                 lib.String(rows[0]["option_set_name"]),
-		OptionSetDescription:          lib.String(rows[0]["option_set_description"]),
-		OptionSetIsActive:             lib.Bool(rows[0]["option_set_is_active"]),
-		OptionSetCreatedAt:            lib.Time(rows[0]["option_set_created_at"]),
-		OptionSetUpdatedAt:            lib.Time(rows[0]["option_set_updated_at"]),
-		SiteName:                      lib.String(rows[0]["site_name"]),
-		SiteDescription:               lib.String(rows[0]["site_description"]),
-		SiteLogoMid:                   lib.Int64(rows[0]["site_logo_mid"]),
-		FaviconMid:                    lib.Int64(rows[0]["site_favicon_mid"]),
-		DefaultPageMid:                lib.Int64(rows[0]["default_page_mid"]),
-		MaintenanceMode:               lib.Bool(rows[0]["maintenance_mode"]),
-		Preloader:                     lib.String(rows[0]["preloader"]),
-		SMTPHost:                      lib.String(rows[0]["smtp_host"]),
-		SMTPPort:                      lib.Int64(rows[0]["smtp_port"]),
-		SMTPUsername:                  lib.String(rows[0]["smtp_username"]),
-		SMTPPassword:                  lib.String(rows[0]["smtp_password"]),
-		SMTPEncryption:                lib.String(rows[0]["smtp_encryption"]),
-		FacebookUrl:                   lib.String(rows[0]["facebook_url"]),
-		TwitterUrl:                    lib.String(rows[0]["twitter_url"]),
-		InstagramUrl:                  lib.String(rows[0]["instagram_url"]),
-		LinkedinUrl:                   lib.String(rows[0]["linkedin_url"]),
-		ContactEmail:                  lib.String(rows[0]["contact_email"]),
-		ContactPhone:                  lib.String(rows[0]["contact_phone"]),
-		MainPageMetaTitle:             lib.String(rows[0]["main_page_meta_title"]),
-		MainPageMetaDescription:       lib.String(rows[0]["main_page_meta_description"]),
-		GoogleAnalytics:               lib.String(rows[0]["google_analytics"]),
-		PrimaryColor:                  lib.String(rows[0]["primary_color"]),
-		SecondaryColor:                lib.String(rows[0]["secondary_color"]),
-		AccentColor:                   lib.String(rows[0]["accent_color"]),
-		BackgroundColor:               lib.String(rows[0]["background_color"]),
-		FontColor:                     lib.String(rows[0]["font_color"]),
-		FontFamily:                    lib.String(rows[0]["font_family"]),
-		RequireStrongPassword:         lib.Bool(rows[0]["require_strong_password"]),
-		ItemsPerPage:                  lib.Int64(rows[0]["items_per_page"]),
-		ShowDoctorsOnSameCity:         lib.Bool(rows[0]["show_doctors_on_same_city"]),
-		ShowDoctorsOnSameCountry:      lib.Bool(rows[0]["show_doctors_on_same_country"]),
-		AutoRemovePartnersWhenExpired: lib.Bool(rows[0]["auto_remove_partners_when_expired"]),
-		MaxUploadSize:                 lib.Int64(rows[0]["max_upload_size"]),
-		Timezone:                      lib.String(rows[0]["timezone"]),
-		Language:                      lib.String(rows[0]["language"]),
-		EnableTestimonials:            lib.Bool(rows[0]["enable_testimonials"]),
-		EnableOurHistory:              lib.Bool(rows[0]["enable_our_history"]),
-		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
-		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
-		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
-		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
-	}
+	newOptions := mapRowToOptions(rows[0])
 
 	Options := Options{
 		Options: &newOptions,
@@ -1142,55 +929,7 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 		return Options{}, errors.New("no options found")
 	}
 
-	newOptions := models.Options{
-		Oid:                           lib.String(rows[0]["oid"]),
-		OptionSetName:                 lib.String(rows[0]["option_set_name"]),
-		OptionSetDescription:          lib.String(rows[0]["option_set_description"]),
-		OptionSetIsActive:             lib.Bool(rows[0]["option_set_is_active"]),
-		OptionSetCreatedAt:            lib.Time(rows[0]["option_set_created_at"]),
-		OptionSetUpdatedAt:            lib.Time(rows[0]["option_set_updated_at"]),
-		SiteName:                      lib.String(rows[0]["site_name"]),
-		SiteDescription:               lib.String(rows[0]["site_description"]),
-		SiteLogoMid:                   lib.Int64(rows[0]["site_logo_mid"]),
-		FaviconMid:                    lib.Int64(rows[0]["site_favicon_mid"]),
-		DefaultPageMid:                lib.Int64(rows[0]["default_page_mid"]),
-		MaintenanceMode:               lib.Bool(rows[0]["maintenance_mode"]),
-		Preloader:                     lib.String(rows[0]["preloader"]),
-		SMTPHost:                      lib.String(rows[0]["smtp_host"]),
-		SMTPPort:                      lib.Int64(rows[0]["smtp_port"]),
-		SMTPUsername:                  lib.String(rows[0]["smtp_username"]),
-		SMTPPassword:                  lib.String(rows[0]["smtp_password"]),
-		SMTPEncryption:                lib.String(rows[0]["smtp_encryption"]),
-		FacebookUrl:                   lib.String(rows[0]["facebook_url"]),
-		TwitterUrl:                    lib.String(rows[0]["twitter_url"]),
-		InstagramUrl:                  lib.String(rows[0]["instagram_url"]),
-		LinkedinUrl:                   lib.String(rows[0]["linkedin_url"]),
-		ContactEmail:                  lib.String(rows[0]["contact_email"]),
-		ContactPhone:                  lib.String(rows[0]["contact_phone"]),
-		MainPageMetaTitle:             lib.String(rows[0]["main_page_meta_title"]),
-		MainPageMetaDescription:       lib.String(rows[0]["main_page_meta_description"]),
-		GoogleAnalytics:               lib.String(rows[0]["google_analytics"]),
-		PrimaryColor:                  lib.String(rows[0]["primary_color"]),
-		SecondaryColor:                lib.String(rows[0]["secondary_color"]),
-		AccentColor:                   lib.String(rows[0]["accent_color"]),
-		BackgroundColor:               lib.String(rows[0]["background_color"]),
-		FontColor:                     lib.String(rows[0]["font_color"]),
-		FontFamily:                    lib.String(rows[0]["font_family"]),
-		RequireStrongPassword:         lib.Bool(rows[0]["require_strong_password"]),
-		ItemsPerPage:                  lib.Int64(rows[0]["items_per_page"]),
-		ShowDoctorsOnSameCity:         lib.Bool(rows[0]["show_doctors_on_same_city"]),
-		ShowDoctorsOnSameCountry:      lib.Bool(rows[0]["show_doctors_on_same_country"]),
-		AutoRemovePartnersWhenExpired: lib.Bool(rows[0]["auto_remove_partners_when_expired"]),
-		MaxUploadSize:                 lib.Int64(rows[0]["max_upload_size"]),
-		Timezone:                      lib.String(rows[0]["timezone"]),
-		Language:                      lib.String(rows[0]["language"]),
-		EnableTestimonials:            lib.Bool(rows[0]["enable_testimonials"]),
-		EnableOurHistory:              lib.Bool(rows[0]["enable_our_history"]),
-		MaximumSublinksOnAMenuItem:    lib.Int64(rows[0]["maximum_sublinks_on_a_menu_item"]),
-		RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
-		RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
-		ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
-	}
+	newOptions := mapRowToOptions(rows[0])
 
 	Options := Options{
 		Options: &newOptions,

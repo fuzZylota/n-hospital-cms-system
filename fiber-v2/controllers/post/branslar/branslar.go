@@ -3,7 +3,7 @@ package branslar
 import (
 	"database"
 	"encoding/json"
-	"fmt"
+	
 	lib "lib"
 	"log"
 	"models"
@@ -98,7 +98,7 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		insertBrans.Returning("brid")
 		insertBrans.Finish()
 
-		fmt.Printf("insertBrans: %v\n", insertBrans.Query)
+		log.Printf("insertBrans: %v", insertBrans.Query)
 
 		err = insertBrans.Execute()
 		if err != nil {

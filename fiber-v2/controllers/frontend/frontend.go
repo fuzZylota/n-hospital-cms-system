@@ -742,7 +742,7 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		GetHaberler.Offset(Offset)
 		GetHaberler.Finish()
 
-		fmt.Printf("GetHaberler Query: %v\n", GetHaberler.Query)
+		log.Printf("GetHaberler Query: %v", GetHaberler.Query)
 
 		err := GetHaberler.Execute()
 
@@ -861,7 +861,7 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		UpdateViewsCount.Where("hid", "=", lib.Int64(rows[0]["hid"]))
 		UpdateViewsCount.Finish()
 
-		fmt.Printf("UpdateViewsCount Query: %v\n", UpdateViewsCount.Query)
+		log.Printf("UpdateViewsCount Query: %v", UpdateViewsCount.Query)
 
 		err = UpdateViewsCount.Execute()
 		if err != nil {
@@ -1649,7 +1649,7 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		GetDoctors.Finish()
 
-		fmt.Printf("%v\n", GetDoctors.Query)
+		log.Printf("GetDoctors Query: %v", GetDoctors.Query)
 
 		err := GetDoctors.Execute()
 
@@ -2519,4 +2519,151 @@ func SearchPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
                         "Description": "Site içi arama sonuçları",
                 }, "layouts/main/main")
         }
+}
+
+// RobotsTxt — arama motorları için robots.txt dosyası döndürür.
+// PageSpeed'in 1.235 satır hata saymasının ana sebebi bu route'un
+// eksikliğiydi: fallback handler tüm HTML'i text/plain olarak döndürüyordu.
+func RobotsTxt() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		robotsContent := `User-agent: *
+Allow: /
+Disallow: /panel/
+Disallow: /backend/
+Disallow: /giris
+
+Sitemap: https://nivgoz.com/sitemap.xml`
+
+		c.Set("Content-Type", "text/plain; charset=utf-8")
+		c.Set("Cache-Control", "public, max-age=86400")
+		return c.SendString(robotsContent)
+	}
+}
+
+// SitemapXml — arama motorları için dinamik sitemap.xml oluşturur.
+// Tüm frontend sayfalarını, doktorları, tıbbi birimleri, tetkikleri,
+// haberleri ve şubeleri içerir.
+func SitemapXml(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		Orm := utilities.Orm
+
+		baseURL := "https://nivgoz.com"
+
+		// Sabit sayfalar
+		staticPages := []string{
+			"/", "/kurumsal/hakkimizda", "/kurumsal/misyon-vizyon",
+			"/iletisim", "/ulasim", "/randevu",
+			"/kurumsal/anlasmali-kurumlar", "/kurumsal/organizasyon-semasi",
+			"/kurumsal/kvkk", "/kurumsal/insan-kaynaklari",
+			"/haberler", "/tibbi-birimler", "/tetkikler",
+			"/merkezlerimiz", "/doktorlarimiz",
+			"/foto-galeri", "/video-galeri",
+			"/cerez-politikasi", "/arama",
+		}
+
+		var sb strings.Builder
+		sb.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+		sb.WriteString("\n")
+		sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
+		sb.WriteString("\n")
+
+		// Sabit sayfalar
+		for _, page := range staticPages {
+			sb.WriteString("  <url>\n")
+			sb.WriteString("    <loc>" + baseURL + page + "</loc>\n")
+			sb.WriteString("    <changefreq>weekly</changefreq>\n")
+			if page == "/" {
+				sb.WriteString("    <priority>1.0</priority>\n")
+			} else {
+				sb.WriteString("    <priority>0.8</priority>\n")
+			}
+			sb.WriteString("  </url>\n")
+		}
+
+		// Tıbbi birimler
+		GetTibbiBirimler := Orm.Select([]string{"url_name"})
+		GetTibbiBirimler.Table("tibbi_birimler")
+		GetTibbiBirimler.Where("is_active", "=", true)
+		GetTibbiBirimler.Finish()
+		if err := GetTibbiBirimler.Execute(); err == nil {
+			if rows, err := GetTibbiBirimler.Rows(); err == nil {
+				for _, row := range rows {
+					urlName := lib.String(row["url_name"])
+					if urlName != "" {
+						sb.WriteString("  <url>\n")
+						sb.WriteString("    <loc>" + baseURL + "/tibbi-birimler/" + urlName + "</loc>\n")
+						sb.WriteString("    <changefreq>monthly</changefreq>\n")
+						sb.WriteString("    <priority>0.7</priority>\n")
+						sb.WriteString("  </url>\n")
+					}
+				}
+			}
+		}
+
+		// Tetkikler
+		GetTetkikler := Orm.Select([]string{"url_name"})
+		GetTetkikler.Table("tedkikler")
+		GetTetkikler.Where("is_active", "=", true)
+		GetTetkikler.Finish()
+		if err := GetTetkikler.Execute(); err == nil {
+			if rows, err := GetTetkikler.Rows(); err == nil {
+				for _, row := range rows {
+					urlName := lib.String(row["url_name"])
+					if urlName != "" {
+						sb.WriteString("  <url>\n")
+						sb.WriteString("    <loc>" + baseURL + "/tetkikler/" + urlName + "</loc>\n")
+						sb.WriteString("    <changefreq>monthly</changefreq>\n")
+						sb.WriteString("    <priority>0.7</priority>\n")
+						sb.WriteString("  </url>\n")
+					}
+				}
+			}
+		}
+
+		// Şubeler
+		GetSubeler := Orm.Select([]string{"url_name"})
+		GetSubeler.Table("subeler")
+		GetSubeler.Where("is_active", "=", true)
+		GetSubeler.Finish()
+		if err := GetSubeler.Execute(); err == nil {
+			if rows, err := GetSubeler.Rows(); err == nil {
+				for _, row := range rows {
+					urlName := lib.String(row["url_name"])
+					if urlName != "" {
+						sb.WriteString("  <url>\n")
+						sb.WriteString("    <loc>" + baseURL + "/merkezlerimiz/" + urlName + "</loc>\n")
+						sb.WriteString("    <changefreq>monthly</changefreq>\n")
+						sb.WriteString("    <priority>0.7</priority>\n")
+						sb.WriteString("  </url>\n")
+					}
+				}
+			}
+		}
+
+		// Haberler
+		GetHaberler := Orm.Select([]string{"url_name"})
+		GetHaberler.Table("haberler")
+		GetHaberler.Where("is_published", "=", true)
+		GetHaberler.Finish()
+		if err := GetHaberler.Execute(); err == nil {
+			if rows, err := GetHaberler.Rows(); err == nil {
+				for _, row := range rows {
+					urlName := lib.String(row["url_name"])
+					if urlName != "" {
+						sb.WriteString("  <url>\n")
+						sb.WriteString("    <loc>" + baseURL + "/haberler/" + urlName + "</loc>\n")
+						sb.WriteString("    <changefreq>weekly</changefreq>\n")
+						sb.WriteString("    <priority>0.6</priority>\n")
+						sb.WriteString("  </url>\n")
+					}
+				}
+			}
+		}
+
+		sb.WriteString("</urlset>")
+
+		c.Set("Content-Type", "application/xml; charset=utf-8")
+		c.Set("Cache-Control", "public, max-age=3600")
+		return c.SendString(sb.String())
+	}
 }

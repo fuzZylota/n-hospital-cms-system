@@ -1,7 +1,7 @@
 package users
 
 import (
-	"fmt"
+	
 	lib "lib"
 	"log"
 	"models"
@@ -62,7 +62,7 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 		}
 
-		fmt.Printf("user is admin\n")
+
 
 		if inputs.Password != inputs.PasswordConfirm {
 			return c.Redirect("/panel/kullanici-ekle?error=password_and_password_confirm_do_not_match")
@@ -127,7 +127,7 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 
 			if !matched {
-				fmt.Printf("Password must contain at least one uppercase letter\n")
+				log.Printf("Password must contain at least one uppercase letter")
 				return c.JSON(fiber.Map{
 					"status":  400,
 					"message": "Password must contain at least one uppercase letter",
@@ -704,7 +704,7 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 func DeleteUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, err := lib.CheckAuth(c)
-		fmt.Printf("OurUser: %v\n", OurUser)
+
 
 		if err != nil {
 			return c.JSON(fiber.Map{
@@ -751,7 +751,7 @@ func BanUnbanUser(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		OurUser, err := lib.CheckAuth(c)
 
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
+			log.Printf("err: %v", err)
 			return c.JSON(fiber.Map{
 				"status":  403,
 				"message": "Forbidden",

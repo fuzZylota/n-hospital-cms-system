@@ -221,6 +221,8 @@ func CreateJWT(User models.AuthenticatedUser) (string, error) {
 	claims["Uid"] = User.Uid
 	claims["LastLogin"] = User.LastLogin.Format("2006-01-02 15:04:05.999999-07")
 	claims["Role"] = User.Role
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["iat"] = time.Now().Unix()
 
 	secret := os.Getenv("JWT_SECRET")
 
@@ -370,6 +372,8 @@ func JWTMiddleware() fiber.Handler {
 			Name:     cookieName,
 			Value:    tokenString,
 			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Lax",
 		}
 
 		if ourUser.Remember {
@@ -402,7 +406,7 @@ func HandleUserBanning(Orm *neormgo.Neorm) fiber.Handler {
 		err = CheckIfUserExists.Execute()
 
 		if err != nil {
-			fmt.Printf("Error on check if user exists: %s \n", err)
+			log.Printf("Error on check if user exists: %s", err)
 			return c.Next()
 		}
 
@@ -434,7 +438,7 @@ func HandleUserBanning(Orm *neormgo.Neorm) fiber.Handler {
 		err = CheckIfUserStillActive.Execute()
 
 		if err != nil {
-			fmt.Printf("Error on check if user is still active: %s \n", err)
+			log.Printf("Error on check if user is still active: %s", err)
 			return c.Next()
 		}
 
@@ -483,9 +487,8 @@ func CheckAuth(c any) (models.AuthenticatedUser, error) {
 }
 
 func StandardizePostgresTimestampWithTimeZone(timeString string) time.Time {
-	ts := "2025-09-18 14:40:18.479188+03"
 	layout := "2006-01-02 15:04:05.999999-07"
-	t, err := time.Parse(layout, ts)
+	t, err := time.Parse(layout, timeString)
 
 	if err != nil {
 		log.Printf("Error is: %s \n", err)
@@ -577,10 +580,36 @@ func UniqueFilePath(path string) (UniqueFilePathResponse, error) {
 	}
 }
 
+// Yüklenen dosyanın uzantısının izin verilen türler arasında olup olmadığını kontrol eder.
+// Güvenlik: .php, .exe, .sh gibi tehlikeli dosyaların yüklenmesini engeller.
+var allowedUploadExtensions = map[string]bool{
+	".jpg": true, ".jpeg": true, ".png": true, ".webp": true,
+	".gif": true, ".svg": true, ".pdf": true, ".mp4": true,
+	".doc": true, ".docx": true, ".xls": true, ".xlsx": true,
+	".ppt": true, ".pptx": true, ".txt": true, ".csv": true,
+	".webm": true, ".ogg": true, ".mp3": true, ".wav": true,
+	".ico": true, ".bmp": true, ".tiff": true, ".tif": true,
+}
+
+func ValidateUploadedFile(filename string) error {
+	ext := strings.ToLower(filepath.Ext(filename))
+	if ext == "" {
+		return fmt.Errorf("dosya uzantısı bulunamadı: %s", filename)
+	}
+	if !allowedUploadExtensions[ext] {
+		return fmt.Errorf("izin verilmeyen dosya türü: %s", ext)
+	}
+	return nil
+}
+
 func SaveFileWithBuffering(dstDir string, fileHeader multipart.FileHeader) error {
 	// Hedef klasör yoksa oluştur
 	if err := os.MkdirAll(dstDir, 0o755); err != nil {
 		return fmt.Errorf("hedef klasör oluşturulamadı: %w", err)
+	}
+
+	if err := ValidateUploadedFile(fileHeader.Filename); err != nil {
+		return err
 	}
 
 	file, err := fileHeader.Open()
@@ -635,6 +664,10 @@ func SaveFileWithBufferingWithRenaming(dstDir, fileName string, fileHeader multi
 	// Hedef klasör yoksa oluştur
 	if err := os.MkdirAll(dstDir, 0o755); err != nil {
 		return fmt.Errorf("hedef klasör oluşturulamadı: %w", err)
+	}
+
+	if err := ValidateUploadedFile(fileHeader.Filename); err != nil {
+		return err
 	}
 
 	file, err := fileHeader.Open()
@@ -728,7 +761,7 @@ func DisplayInputInfosOnTerminal(inputs interface{}) {
 	for i := 0; i < v.NumField(); i++ {
 		field := t.Field(i)             // alanın tipi ve ismi
 		value := v.Field(i).Interface() // alanın değeri
-		fmt.Printf("field: %s, value: %v, type: %T\n",
+		log.Printf("field: %s, value: %v, type: %T",
 			field.Name, value, value)
 	}
 }
@@ -1126,14 +1159,14 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 
 		c.Locals("protocol", proto)
 
-		fmt.Printf("Websocket protocol: %s\n", proto)
+		log.Printf("Websocket protocol: %s", proto)
 
 		c.Locals("allowed", true)
 
 		return c.Next()
 	}
 
-	fmt.Println("Websocket not upgraded")
+	log.Printf("Websocket not upgraded")
 
 	return fiber.ErrUpgradeRequired
 }
@@ -1204,4 +1237,24 @@ func ComparePasswordHash(hash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 
 	return err == nil
+}
+
+// PanelAuthMiddleware — panel ve backend route’ları için merkezi yetki kontrolü.
+// Her controller’da tekrarlanan if OurUser.Role != "admin" kontrollerini
+// ortadan kaldırır. Yetkilendirme unutulursa privilege escalation’ı önler.
+func PanelAuthMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		user, err := GetJWT(c)
+		if err != nil || user.Uid == "" {
+			// AJAX isteklerinde JSON, sayfa isteklerinde yönlendirme
+			if c.Get("X-Requested-With") == "XMLHttpRequest" || c.Get("Accept") == "application/json" {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"status":  401,
+					"message": "Bu işlemi gerçekleştirmek için giriş yapmanız gerekiyor.",
+				})
+			}
+			return c.Redirect("/giris")
+		}
+		return c.Next()
+	}
 }

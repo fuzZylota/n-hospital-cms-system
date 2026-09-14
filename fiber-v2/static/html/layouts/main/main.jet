@@ -39,6 +39,31 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
     <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
     <title>{{ Title }}</title>
+    <!-- Canonical URL -->
+    {{ if isset(CanonicalURL) }}
+    <link rel="canonical" href="{{ CanonicalURL }}" />
+    {{ end }}
+
+    <!-- Open Graph -->
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:type" content="{{ if isset(OgType) }}{{ OgType }}{{ else }}website{{ end }}" />
+    <meta property="og:site_name" content="{{ SiteName }}" />
+    <meta property="og:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ SiteName }}{{ end }}" />
+    <meta property="og:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ SiteDescription }}{{ end }}" />
+    {{ if isset(OgImage) }}
+    <meta property="og:image" content="{{ OgImage }}" />
+    {{ end }}
+    {{ if isset(CanonicalURL) }}
+    <meta property="og:url" content="{{ CanonicalURL }}" />
+    {{ end }}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ SiteName }}{{ end }}" />
+    <meta name="twitter:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ SiteDescription }}{{ end }}" />
+    {{ if isset(OgImage) }}
+    <meta name="twitter:image" content="{{ OgImage }}" />
+    {{ end }}
     <meta name="author" content="Nermefraz Bilişim Teknolojileri, Yazılım ve Danışmanlık. Nermefraz Information Technologies, Software Consulting and Development Company.">
     <meta name="description" content="{{ Description }}" />
 
@@ -853,6 +878,72 @@ body > .page-wrapper {
     </style>
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
+    {{ end }}
+    <!-- Structured Data: MedicalOrganization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "MedicalOrganization",
+        "name": "Nivgöz Göz Sağlığı Merkezi",
+        "url": "https://nivgoz.com",
+        "logo": "https://nivgoz.com/files/options/1/site_logo/nivgoz-logo.webp",
+        "description": "Nivgöz, Adana ve Mersin'de bulunan göz sağlığı merkezleridir.",
+        "telephone": "444 8 648",
+        "email": "{{ ContactEmail }}",
+        "medicalSpecialty": "Ophthalmology",
+        "address": [
+            {
+                "@type": "PostalAddress",
+                "addressLocality": "Adana",
+                "addressRegion": "Adana",
+                "addressCountry": "TR",
+                "streetAddress": "Barajyolu"
+            },
+            {
+                "@type": "PostalAddress",
+                "addressLocality": "Adana",
+                "addressRegion": "Adana",
+                "addressCountry": "TR",
+                "streetAddress": "Çukurova"
+            },
+            {
+                "@type": "PostalAddress",
+                "addressLocality": "Mersin",
+                "addressRegion": "Mersin",
+                "addressCountry": "TR"
+            }
+        ],
+        "sameAs": [
+            "{{ FacebookUrl }}",
+            "{{ InstagramUrl }}",
+            "{{ LinkedinUrl }}"
+        ]
+    }
+    </script>
+
+    {{ if isset(Route) }}
+    {{ if Route != "/" }}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Ana Sayfa",
+                "item": "https://nivgoz.com/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ Title }}",
+                "item": "https://nivgoz.com{{ Route }}"
+            }
+        ]
+    }
+    </script>
+    {{ end }}
     {{ end }}
 </head>
 
