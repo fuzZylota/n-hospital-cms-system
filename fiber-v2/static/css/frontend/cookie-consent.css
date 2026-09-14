@@ -12,7 +12,7 @@
     left: auto;
     z-index: 2147483646;
     width: min(400px, calc(100vw - 32px));
-    background: rgba(10, 34, 65, .92);
+    background: rgba(10, 34, 65, .97);
     color: #fff;
     border-radius: 14px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, .22);
@@ -35,7 +35,7 @@
 #nvCookieBanner .nv-ck-desc {
     font-size: 16px;
     line-height: 1.5;
-    color: rgba(255, 255, 255, .82);
+    color: rgba(255, 255, 255, .94);
     margin-bottom: 14px;
 }
 

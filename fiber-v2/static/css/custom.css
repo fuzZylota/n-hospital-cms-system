@@ -2350,7 +2350,7 @@ body footer.main-footer.nv-footer.section-space-top::after {
 .nv-footer__legal a,
 .nv-footer__copyright p,
 .nv-footer__copyright a {
-  color: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
   font-size: 16px !important;
   font-weight: 500 !important;
   line-height: 1.55 !important;
