@@ -77,6 +77,7 @@
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header-topbar.css?v=7">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doctor-cards.css?v=3">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/cls-guard.css?v=1">
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/root-gap.css?v=1">
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
     {{ end }}
@@ -162,76 +163,6 @@
     <script defer src="{{ PathOnStart }}assets/wow/wow.js"></script>
     <script defer src="{{ PathOnStart }}assets/mediox.js"></script>
     <script defer src="{{ PathOnStart }}assets/mediox-landing.js"></script>
-
-
-    <script>
-    <!-- ROOT_GAP_RUNTIME_FIX_START -->
-    (function () {
-      function fixRootGap() {
-        try {
-          document.documentElement.style.marginTop = '0';
-          document.documentElement.style.paddingTop = '0';
-          document.body.style.marginTop = '0';
-          document.body.style.paddingTop = '0';
-          document.body.style.top = '0';
-
-          var pw = document.querySelector('body > .page-wrapper');
-          if (pw) {
-            pw.style.marginTop = '0';
-            if (pw.classList.contains('homepage')) {
-              pw.style.paddingTop = '0';
-            }
-          }
-
-          var headerFour = document.querySelector('.page-wrapper.homepage > .header-four');
-          if (headerFour) {
-            headerFour.style.marginTop = '0';
-            headerFour.style.top = '0';
-            headerFour.style.transform = 'none';
-          }
-
-          var hs = document.querySelector('.page-wrapper.homepage > .header-spacer');
-          if (hs) {
-            hs.style.display = 'none';
-            hs.style.height = '0';
-            hs.style.minHeight = '0';
-            hs.style.margin = '0';
-            hs.style.padding = '0';
-          }
-
-          var slider = document.querySelector('.page-wrapper.homepage section.main-slider-three');
-          if (slider) {
-            if (window.innerWidth >= 992) {
-              slider.style.marginTop = '122px';
-            } else {
-              slider.style.marginTop = '0';
-            }
-            slider.style.paddingTop = '0';
-          }
-
-          var translateFrames = document.querySelectorAll('iframe.goog-te-banner-frame, .goog-te-banner-frame, body > .skiptranslate, body > iframe.skiptranslate');
-          translateFrames.forEach(function(el){
-            el.style.display = 'none';
-            el.style.height = '0';
-            el.style.minHeight = '0';
-            el.style.maxHeight = '0';
-            el.style.margin = '0';
-            el.style.padding = '0';
-            el.style.border = '0';
-            el.style.visibility = 'hidden';
-          });
-        } catch(e) {}
-      }
-
-      document.addEventListener('DOMContentLoaded', fixRootGap);
-      window.addEventListener('load', fixRootGap);
-      window.addEventListener('resize', fixRootGap);
-      setTimeout(fixRootGap, 300);
-      setTimeout(fixRootGap, 1000);
-      setTimeout(fixRootGap, 2000);
-    })();
-    <!-- ROOT_GAP_RUNTIME_FIX_END -->
-    </script>
 
 
 <script>
