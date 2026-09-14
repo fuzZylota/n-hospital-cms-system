@@ -103,23 +103,50 @@ sayfa çalışma zamanında patlar, derleme hatası vermez.
   dosyasının 20'si sıkıştırılmış geliyor; mediox.css 420 KB → 56 KB)
 - /static/ 30 gün cache ama dosya adlarında hash yok
 - TLSv1.1 hâlâ açık
+- robots.txt route'u yok; 404 fallback sayfasının (fallback.jet)
+  tüm HTML'ini text/plain gibi döndürüyor. PageSpeed 14 Eylül'de
+  1.235 satır hata saydı (SEO 92'nin sebebi). Gerçek bir robots.txt
+  route/dosyası backend tarafından eklenmeli.
 
-## Güncel ölçüm (14 Eylül, PageSpeed mobil)
-Performans 46, Erişilebilirlik 93, En İyi Uygulamalar 96, SEO 92
-FCP 10.9 sn, LCP 32.1 sn, TBT 390 ms, CLS 0.011, Speed Index 11.5 sn
+## Güncel ölçüm (14 Eylül 11:35, PageSpeed mobil — düzeltmeler ÖNCESİ)
+Performans 55, Erişilebilirlik 93, En İyi Uygulamalar 96, SEO 92
+FCP 14,8 sn, LCP 21,0 sn, TBT 20 ms, CLS 0.011, Speed Index ölçülmedi
 
 CLS TAMAM (0.715 → 0.011, hedef 0.1 idi).
 
-SIRADAKİ İŞ: FCP/LCP. Darboğaz görsel ağırlığı — toplam 7.2 MB:
-- tıbbi birim cover'ları: 21 adet, 5.8 MB, ortalama 276 KB
-  (752x435 PNG, 160px yüksekliğinde gösteriliyor)
-- şube görselleri: 9 adet, 1.9 MB, ortalama 206 KB
-- site logosu: 6167x2500, 147 KB, 133x54 gösteriliyor
-- banner smilepro_dt.png: 1027 KB
-Fotoğraflar PNG olarak saklanıyor; asıl kazanç kayıplı yeniden
-kodlamada. Dosya adları DB'de kayıtlı, uzantı .png kalmalı.
-Not: 21 CSS dosyası hâlâ render engelliyor, ~2.5 sn tasarruf var.
-Not: robots.txt 1.180 hata veriyor (SEO 92'nin sebebi).
+## Yapılanlar (14 Eylül 2026, PageSpeed takip — resim/kontrast/CSS)
+- Kontrast: çerez banner açıklaması (.82→.94 opaklık) ve banner
+  arkaplanı (.92→.97), footer alt bilgi/telif metni (.55→.78 opaklık)
+- animate.min.css render-engelleyen zincirden çıkarıldı
+  (media=print + onload deseni, noscript yedeğiyle) — yalnızca
+  WOW.js keyframe'leri, ilk boyamayı etkilemiyor
+- Site logosu, merkez kartı ve tıbbi birim kart görsellerine
+  gerçek orana göre width/height eklendi
+- Görseller lossy yeniden kodlandı (dosya adı/uzantı aynı kaldı,
+  Pillow ile 256 renk paletli dithered PNG / JPEG q82):
+  - 10 tıbbi birim cover PNG'si: 2,76 MB → 1,67 MB (~%40)
+  - şube fotoğrafları (barajyolu + mersin + çukurova, kopyalarıyla
+    birlikte): ~628 KB → ~292 KB
+  - banner smilepro_dt.png + smilepro_mb.png: 1.232 KB → 478 KB
+  - 3 logo dosyası (6167x2500 → 1000x405): 585 KB → 217 KB
+  ÖNEMLİ: fiber-v2/static/files/ ve fiber-v2/static/uploads/
+  .gitignore'da — bu görsel değişiklikleri git'e girmedi, canlıya
+  ayrıca (aaPanel dosya yöneticisi / rsync ile) yüklenmesi gerekiyor.
+- Bu oturumda yerel Postgres/Go toolchain olmadığından siteyi
+  çalıştırıp tarayıcıda elle test edemedim — bir sonraki oturumda
+  veya deploy sonrası ana sayfa, footer ve çerez banner'ı elle
+  kontrol edilmeli.
+
+SIRADAKİ İŞ:
+- Doktor fotoğrafları (12 adet, 1000x1000 P-mode PNG, ortalama
+  ~210 KB) zaten önceden 60-70 renge kadar paletlenmiş; yeniden
+  sıkıştırma denemesi gözle görülür kazanç vermedi (bkz. deneyler),
+  dokunulmadı.
+- 21 CSS dosyasından geri kalanı (bootstrap, fontawesome,
+  mediox-icons, owl/slick) hâlâ senkron yükleniyor; ikonlar sayfanın
+  her yerinde (header, kartlar) kritik olduğu için ertelemek risk —
+  önce görsel test edilmeden dokunulmadı.
+- robots.txt route'u backend tarafından eklenmeli (yukarıya bakın).
 
 ## Çalışma şekli
 - Her değişiklik ayrı commit, mesajlar Türkçe
