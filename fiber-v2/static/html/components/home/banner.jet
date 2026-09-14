@@ -1,3 +1,16 @@
+{{ range index1, BannerContent := BannerContents }}{{ if index1 == 0 }}
+{{ BannerMobil := BannerContent.ContentCss != "" ? BannerContent.ContentCss : BannerContent.ContentHtml }}
+<link rel="preload" as="image" fetchpriority="high" href="/{{ BannerContent.ContentHtml | raw }}" media="(min-width: 768px)">
+<link rel="preload" as="image" fetchpriority="high" href="/{{ BannerMobil | raw }}" media="(max-width: 767px)">
+<style>
+@media (min-width: 768px) {
+    #nvBannerBg0 { background-image: url(/{{ BannerContent.ContentHtml | raw }}); }
+}
+@media (max-width: 767px) {
+    #nvBannerBg0 { background-image: url(/{{ BannerMobil | raw }}); }
+}
+</style>
+{{ end }}{{ end }}
 <!-- mobile button-group hide removed: buttons now shown compact on mobile too -->
 <section class="main-slider-three">
     <button type="button" class="nv-slider-arrow nv-slider-arrow--prev" aria-label="Önceki slide">
@@ -16,7 +29,7 @@
                     <div class="main-slider-three__bg"
                          data-desktop="/{{ BannerContent.ContentHtml | raw }}"
                          data-mobile="{{ if BannerContent.ContentCss != "" }}/{{ BannerContent.ContentCss | raw }}{{ else }}/{{ BannerContent.ContentHtml | raw }}{{ end }}"
-                         {{ if index1 == 0 }}style="background-image: url(/{{ BannerContent.ContentHtml | raw }});"{{ end }}></div>
+                         {{ if index1 == 0 }}id="nvBannerBg0"{{ end }}></div>
                     <div class="main-slider-three__container container">
                         <div class="banner-row row">
                             <div class="col-xxl-10 col-xl-9 mx-auto">
@@ -52,22 +65,19 @@
 </section>
 <script>
 (function(){
-    // yalnizcaIlk=true iken sadece ilk slide'in gorseli atanir. Geri kalan
-    // slide'lar window.load sonrasina birakilir; boylece ilk boyada tek
-    // gorsel indiriliyor, hepsi degil.
-    function applyResponsiveSliderImages(yalnizcaIlk){
+    // Ilk slide LCP ogesi. Gorseli yukaridaki <style> icinde medya
+    // sorgusuyla ve <link rel=preload> ile yonetiliyor; JS ona hic
+    // dokunmuyor. Dokunsaydi mobilde once masaustu gorseli inip sonra
+    // mobil gorselle degistirilirdi, ikisi birden indirilirdi.
+    // Kalan slide'lar window.load sonrasina birakiliyor.
+    function kalanlariYukle(){
         var isMobile = window.innerWidth <= 767;
         var bgs = document.querySelectorAll('.main-slider-three__bg[data-mobile]');
-        for(var i = 0; i < bgs.length; i++){
-            if(yalnizcaIlk && i > 0) continue;
+        for(var i = 1; i < bgs.length; i++){
             var url = isMobile ? bgs[i].getAttribute('data-mobile') : bgs[i].getAttribute('data-desktop');
             if(url){ bgs[i].style.backgroundImage = 'url(' + url + ')'; }
         }
     }
-
-    applyResponsiveSliderImages(true);
-
-    function kalanlariYukle(){ applyResponsiveSliderImages(false); }
 
     if(document.readyState === 'complete'){
         kalanlariYukle();
