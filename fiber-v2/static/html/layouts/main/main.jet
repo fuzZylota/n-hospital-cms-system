@@ -35,8 +35,36 @@
     <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{{ PathOnStart }}assets/animate/animate.min.css" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="{{ PathOnStart }}assets/animate/animate.min.css" /></noscript>
-    <link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" />
+        <style>
+/* critical-icons.css
+ *
+ * Yukari-katlanmadaki (topbar/header/banner) 8 ikon glifi icin minimum
+ * kural seti. all.min.css (Font Awesome) ve mediox-icons/style.css
+ * asagida media=print/onload ile ertelendigi icin, bu 8 glif ilk
+ * boyamada hazir olsun diye burada elle kopyalandi (kaynaklar:
+ * assets/fontawesome/css/all.min.css, assets/mediox-icons/style.css).
+ * @font-face kurallari burada TEKRARLANMADI — asagidaki font-display-fix
+ * blogunda zaten font-display:swap ile tanimli.
+ */
+.fa,.fab,.fad,.fal,.far,.fas{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;line-height:1}
+.fab{font-family:"Font Awesome 5 Brands"}
+.fab,.far{font-weight:400}
+.far,.fas{font-family:"Font Awesome 5 Free"}
+.fa,.fas{font-weight:900}
+.fa-facebook-f:before{content:"\f39e"}
+.fa-instagram:before{content:"\f16d"}
+.fa-linkedin:before{content:"\f08c"}
+.fa-chevron-down:before{content:"\f078"}
+[class^="icon-"],[class*=" icon-"]{font-family:'icomoon' !important;speak:never;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.icon-email:before{content:"\e94e"}
+.icon-telephone:before{content:"\e937"}
+.icon-search:before{content:"\e952"}
+.icon-up-right-arrow:before{content:"\e948"}
+    </style>
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" /></noscript>
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" /></noscript>
         <style>
 /* font-display-fix.css
  *
