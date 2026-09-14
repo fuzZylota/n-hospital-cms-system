@@ -16,7 +16,20 @@ Ziyaretçi yaş ortalaması yüksek, trafik ağırlıklı mobil.
 - Go 1.25.1, go.work ile çok modüllü workspace (tek go.mod yok)
 - Fiber v2.52.9
 - Jet template engine (gofiber/template/jet/v2) — Go'nun html/template'i DEĞİL
+  Not: string manipülasyonu (uzantı değiştirme, replace) için kayıtlı
+  bir fonksiyon yok — sadece mthr, mthrwn, ctdi, ctdli, ctdf, cttf,
+  ctdfm, ctdfd, sdti, stti, stj, contains, shorten. Dinamik <picture>/
+  format-alternatifi gerekiyorsa bu bir kısıt.
 - PostgreSQL 16, veritabanı adı nivgoz_db
+- ⚠️ KRİTİK: Sunucuda AYNI ANDA İKİ postgres örneği çalışıyor —
+  5432 portunda aaPanel'in kendi postgres'i (GERÇEK ÜRETİM VERİSİ
+  burada, .env DB_PORT=5432 ile eşleşiyor) ve 5433 portunda apt'tan
+  kurulu postgresql-16 (eski/terk edilmiş, sadece 4 jenerik satır
+  içeriyor: "Ortopedi, Kardiyoloji..."). `sudo -u postgres psql -d
+  nivgoz_db` (host/port belirtmeden) unix socket üzerinden YANLIŞLIKLA
+  5433'e bağlanıyor ve boş/eski veri gösteriyor — bu az kalsın yanlış
+  DB'ye yazma hatasına yol açıyordu. DOĞRU bağlantı:
+  `PGPASSWORD='NivGoz123.' psql -h 127.0.0.1 -p 5432 -U nivgoz -d nivgoz_db`
 - ORM: Necoo33/neormgo/v2
 - Tema: satın alınmış Mediox HTML teması (/static/assets/)
 - Banner: DB'de tek bir banner_page kaydı var, yani TEK slide.
@@ -54,7 +67,11 @@ sayfa çalışma zamanında patlar, derleme hatası vermez.
 ## Mutlak kurallar
 - Sen frontend geliştiricisisin. Backend kodu YAZMA, inisiyatif alma.
 - Go handler, route, DB modeli, admin panel mantığına dokunma.
-- Veritabanına hiçbir koşulda yazma.
+- Veritabanına hiçbir koşulda yazma. (14 Eylül 2026: kullanıcı, PNG→WebP
+  dosya uzantısı geçişi için medias/homepage_contents path kolonlarını
+  güncellemem konusunda dar kapsamlı, tek seferlik bir istisna tanıdı.
+  Bu kalıcı bir izin DEĞİL — her yeni DB yazma ihtiyacında yine açıkça
+  sorulmalı.)
 - go.work veya go.mod'a bağımlılık ekleme, sürüm yükseltme.
 - Marka renkleri, logo, tasarım kimliği değişmez.
 - WCAG 2.2 AA altına düşme.
@@ -137,16 +154,42 @@ CLS TAMAM (0.715 → 0.011, hedef 0.1 idi).
   veya deploy sonrası ana sayfa, footer ve çerez banner'ı elle
   kontrol edilmeli.
 
+## Yapılanlar (14 Eylül 2026, ikinci tur — canlıya deploy + WebP)
+- Canlıya SSH ile bağlanıp deploy edildi (ilk kez): tek gerçek repo
+  artık https://github.com/fuzZylota/n-hospital-cms-system (Necoo33
+  reposuna erişim yok). Sunucudaki commit edilmemiş ~150 dosyalık
+  elle-düzeltme birikimi tek commit'te yakalanıp fuzZylota main'e
+  hizalandı (pre-fuzzylota-consolidation-20260914 tag'i altında
+  güvenlik ağı olarak duruyor).
+- font-display: block → swap (Font Awesome + icomoon), tema
+  dosyalarına dokunmadan aynı src'lerle override
+  (css/frontend/font-display-fix.css)
+- fallback.css + cookie-consent.css → early-common.css (istek sayısı
+  azaltıldı), fallback.jet'teki yinelenen link kaldırıldı
+- Anasayfa owl-carousel/slick CSS'i render-engelleme dışına alındı
+  (cls-guard.css bağımsız güvence sağladığı için güvenli)
+- Kullanıcı onayıyla (bkz. "Mutlak kurallar") tüm hedef görseller
+  PNG/JPG'den WebP'ye TAM GEÇİRİLDİ (dosya adı/uzantı dahil), DB'deki
+  medias.file_path/file_name/mime_type/file_size ve
+  homepage_contents.content_html/content_css (banner) güncellendi.
+  Eski dosyalar sunucuda .bak-replaced-by-webp-20260914 olarak
+  arşivlendi (silinmedi). Ortalama %75-80 küçülme:
+  - 10 tıbbi birim cover'ı: 2,76 MB → ~208 KB
+  - 12 doktor fotoğrafı: 2,48 MB → ~469 KB (önceki PNG-palet denemesi
+    kazanç vermemişti, WebP format değişimi asıl çözümdü)
+  - şube fotoğrafları + banner + 3 logo dosyası: benzer oranda
+  DB güncellemesi öncesi hem "yanlış" (5433, boş) hem "doğru" (5432,
+  gerçek) veritabanının pg_dump yedeği alındı
+  (/root/nivgoz_db_backup_REAL_pre_webp_20260914.sql sunucuda).
+
 SIRADAKİ İŞ:
-- Doktor fotoğrafları (12 adet, 1000x1000 P-mode PNG, ortalama
-  ~210 KB) zaten önceden 60-70 renge kadar paletlenmiş; yeniden
-  sıkıştırma denemesi gözle görülür kazanç vermedi (bkz. deneyler),
-  dokunulmadı.
-- 21 CSS dosyasından geri kalanı (bootstrap, fontawesome,
-  mediox-icons, owl/slick) hâlâ senkron yükleniyor; ikonlar sayfanın
-  her yerinde (header, kartlar) kritik olduğu için ertelemek risk —
-  önce görsel test edilmeden dokunulmadı.
+- Kalan CSS dosyaları (bootstrap, fontawesome, mediox-icons,
+  owl/slick teması) hâlâ senkron yükleniyor; ikonlar sayfanın her
+  yerinde kritik olduğu için ertelemek risk — dokunulmadı.
 - robots.txt route'u backend tarafından eklenmeli (yukarıya bakın).
+- tedkikler tablosundaki bazı cover'lar zaten .webp (önceden
+  yapılmış), bazıları hâlâ .png/.jpg — tutarlılık için aynı işlem
+  tedkikler için de yapılabilir (yapılmadı, kapsam dışı bırakıldı).
 
 ## Çalışma şekli
 - Her değişiklik ayrı commit, mesajlar Türkçe
