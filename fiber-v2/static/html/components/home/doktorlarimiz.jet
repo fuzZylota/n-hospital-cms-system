@@ -24,7 +24,7 @@
                 {{ range index2, Doctor := Doctors }}
                     <div class="item">
                         <div class="team-card-three">
-                            <a class="team-card-three__link-overlay" href="/doktorlarimiz/{{ Doctor.UrlName }}"></a>
+                            <a class="team-card-three__link-overlay" href="/doktorlarimiz/{{ Doctor.UrlName }}" aria-label="{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}"></a>
                             <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? Doctor.PhotoPath : "files/defaults/doktorlar/default-doctor-pic.png" }}")' ></div>
                             <div class="team-card-three__hover">
                                 <div class="team-card-three__identity">
