@@ -47,9 +47,9 @@
     <!-- Open Graph -->
     <meta property="og:locale" content="tr_TR" />
     <meta property="og:type" content="{{ if isset(OgType) }}{{ OgType }}{{ else }}website{{ end }}" />
-    <meta property="og:site_name" content="{{ SiteName }}" />
-    <meta property="og:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ SiteName }}{{ end }}" />
-    <meta property="og:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ SiteDescription }}{{ end }}" />
+    <meta property="og:site_name" content="{{ Options.Options.SiteName }}" />
+    <meta property="og:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ Options.Options.SiteName }}{{ end }}" />
+    <meta property="og:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ Options.Options.SiteDescription }}{{ end }}" />
     {{ if isset(OgImage) }}
     <meta property="og:image" content="{{ OgImage }}" />
     {{ end }}
@@ -59,8 +59,8 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ SiteName }}{{ end }}" />
-    <meta name="twitter:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ SiteDescription }}{{ end }}" />
+    <meta name="twitter:title" content="{{ if isset(PageTitle) }}{{ PageTitle }}{{ else }}{{ Options.Options.SiteName }}{{ end }}" />
+    <meta name="twitter:description" content="{{ if isset(PageDescription) }}{{ PageDescription }}{{ else }}{{ Options.Options.SiteDescription }}{{ end }}" />
     {{ if isset(OgImage) }}
     <meta name="twitter:image" content="{{ OgImage }}" />
     {{ end }}
@@ -889,7 +889,7 @@ body > .page-wrapper {
         "logo": "https://nivgoz.com/files/options/1/site_logo/nivgoz-logo.webp",
         "description": "Nivgöz, Adana ve Mersin'de bulunan göz sağlığı merkezleridir.",
         "telephone": "444 8 648",
-        "email": "{{ ContactEmail }}",
+        "email": "{{ Options.Options.ContactEmail }}",
         "medicalSpecialty": "Ophthalmology",
         "address": [
             {
@@ -914,9 +914,9 @@ body > .page-wrapper {
             }
         ],
         "sameAs": [
-            "{{ FacebookUrl }}",
-            "{{ InstagramUrl }}",
-            "{{ LinkedinUrl }}"
+            "{{ Options.Options.FacebookUrl }}",
+            "{{ Options.Options.InstagramUrl }}",
+            "{{ Options.Options.LinkedinUrl }}"
         ]
     }
     </script>
