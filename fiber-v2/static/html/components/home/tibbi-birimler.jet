@@ -27,7 +27,7 @@
                         <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" class="home-tibbi-card">
                             <div class="home-tibbi-card__img">
                                 {{ if TibbiBirim.CoverPath != "" }}
-                                    <img src="/{{ TibbiBirim.CoverPath }}" alt="{{ TibbiBirim.Name }}">
+                                    <img src="/{{ TibbiBirim.CoverPath }}" alt="{{ TibbiBirim.Name }}" loading="lazy" decoding="async">
                                 {{ else }}
                                     <div class="home-tibbi-card__no-img">
                                         <i class="fas fa-eye"></i>

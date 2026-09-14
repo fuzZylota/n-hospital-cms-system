@@ -56,7 +56,7 @@
                                 {{ range index2, Testimonial := Testimonials }}
                                     <a href="#item{{ index2 + 1 }}" class="item" data-hash="item{{ index2 + 1 }}">
                                         <span class="testimonials-three__thumb__image">
-                                            <img src="{{ Testimonial.CustomerPicturePath != "" ? Testimonial.CustomerPicturePath : "files/defaults/testimonials/testimonial-default.png" }}" alt="{{ Testimonial.CustomerPictureAltText != "" ? Testimonial.CustomerPictureAltText : "testimonial-thumb" }}">
+                                            <img src="{{ Testimonial.CustomerPicturePath != "" ? Testimonial.CustomerPicturePath : "files/defaults/testimonials/testimonial-default.png" }}" alt="{{ Testimonial.CustomerPictureAltText != "" ? Testimonial.CustomerPictureAltText : "testimonial-thumb" }}" loading="lazy" decoding="async">
                                         </span><!-- /.testimonials-three__thumb__image -->
                                     </a><!-- /.item -->
                                 {{ end }}
