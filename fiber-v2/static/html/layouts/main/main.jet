@@ -76,8 +76,141 @@
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header-topbar.css?v=7">
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doctor-cards.css?v=3">
-        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/cls-guard.css?v=1">
-        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/root-gap.css?v=1">
+    <style>
+/* ---- cls-guard.css ---- */
+/*
+ * cls-guard.css — carousel kurulumundan once yer rezervasyonu
+ *
+ * Sorun: Owl ve Slick, JS kurulumu bitene kadar sayfa yuksekligini
+ * yanlis birakiyor. Kurulum defer'li script'lerle DOMContentLoaded
+ * sonrasina dustugu icin bu, ilk boyadan sonra buyuk bir duzen
+ * kaymasi (CLS) uretiyor.
+ *
+ *   Owl  : owl.carousel.min.css icinde .owl-carousel{display:none}
+ *          Kurulumda .owl-loaded eklenene kadar yukseklik 0, sonra
+ *          birden tam yukseklige aciliyor.
+ *   Slick: Kurulumdan once slide'lar sira disi blok eleman; hepsi
+ *          alt alta yigiliyor. Kurulumda tek slide'a cokuyor.
+ *
+ * Cozum ikisinde de ayni: kurulumdan once yalnizca ilk ogeyi goster.
+ * Boylece rezerve edilen yukseklik, kurulum sonrasi yukseklikle ayni
+ * olur. Yukseklik sabit sayiyla tahmin edilmiyor, tarayici ilk ogeyi
+ * olcerek kendisi buluyor.
+ *
+ * Kurulum tamamlaninca .owl-loaded / .slick-initialized geliyor ve
+ * buradaki kurallar kendiliginden devre disi kaliyor.
+ */
+
+/* ---- Owl ---- */
+
+/* Kurulum oncesi gizleme kaldirildi; yer tutabilmesi icin gorunur olmali. */
+.owl-carousel:not(.owl-loaded) {
+    display: block;
+}
+
+/* Kurulum oncesi yalnizca ilk oge akista kalir. */
+.owl-carousel:not(.owl-loaded) > .item {
+    display: none;
+}
+
+.owl-carousel:not(.owl-loaded) > .item:first-child {
+    display: block;
+}
+
+/* ---- Slick (anasayfa banner) ---- */
+
+.main-slider-three__carousel:not(.slick-initialized) > .main-slider-three__item:not(:first-child) {
+    display: none;
+}
+
+/*
+ * JS kapaliysa veya kurulum hic olmazsa: Owl kendi display:none'ini
+ * geri aldigimiz icin ilk oge gorunur kalir, Slick'te ilk slide
+ * gorunur kalir. Her iki durumda da sayfa kullanilabilir durumda.
+ */
+    </style>
+    <style>
+/* ---- root-gap.css ---- */
+/*
+ * root-gap.css — main.jet icindeki ROOT_GAP_RUNTIME_FIX script'inin
+ * CSS karsiligi.
+ *
+ * O script ayni duzeni JS ile kuruyordu ve DOMContentLoaded, load,
+ * resize'in yani sira 300 / 1000 / 2000 ms'lik setTimeout'larla alti
+ * kez tetikleniyordu. Duzeni ilk boyadan sonra degistirdigi icin
+ * dogrudan CLS uretiyordu:
+ *
+ *   - Masaustu: CSS slider'a margin-top:var(--dg-total-h) = 136px
+ *     veriyor (style.css:2616 + style.css:1567), JS bunu 122px'e
+ *     dusuruyordu. 14px'lik tam genislik kaymasi.
+ *   - Mobil: CSS 74px veriyor (style.css:1576), JS sifirliyordu.
+ *     74px'lik tam genislik kaymasi. PageSpeed mobil olctugu icin
+ *     asil maliyet buydu.
+ *
+ * Buradaki degerler script'in urettigi son durumun AYNISI. Gorunen
+ * duzen degismiyor; yalnizca ilk boyada uygulaniyor.
+ *
+ * Script'in tek basina yaptigi is Google Translate'in ekledigi
+ * body{top:40px} ve banner iframe'ini bastirmakti. style.css:2623
+ * bunu zaten yapiyor ama @media (min-width:992px) icine kilitli;
+ * burada tum genisliklerde gecerli kiliniyor.
+ */
+
+/* ---- Google Translate'in enjekte ettigi bosluk ---- */
+
+html,
+body,
+body.skiptranslate {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    top: 0 !important;
+}
+
+iframe.goog-te-banner-frame,
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+body > iframe.skiptranslate {
+    display: none !important;
+    height: 0 !important;
+    visibility: hidden !important;
+}
+
+/* ---- Anasayfa ust bosluk ---- */
+
+body > .page-wrapper {
+    margin-top: 0 !important;
+}
+
+.page-wrapper.homepage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.page-wrapper.homepage > .header-spacer {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/*
+ * Slider ust boslugu. Script'teki degerlerin birebir karsiligi:
+ * window.innerWidth >= 992 -> 122px, altinda -> 0.
+ */
+.page-wrapper.homepage .main-slider-three,
+.page-wrapper.homepage section.main-slider-three {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+@media (min-width: 992px) {
+    .page-wrapper.homepage .main-slider-three,
+    .page-wrapper.homepage section.main-slider-three {
+        margin-top: 122px !important;
+    }
+}
+    </style>
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
     {{ end }}
