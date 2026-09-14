@@ -22,11 +22,11 @@ import (
 )
 
 func FrontendRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
-	routes := server.Group("/")
+	// SEO: robots.txt ve sitemap.xml — doğrudan server'a kaydedilmeli (Group içinde değil)
+	server.Get("/robots.txt", frontend.RobotsTxt())
+	server.Get("/sitemap.xml", frontend.SitemapXml(states, utilities))
 
-	// SEO: robots.txt ve sitemap.xml route'ları
-	routes.Get("/robots.txt", frontend.RobotsTxt())
-	routes.Get("/sitemap.xml", frontend.SitemapXml(states, utilities))
+	routes := server.Group("/")
 
 	routes.Get("/", frontend.HomePage(states, utilities))
 	routes.Get("/kurumsal/hakkimizda", frontend.AboutUsPage(states, utilities))
