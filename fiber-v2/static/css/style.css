@@ -334,20 +334,20 @@ body.mobile-nav-expanded .mobile-nav__btn span:nth-child(3){transform:translateY
 
 .main-header__logo img,
 .logo-retina img{
-  content: url("/files/options/1/site_logo/dark/nivgöz normal logo.png") !important;
+  content: url("/files/options/1/site_logo/dark/nivgöz normal logo.webp") !important;
 }
 
 @media (max-width: 991.98px){
   .main-header__logo img,
   .logo-retina img{
-    content: url("/files/options/1/site_logo/dark/nivgöz normal logo.png") !important;
+    content: url("/files/options/1/site_logo/dark/nivgöz normal logo.webp") !important;
   }
 }
 
 
 .main-header__logo img,
 .logo-retina img{
-  content: url("/files/options/1/site_logo/dark/nivg%C3%B6z%20normal%20logo.png") !important;
+  content: url("/files/options/1/site_logo/dark/nivg%C3%B6z%20normal%20logo.webp") !important;
 }
 
 @media (max-width: 991.98px){

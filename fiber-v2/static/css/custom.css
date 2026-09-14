@@ -1,7 +1,7 @@
 .main-header__logo img,
 .main-header__logo--mobile img,
 .logo-retina img {
-    content: url("https://nivgoz.com/files/options/1/site_logo/dark/nivg%C3%B6z%20normal%20logo.png") !important;
+    content: url("https://nivgoz.com/files/options/1/site_logo/dark/nivg%C3%B6z%20normal%20logo.webp") !important;
 }
 
 /* Logo netliği - tema "crisp-edges" ayarı büyük logoyu küçültürken pikselli/sert gösteriyordu */
