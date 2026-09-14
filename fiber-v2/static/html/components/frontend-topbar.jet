@@ -48,29 +48,7 @@
             </div>
         </div>
     </div>
-</div><script>
-(function(){
-    var toggle = document.getElementById('nvSearchToggle');
-    var box = document.getElementById('nvSearchBox');
-    var input = document.getElementById('nvSearchInput');
-    var open = false;
-    if(toggle && box){
-        toggle.addEventListener('click', function(){
-            if(!open){
-                box.style.maxWidth = '240px';
-                setTimeout(function(){ if(input) input.focus(); }, 300);
-                open = true;
-            } else {
-                box.style.maxWidth = '0';
-                open = false;
-            }
-        });
-        document.addEventListener('click', function(e){
-            if(!document.getElementById('nvTopbarSearch').contains(e.target)){
-                box.style.maxWidth = '0';
-                open = false;
-            }
-        });
-    }
-})();
-</script>
+</div>
+{{ if Route != "/" }}
+    {{ include "../../components/frontend-topbar-search" }}
+{{ end }}
