@@ -112,8 +112,6 @@ function setFastRandevuOpenState(isOpen) {
     }
     toggleButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-
-    logFastRandevuState(isOpen ? 'open' : 'close');
 }
 
 function handleFastRandevuOutsideInteraction(event) {
@@ -134,42 +132,6 @@ function handleFastRandevuOutsideInteraction(event) {
     if (mobileLineButton && mobileLineButton.contains(target)) return;
 
     setFastRandevuOpenState(false);
-}
-
-function logFastRandevuState(source = 'manual') {
-    const container = document.getElementById('fastRandevu');
-    const mobileLine = document.getElementById('fastRandevuMobileLine');
-    const panel = container ? container.querySelector('.fast-randevu__panel') : null;
-    const toggleButton = document.getElementById('fastRandevuToggle');
-
-    const logPayload = {
-        source,
-        viewport: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-        },
-        hasContainer: !!container,
-        containerClasses: container ? Array.from(container.classList) : [],
-        isOpen: container ? container.classList.contains('is-open') : false,
-        toggleVisible: toggleButton ? window.getComputedStyle(toggleButton).display : 'missing',
-        panelStyles: panel
-            ? {
-                  display: window.getComputedStyle(panel).display,
-                  opacity: window.getComputedStyle(panel).opacity,
-                  transform: window.getComputedStyle(panel).transform,
-              }
-            : 'missing',
-        mobileLine: mobileLine
-            ? {
-                  display: window.getComputedStyle(mobileLine).display,
-                  opacity: window.getComputedStyle(mobileLine).opacity,
-                  visibility: window.getComputedStyle(mobileLine).visibility,
-                  rect: mobileLine.getBoundingClientRect(),
-                  zIndex: window.getComputedStyle(mobileLine).zIndex,
-              }
-            : 'missing',
-    };
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -194,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="fast-randevu__mobile-line-badge">7/24</span>
         `;
         container.appendChild(mobileLineButton);
-        logFastRandevuState('mobile-line-created');
     }
 
     if (kvkkCheckbox) {
@@ -208,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const isOpen = container.classList.contains('is-open');
             setFastRandevuOpenState(!isOpen);
         });
-        logFastRandevuState('toggle-mounted');
     }
 
     if (closeButton) {
@@ -223,26 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             const isOpen = container.classList.contains('is-open');
             setFastRandevuOpenState(!isOpen);
-            logFastRandevuState('mobile-line-click');
         });
-        logFastRandevuState('mobile-line-mounted');
-    } else {
-        logFastRandevuState('mobile-line-missing');
     }
-
-    logFastRandevuState('dom-ready');
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => logFastRandevuState('resize'), 200);
-    });
 
     // Close when clicking/touching outside the panel
     document.addEventListener('click', handleFastRandevuOutsideInteraction);
     document.addEventListener('touchstart', handleFastRandevuOutsideInteraction, { passive: true });
-
-    window.fastRandevuLogState = () => logFastRandevuState('manual-call');
 
     if (!form) {
         return;
