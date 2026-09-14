@@ -16,7 +16,7 @@
                     <div class="main-slider-three__bg"
                          data-desktop="/{{ BannerContent.ContentHtml | raw }}"
                          data-mobile="{{ if BannerContent.ContentCss != "" }}/{{ BannerContent.ContentCss | raw }}{{ else }}/{{ BannerContent.ContentHtml | raw }}{{ end }}"
-                         style="background-image: url(/{{ BannerContent.ContentHtml | raw }});"></div>
+                         {{ if index1 == 0 }}style="background-image: url(/{{ BannerContent.ContentHtml | raw }});"{{ end }}></div>
                     <div class="main-slider-three__container container">
                         <div class="banner-row row">
                             <div class="col-xxl-10 col-xl-9 mx-auto">
@@ -52,18 +52,32 @@
 </section>
 <script>
 (function(){
-    function applyResponsiveSliderImages(){
+    // yalnizcaIlk=true iken sadece ilk slide'in gorseli atanir. Geri kalan
+    // slide'lar window.load sonrasina birakilir; boylece ilk boyada tek
+    // gorsel indiriliyor, hepsi degil.
+    function applyResponsiveSliderImages(yalnizcaIlk){
         var isMobile = window.innerWidth <= 767;
-        document.querySelectorAll('.main-slider-three__bg[data-mobile]').forEach(function(bg){
-            var url = isMobile ? bg.getAttribute('data-mobile') : bg.getAttribute('data-desktop');
-            if(url){ bg.style.backgroundImage = 'url(' + url + ')'; }
-        });
+        var bgs = document.querySelectorAll('.main-slider-three__bg[data-mobile]');
+        for(var i = 0; i < bgs.length; i++){
+            if(yalnizcaIlk && i > 0) continue;
+            var url = isMobile ? bgs[i].getAttribute('data-mobile') : bgs[i].getAttribute('data-desktop');
+            if(url){ bgs[i].style.backgroundImage = 'url(' + url + ')'; }
+        }
     }
-    applyResponsiveSliderImages();
+
+    applyResponsiveSliderImages(true);
+
+    function kalanlariYukle(){ applyResponsiveSliderImages(false); }
+
+    if(document.readyState === 'complete'){
+        kalanlariYukle();
+    } else {
+        window.addEventListener('load', kalanlariYukle);
+    }
     var resizeTimer;
     window.addEventListener('resize', function(){
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(applyResponsiveSliderImages, 150);
+        resizeTimer = setTimeout(kalanlariYukle, 150);
     });
 
     if(window.innerWidth > 767) return;
