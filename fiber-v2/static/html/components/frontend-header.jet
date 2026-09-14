@@ -12,14 +12,14 @@
                             {{ if Options.Medias[0].FilePath != "" }}
                                 <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="1000" height="405" />
                             {{ else }}
-                                <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" />
+                                <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" width="2001" height="667" />
                             {{ end }}
                         {{ end }}
                     {{ else }}
                         {{ if Options.Medias[0].FilePath != "" }}
-                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="1000" height="405" />
                         {{ else }}
-                            <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" />
+                            <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" width="2001" height="667" />
                         {{ end }}
                     {{ end }}
                 </a>
@@ -138,9 +138,9 @@
         <div class="logo-box logo-retina">
             <a href="/" aria-label="logo image">
                 {{ if Options.Medias[0].FilePath != "" }}
-                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
+                    <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="1000" height="405">
                 {{ else }}
-                    <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu">
+                    <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" title="N-Hospital Logosu" width="2001" height="667">
                 {{ end }}
             </a>
         </div>
