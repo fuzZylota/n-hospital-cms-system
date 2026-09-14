@@ -9,7 +9,6 @@
         <button type="button" class="nv-lang-item" data-lang="en" data-label="{{ PathOnStart }}assets/flags/gb.svg" aria-label="English"><img src="{{ PathOnStart }}assets/flags/gb.svg" alt="English" class="nv-lang-flag"></button>
         <button type="button" class="nv-lang-item" data-lang="ru" data-label="{{ PathOnStart }}assets/flags/ru.svg" aria-label="Русский"><img src="{{ PathOnStart }}assets/flags/ru.svg" alt="Русский" class="nv-lang-flag"></button>
         <button type="button" class="nv-lang-item" data-lang="az" data-label="{{ PathOnStart }}assets/flags/az.svg" aria-label="Azərbaycan"><img src="{{ PathOnStart }}assets/flags/az.svg" alt="Azərbaycan" class="nv-lang-flag"></button>
-        <button type="button" class="nv-lang-item" data-lang="ar" data-label="{{ PathOnStart }}assets/flags/sa.svg" aria-label="العربية"><img src="{{ PathOnStart }}assets/flags/sa.svg" alt="العربية" class="nv-lang-flag"></button>
         <button type="button" class="nv-lang-item" data-lang="de" data-label="{{ PathOnStart }}assets/flags/de.svg" aria-label="Deutsch"><img src="{{ PathOnStart }}assets/flags/de.svg" alt="Deutsch" class="nv-lang-flag"></button>
     </div>
 </div>
@@ -70,7 +69,6 @@ function nvSetLang(lang) {
             en: 'gb.svg',
             ru: 'ru.svg',
             az: 'az.svg',
-            ar: 'sa.svg',
             de: 'de.svg'
         };
         return map[lang] || 'tr.svg';
