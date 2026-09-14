@@ -6,7 +6,7 @@
     <div class="fast-randevu__panel" aria-hidden="true">
         <div class="fast-randevu__header">
             <h4>Hızlı Randevu</h4>
-            <p>Adınızı bırakın, en kısa sürede sizi arayalım.</p>
+
             <p class="fast-randevu__availability"><i class="fas fa-clock"></i> 7/24 hizmetteyiz</p>
             <button type="button" class="fast-randevu__close" id="fastRandevuClose" aria-label="Hızlı randevu panelini kapat">
                 <i class="fas fa-times"></i>
@@ -14,17 +14,17 @@
         </div>
         <form id="fastRandevuForm" class="fast-randevu__form" novalidate>
             <div class="fast-randevu__field">
-                <input type="text" name="patient_first_name" id="fastRandevuName" placeholder="Adınız*" required>
+                <input type="text" name="patient_first_name" id="fastRandevuName" aria-label="Adınız" placeholder="Adınız*" required>
             </div>
             <div class="fast-randevu__field">
-                <input type="text" name="patient_last_name" id="fastRandevuSurname" placeholder="Soyadınız*" required>
+                <input type="text" name="patient_last_name" id="fastRandevuSurname" aria-label="Soyadınız" placeholder="Soyadınız*" required>
             </div>
             <div class="fast-randevu__field">
-                <input type="tel" name="patient_phone" id="fastRandevuPhone" placeholder="Telefon Numaranız*" required>
+                <input type="tel" name="patient_phone" id="fastRandevuPhone" aria-label="Telefon numaranız" placeholder="Telefon Numaranız*" required>
             </div>
             <div class="fast-randevu__field">
-                <select name="sid" id="fastRandevuSube" class="fast-randevu__select">
-                    <option value="">Şube Seçiniz</option>
+                <select name="sid" id="fastRandevuSube" aria-label="Merkez seçiniz" class="fast-randevu__select">
+                    <option value="">Merkez Seçiniz</option>
                 </select>
             </div>
             <div class="fast-randevu__kvkk">
@@ -50,7 +50,7 @@
     <button type="button" class="fast-randevu__mobile-line" id="fastRandevuMobileLine" aria-label="Hızlı randevu panelini aç">
         <span class="fast-randevu__mobile-line-label">
             <i class="icon-phone-call"></i>
-            Hızlı Randevu
+            Hızlı Randevu Al
         </span>
         <span class="fast-randevu__mobile-line-badge">7/24</span>
     </button>

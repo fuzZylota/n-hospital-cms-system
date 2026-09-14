@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900|Roboto:100,200,300,400,500,600,700,800,900|Montserrat:100,200,300,400,500,600,700,800,900|Inter:100,200,300,400,500,600,700,800,900|Open+Sans:100,200,300,400,500,600,700,800,900|Oswald:100,200,300,400,500,600,700,800,900|Noto+Sans:100,200,300,400,500,600,700,800,900|Raleway:100,200,300,400,500,600,700,800,900|Ubuntu:100,200,300,400,500,600,700,800,900|Playfair+Display:100,200,300,400,500,600,700,800,900|Work+Sans:100,200,300,400,500,600,700,800,900|Outfit:100,200,300,400,500,600,700,800,900">
+    <style>
+        :root {
+            --theme-primary-color: {{ Options ? Options.Options.PrimaryColor : "rgba(40, 59, 106, 1)" }};
+            --theme-secondary-color: {{ Options ? Options.Options.SecondaryColor : "rgba(223, 0, 36, 1)" }};
+            --theme-accent-color: {{ Options ? Options.Options.AccentColor : "rgba(51, 193, 237, 1)" }};
+            --theme-background-color: {{ Options ? Options.Options.BackgroundColor : "rgba(255, 255, 255, 1)" }};
+            --theme-text-color: {{ Options ? Options.Options.FontColor : "rgba(51, 51, 51, 1)" }};
+            --theme-font-family: {{ Options ? Options.Options.FontFamily : "Poppins, sans-serif" }};
+            --theme-header-text-color: {{ Options ? Options.Options.FontColor : "rgba(255,255,255,1)" }};
+        }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
+    <title>{{ Title }}</title>
+    <meta name="author" content="Nermefraz Bilişim Teknolojileri, Yazılım ve Danışmanlık. Nermefraz Information Technologies, Software Consulting and Development Company.">
+    <meta name="description" content="{{ Description }}" />
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/animate/animate.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-ui/jquery-ui.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jarallax/jarallax.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-magnific-popup/jquery.magnific-popup.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/nouislider/nouislider.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/nouislider/nouislider.pips.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/tiny-slider/tiny-slider.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-icons/style.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-dark.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}assets/mediox-landing.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fallback.css" />
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/cookie-consent.css" />
+
+    {{ if Route == "/" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/transparent-bg-on-homepage.css">
+    {{ end }}
+
+    {{ if Route == "/kurumsal/anlasmali-kurumlar" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/anlasmali-kurumlar.css">
+    {{ end }}
+
+    {{ if Route == "/kurumsal/insan-kaynaklari" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/insan-kaynaklari.css">
+    {{ end }}
+
+    {{ if Route == "/iletisim" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/subeler.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz/:sube" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/sube.css">
+    {{ end }}
+
+    {{ if Route == "/subelerimiz/:sube/doktorlar" }}
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlar.css">
+    {{ end }}
+
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fast-randevu.css">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20260913b">
+
+        <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260313-hf3">
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header-topbar.css?v=7">
+        <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doctor-cards.css?v=3">
+{{ if false && Options.Options.GoogleAnalytics != "" }}
+        {{ Options.Options.GoogleAnalytics | raw }}
+    {{ end }}
+</head>
+
+
+<body class="{{ if Route == "/" }}homepage{{ end }}">
+    
+
+    
+
+    {{ if Options.Options.Preloader != "" }}
+        {{ Options.Options.Preloader | raw }}
+    {{ end }}
+    
+    
+
+    <a href="#" data-target="html" class="scroll-to-target scroll-to-top">
+        <span class="scroll-to-top__text">Yukarı Çık</span>
+        <span class="scroll-to-top__wrapper"><span class="scroll-to-top__inner"></span></span>
+    </a>
+
+    <div class="header-four">
+        {{ include "../../components/frontend-topbar" }}
+
+        {{ include "../../components/frontend-header" }}
+    </div>
+
+    <div class="page-wrapper{{ if Route == "/" }} homepage{{ end }}">
+        
+         <div class="header-spacer" id="nvHeaderSpacer"></div>
+
+         {{ embed() }}
+
+         {{ include "../../components/frontend-sidebar" }}
+    
+         {{ include "../../components/frontend-footer" }}
+         {{ if Route != "/randevu" }}{{ include "../../components/fast-randevu" }}{{ end }}
+    </div>
+
+    <script src="{{ PathOnStart }}js/frontend/fast-randevu.js"></script>
+
+    {{ if Route == "/" }}
+        <script src="{{ PathOnStart }}js/frontend/not-transparent-when-scrolled-down.js"></script>
+        <script src="{{ PathOnStart }}js/frontend/insert-randevu-talebi.js"></script>
+    {{ end }}
+    <script src="{{ PathOnStart }}js/frontend/sticky-topbar.js"></script>
+
+    {{ if Route == "/kurumsal/insan-kaynaklari" }}
+        <script src="{{ PathOnStart }}js/frontend/insan-kaynaklari.js"></script>
+    {{ end }}
+
+    {{ if Route == "/iletisim" }}
+        <script src="{{ PathOnStart }}js/frontend/iletisim.js"></script>
+    {{ end }}
+
+    {{ if Route == "/doktorlar/:sube/doktorlar" }}
+        <script src="{{ PathOnStart }}js/frontend/doktorlar.js"></script>
+    {{ end }}
+
+    <script src="{{ PathOnStart }}assets/jquery/jquery-3.7.0.min.js"></script>
+    <script src="{{ PathOnStart }}js/script.js"></script>
+    <script src="{{ PathOnStart }}assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jarallax/jarallax.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-ui/jquery-ui.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-ajaxchimp/jquery.ajaxchimp.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-appear/jquery.appear.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-circle-progress/jquery.circle-progress.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-magnific-popup/jquery.magnific-popup.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-validate/jquery.validate.min.js"></script>
+    <script src="{{ PathOnStart }}assets/nouislider/nouislider.min.js"></script>
+    <script src="{{ PathOnStart }}assets/tiny-slider/tiny-slider.js"></script>
+    <script src="{{ PathOnStart }}assets/wnumb/wNumb.min.js"></script>
+    <script src="{{ PathOnStart }}assets/owl-carousel/js/owl.carousel.min.js"></script>
+    <script src="{{ PathOnStart }}assets/slick/js/slick.min.js"></script>
+    <script src="{{ PathOnStart }}assets/wow/wow.js"></script>
+    <script src="{{ PathOnStart }}assets/imagesloaded/imagesloaded.min.js"></script>
+    <script src="{{ PathOnStart }}assets/isotope/isotope.js"></script>
+    <script src="{{ PathOnStart }}assets/countdown/countdown.min.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-circleType/jquery.circleType.js"></script>
+    <script src="{{ PathOnStart }}assets/jquery-lettering/jquery.lettering.min.js"></script>
+    <script src="{{ PathOnStart }}assets/mediox.js"></script>
+    <script src="{{ PathOnStart }}assets/mediox-landing.js"></script>
+
+
+    <script>
+    <!-- ROOT_GAP_RUNTIME_FIX_START -->
+    (function () {
+      function fixRootGap() {
+        try {
+          document.documentElement.style.marginTop = '0';
+          document.documentElement.style.paddingTop = '0';
+          document.body.style.marginTop = '0';
+          document.body.style.paddingTop = '0';
+          document.body.style.top = '0';
+
+          var pw = document.querySelector('body > .page-wrapper');
+          if (pw) {
+            pw.style.marginTop = '0';
+            if (pw.classList.contains('homepage')) {
+              pw.style.paddingTop = '0';
+            }
+          }
+
+          var headerFour = document.querySelector('.page-wrapper.homepage > .header-four');
+          if (headerFour) {
+            headerFour.style.marginTop = '0';
+            headerFour.style.top = '0';
+            headerFour.style.transform = 'none';
+          }
+
+          var hs = document.querySelector('.page-wrapper.homepage > .header-spacer');
+          if (hs) {
+            hs.style.display = 'none';
+            hs.style.height = '0';
+            hs.style.minHeight = '0';
+            hs.style.margin = '0';
+            hs.style.padding = '0';
+          }
+
+          var slider = document.querySelector('.page-wrapper.homepage section.main-slider-three');
+          if (slider) {
+            if (window.innerWidth >= 992) {
+              slider.style.marginTop = '122px';
+            } else {
+              slider.style.marginTop = '0';
+            }
+            slider.style.paddingTop = '0';
+          }
+
+          var translateFrames = document.querySelectorAll('iframe.goog-te-banner-frame, .goog-te-banner-frame, body > .skiptranslate, body > iframe.skiptranslate');
+          translateFrames.forEach(function(el){
+            el.style.display = 'none';
+            el.style.height = '0';
+            el.style.minHeight = '0';
+            el.style.maxHeight = '0';
+            el.style.margin = '0';
+            el.style.padding = '0';
+            el.style.border = '0';
+            el.style.visibility = 'hidden';
+          });
+        } catch(e) {}
+      }
+
+      document.addEventListener('DOMContentLoaded', fixRootGap);
+      window.addEventListener('load', fixRootGap);
+      window.addEventListener('resize', fixRootGap);
+      setTimeout(fixRootGap, 300);
+      setTimeout(fixRootGap, 1000);
+      setTimeout(fixRootGap, 2000);
+    })();
+    <!-- ROOT_GAP_RUNTIME_FIX_END -->
+    </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="tel:"]').forEach(function (a) {
+    a.textContent = a.textContent.replace(/\+/g, '').trim();
+  });
+});
+</script>
+
+
+
+
+
+<div id="nvCookieBanner" aria-live="polite">
+    <div class="nv-ck-wrap">
+        <div class="nv-ck-text">
+            <div class="nv-ck-title">Çerezleri kullanıyoruz</div>
+            <div class="nv-ck-desc">
+                Deneyiminizi iyileştirmek için çerez kullanıyoruz. Zorunlu çerezler her zaman aktiftir.
+            </div>
+        </div>
+        <div class="nv-ck-btns">
+            <button type="button" class="nv-ck-btn nv-ck-btn--accept" onclick="nvAcceptAllCookies()">Kabul Et</button>
+            <button type="button" class="nv-ck-btn nv-ck-btn--reject" onclick="nvRejectAllCookies()">Reddet</button>
+        </div>
+        <button type="button" class="nv-ck-manage-link" onclick="nvOpenCookieSettings()">Tercihleri yönet</button>
+    </div>
+</div>
+
+<div id="nvCookieBackdrop" onclick="nvCloseCookieSettings()"></div>
+
+<div id="nvCookieModal" role="dialog" aria-modal="true" aria-labelledby="nvCookieModalTitle">
+    <div class="nv-ckm-head">
+        <div>
+            <div id="nvCookieModalTitle" class="nv-ckm-title">Çerez Tercihleri</div>
+            <div class="nv-ckm-subtitle">Zorunlu çerezler her zaman açık kalır. Analitik çerezleri isteğinize göre açıp kapatabilirsiniz.</div>
+        </div>
+        <button type="button" class="nv-ckm-close" onclick="nvCloseCookieSettings()" aria-label="Kapat">×</button>
+    </div>
+
+    <div class="nv-ckm-body">
+        <div class="nv-ckm-row">
+            <div class="nv-ckm-info">
+                <div class="nv-ckm-label">Zorunlu Çerezler</div>
+                <div class="nv-ckm-text">Sitenin temel işlevleri için gereklidir. Kapatılamaz.</div>
+            </div>
+            <label class="nv-switch nv-switch--locked">
+                <input type="checkbox" checked disabled>
+                <span class="nv-slider"></span>
+            </label>
+        </div>
+
+        <div class="nv-ckm-row">
+            <div class="nv-ckm-info">
+                <div class="nv-ckm-label">Analitik Çerezler</div>
+                <div class="nv-ckm-text">Google Analytics ile trafik ve kullanım istatistiklerini ölçmemizi sağlar.</div>
+            </div>
+            <label class="nv-switch">
+                <input type="checkbox" id="nvAnalyticsToggle">
+                <span class="nv-slider"></span>
+            </label>
+        </div>
+
+        <div class="nv-ckm-links">
+            <a href="/kurumsal/cerez-politikasi">KVKK / Çerez Bilgilendirmesi</a>
+        </div>
+    </div>
+
+    <div class="nv-ckm-actions">
+        <button type="button" class="nv-ck-btn nv-ck-btn--reject" onclick="nvRejectAllCookies()">Reddet</button>
+        <button type="button" class="nv-ck-btn nv-ck-btn--manage" onclick="nvSaveCookiePreferences()">Tercihleri Kaydet</button>
+        <button type="button" class="nv-ck-btn nv-ck-btn--accept" onclick="nvAcceptAllCookies()">Tümünü Kabul Et</button>
+    </div>
+</div>
+
+<button type="button" id="nvCookiePrefsBtn" onclick="nvOpenCookieSettings()" aria-label="Çerez tercihleri" title="Çerez tercihleri">
+    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <path d="m386 256c0 5.523438-4.476562 10-10 10s-10-4.476562-10-10 4.476562-10 10-10 10 4.476562 10 10zm0 0"></path>
+        <path d="m286 196c0 5.523438-4.476562 10-10 10s-10-4.476562-10-10 4.476562-10 10-10 10 4.476562 10 10zm0 0"></path>
+        <path d="m266 406c0 5.523438-4.476562 10-10 10s-10-4.476562-10-10 4.476562-10 10-10 10 4.476562 10 10zm0 0"></path>
+        <path d="m116 226c0 5.523438-4.476562 10-10 10s-10-4.476562-10-10 4.476562-10 10-10 10 4.476562 10 10zm0 0"></path>
+        <path d="m146 396c22.054688 0 40-17.945312 40-40s-17.945312-40-40-40-40 17.945312-40 40 17.945312 40 40 40zm0-60c11.027344 0 20 8.972656 20 20s-8.972656 20-20 20-20-8.972656-20-20 8.972656-20 20-20zm0 0"></path>
+        <path d="m236 126c0-22.054688-17.945312-40-40-40s-40 17.945312-40 40 17.945312 40 40 40 40-17.945312 40-40zm-60 0c0-11.027344 8.972656-20 20-20s20 8.972656 20 20-8.972656 20-20 20-20-8.972656-20-20zm0 0"></path>
+        <path d="m306 346c0 22.054688 17.945312 40 40 40s40-17.945312 40-40-17.945312-40-40-40-40 17.945312-40 40zm60 0c0 11.027344-8.972656 20-20 20s-20-8.972656-20-20 8.972656-20 20-20 20 8.972656 20 20zm0 0"></path>
+        <path d="m236 306c16.542969 0 30-13.457031 30-30s-13.457031-30-30-30-30 13.457031-30 30 13.457031 30 30 30zm0-40c5.515625 0 10 4.484375 10 10s-4.484375 10-10 10-10-4.484375-10-10 4.484375-10 10-10zm0 0"></path>
+        <path d="m266 502c0 5.523438-4.476562 10-10 10s-10-4.476562-10-10 4.476562-10 10-10 10 4.476562 10 10zm0 0"></path>
+        <path d="m494.398438 210.425781c-6.492188 3.28125-16.9375 5.574219-25.398438 5.574219-19.875 0-39.453125-11.484375-47.613281-27.925781-2.164063-4.359375-7.15625-6.527344-11.820313-5.136719-6.992187 2.089844-12.890625 3.0625-18.566406 3.0625-35.839844 0-65-29.160156-65-65 0-5.671875.972656-11.574219 3.0625-18.566406 1.394531-4.667969-.773438-9.65625-5.136719-11.820313-16.441406-8.160156-27.925781-27.738281-27.925781-47.613281 0-8.460938 2.292969-18.90625 5.574219-25.398438 1.445312-2.859374 1.433593-6.238281-.03125-9.085937-1.464844-2.847656-4.207031-4.824219-7.375-5.308594-14.242188-2.1875-26.367188-3.207031-38.167969-3.207031-137.980469 0-256 117.800781-256 256 0 120.019531 89.976562 228.125 209.289062 251.464844 5.421876 1.058594 10.675782-2.476563 11.734376-7.894532 1.058593-5.421874-2.472657-10.675781-7.894532-11.734374-110.101562-21.535157-193.128906-121.203126-193.128906-231.835938 0-127.925781 108.074219-236 236-236 7.300781 0 14.789062.4375 22.980469 1.351562-1.886719 7.011719-2.980469 14.667969-2.980469 21.648438 0 24.269531 12.796875 48.351562 31.902344 61.347656-1.289063 5.839844-1.902344 11.257813-1.902344 16.652344 0 46.867188 38.132812 85 85 85 5.394531 0 10.8125-.613281 16.652344-1.902344 12.996094 19.105469 37.078125 31.902344 61.347656 31.902344 6.980469 0 14.636719-1.09375 21.648438-2.980469.914062 8.191407 1.351562 15.679688 1.351562 22.980469 0 110.632812-83.027344 210.300781-193.128906 231.835938-5.421875 1.058593-8.953125 6.3125-7.894532 11.730468 1.058594 5.421875 6.3125 8.957032 11.734376 7.898438 119.3125-23.339844 209.289062-131.445313 209.289062-251.464844 0-11.800781-1.019531-23.925781-3.207031-38.167969-1.027344-6.710937-8.324219-10.476562-14.394531-7.40625zm0 0"></path>
+    </svg>
+</button>
+
+<script>
+(function () {
+    var STORAGE_KEY = 'nv_cookie_consent_v2';
+    var GA_ID = 'G-8VZ7DM0ZTS';
+
+    function getBanner() { return document.getElementById('nvCookieBanner'); }
+    function getModal() { return document.getElementById('nvCookieModal'); }
+    function getBackdrop() { return document.getElementById('nvCookieBackdrop'); }
+    function getToggle() { return document.getElementById('nvAnalyticsToggle'); }
+    function getPrefsBtn() { return document.getElementById('nvCookiePrefsBtn'); }
+
+    function safeParse(val) {
+        try { return JSON.parse(val); } catch (e) { return null; }
+    }
+
+    function readConsent() {
+        try {
+            return safeParse(localStorage.getItem(STORAGE_KEY));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function writeConsent(data) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+    }
+
+    function hasDecision() {
+        var c = readConsent();
+        return !!(c && typeof c.analytics === 'boolean');
+    }
+
+    function isPreloaderVisible() {
+        var preloader = document.getElementById('preloader');
+        if (!preloader) return false;
+        if (preloader.classList.contains('preloader-hidden')) return false;
+        return preloader.parentNode !== null;
+    }
+
+    function hideBanner() {
+        var el = getBanner();
+        if (el) el.style.display = 'none';
+    }
+
+    function showBanner() {
+        if (isPreloaderVisible()) return;
+        var el = getBanner();
+        if (el) el.style.display = 'block';
+    }
+
+    function syncBannerVisibility() {
+        if (hasDecision()) {
+            hideBanner();
+        } else if (!isPreloaderVisible()) {
+            showBanner();
+        }
+    }
+
+    function openModal() {
+        var modal = getModal();
+        var backdrop = getBackdrop();
+        var toggle = getToggle();
+        var consent = readConsent();
+
+        if (toggle) {
+            toggle.checked = !!(consent && consent.analytics === true);
+        }
+
+        if (modal) modal.style.display = 'block';
+        if (backdrop) backdrop.style.display = 'block';
+        document.documentElement.classList.add('nv-cookie-modal-open');
+        document.body.classList.add('nv-cookie-modal-open');
+    }
+
+    function closeModal() {
+        var modal = getModal();
+        var backdrop = getBackdrop();
+        if (modal) modal.style.display = 'none';
+        if (backdrop) backdrop.style.display = 'none';
+        document.documentElement.classList.remove('nv-cookie-modal-open');
+        document.body.classList.remove('nv-cookie-modal-open');
+    }
+
+    function loadAnalytics() {
+        if (window.__nvAnalyticsLoaded) return;
+        window.__nvAnalyticsLoaded = true;
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function(){dataLayer.push(arguments);};
+        gtag('js', new Date());
+        gtag('config', GA_ID);
+
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
+        document.head.appendChild(s);
+    }
+
+    function applyConsent() {
+        var consent = readConsent();
+        if (consent && consent.analytics === true) {
+            loadAnalytics();
+        }
+    }
+
+    window.nvOpenCookieSettings = function () {
+        openModal();
+    };
+
+    window.nvCloseCookieSettings = function () {
+        closeModal();
+    };
+
+    window.nvAcceptAllCookies = function () {
+        writeConsent({
+            essential: true,
+            analytics: true,
+            updatedAt: new Date().toISOString(),
+            source: 'accept_all'
+        });
+        hideBanner();
+        closeModal();
+        loadAnalytics();
+    };
+
+    window.nvRejectAllCookies = function () {
+        writeConsent({
+            essential: true,
+            analytics: false,
+            updatedAt: new Date().toISOString(),
+            source: 'reject_all'
+        });
+        hideBanner();
+        closeModal();
+    };
+
+    window.nvSaveCookiePreferences = function () {
+        var toggle = getToggle();
+        var analytics = !!(toggle && toggle.checked);
+
+        writeConsent({
+            essential: true,
+            analytics: analytics,
+            updatedAt: new Date().toISOString(),
+            source: 'preferences'
+        });
+
+        hideBanner();
+        closeModal();
+
+        if (analytics) {
+            loadAnalytics();
+        }
+    };
+
+    window.nvResetCookieConsent = function () {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        window.location.reload();
+    };
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    if (hasDecision()) {
+        hideBanner();
+    } else {
+        hideBanner();
+    }
+
+    window.addEventListener('load', function () {
+        setTimeout(syncBannerVisibility, 650);
+    });
+
+    setTimeout(syncBannerVisibility, 1200);
+    setTimeout(syncBannerVisibility, 2500);
+    setTimeout(syncBannerVisibility, 5200);
+
+    applyConsent();
+})();
+</script>
+
+
+
+
+
+</body>
+</html>

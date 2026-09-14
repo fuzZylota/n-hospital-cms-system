@@ -10,6 +10,8 @@ import (
 	"database"
 
 	"github.com/gofiber/fiber/v2"
+	"strconv"
+	"strings"
 )
 
 func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
@@ -191,9 +193,9 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 		}
 
-		encryptedPassword, err := lib.Encrypt([]byte(inputs.Password))
+		hashedPassword, err := lib.HashPassword(inputs.Password)
 		if err != nil {
-			log.Printf("Cannot encrypt password: %v\n", err)
+			log.Printf("Cannot hash password: %v\n", err)
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
@@ -201,7 +203,7 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 		}
 
 		columns := []string{"name", "surname", "password", "email", "phone", "role", "is_active", "timezone"}
-		values := []interface{}{inputs.Name, inputs.Surname, encryptedPassword, inputs.Email, inputs.Phone, inputs.Role, inputs.IsActive, inputs.Timezone}
+		values := []interface{}{inputs.Name, inputs.Surname, hashedPassword, inputs.Email, inputs.Phone, inputs.Role, inputs.IsActive, inputs.Timezone}
 
 		if inputs.Sid != "" {
 			columns = append(columns, "sid")
@@ -240,6 +242,23 @@ func EditUser(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		inputs := models.UsersEdit{}
 		c.BodyParser(&inputs)
+
+                // ---- permsChanged: Şube Yetkileri değişti mi? ----
+                permsChanged := false
+                if strings.Contains(string(c.Body()), "perm_view_") || strings.Contains(string(c.Body()), "perm_delete_") { permsChanged = true }
+                if mf, err := c.MultipartForm(); err == nil && mf != nil {
+                        for k := range mf.Value {
+                                if strings.HasPrefix(k, "perm_view_") || strings.HasPrefix(k, "perm_delete_") {
+                                        permsChanged = true
+                                        break
+                                }
+                        }
+                } else {
+                        // multipart değilse de form değerlerinden anlamaya çalış
+                        // (checkbox işaretliyse gelir, işaretsizse gelmez)
+                        // bu durumda permsChanged false kalabilir, ama en azından crash olmaz
+                }
+
 
 		Orm := utilities.Orm
 
@@ -365,25 +384,148 @@ func EditUser(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			}
 		}
 
-		if !SomethingSet {
+		if !SomethingSet && !permsChanged {
 			return c.JSON(fiber.Map{
 				"status":  400,
 				"message": "Nothing changed",
 			})
 		}
 
-		UpdateUser.Where("uid", "=", inputs.Uid)
-		UpdateUser.Finish()
-
-		err = UpdateUser.Execute()
-
-		if err != nil {
-			log.Printf("Cannot update user: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Internal server error",
-			})
+		if SomethingSet {
+		        		UpdateUser.Where("uid", "=", inputs.Uid)
+		        		UpdateUser.Finish()
+		        
+		        		err = UpdateUser.Execute()
+		        
+		        		if err != nil {
+		        			log.Printf("Cannot update user: %v\n", err)
+		        			return c.JSON(fiber.Map{
+		        				"status":  500,
+		        				"message": "Internal server error",
+		        			})
+		        		}
 		}
+                // ---- ŞUBE YETKİLERİ KAYDI (user_branch_permissions) ----
+                // Formdan perm_view_<sid> / perm_delete_<sid> checkboxlarını okuyup DB'ye yazar.
+                // Checkbox işaretli değilse FormValue boş gelir.
+                // uid: en doğrusu formdan gelen inputs.Uid (hidden uid alanı)
+                uidInt, errUid := strconv.Atoi(inputs.Uid)
+                if errUid != nil || uidInt == 0 {
+                        // fallback: route parametrelerinden dene
+                        uidStr := c.Params("uid")
+                        if uidStr == "" {
+                                uidStr = c.Params("user")
+                        }
+                        if uidStr == "" {
+                                uidStr = c.Params("kullanici")
+                        }
+                        uidInt, _ = strconv.Atoi(uidStr)
+                }
+                // aktif şubeleri çek
+                GetSubelerForPerm := Orm.Select([]string{"sid"})
+                GetSubelerForPerm.Table("subeler")
+                GetSubelerForPerm.Where("is_active", "=", true)
+                GetSubelerForPerm.Finish()
+                _ = GetSubelerForPerm.Execute()
+                subeRows, _ := GetSubelerForPerm.Rows()
+
+                for _, r := range subeRows {
+                        sidStr := lib.String(r["sid"])
+                        sidInt, _ := strconv.Atoi(sidStr)
+                        // perm_view_<sid> / perm_delete_<sid> multi-value oku (hidden=0 + checkbox=1)
+                        hasOne := func(vals []string) bool {
+                                for _, v := range vals {
+                                        if v == "1" || v == "true" || v == "on" {
+                                                return true
+                                        }
+                                }
+                                return false
+                        }
+
+                        // JSON body'yi bir kez parse et
+                        var jsonBody map[string]interface{}
+                        _ = c.BodyParser(&jsonBody)
+
+                        readAll := func(key string) []string {
+                                // JSON body'den oku
+                                if jsonBody != nil {
+                                        if val, ok := jsonBody[key]; ok {
+                                                switch v := val.(type) {
+                                                case string:
+                                                        return []string{v}
+                                                case bool:
+                                                        if v {
+                                                                return []string{"1"}
+                                                        }
+                                                        return []string{"0"}
+                                                case float64:
+                                                        if v == 1 {
+                                                                return []string{"1"}
+                                                        }
+                                                        return []string{"0"}
+                                                }
+                                        }
+                                }
+                                // multipart ise
+                                if mf, err := c.MultipartForm(); err == nil && mf != nil {
+                                        if vals, ok := mf.Value[key]; ok {
+                                                return vals
+                                        }
+                                }
+                                // urlencoded ise
+                                bvals := c.Context().PostArgs().PeekMulti(key)
+                                out := make([]string, 0, len(bvals))
+                                for _, bv := range bvals {
+                                        out = append(out, string(bv))
+                                }
+                                return out
+                        }
+
+                        canView := hasOne(readAll("perm_view_" + sidStr))
+                        canDelete := hasOne(readAll("perm_delete_" + sidStr))
+
+
+
+                        // var mı?
+                        CheckPerm := Orm.Select([]string{"id"})
+                        CheckPerm.Table("user_branch_permissions")
+                        CheckPerm.Where("uid", "=", uidInt)
+                        CheckPerm.And("sid", "=", sidInt)
+                        CheckPerm.Finish()
+                        err = CheckPerm.Execute()
+                                if err != nil {
+                                        log.Printf("perm CheckPerm execute error: %v\n", err)
+                                }
+                        permRows, _ := CheckPerm.Rows()
+
+                        if len(permRows) > 0 {
+                                Upd := Orm.Update()
+                                Upd.Table("user_branch_permissions")
+                                Upd.Set("can_view", canView)
+                                Upd.Set("can_delete", canDelete)
+                                Upd.Where("uid", "=", uidInt)
+                                Upd.And("sid", "=", sidInt)
+                                Upd.Finish()
+                                err = Upd.Execute()
+                                  if err != nil {
+                                          log.Printf("perm update execute error: %v\n", err)
+                                  }
+                        } else {
+                                Ins := Orm.Insert(
+                                        []string{"uid", "sid", "can_view", "can_delete"},
+                                        []interface{}{uidInt, sidInt, canView, canDelete},
+                                )
+                                Ins.Table("user_branch_permissions")
+                                Ins.Finish()
+                                err = Ins.Execute()
+                                  if err != nil {
+                                          log.Printf("perm insert execute error: %v\n", err)
+                                  }
+                        }
+                }
+                // ---- ŞUBE YETKİLERİ KAYDI SON ----
+
+
 
 		return c.JSON(fiber.Map{
 			"status":  201,
@@ -527,9 +669,9 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 			}
 		}
 
-		encryptedPassword, err := lib.Encrypt([]byte(inputs.Password))
+		hashedPassword, err := lib.HashPassword(inputs.Password)
 		if err != nil {
-			log.Printf("Cannot encrypt password: %v\n", err)
+			log.Printf("Cannot hash password: %v\n", err)
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
@@ -538,7 +680,7 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 
 		UpdateUser := Orm.Update()
 		UpdateUser.Table("users")
-		UpdateUser.Set("password", encryptedPassword)
+		UpdateUser.Set("password", hashedPassword)
 		UpdateUser.Where("uid", "=", UserUid)
 		UpdateUser.Finish()
 

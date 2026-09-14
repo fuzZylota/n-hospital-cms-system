@@ -1,6 +1,9 @@
+<h1 class="sr-only">{{ Options.Options.SiteName }}</h1>
+
 {{ include "../../components/home/popup" }}
 
 {{ include "../../components/home/banner" }}
+{{ include "../../components/home/hizli-randevu-strip" }}
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 1 }}
@@ -16,7 +19,7 @@
     {{ end }}
 {{ end }}
 
-{{ include "../../components/home/hizmetlerimiz" }}
+
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 2 }}
@@ -32,7 +35,7 @@
     {{ end }}
 {{ end }}
 
-{{ include "../../components/home/randevu" }}
+
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 3 }}
@@ -49,6 +52,8 @@
 {{ end }}
 
 {{ include "../../components/home/doktorlarimiz" }}
+{{ include "../../components/home/tibbi-birimler" }}
+{{ include "../../components/home/merkezlerimiz" }}
 
 {{ range index1, Content := AllHomepageContents }}
     {{ if Content.ContentType == "generic" && Content.LaterThanWhichContent == 4 }}

@@ -1,0 +1,126 @@
+/*
+ * Header / Topbar - consolidated single source of truth.
+ *
+ * style.css ve custom.css icinde ayni .header-four / .main-header /
+ * .topbar-one / .header-spacer secicileri icin 40'in uzerinde parca parca
+ * ve zaman zaman birbirini gecersiz kilan kural birikmisti. Bu dosya,
+ * canli sitede olculen NIHAI gorsel sonucu (renk, konum, z-index, icerik
+ * bosluklama) TEK yerde tanimlar. Eski parcalar sonraki asamada
+ * temizlenecek; bu dosya su an icin en son yuklenerek onlarin uzerine
+ * kesin sonucu yazar.
+ */
+
+.header-four {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+}
+
+body.homepage .header-four {
+    background-color: #ffffff !important;
+}
+
+body:not(.homepage) .header-four {
+    background-color: transparent !important;
+}
+
+.topbar-one {
+    position: relative !important;
+    background-color: var(--theme-primary-color, #0A2241) !important;
+}
+
+.main-header {
+    position: relative !important;
+    z-index: 10002 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.homepage .main-header {
+    box-shadow: none !important;
+}
+
+@media (max-width: 991px) {
+    body.homepage .main-header {
+        background-color: transparent !important;
+    }
+}
+
+/* NOT: .header-spacer / .homepage-header-spacer buraya bilerek eklenmedi.
+   Bu spacer div'leri, ic sayfalarda fixed header'in altindaki icerik
+   bosluklamasini saglayan GERCEKTEN AKTIF elemanlar (style.css/custom.css
+   icindeki responsive kurallarla yonetiliyor). Ilk analizde "olu kod"
+   sanilmisti ama canli testte bunun yanlis oldugu anlasildi - o yüzden
+   bu dosyada ellenmiyor, eski kurallari SILMEYIN.
+*/
+
+/* NOT: mobilde .header-four (topbar+main-header) fixed ve toplam yuksekligi
+   ~126px. Onceki degerde (74px, sadece main-header yuksekligi) slider'in
+   ust ~52px'i (topbar kadar) fixed header'in altinda kaliyordu - gercek
+   bug buydu, kullanici raporuyla bulundu ve 126px'e duzeltildi. */
+.page-wrapper.homepage .main-slider-three,
+.page-wrapper.homepage section.main-slider-three,
+body > .page-wrapper.homepage .main-slider-three,
+body > .page-wrapper.homepage section.main-slider-three {
+    margin-top: 126px !important;
+}
+
+@media (min-width: 992px) {
+    .page-wrapper.homepage .main-slider-three,
+    .page-wrapper.homepage section.main-slider-three,
+    body > .page-wrapper.homepage .main-slider-three,
+    body > .page-wrapper.homepage section.main-slider-three {
+        margin-top: 136px !important;
+    }
+}
+
+/* Mobil menu acildiginda arka plan sayfa icerigiyle karisip amatorce
+   gorunuyordu (karartma katmani devre disiydi, panelin net bir alt
+   siniri yoktu). Kullanici raporuyla bulundu.
+   ONEMLI (deneme-yanilma ile ogrenildi):
+   1) .mobile-nav__overlay, .mobile-nav__wrapper'in (overflow:hidden)
+      icinde. position:fixed yapmak onu menu panelinin (dropdown
+      butonlari dahil) ONUNE geciriyordu - tiklamalari yutuyordu.
+      position:absolute yapmak da wrapper'in overflow:hidden'i
+      tarafindan kirpiliyor, hic gorunmuyordu.
+   2) Bu yuzden karartmayi .mobile-nav__overlay yerine body'ye eklenen
+      ayri bir ::after katmaniyla yapiyoruz - wrapper'in disinda,
+      header-four ile AYNI (position:fixed) kok seviyesinde, z-index'i
+      header-four'dan (9999) DUSUK olacak sekilde - boylece ne
+      kirpiliyor ne de menu tiklamalarini engelliyor. */
+body.mobile-nav-expanded::after {
+    content: "" !important;
+    display: block !important;
+    position: fixed !important;
+    top: 126px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(15, 23, 42, 0.55) !important;
+    z-index: 9995 !important;
+    pointer-events: none !important;
+}
+
+@media (min-width: 992px) {
+    body.mobile-nav-expanded::after {
+        top: 136px !important;
+    }
+}
+
+.mobile-nav__content {
+    border-bottom: 3px solid var(--theme-primary-color, #0A2241) !important;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Mobilde iOS Safari'nin dinamik adres cubugu (toolbar) acilip kapanirken
+   position:fixed elemanlari gorsel olarak asagi/yukari kaydiriyor (bilinen
+   WebKit davranisi - layout viewport fixed elemanlara, toolbar gecisi
+   sirasinda visual viewporttan farkli davraniyor). position:sticky ise
+   bu gecislerde sabit kaliyor. Kullanici raporuyla bulundu: sayfa asagi
+   cekilince (pull-to-refresh) topbar+header da kayiyordu, dunyagoz'de
+   kaymiyor. Sadece mobilde sticky'e ceviriyoruz, masaustu (fixed) ayni
+   kaliyor - mobil menu/karartma katmani (asagida) fixed pozisyonlu ayri
+   bir eleman oldugu icin bundan etkilenmiyor. */
+

@@ -1,0 +1,138 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/dosya-ekle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Dosya Yükle
+                </h1>
+                <p class="page-subtitle">Herhangi bir dosya türünü sisteme yükleyin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="upload-container">
+            <!-- Upload Form -->
+            <div class="upload-form-section">
+                <div class="form-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-file-upload"></i>
+                            Dosya Yükleme
+                        </h2>
+                        <p class="section-description">Dosyanızı sürükleyip bırakın veya seçmek için tıklayın</p>
+                    </div>
+                    <div class="section-content">
+                        <form id="fileUploadForm" class="file-upload-form" enctype="multipart/form-data">
+                            <!-- File Upload Area -->
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <div class="upload-content">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <h3 class="upload-title">Dosya Yükle</h3>
+                                        <p class="upload-description">
+                                            Dosyalarınızı buraya sürükleyip bırakın veya
+                                            <span class="upload-link">dosya seçmek için tıklayın</span>
+                                        </p>
+                                        <div class="upload-info">
+                                            <span class="file-types">Tüm dosya türleri desteklenir (Maksimum 10 dosya)</span>
+                                            <span class="file-size">Maksimum dosya boyutu: <span id="maxFileSize"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" id="fileInput" name="file" class="file-input" accept="*/*" multiple required>
+                            </div>
+
+                            <!-- Files Preview -->
+                            <div class="files-preview" id="filesPreview" style="display: none;">
+                                <div class="preview-header">
+                                    <h4 class="preview-title">Seçilen Dosyalar</h4>
+                                    <button type="button" class="btn-remove-all" id="removeAllBtn">
+                                        <i class="fas fa-times"></i>
+                                        Tümünü Kaldır
+                                    </button>
+                                </div>
+                                <div class="files-list" id="filesList">
+                                    <!-- Files will be added here dynamically -->
+                                </div>
+                                <div class="preview-progress" id="previewProgress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progressFill"></div>
+                                    </div>
+                                    <div class="progress-text" id="progressText">Yükleniyor...</div>
+                                </div>
+                            </div>
+
+                            <!-- Upload Actions -->
+                            <div class="upload-actions" id="uploadActions" style="display: none;">
+                                <div class="upload-info">
+                                    <span class="files-count" id="filesCount">0 dosya seçildi</span>
+                                    <span class="files-size" id="totalSize">0 MB</span>
+                                </div>
+                                <div class="upload-buttons">
+                                    <button type="submit" class="btn btn-primary" id="uploadBtn">
+                                        <i class="fas fa-upload"></i>
+                                        <span class="btn-text">Dosyaları Yükle</span>
+                                        <div class="btn-loader" style="display: none;">
+                                            <div class="spinner"></div>
+                                        </div>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                                        <i class="fas fa-times"></i>
+                                        İptal
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer" class="alert-container"></div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">Dosya başarıyla yüklendi.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.uploadData = {
+        maxFileSize: 10485760, // 10MB default
+        allowedTypes: "*/*"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/dosya-ekle.js"></script>

@@ -1,23 +1,13 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">KVKK Aydınlatma Metni</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Kurumsal</span></li>
-                        <li><span>KVKK Aydınlatma Metni</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
+<div class="compact-page-header">
+    <div class="container">
+        <h1 class="sr-only">{{ if Route == "/cerez-politikasi" }}Çerez Politikası{{ else }}KVKK Aydınlatma Metni{{ end }}</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+                        <li><span class="current">Kurumsal</span></li>
+                        <li><span class="current">{{ if Route == "/cerez-politikasi" }}Çerez Politikası{{ else }}KVKK Aydınlatma Metni{{ end }}</span></li>
+        </ul>
+    </div>
+</div>
 
 {{ range index1, CssContent := CssContents }}
     <style>
@@ -25,42 +15,29 @@
     </style>
 {{ end }}
 
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/content-dates.css">
 <section class="service-details section-space">
     <div class="container">
         <div class="row gutter-y-50">
-            <div class="col-md-12 col-lg-4">
+            <div class="col-md-12 col-lg-3">
                 <div class="service-sidebar">
                     <div class="service-sidebar__info service-sidebar__single">
                         <ul class="list-unstyled service-sidebar__nav wow fadeInLeft" data-wow-duration="1500ms">
                             {{ range index1, HeaderButtons := Options.HeaderButtons }}
                                 {{ if HeaderButtons.ButtonType == "kurumsal" && HeaderButtons.ParentId != "" }}
-                                    <li><a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a></li>
+                                    <li class="{{ HeaderButtons.Url == Route ? "current" : "" }}"><a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a></li>
                                 {{ end }}
                             {{ end }}
                         </ul><!-- /.list-unstyled service-sidebar__nav -->
-                        <div class="service-sidebar__contact wow fadeInLeft" data-wow-duration="1500ms" data-wow-delay="100ms" style="background-image: url('assets/images/services/service-sidebar-contact-bg.jpg');">
-                            <div class="service-sidebar__contact__bg">
-                                <div class="service-sidebar__contact__bg__inner" style="background-image: url('assets/images/shapes/service-sidebar-contact-bg-2.png');"></div><!-- /.service-sidebar__contact__bg__inner -->
-                            </div><!-- /.service-sidebar__contact__bg -->
-                            <div class="service-sidebar__contact__inner">
-                                <div class="service-sidebar__contact__icon">
-                                    <i class="icon-telephone"></i>
-                                </div><!-- /.service-sidebar__contact__icon -->
-                                <div class="service-sidebar__contact__content">
-                                    <h4 class="service-sidebar__contact__number">
-                                        <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
-                                    </h4><!-- /.service-sidebar__contact__number -->
-                                </div><!-- /.service-sidebar__contact__content -->
-                            </div><!-- /.service-sidebar__contact__inner -->
-                        </div><!-- /.service-sidebar__contact -->
                     </div><!-- /.service-sidebar__info service-sidebar__single -->
                 </div><!-- /.sidebar -->
-            </div><!-- /.col-md-12 col-lg-4 -->
-            <div class="col-md-12 col-lg-8">
+            </div><!-- /.col-md-12 col-lg-3 -->
+            <div class="col-md-12 col-lg-9">
+                {{ include "../../components/content-dates" }}
                 {{ range index1, HtmlContent := HtmlContents }}
                     {{ HtmlContent | raw }}
                 {{ end }}
-            </div><!-- /.col-md-12 col-lg-8 -->
+            </div><!-- /.col-md-12 col-lg-9 -->
         </div><!-- /.row -->
     </div><!-- /.container -->
 </section><!-- /.service-details section-space -->

@@ -1,0 +1,44 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Ulaşım</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/content-dates.css">
+<div class="container" style="padding-top: 20px;">
+    {{ include "../../components/content-dates" }}
+</div>
+
+{{ range index1, CssContent := CssContents }}
+    <style>
+        {{ CssContent | raw }}
+    </style>
+{{ end }}
+
+<style>
+  .service-details.section-space{
+      padding-top: 15px !important;
+      padding-bottom: 30px !important;
+  }
+</style>
+
+<section class="service-details section-space">
+    <div class="container">
+        <div class="row gutter-y-50">
+            <div class="col-12">
+                {{ range index1, HtmlContent := HtmlContents }}
+                    {{ HtmlContent | raw }}
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{{ range index1, JavascriptContent := JavascriptContents }}
+    <script>
+        {{ JavascriptContent | raw }}
+    </script>
+{{ end }}

@@ -1,139 +1,150 @@
-/* Tibbi Birimler Page Styles - align with hizmetlerimiz component */
+/* Tibbi Birimler - Kart Stili */
 
-.service-details.section-space {
-    padding-top: 40px;
+.tibbi-birimler-page.section-space {
+    padding-top: 30px;
+    padding-bottom: 60px;
 }
 
-.service-card-two {
+.birim-card {
     position: relative;
+    background: #fff;
     border-radius: 12px;
+    border: 1px solid #e5e7eb;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.25s ease;
+}
+.birim-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-.service-card-two:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-}
-
-.service-card-two__bg {
+.birim-card__link-overlay {
     position: absolute;
     inset: 0;
-    pointer-events: none;
+    z-index: 1;
+    cursor: pointer;
 }
 
-.service-card-two__content {
-    position: relative;
-    padding: 24px;
-    /* leave room for the corner arrow button */
-    padding-right: 70px;
-}
-
-.service-card-two__content > a:not(.service-card-two__link) {
-    display: block;
-    text-decoration: none;
-}
-
-.service-card-two__image {
+.birim-card__image {
     width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: 10px;
-    display: block;
-    margin-bottom: 18px;
+    min-height: 220px;
+    max-height: 220px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    flex-shrink: 0;
+    background-color: #f1f5f9;
 }
 
-.service-card-two__title {
-    font-size: 18px;
-    line-height: 1.35;
-    font-weight: 700;
-    margin: 0;
-    color: #1f2937;
-    max-width: 20px;        /* kutu genişliği */
-    word-wrap: break-word; /* uzun kelimeleri kır */
-    overflow-wrap: break-word;
-}
-
-.service-card-two__title a {
-    color: #fff;
-    text-decoration: none;
-    max-width: 20px;        /* kutu genişliği */
-    word-wrap: break-word; /* uzun kelimeleri kır */
-    overflow-wrap: break-word;
-
-}
-
-.service-card-two__title a:hover {
-    color: var(--theme-secondary-color);
-}
-
-.service-card-two__link {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.birim-card__info {
+    position: relative;
+    z-index: 2;
+    background: #fff;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    background: var(--theme-primary-color);
-    color: #fff;
-    text-decoration: none;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    z-index: 10;
+    padding: 16px 16px 18px;
 }
 
-.service-card-two__link i {
+.birim-card__identity {
+    text-align: center;
+    width: 100%;
+    padding-bottom: 10px;
+}
+.birim-card__name {
     font-size: 16px;
-    line-height: 1;
-    display: block;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    line-height: 1.35;
+}
+.birim-card__name a {
+    color: #111827;
+    text-decoration: none;
+    position: relative;
+    z-index: 3;
+}
+.birim-card__name a:hover {
+    color: var(--mediox-base, #0e6cc9);
 }
 
-.service-card-two:hover .service-card-two__link {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.service-details.section-space .service-card-two__image {
-    width: 100% !important;
-    height: 220px !important;
-    object-fit: cover !important;
-    border-radius: 10px !important;
-    display: block !important;
-}
-
-/* use theme colors for titles like hizmetlerimiz */
-
-/* Prevent overlap by constraining title width */
-.service-details.section-space .service-card-two__content {
-    max-width: 100% !important;
-}
-
-.service-details.section-space .service-card-two__title {
-    display: block !important; /* allow normal wrapping like component */
-    max-width: calc(100% - 72px) !important; /* leave space for arrow button */
-}
-
-.service-details.section-space .service-card-two__link {
-    right: 18px !important;
-    bottom: 18px !important;
-    width: 40px !important;
-    height: 40px !important;
-    background: var(--theme-primary-color) !important;
+.birim-card__detail-btn {
+    position: relative;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--theme-secondary-color, #d6293e);
     color: #fff !important;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.2s ease, transform 0.2s ease;
+    letter-spacing: 0.3px;
+}
+.birim-card__detail-btn:hover {
+    background: #b80020;
+    transform: translateY(-1px);
+}
+.birim-card__detail-btn i {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+.birim-card__detail-btn:hover i {
+    transform: translateX(3px);
 }
 
-
+/* Tablet */
 @media (max-width: 768px) {
-    .service-card-two__image {
-        height: 180px;
+    .birim-card__image {
+        min-height: 160px;
+        max-height: 160px;
     }
-    .service-card-two__content {
-        padding: 18px 64px 18px 18px;
+    .birim-card__name {
+        font-size: 16px;
+    }
+    .birim-card__detail-btn {
+        font-size: 16px;
+        padding: 7px 14px;
+    }
+    .birim-card__info {
+        padding: 12px 12px 14px;
     }
 }
 
-
+/* Mobil - 2li grid */
+@media (max-width: 576px) {
+    .tibbi-birimler-page .gutter-y-30 {
+        --bs-gutter-x: 12px;
+        --bs-gutter-y: 12px;
+    }
+    .birim-card {
+        border-radius: 10px;
+    }
+    .birim-card__image {
+        min-height: 120px;
+        max-height: 120px;
+    }
+    .birim-card__info {
+        padding: 10px 8px 12px;
+    }
+    .birim-card__identity {
+        padding-bottom: 8px;
+    }
+    .birim-card__name {
+        font-size: 16px;
+        line-height: 1.3;
+    }
+    .birim-card__detail-btn {
+        font-size: 16px;
+        padding: 5px 10px;
+        gap: 4px;
+    }
+    .birim-card__detail-btn i {
+        font-size: 12px;
+    }
+}

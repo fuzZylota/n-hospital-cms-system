@@ -1,22 +1,12 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Haberler</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Haberler</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
+<div class="compact-page-header">
+    <div class="container">
+        <h1 class="sr-only">Haberler</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+                        <li><span class="current">Haberler</span></li>
+        </ul>
+    </div>
+</div>
 
 <style>
 /* Force news thumbnails to be visible and static */
@@ -32,7 +22,7 @@
                 <div class="sidebar">
                     <aside class="widget-area">
                         <div class="sidebar__form sidebar__single">
-                            <h4 class="sidebar__title sidebar__form__title">Arama Yap</h4><!-- /.sidebar__title -->
+                            <h2 class="sidebar__title sidebar__form__title">Arama Yap</h2><!-- /.sidebar__title -->
                             <form action="/haberler" class="sidebar__search">
                                 <input type="text" placeholder="Arama Yap" />
                                 <button type="submit" aria-label="search submit" class="sidebar__search__icon">
@@ -41,7 +31,7 @@
                             </form><!-- /.sidebar__search -->
                         </div><!-- /.sidebar__form sidebar__single -->
                         <div class="sidebar__posts-wrapper sidebar__single">
-                            <h4 class="sidebar__title sidebar__posts-title">Son Gönderiler</h4><!-- /.sidebar__title -->
+                            <h2 class="sidebar__title sidebar__posts-title">Son Gönderiler</h2><!-- /.sidebar__title -->
                             <ul class="sidebar__posts list-unstyled">
                                 {{ if len(Haberler) > 0 }}
                                     {{ range index, Haber := Haberler }}
@@ -55,7 +45,7 @@
                                                             <i class="icon-user"></i>
                                                         </span><!-- /.sidebar__posts__meta__icon -->
                                                         {{ Haber.Author != "" ? Haber.Author : "Yazar" }}</a></div><!-- /.sidebar__posts__date -->
-                                                <h4 class="sidebar__posts__title"><a href="/haberler/{{ Haber.UrlName }}">{{ Haber.Title }}</a></h4><!-- /.sidebar__posts__title -->
+                                                <h3 class="sidebar__posts__title"><a href="/haberler/{{ Haber.UrlName }}">{{ Haber.Title }}</a></h3><!-- /.sidebar__posts__title -->
                                                         passages of</a></h4><!-- /.sidebar__posts__title -->
                                             </div><!-- /.sidebar__posts__content -->
                                         </li>
@@ -66,7 +56,7 @@
                             </ul><!-- /.sidebar__posts list-unstyled -->
                         </div><!-- /.sidebar__posts-wrapper sidebar__single -->
                         <div class="sidebar__categories-wrapper sidebar__single">
-                            <h4 class="sidebar__title">Kategoriler</h4><!-- /.sidebar__title -->
+                            <h2 class="sidebar__title">Kategoriler</h2><!-- /.sidebar__title -->
                             <ul class="sidebar__categories list-unstyled">
                                 {{ if len(CategoryCounts) > 0 }}
                                     {{ range index, Category := CategoryCounts }}
@@ -126,8 +116,7 @@
                                 </div><!-- /.blog-card-two__image -->
                                 <div class="blog-card-two__content">
                                     <ul class="list-unstyled blog-card-two__meta">
-                                        <li>
-                                            <a href="#">
+                                        <li><a href="#">
                                                 <span class="blog-card-two__meta__icon">
                                                     <i class="icon-user"></i>
                                                 </span>
@@ -135,7 +124,7 @@
                                             </a>
                                         </li>
                                     </ul><!-- /.list-unstyled blog-card-two__meta -->
-                                    <h3 class="blog-card-two__title"><a href="/haberler/{{ Haber.UrlName }}">{{ Haber.Title }}</a></h3><!-- /.blog-card-two__title -->
+                                    <h2 class="blog-card-two__title"><a href="/haberler/{{ Haber.UrlName }}">{{ Haber.Title }}</a></h2><!-- /.blog-card-two__title -->
                                     <a href="/haberler/{{ Haber.UrlName }}" class="blog-card-two__btn">
                                         <span class="icon-double-arrow"></span>
                                     </a><!-- /.blog-card-two__btn -->
@@ -146,17 +135,13 @@
                     <div class="col-12">
                         {{ if len(Haberler) > Options.Options.ItemsPerPage }}
                             <ul class="post-pagination">
-                                <li>
-                                    <a href="#"><span class="post-pagination__icon"><i class="icon-arrow-left-2"></i></span></a>
+                                <li><a href="#"><span class="post-pagination__icon"><i class="icon-arrow-left-2"></i></span></a>
                                 </li>
-                                <li>
-                                    <a href="#">01</a>
+                                <li><a href="#">01</a>
                                 </li>
-                                <li>
-                                    <a href="#">02</a>
+                                <li><a href="#">02</a>
                                 </li>
-                                <li>
-                                    <a href="#">03</a>
+                                <li><a href="#">03</a>
                                 </li>
                                 <li class="active">
                                     <a href="#"><span class="post-pagination__icon"><i class="icon-arrow-right-2"></i></span></a>

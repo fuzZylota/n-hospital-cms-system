@@ -1,0 +1,425 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/doktor-ekle.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+
+<div class="page-container">
+    <div id="requestStatusBanner" style="display:none; position:fixed; top:20px; right:20px; z-index:9999; padding:12px 16px; border-radius:8px; background:rgba(0,0,0,0.8); color:#fff; font-weight:600; box-shadow:0 6px 24px rgba(0,0,0,0.2);"></div>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="icon-user-plus"></i>
+                    Yeni Doktor Ekle
+                </h1>
+                <p class="page-subtitle">Hastane doktoru için yeni bir kayıt oluşturun</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/doktorlar" class="btn btn-secondary">
+                    <i class="icon-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <form id="doktorForm" class="doktor-form" novalidate action="/backend/add-doctor" method="post" enctype="multipart/form-data">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-info-circle"></i>
+                        Temel Bilgiler
+                    </h2>
+                    <p class="section-description">Doktorun temel bilgilerini girin</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title" class="form-label required">Unvan</label>
+                            <select id="title" name="title" class="form-select" required>
+                                <option value="">Unvan Seçin</option>
+                                <option value="Dr.">Dr.</option>
+                                <option value="Prof. Dr.">Prof. Dr.</option>
+                                <option value="Doç. Dr.">Doç. Dr.</option>
+                                <option value="Op. Dr.">Op. Dr.</option>
+                                <option value="Uzm. Dr.">Uzm. Dr.</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="first_name" class="form-label required">Ad</label>
+                            <input type="text" id="first_name" name="first_name" class="form-input" 
+                                   placeholder="Doktorun adı" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="last_name" class="form-label required">Soyad</label>
+                            <input type="text" id="last_name" name="last_name" class="form-input" 
+                                   placeholder="Doktorun soyadı" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="url_name" class="form-label">URL Adı</label>
+                            <input type="text" id="url_name" name="url_name" class="form-input" 
+                                   placeholder="doktor-adi-soyadi">
+                            <div class="form-help">Boş bırakılırsa otomatik oluşturulur</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tc_kimlik" class="form-label">TC Kimlik No</label>
+                            <input type="text" id="tc_kimlik" name="tc_kimlik" class="form-input" 
+                                   placeholder="12345678901" maxlength="11">
+                        </div>
+                        <div class="form-group">
+                            <label for="diploma_no" class="form-label">Diploma No</label>
+                            <input type="text" id="diploma_no" name="diploma_no" class="form-input" 
+                                   placeholder="Diploma numarası">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="calistigi_subeler_text" class="form-label">Çalıştığı Şubeler</label>
+                        <textarea id="calistigi_subeler_text" name="calistigi_subeler_text" class="form-textarea" 
+                                  rows="3" placeholder="Doktorun çalıştığı şubeler hakkında bilgi..."></textarea>
+                        <div class="form-help">Doktorun çalıştığı şubeler hakkında açıklama metni</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" 
+                                   placeholder="+90 212 555 00 00">
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" id="email" name="email" class="form-input" 
+                                   placeholder="doktor@hastane.com">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="birth_date" class="form-label">Doğum Tarihi</label>
+                            <input type="date" id="birth_date" name="birth_date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Cinsiyet</label>
+                            <select id="gender" name="gender" class="form-select">
+                                <option value="">Cinsiyet Seçin</option>
+                                <option value="erkek">Erkek</option>
+                                <option value="kadın">Kadın</option>
+                                <option value="belirtmek istemiyorum">Belirtmek İstemiyorum</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="experience_years" class="form-label">Deneyim Yılı</label>
+                            <input type="number" id="experience_years" name="experience_years" class="form-input" 
+                                   placeholder="0" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="languages" class="form-label">Diller</label>
+                            <input type="text" id="languages" name="languages" class="form-input" 
+                                   placeholder="Türkçe, İngilizce, Almanca">
+                            <div class="form-help">Virgülle ayırarak yazın</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="biography" class="form-label">Biyografi</label>
+                        <textarea id="biography" name="biography" class="form-textarea" 
+                                  rows="4" placeholder="Doktorun biyografisi ve uzmanlık alanları..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="education" class="form-label">Eğitim Bilgileri</label>
+                        <textarea id="education" name="education" class="form-textarea" 
+                                  rows="3" placeholder="Üniversite, uzmanlık, sertifikalar..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-briefcase"></i>
+                        Mesleki Bilgiler
+                    </h2>
+                    <p class="section-description">Doktorun mesleki bilgileri ve atamaları</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sid" class="form-label">Şube</label>
+                            <select id="sid" name="sid" class="form-select">
+                                <option value="">Şube Seçiniz</option>
+                                {{ range Subeler }}
+                                    <option value="{{ .Sid }}">{{ .Name }}</option>
+                                {{ end }}
+                            </select>
+                            <div class="form-help">Doktorlara şube eklemeniz tavsiye edilir. Eğer eklemezseniz, doktor admin paneli dışından görülemez olacaktır.</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="brid" class="form-label">Bölüm</label>
+                            <select id="brid" name="brid" class="form-select">
+                                <option value="">Bölüm Seçin</option>
+                                {{ range Branches }}
+                                    <option value="{{ .Brid }}">{{ .Name }}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="room_number" class="form-label">Oda Numarası</label>
+                            <input type="text" id="room_number" name="room_number" class="form-input" 
+                                   placeholder="A-101">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment_duration" class="form-label">Randevu Süresi (Dakika)</label>
+                            <input type="number" id="appointment_duration" name="appointment_duration" class="form-input" 
+                                   placeholder="30" min="15" max="120" step="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment_fee" class="form-label">Randevu Ücreti (TL)</label>
+                            <input type="number" id="appointment_fee" name="appointment_fee" class="form-input" 
+                                   placeholder="0.00" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="working_hours" class="form-label">Çalışma Saatleri</label>
+                        <textarea id="working_hours" name="working_hours" class="form-textarea" 
+                                  rows="3" placeholder='{"pazartesi": "08:00-17:00", "sali": "08:00-17:00", "carsamba": "08:00-17:00", "persembe": "08:00-17:00", "cuma": "08:00-17:00", "cumartesi": "09:00-13:00", "pazar": "kapalı"}'></textarea>
+                        <div class="form-help">JSON formatında girin veya serbest metin olarak yazın</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vacation_dates" class="form-label">Tatil Tarihleri</label>
+                        <textarea id="vacation_dates" name="vacation_dates" class="form-textarea" 
+                                  rows="2" placeholder='{"2024": [{"start": "2024-07-01", "end": "2024-07-15", "reason": "Yaz tatili"}]}'></textarea>
+                        <div class="form-help">JSON formatında girin</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="online_appointment" class="form-label">Online Randevu</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="online_appointment" name="online_appointment" checked>
+                                <label for="online_appointment" class="toggle-label">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Online Randevu Alınabilir</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_active" class="form-label">Aktif Durumu</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="is_active" name="is_active" checked>
+                                <label for="is_active" class="toggle-label">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Aktif</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                            <!-- HTML Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-code"></i>
+                                HTML İçeriği
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel HTML içeriği</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_html" class="form-label">HTML Kodu</label>
+                                <textarea id="doctor_infos_html" name="doctor_infos_html" class="form-textarea code-editor" 
+                                        rows="10" placeholder="HTML kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">HTML kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSS Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-palette"></i>
+                                CSS Stilleri
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel CSS stilleri</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_css" class="form-label">CSS Kodu</label>
+                                <textarea id="doctor_infos_css" name="doctor_infos_css" class="form-textarea code-editor" 
+                                        rows="10" placeholder="CSS kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">CSS kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript Content Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="icon-settings"></i>
+                                JavaScript Kodu
+                            </h2>
+                            <p class="section-description">Doktor bilgileri için özel JavaScript kodu</p>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="doctor_infos_js" class="form-label">JavaScript Kodu</label>
+                                <textarea id="doctor_infos_js" name="doctor_infos_js" class="form-textarea code-editor" 
+                                        rows="10" placeholder="JavaScript kodunuzu buraya yazın..."></textarea>
+                                <div class="form-help">JavaScript kodunuzu yazın. Syntax highlighting aktif.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photo Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-image"></i>
+                        Doktor Fotoğrafı
+                    </h2>
+                    <p class="section-description">Doktorun profil fotoğrafı</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="photo_mid" class="form-label">Doktor Fotoğrafı</label>
+                        <div class="file-upload-area" data-target="photo_mid">
+                            <div class="file-upload-content">
+                                <i class="icon-upload"></i>
+                                <p class="file-upload-text">Doktor fotoğrafını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                            </div>
+                            <input type="file" id="photo_mid" name="photo_mid" 
+                                   class="file-input" accept="image/*">
+                            <div class="file-preview" style="display: none;">
+                                <img class="preview-image" src="" alt="Preview">
+                                <button type="button" class="file-remove">
+                                    <i class="icon-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="file-meta-inputs">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="photo_alt_text" class="form-label">Görsel Alt Metni</label>
+                                    <input type="text" id="photo_alt_text" name="photo_alt_text" 
+                                           class="form-input" placeholder="Doktor fotoğrafı için alternatif metin">
+                                </div>
+                                <div class="form-group">
+                                    <label for="photo_title" class="form-label">Görsel Başlığı</label>
+                                    <input type="text" id="photo_title" name="photo_title" 
+                                           class="form-input" placeholder="Doktor fotoğrafı için başlık metni">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CV Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="icon-file-text"></i>
+                        Doktor CV'si
+                    </h2>
+                    <p class="section-description">Doktorun CV dosyası</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="cv_file_mid" class="form-label">CV Dosyası</label>
+                        <div class="file-upload-area" data-target="cv_file_mid">
+                            <div class="file-upload-content">
+                                <i class="icon-upload"></i>
+                                <p class="file-upload-text">CV dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                <p class="file-upload-hint">PDF, DOC, DOCX - Max 10MB</p>
+                            </div>
+                            <input type="file" id="cv_file_mid" name="cv_file_mid" 
+                                   class="file-input" accept=".pdf,.doc,.docx">
+                            <div class="file-preview" style="display: none;">
+                                <div class="file-info">
+                                    <i class="icon-file"></i>
+                                    <span class="file-name"></span>
+                                    <span class="file-size"></span>
+                                </div>
+                                <button type="button" class="file-remove">
+                                    <i class="icon-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                    <i class="icon-x"></i>
+                    İptal
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="icon-check"></i>
+                    <span class="btn-text">Doktoru Kaydet</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="icon-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message">Doktor başarıyla oluşturuldu.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+<script src="{{ PathOnStart }}js/panel/doktor-ekle.js"></script>

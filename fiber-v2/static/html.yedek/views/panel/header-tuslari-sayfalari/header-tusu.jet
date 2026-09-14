@@ -1,0 +1,371 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/header-tusu.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/header-tuslari" class="breadcrumb-link">
+                        <i class="fas fa-bars"></i>
+                        Header Butonları
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ IndividualHeaderButton.Title }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ IndividualHeaderButton.Title }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(IndividualHeaderButton.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-sort-numeric-up"></i>
+                                Sıra: {{ IndividualHeaderButton.SortOrder }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                <p class="page-subtitle">Header Button ID: {{ IndividualHeaderButton.Hbid }} • {{ IndividualHeaderButton.Url }}</p>
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if IndividualHeaderButton.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                {{ if User.Role == "admin" }}
+                    <div class="action-buttons">
+                        <a href="/panel/header-tuslari/{{ IndividualHeaderButton.Hbid }}/duzenle" class="btn btn-primary">
+                            <i class="fas fa-edit"></i>
+                            Düzenle
+                        </a>
+                        <button class="btn btn-warning" id="changeOrderBtn">
+                            <i class="fas fa-sort"></i>
+                            Sıra Değiştir
+                        </button>
+                        <button class="btn btn-danger" id="deleteIndividualHeaderButtonBtn" data-id="{{ IndividualHeaderButton.Hbid }}" data-name="{{ IndividualHeaderButton.Title }}">
+                            <i class="fas fa-trash"></i>
+                            <span class="btn-text">Sil</span>
+                            <div class="btn-loader" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Başlık</label>
+                        <div class="info-value">{{ IndividualHeaderButton.Title }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL</label>
+                        <div class="info-value">
+                            <a href="{{ IndividualHeaderButton.Url }}" class="contact-link" target="_blank">
+                                <i class="fas fa-external-link-alt"></i>
+                                {{ IndividualHeaderButton.Url }}
+                            </a>
+                            <button class="copy-btn" data-copy="{{ IndividualHeaderButton.Url }}" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Hedef</label>
+                        <div class="info-value">
+                            <span class="target-badge {{ IndividualHeaderButton.Target }}">
+                                {{if IndividualHeaderButton.Target == "_blank"}}
+                                <i class="fas fa-external-link-alt"></i>
+                                Yeni Sekme
+                                {{else}}
+                                <i class="fas fa-window-restore"></i>
+                                Aynı Sekme
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">İkon</label>
+                        <div class="info-value">
+                            <div class="icon-display">
+                                <i class="fas fa-{{ IndividualHeaderButton.Icon }}"></i>
+                                <span>{{ IndividualHeaderButton.Icon }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Buton Tipi</label>
+                        <div class="info-value">
+                            <span class="target-badge">{{ IndividualHeaderButton.ButtonType }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="card-title">Navigasyon Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Sıra Numarası</label>
+                        <div class="info-value">
+                            <span class="sort-order-badge">
+                                <i class="fas fa-sort-numeric-up"></i>
+                                {{ IndividualHeaderButton.SortOrder }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Durum</label>
+                        <div class="info-value">
+                            <span class="status-indicator {{if IndividualHeaderButton.IsActive}}active{{else}}inactive{{end}}">
+                                {{if IndividualHeaderButton.IsActive}}
+                                <i class="fas fa-check-circle"></i>
+                                Aktif
+                                {{else}}
+                                <i class="fas fa-pause-circle"></i>
+                                Pasif
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Üst Menü</label>
+                        <div class="info-value">
+                            {{if IndividualHeaderButton.ParentId}}
+                            <span class="parent-badge">
+                                <i class="fas fa-level-up-alt"></i>
+                                Alt Menü (ID: {{ IndividualHeaderButton.ParentId }})
+                            </span>
+                            {{else}}
+                            <span class="parent-badge main">
+                                <i class="fas fa-home"></i>
+                                Ana Menü
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Button ID</label>
+                        <div class="info-value">
+                            <span class="button-id">#{{ IndividualHeaderButton.Hbid }}</span>
+                            <button class="copy-btn" data-copy="{{ IndividualHeaderButton.Hbid }}" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="card-title">Aktivite Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Oluşturulma</label>
+                        <div class="info-value">
+                            <div class="date-display">
+                                <div class="date-primary">{{ mthr(IndividualHeaderButton.CreatedAt, User.Timezone) }}</div>
+                                <div class="date-secondary">{{ mthr(IndividualHeaderButton.CreatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Son Güncelleme</label>
+                        <div class="info-value">
+                            <div class="date-display">
+                                <div class="date-primary">{{ mthr(IndividualHeaderButton.UpdatedAt, User.Timezone) }}</div>
+                                <div class="date-secondary">{{ mthr(IndividualHeaderButton.UpdatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Management Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sort"></i>
+                </div>
+                <h3 class="card-title">Sıra Yönetimi</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Mevcut Sıra</label>
+                        <div class="info-value">
+                            <span class="current-order">{{ IndividualHeaderButton.SortOrder }}</span>
+                        </div>
+                    </div>
+                    {{ if User.Role == "admin" }}
+                        <div class="info-item">
+                            <label class="info-label">Sıra İşlemleri</label>
+                            <div class="info-value">
+                                <button class="btn btn-sm btn-warning" id="changeOrderBtnInline">
+                                    <i class="fas fa-sort"></i>
+                                    Sıra Değiştir
+                                </button>
+                            </div>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sort Order Change Modal -->
+<div id="orderChangeModal" class="modal" style="display: none;">
+    <div class="modal-content order-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-sort"></i>
+                Sıra Değiştir
+            </h3>
+            <button class="modal-close" onclick="closeOrderModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="orderChangeForm" class="order-form">
+                <input type="hidden" name="old_sort_order" value="{{ IndividualHeaderButton.SortOrder }}" id="old_sort_order">
+                <input type="hidden" name="old_parent_id" value="{{ IndividualHeaderButton.ParentId }}" id="old_parent_id">
+                <div class="form-group">
+                    <label for="new_sort_order" class="form-label">Yeni Sıra Numarası</label>
+                    <input type="number" id="new_sort_order" name="new_sort_order" class="form-input" 
+                           placeholder="Yeni sıra numarasını girin" required min="1" value="{{ IndividualHeaderButton.SortOrder }}">
+                    <div class="form-help">1'den başlayarak sıralama yapın</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="parent_id" class="form-label">Üst Menü</label>
+                    <select id="parent_id" name="parent_id" class="form-input">
+                        <option value="">Ana Menü</option>
+                        {{ range i, h := ParentButtons }}
+                            <option value="{{ h.Hbid }}" {{ if h.Hbid == IndividualHeaderButton.ParentId }}selected{{ end }}>{{ h.Title }}</option>
+                        {{ end }}
+                    </select>
+                    <div class="form-help">Alt menü yapmak için üst menü seçin</div>
+                </div>
+
+                <div class="order-info">
+                    <div class="info-item">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Mevcut sıra: <strong>{{ IndividualHeaderButton.SortOrder }}</strong></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Üst menü: <strong>{{if IndividualHeaderButton.ParentId}}ID: {{ IndividualHeaderButton.ParentId }}{{else}}Ana Menü{{end}}</strong></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeOrderModal()">İptal</button>
+            <button type="button" class="btn btn-warning" id="confirmOrderChangeBtn">
+                <i class="fas fa-sort"></i>
+                <span class="btn-text">Sırayı Değiştir</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Header Button'u Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı header button'u silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.headerButtonData = {
+        id: parseInt("{{ IndividualHeaderButton.Hbid }}"),
+        title: "{{ IndividualHeaderButton.Title }}",
+        url: "{{ IndividualHeaderButton.Url }}",
+        currentSortOrder: parseInt("{{ IndividualHeaderButton.SortOrder }}"),
+        parentId: "{{ IndividualHeaderButton.ParentId }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/header-tusu.js"></script>

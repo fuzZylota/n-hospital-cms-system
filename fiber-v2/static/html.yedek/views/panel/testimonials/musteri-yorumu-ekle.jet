@@ -1,0 +1,199 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/musteri-yorumu-ekle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-comment-dots"></i>
+                    Yeni Müşteri Yorumu Ekle
+                </h1>
+                <p class="page-subtitle">Müşteri deneyimlerini paylaşmak için yeni bir yorum ekleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/musteri-yorumlari" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <form id="testimonialForm" class="testimonial-form" novalidate action="/backend/add-testimonial" method="post" enctype="multipart/form-data">
+            <!-- Customer Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Müşteri Bilgileri
+                    </h2>
+                    <p class="section-description">Yorumu veren müşterinin temel bilgileri</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name" class="form-label required">Ad</label>
+                            <input type="text" id="first_name" name="first_name" class="form-input" 
+                                   placeholder="Müşterinin adını girin" required>
+                            <div class="form-help">Müşterinin gerçek adı</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name" class="form-label required">Soyad</label>
+                            <input type="text" id="last_name" name="last_name" class="form-input" 
+                                   placeholder="Müşterinin soyadını girin" required>
+                            <div class="form-help">Müşterinin gerçek soyadı</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="occupation" class="form-label required">Meslek</label>
+                            <input type="text" id="occupation" name="occupation" class="form-input" 
+                                   placeholder="örn: Doktor, Mühendis, Öğretmen" required>
+                            <div class="form-help">Müşterinin meslek bilgisi</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="rating" class="form-label required">Puan</label>
+                            <div class="rating-input-group">
+                                <input type="number" id="rating" name="rating" class="form-input" 
+                                       min="0" max="5" step="0.1" value="5.0" required>
+                                <div class="rating-stars" id="ratingStars">
+                                    <span class="star active" data-rating="1">★</span>
+                                    <span class="star active" data-rating="2">★</span>
+                                    <span class="star active" data-rating="3">★</span>
+                                    <span class="star active" data-rating="4">★</span>
+                                    <span class="star active" data-rating="5">★</span>
+                                </div>
+                            </div>
+                            <div class="form-help">0-5 arası puan verin</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="is_active" class="form-label">Yayın Durumu</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="is_active" name="is_active" checked>
+                            <label for="is_active" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">Aktif</span>
+                            </label>
+                        </div>
+                        <div class="form-help">Yorumun web sitesinde görünüp görünmeyeceği</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial Content Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-quote-left"></i>
+                        Yorum İçeriği
+                    </h2>
+                    <p class="section-description">Müşteri deneyimi ve yorumu</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="content" class="form-label required">Yorum Metni</label>
+                        <textarea id="content" name="content" class="form-textarea" 
+                                  rows="6" placeholder="Müşteri deneyimini ve yorumunu buraya yazın..." required></textarea>
+                        <div class="form-help">Müşterinin deneyimini anlatan detaylı yorum</div>
+                        <div class="character-counter">
+                            <span id="contentCounter">0</span> / 1000 karakter
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Photo Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-camera"></i>
+                        Müşteri Fotoğrafı
+                    </h2>
+                    <p class="section-description">Müşterinin profil fotoğrafı (isteğe bağlı)</p>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="customer_picture_mid" class="form-label">Müşteri Fotoğrafı</label>
+                        <div class="file-upload-area" data-target="customer_picture_mid">
+                            <div class="file-upload-content">
+                                <i class="fas fa-upload"></i>
+                                <p class="file-upload-text">Fotoğraf dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                <p class="file-upload-hint">JPG, PNG, WebP - Max 2MB</p>
+                            </div>
+                            <input type="file" id="customer_picture_mid" name="customer_picture_mid" 
+                                   class="file-input" accept="image/*">
+                            <div class="file-preview" style="display: none;">
+                                <img class="preview-image" src="" alt="Preview">
+                                <button type="button" class="file-remove">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="file-meta-inputs">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="customer_picture_alt_text" class="form-label">Alt Metni</label>
+                                    <input type="text" id="customer_picture_alt_text" name="customer_picture_alt_text" 
+                                           class="form-input" placeholder="Fotoğraf için alternatif metin">
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer_picture_title" class="form-label">Fotoğraf Başlığı</label>
+                                    <input type="text" id="customer_picture_title" name="customer_picture_title" 
+                                           class="form-input" placeholder="Fotoğraf için başlık metni">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                    <i class="fas fa-times"></i>
+                    İptal
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-check"></i>
+                    <span class="btn-text">Yorumu Kaydet</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message">Müşteri yorumu başarıyla eklendi.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ PathOnStart }}js/panel/musteri-yorumu-ekle.js"></script>

@@ -1,0 +1,51 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Tıbbi Birimlerimiz</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birimler.css">
+
+<section class="tibbi-birimler-page section-space" style="padding-top: 30px;">
+    <div class="container">
+        {{ if len(TibbiBirimler) > 0 }}
+            <div class="row gutter-y-30">
+                {{ range index, TibbiBirim := TibbiBirimler }}
+                <div class="col-lg-4 col-md-6 col-6">
+                    <div class="birim-card wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
+                        <a class="birim-card__link-overlay" href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" aria-label="{{ TibbiBirim.Name }}"></a>
+
+                        <div class="birim-card__image" style='background-image: url("{{ TibbiBirim.CoverPath != "" ? PathOnStart + TibbiBirim.CoverPath : PathOnStart + "files/defaults/tibbi-birimler/default-birim.png" }}")'></div>
+
+                        <div class="birim-card__info">
+                            <div class="birim-card__identity">
+                                <h3 class="birim-card__name">
+                                    <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a>
+                                </h3>
+                            </div>
+                            <a class="birim-card__detail-btn" href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" onclick="event.stopPropagation()">
+                                Detaylı Bilgi <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        {{ else }}
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <div style="font-size: 64px; color: #6b7280; margin-bottom: 20px;">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3 style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Tıbbi Birim Bulunamadı</h3>
+                        <p style="color: #6b7280; font-size: 16px;">Şu anda görüntülenecek tıbbi birim bulunamadı.</p>
+                    </div>
+                </div>
+            </div>
+        {{ end }}
+    </div>
+</section>

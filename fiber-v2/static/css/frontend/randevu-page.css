@@ -105,7 +105,7 @@
 }
 
 .appointment-page__form-subtitle {
-    font-size: 14px;
+    font-size: 16px;
     color: color-mix(in srgb, var(--theme-text-color), #94a3b8 60%);
     margin: 0;
 }
@@ -113,7 +113,7 @@
 .appointment-page .form-one__label {
     display: block;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
     color: color-mix(in srgb, var(--theme-text-color), #475569 40%);
     margin-bottom: 6px;
 }
@@ -122,12 +122,12 @@
 .appointment-page .form-one__control textarea,
 .appointment-page .form-one__control select {
     background: rgba(248, 250, 252, 0.9);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 14px;
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: 10px;
     padding: 14px 18px;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--theme-text-color);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .appointment-page .form-one__control input::placeholder,
@@ -138,7 +138,6 @@
 .appointment-page .form-one__control input:focus,
 .appointment-page .form-one__control textarea:focus,
 .appointment-page .form-one__control select:focus {
-    outline: none;
     background: #ffffff;
     border-color: rgba(59, 130, 246, 0.45);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
@@ -150,17 +149,16 @@
 }
 
 .appointment-page .bootstrap-select .dropdown-toggle {
-    border-radius: 14px;
+    border-radius: 10px;
     background: rgba(248, 250, 252, 0.9);
     border-color: rgba(226, 232, 240, 0.9);
     padding: 14px 18px;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--theme-text-color);
 }
 
 .appointment-page .bootstrap-select .dropdown-toggle:focus,
 .appointment-page .bootstrap-select .dropdown-toggle:active {
-    outline: none !important;
     border-color: rgba(59, 130, 246, 0.45);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12) !important;
     background: #ffffff;
@@ -216,7 +214,7 @@
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 12px;
-    font-size: 14px;
+    font-size: 16px;
     color: color-mix(in srgb, var(--theme-text-color), #475569 40%);
     cursor: pointer;
     margin: 0;
@@ -237,7 +235,7 @@
 
 .appointment-page__notice {
     margin-top: 20px;
-    font-size: 14px;
+    font-size: 16px;
     color: color-mix(in srgb, var(--theme-text-color), #475569 50%);
     display: inline-flex;
     align-items: center;
@@ -311,3 +309,136 @@
     }
 }
 
+
+/* Form tek kolon - ortalanmış */
+.appointment-page__wrapper {
+    display: block !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+}
+.appointment-page__form-card {
+    width: 100% !important;
+}
+
+/* Form boşluklarını azalt */
+.appointment-page .form-one__group {
+    gap: 12px !important;
+    row-gap: 12px !important;
+}
+.appointment-page .form-one__control {
+    margin-bottom: 0 !important;
+}
+
+/* KVKK linki siyah */
+.appointment-page__kvkk a {
+    color: #111827 !important;
+}
+.appointment-page__kvkk span {
+    color: #374151 !important;
+}
+
+/* Form kartını yukarı taşı */
+.appointment-page.section-space {
+    padding-top: 20px !important;
+}
+
+/* Form input yüksekliklerini düşür */
+.appointment-page .form-one__control input,
+.appointment-page .form-one__control textarea,
+.appointment-page .form-one__control select,
+.appointment-page .form-one__control .bootstrap-select .btn {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: unset !important;
+    height: auto !important;
+    font-size: 16px !important;
+}
+.appointment-page .form-one__control textarea {
+    min-height: 80px !important;
+}
+
+/* Merkez seçiniz - yükseklik düşür */
+.appointment-page .bootstrap-select,
+.appointment-page .bootstrap-select .btn,
+.appointment-page select#appointmentBranch {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+}
+
+/* Merkez seçiniz - ok ikonu ortala ve ufalт */
+.appointment-page .bootstrap-select .btn .bs-caret,
+.appointment-page .bootstrap-select > .btn::after {
+    font-size: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    position: absolute !important;
+    right: 12px !important;
+}
+.appointment-page .bootstrap-select > .btn {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Merkez dropdown - ok içeride ve ortalı */
+.appointment-page .bootstrap-select > .btn {
+    padding-right: 36px !important;
+    overflow: hidden !important;
+}
+.appointment-page .bootstrap-select > .btn .caret {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    border-top-color: #6b7280 !important;
+    border-top-width: 5px !important;
+    border-left-width: 4px !important;
+    border-right-width: 4px !important;
+}
+
+/* Merkez dropdown - ok dikeyde tam orta */
+.appointment-page .bootstrap-select > .btn {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+}
+.appointment-page .bootstrap-select > .btn .filter-option {
+    flex: 1 !important;
+}
+.appointment-page .bootstrap-select > .btn .caret {
+    position: static !important;
+    transform: none !important;
+    margin: 0 0 0 auto !important;
+    align-self: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* Bootstrap-select dropdown ok - kırmızıyı gizle, gri ok ekle ortada */
+.appointment-page .bootstrap-select > .btn.dropdown-toggle::after {
+    display: none !important;
+}
+.appointment-page .bootstrap-select > .btn.dropdown-toggle {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 12px !important;
+    padding-right: 36px !important;
+}
+
+/* Kırmızı caret gizle */
+.appointment-page .bootstrap-select > .btn .caret {
+    display: none !important;
+}
+
+/* Bootstrap-select ::before ok - gizle */
+.appointment-page .bootstrap-select > .btn::before {
+    display: none !important;
+}
+.appointment-page .bootstrap-select > .btn.dropdown-toggle::before {
+    display: none !important;
+}

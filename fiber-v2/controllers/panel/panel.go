@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 func AddFilePage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
@@ -539,8 +540,8 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "option_set_updated_at")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "option_set_updated_at"), "option_set_updated_at")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
@@ -556,10 +557,6 @@ func SeceneklerPage(states *models.AppState, utilities *models.Utilities) fiber.
 			Options.Like("OR", "site_description", Query, "contains")
 			Options.Like("OR", "contact_email", Query, "contains")
 			Options.CloseParenthesis()
-
-			if Status != "all" {
-				Options.And("option_set_is_active", "=", Status == "active")
-			}
 		}
 
 		if Status != "all" {
@@ -906,8 +903,8 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Role := c.Query("role", "all")
 
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
@@ -924,14 +921,6 @@ func KullanicilarPage(states *models.AppState, utilities *models.Utilities) fibe
 			Users.Like("OR", "u.email", Query, "contains")
 			Users.Like("OR", "u.phone", Query, "contains")
 			Users.CloseParenthesis()
-
-			if Status != "all" {
-				Users.And("u.is_active", "=", Status == "active")
-			}
-
-			if Role != "all" {
-				Users.And("u.role", "=", Role)
-			}
 		}
 
 		if Status != "all" {
@@ -1191,14 +1180,35 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
-		return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
+		
+                // Kullanıcının şube izinlerini getir
+                GetPerms := Orm.Select([]string{"sid", "can_view", "can_delete"})
+                GetPerms.Table("user_branch_permissions")
+                GetPerms.Where("uid", "=", Oid)
+                GetPerms.Finish()
+                err = GetPerms.Execute()
+                if err != nil {
+                        log.Printf("%v\n", err)
+                }
+                permRows, _ := GetPerms.Rows()
+                UserPermSids := map[string]map[string]bool{}
+                for _, row := range permRows {
+                        sid := lib.String(row["sid"])
+                        UserPermSids[sid] = map[string]bool{
+                                "can_view":   lib.Bool(row["can_view"]),
+                                "can_delete": lib.Bool(row["can_delete"]),
+                        }
+                }
+
+return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
 			"PathOnStart":    "../../../",
 			"PageTitle":      "Kullanıcı Düzenle",
 			"User":           ourUser,
 			"IndividualUser": User,
 			"Options":        GetOptions,
 			"Subeler":        Subeler,
-		}, "layouts/panel/panel")
+		                        "UserPermSids":   UserPermSids,
+}, "layouts/panel/panel")
 	}
 }
 
@@ -1235,8 +1245,8 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "title")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "title"), "title")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Target := c.Query("target", "all")
 
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
@@ -1249,14 +1259,6 @@ func HeaderTuslariPage(states *models.AppState, utilities *models.Utilities) fib
 			HeaderButtons.Like("WHERE", "title", Query, "contains")
 			HeaderButtons.Like("OR", "url", Query, "contains")
 			HeaderButtons.CloseParenthesis()
-
-			if Status != "all" {
-				HeaderButtons.And("is_active", "=", Status == "active")
-			}
-
-			if Target != "all" {
-				HeaderButtons.And("target", "=", Target)
-			}
 		}
 
 		if Status != "all" {
@@ -1588,8 +1590,8 @@ func TestimonialsPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "first_name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "first_name"), "first_name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := BackendOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
@@ -1604,10 +1606,6 @@ func TestimonialsPage(states *models.AppState, utilities *models.Utilities) fibe
 			TestimonialsSel.Like("OR", "occupation", Query, "contains")
 			TestimonialsSel.Like("OR", "content", Query, "contains")
 			TestimonialsSel.CloseParenthesis()
-
-			if Status != "all" {
-				TestimonialsSel.And("is_active", "=", Status == "active")
-			}
 		}
 
 		if Status != "all" {
@@ -1884,8 +1882,8 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		City := c.Query("city", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -1906,14 +1904,6 @@ func SubelerPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			Subeler.Like("OR", "website", Query, "contains")
 			Subeler.Like("OR", "transportation_info", Query, "contains")
 			Subeler.CloseParenthesis()
-
-			if Status != "all" {
-				Subeler.And("is_active", "=", Status == "active")
-			}
-
-			if City != "all" {
-				Subeler.And("city", "=", City)
-			}
 		}
 
 		if Status != "all" {
@@ -2382,6 +2372,32 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 				})
 			}
 		}
+                // Galeri sorgula
+                GetGaleri := Orm.Select([]string{"sg.sgid", "sg.sid", "sg.mid", "sg.caption", "sg.sort_order", "sg.is_active", "m.file_path", "m.alt_text", "m.title"})
+                GetGaleri.Table("sube_galerileri sg")
+                GetGaleri.LeftJoin("medias m", "sg.mid", "=", "m.mid")
+                GetGaleri.Where("sg.sid", "=", Sid)
+                GetGaleri.AppendCustom("ORDER BY sg.sort_order ASC, sg.sgid ASC")
+                GetGaleri.Finish()
+                err = GetGaleri.Execute()
+                if err != nil {
+                        log.Printf("Galeri sorgu hatasi: %v\n", err)
+                }
+                galeriRows, _ := GetGaleri.Rows()
+                SubeGaleriArray := []models.SubeGaleri{}
+                for _, row := range galeriRows {
+                        SubeGaleriArray = append(SubeGaleriArray, models.SubeGaleri{
+                                Sgid:      lib.String(row["sgid"]),
+                                Sid:       lib.String(row["sid"]),
+                                Mid:       lib.Int64(row["mid"]),
+                                Caption:   lib.String(row["caption"]),
+                                SortOrder: int(lib.Int64(row["sort_order"])),
+                                IsActive:  lib.Bool(row["is_active"]),
+                                FilePath:  lib.String(row["file_path"]),
+                                AltText:   lib.String(row["alt_text"]),
+                                Title:     lib.String(row["title"]),
+                        })
+                }
 
 		return c.Render("views/panel/subeler/sube-duzenle", fiber.Map{
 			"PathOnStart":   "../../../",
@@ -2389,7 +2405,8 @@ func SubeDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber
 			"User":          ourUser,
 			"Sube":          Sube,
 			"Options":       GetOptions,
-			"SubeDocuments": SubeDocumentsArray,
+                        "SubeDocuments": SubeDocumentsArray,
+                        "SubeGaleri":    SubeGaleriArray,
 		}, "layouts/panel/panel")
 	}
 }
@@ -2423,8 +2440,8 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Type := c.Query("type", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -2441,14 +2458,6 @@ func AnlasmaliKurumlarPage(states *models.AppState, utilities *models.Utilities)
 			AnlasmaliKurumlar.Like("OR", "ak.email", Query, "contains")
 			AnlasmaliKurumlar.Like("OR", "ak.address", Query, "contains")
 			AnlasmaliKurumlar.CloseParenthesis()
-
-			if Status != "all" {
-				AnlasmaliKurumlar.And("ak.is_active", "=", Status == "active")
-			}
-
-			if Type != "all" {
-				AnlasmaliKurumlar.And("ak.type", "=", Type)
-			}
 		}
 
 		if Status != "all" {
@@ -2790,8 +2799,8 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
@@ -2803,10 +2812,6 @@ func UzmanliklarPage(states *models.AppState, utilities *models.Utilities) fiber
 			Uzmanliklar.Like("WHERE", "name", Query, "contains")
 			Uzmanliklar.Like("OR", "description", Query, "contains")
 			Uzmanliklar.CloseParenthesis()
-
-			if Status != "all" {
-				Uzmanliklar.And("is_active", "=", Status == "active")
-			}
 		}
 
 		if Status != "all" {
@@ -3181,8 +3186,8 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Subeler := c.Query("sube", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -3208,14 +3213,6 @@ func BranslarPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			Branslar.Like("WHERE", "br.name", Query, "contains")
 			Branslar.Like("OR", "br.description", Query, "contains")
 			Branslar.CloseParenthesis()
-
-			if Status != "all" {
-				Branslar.And("br.is_active", "=", Status == "active")
-			}
-
-			if Subeler != "all" {
-				Branslar.And("s.sid", "=", Subeler)
-			}
 		}
 
 		if Status != "all" {
@@ -3726,8 +3723,8 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "first_name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "first_name"), "first_name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Subeler := c.Query("sube", "all")
 		Branslar := c.Query("brans", "all")
 
@@ -3756,17 +3753,6 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			Doktorlar.Like("OR", "d.education", Query, "contains")
 			Doktorlar.Like("OR", "d.languages", Query, "contains")
 			Doktorlar.CloseParenthesis()
-
-			if Status != "all" {
-				Doktorlar.And("d.is_active", "=", Status == "active")
-			}
-
-			if Subeler != "all" {
-				Doktorlar.And("s.sid", "=", Subeler)
-			}
-			if Branslar != "all" {
-				Doktorlar.And("b.brid", "=", Branslar)
-			}
 		}
 
 		if Status != "all" {
@@ -4290,6 +4276,18 @@ func DoktorDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
+                // Doktorun mevcut subelerini cek
+                GetDoktorSubeler := Orm.Select([]string{"sid"})
+                GetDoktorSubeler.Table("doktor_subeler")
+                GetDoktorSubeler.Where("drid", "=", Doktor.Drid)
+                GetDoktorSubeler.Finish()
+                GetDoktorSubeler.Execute()
+                doktorSubeRows, _ := GetDoktorSubeler.Rows()
+                DoktorSubeIDs := map[string]bool{}
+                for _, row := range doktorSubeRows {
+                        DoktorSubeIDs[lib.String(row["sid"])] = true
+                }
+
 		return c.Render("views/panel/doktorlar-sayfalari/doktor-duzenle", fiber.Map{
 			"PathOnStart": "../../../",
 			"PageTitle":   "Doktor Düzenle",
@@ -4297,7 +4295,8 @@ func DoktorDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 			"Doktor":      Doktor,
 			"Branches":    BranchesArray,
 			"Subeler":     SubelerArray,
-			"Options":     GetOptions,
+                        "DoktorSubeIDs": DoktorSubeIDs,
+                        "Options":     GetOptions,
 		}, "layouts/panel/panel")
 	}
 }
@@ -4331,8 +4330,8 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
@@ -4344,10 +4343,6 @@ func TibbiBirimlerPage(states *models.AppState, utilities *models.Utilities) fib
 			TibbiBirimler.Like("WHERE", "name", Query, "contains")
 			TibbiBirimler.Like("OR", "description", Query, "contains")
 			TibbiBirimler.CloseParenthesis()
-
-			if Status != "all" {
-				TibbiBirimler.And("is_active", "=", Status == "active")
-			}
 		}
 
 		if Status != "all" {
@@ -4698,8 +4693,8 @@ func HomepageContentsPage(states *models.AppState, utilities *models.Utilities) 
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "sort_order")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "sort_order"), "sort_order")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		ContentType := c.Query("content_type", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -4712,14 +4707,6 @@ func HomepageContentsPage(states *models.AppState, utilities *models.Utilities) 
 			HomepageContents.Like("WHERE", "name", Query, "contains")
 			HomepageContents.Like("OR", "description", Query, "contains")
 			HomepageContents.CloseParenthesis()
-
-			if Status != "all" {
-				HomepageContents.And("is_active", "=", Status == "active")
-			}
-
-			if ContentType != "all" {
-				HomepageContents.And("content_type", "=", ContentType)
-			}
 		}
 
 		if Status != "all" {
@@ -4939,18 +4926,33 @@ func HomepageContentDuzenlePage(states *models.AppState, utilities *models.Utili
 			ContentCss:            lib.String(rows[0]["content_css"]),
 			LaterThanWhichContent: lib.Int64(rows[0]["later_than_which_content"]),
 			Description:           lib.String(rows[0]["description"]),
+                        TibbiBirimId:          lib.String(rows[0]["tibbi_birim_id"]),
 			IsActive:              rows[0]["is_active"].(bool),
 			CreatedAt:             rows[0]["created_at"].(time.Time),
 			UpdatedAt:             rows[0]["updated_at"].(time.Time),
 		}
 
-		return c.Render("views/panel/homepage-contents-sayfalari/homepage-content-duzenle", fiber.Map{
-			"PathOnStart":     "../../../",
-			"PageTitle":       "Anasayfa İçeriği Düzenle",
-			"User":            ourUser,
-			"HomepageContent": HomepageContent,
-			"Options":         GetOptions,
-		}, "layouts/panel/panel")
+                AllTibbiBirimler := []models.TibbiBirimLink{}
+                getTB2 := Orm.Select([]string{"tbid::text as tbid", "name", "url_name"})
+                getTB2.Table("tibbi_birimler")
+                getTB2.Where("is_active", "=", true)
+                getTB2.OrderBy("name", "ASC")
+                getTB2.Finish()
+                if getTB2.Execute() == nil {
+                        if tbRows2, err3 := getTB2.Rows(); err3 == nil {
+                                for _, r := range tbRows2 {
+                                        AllTibbiBirimler = append(AllTibbiBirimler, models.TibbiBirimLink{Tbid: lib.String(r["tbid"]), Name: lib.String(r["name"]), UrlName: lib.String(r["url_name"])})
+                                }
+                }
+                }
+                return c.Render("views/panel/homepage-contents-sayfalari/homepage-content-duzenle", fiber.Map{
+                        "PathOnStart":     "../../../",
+                        "PageTitle":       "Anasayfa İçeriği Düzenle",
+                        "User":            ourUser,
+                        "HomepageContent": HomepageContent,
+                        "TibbiBirimler":   AllTibbiBirimler,
+                        "Options":         GetOptions,
+                }, "layouts/panel/panel")
 	}
 }
 
@@ -4982,8 +4984,8 @@ func CustomContentsPage(states *models.AppState, utilities *models.Utilities) fi
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "sort_order")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "sort_order"), "sort_order")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		ContentType := c.Query("content_type", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -4996,14 +4998,6 @@ func CustomContentsPage(states *models.AppState, utilities *models.Utilities) fi
 			CustomContents.Like("WHERE", "name", Query, "contains")
 			CustomContents.Like("OR", "description", Query, "contains")
 			CustomContents.CloseParenthesis()
-
-			if Status != "all" {
-				CustomContents.And("is_active", "=", Status == "active")
-			}
-
-			if ContentType != "all" {
-				CustomContents.And("content_type", "=", ContentType)
-			}
 		}
 
 		if Status != "all" {
@@ -5285,8 +5279,8 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := c.Query("sort_by", "title")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "title"), "title")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Category := c.Query("category", "all")
 		Featured := c.Query("is_featured", "all")
 
@@ -5305,18 +5299,6 @@ func HaberlerListPage(states *models.AppState, utilities *models.Utilities) fibe
 			Haberler.Like("OR", "seo_description", Query, "contains")
 			Haberler.Like("OR", "seo_keywords", Query, "contains")
 			Haberler.CloseParenthesis()
-
-			if Status != "all" {
-				Haberler.And("is_published", "=", Status == "published")
-			}
-
-			if Category != "all" {
-				Haberler.And("category", "=", Category)
-			}
-
-			if Featured != "all" {
-				Haberler.And("is_featured", "=", Featured == "featured")
-			}
 		}
 
 		if Status != "all" {
@@ -5634,8 +5616,8 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := c.Query("sort_by", "name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "name"), "name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
@@ -5649,10 +5631,6 @@ func TedkiklerPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			Tedkikler.Like("WHERE", "t.name", Query, "contains")
 			Tedkikler.Like("OR", "t.description", Query, "contains")
 			Tedkikler.CloseParenthesis()
-
-			if Status != "all" {
-				Tedkikler.And("t.is_active", "=", Status == "active")
-			}
 		}
 
 		if Status != "all" {
@@ -6094,8 +6072,8 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 		Query := c.Query("query", "")
 		Status := c.Query("status", "all")
-		SortBy := c.Query("sort_by", "created_at")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "created_at"), "created_at")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 
@@ -6120,10 +6098,6 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 			RandevuTalepleri.Like("OR", "rt.patient_email", Query, "contains")
 			RandevuTalepleri.Like("OR", "rt.message", Query, "contains")
 			RandevuTalepleri.CloseParenthesis()
-
-			if Status != "all" {
-				RandevuTalepleri.And("rt.status", "=", Status)
-			}
 		}
 
 		if Status != "all" {
@@ -6137,6 +6111,33 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 		if ourUser.Role == "santral" && UserSid != "" {
 			RandevuTalepleri.And("rt.sid", "=", UserSid)
 		}
+            // BRANCH_PERMS_FILTER_APPLIED
+            // Admin değilse: kullanıcıya atanmış şubeler (can_view=true) dışında randevu taleplerini gösterme
+            if ourUser.Role != "admin" {
+                    AllowedSids := []any{}
+
+                    GetPermSids := Orm.Select([]string{"sid"})
+                    GetPermSids.Table("user_branch_permissions")
+                    GetPermSids.Where("uid", "=", ourUser.Uid)
+                    GetPermSids.And("can_view", "=", true)
+                    GetPermSids.Finish()
+                    _ = GetPermSids.Execute()
+                    permRows, _ := GetPermSids.Rows()
+
+                    for _, r := range permRows {
+                            AllowedSids = append(AllowedSids, r["sid"])
+                    }
+
+                    if len(AllowedSids) == 0 {
+                            // hiçbir şube yetkisi yoksa: liste boş gelsin
+                            RandevuTalepleri.And("rt.sid", "=", -1)
+                    } else {
+                            // mevcut WHERE koşullarına ekle
+                            RandevuTalepleri.In("AND", "rt.sid", AllowedSids)
+                    }
+            }
+
+
 
 		RandevuTalepleri.OrderBy("rt."+SortBy, SortOrder)
 		RandevuTalepleri.Limit(int(itemsPerPage))
@@ -6250,6 +6251,82 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 	}
 }
 
+
+func RandevuTalepleriLatestAPI(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        ourUser, err := lib.CheckAuth(c)
+        if err != nil {
+            return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
+        }
+
+        Orm := utilities.Orm
+        since := c.Query("since", "")
+
+        RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name"})
+        RandevuTalepleri.Table("randevu_talepleri rt")
+        RandevuTalepleri.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
+
+        if since != "" {
+            RandevuTalepleri.Where("rt.created_at", ">", since)
+        }
+
+        // Admin değilse sadece izinli şubeleri göster
+        if ourUser.Role != "admin" {
+            AllowedSids := []any{}
+            GetPermSids := Orm.Select([]string{"sid"})
+            GetPermSids.Table("user_branch_permissions")
+            GetPermSids.Where("uid", "=", ourUser.Uid)
+            GetPermSids.And("can_view", "=", true)
+            GetPermSids.Finish()
+            _ = GetPermSids.Execute()
+            permSids, _ := GetPermSids.Rows()
+            for _, r := range permSids {
+                AllowedSids = append(AllowedSids, r["sid"])
+            }
+            if len(AllowedSids) == 0 {
+                return c.JSON(fiber.Map{"status": 200, "data": []fiber.Map{}})
+            }
+            RandevuTalepleri.In("AND", "rt.sid", AllowedSids)
+        }
+
+        RandevuTalepleri.OrderBy("rt.created_at", "DESC")
+        RandevuTalepleri.Limit(20)
+        RandevuTalepleri.Finish()
+
+        RandevuTalepleriQuery := Orm.CustomSelectQuery(RandevuTalepleri.GetFullQuery())
+        err = RandevuTalepleriQuery.Execute()
+        if err != nil {
+            return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server error"})
+        }
+
+        rows, err := RandevuTalepleriQuery.Rows()
+        if err != nil {
+            return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server error"})
+        }
+
+        result := []fiber.Map{}
+        for _, row := range rows {
+            result = append(result, fiber.Map{
+                "rrid":               lib.String(row["rrid"]),
+                "patient_first_name": lib.String(row["patient_first_name"]),
+                "patient_last_name":  lib.String(row["patient_last_name"]),
+                "patient_phone":      lib.String(row["patient_phone"]),
+                "message":    lib.String(row["message"]),
+                "created_at": func() string {
+                    if t, ok := row["created_at"].(time.Time); ok {
+                        return t.Format("2006-01-02T15:04:05Z07:00")
+                    }
+                    return lib.String(row["created_at"])
+                }(),
+                "status":             lib.String(row["status"]),
+                "sube_name":          lib.String(row["sube_name"]),
+            })
+        }
+
+        return c.JSON(fiber.Map{"status": 200, "data": result})
+    }
+}
+
 func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
@@ -6302,8 +6379,8 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := c.Query("sort_by", "patient_first_name")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "patient_first_name"), "patient_first_name")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		SubelerQuery := c.Query("sube", "all")
 
 		// Get randevular data
@@ -6328,15 +6405,6 @@ func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.
 			RandevularQuery.Like("OR", "r.complaint", Query, "contains")
 			RandevularQuery.Like("OR", "r.notes", Query, "contains")
 			RandevularQuery.CloseParenthesis()
-
-			if Status != "all" {
-				RandevularQuery.And("r.status", "=", Status)
-			}
-
-			if SubelerQuery != "all" {
-				RandevularQuery.And("r.sid", "=", SubelerQuery)
-			}
-
 		}
 
 		if Status != "all" {
@@ -6732,8 +6800,8 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := c.Query("sort_by", "created_at")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "created_at"), "created_at")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		Read := c.Query("read", "all")
 
 		itemsPerPage := GetOptions.Options.ItemsPerPage
@@ -6750,14 +6818,6 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 			ContactRequests.Like("OR", "subject", Query, "contains")
 			ContactRequests.Like("OR", "message", Query, "contains")
 			ContactRequests.CloseParenthesis()
-
-			if Status != "all" {
-				ContactRequests.And("status", "=", Status == "active")
-			}
-
-			if Read != "all" {
-				ContactRequests.And("is_read", "=", Read == "read")
-			}
 		}
 
 		if Status != "all" {
@@ -7039,8 +7099,8 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := c.Query("sort_by", "created_at")
-		SortOrder := c.Query("sort_order", "DESC")
+		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "created_at"), "created_at")
+		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		// Convert to integers
 		pageInt, _ := strconv.Atoi(page)
 		perPageInt, _ := strconv.Atoi(perPage)
@@ -7058,10 +7118,6 @@ func JobApplicationsPage(states *models.AppState, utilities *models.Utilities) f
 			JobApplications.Like("OR", "department", Query, "contains")
 			JobApplications.Like("OR", "university", Query, "contains")
 			JobApplications.CloseParenthesis()
-
-			if Status != "all" {
-				JobApplications.And("status", "=", Status)
-			}
 		}
 
 		if Status != "all" {
@@ -7408,5 +7464,290 @@ func FallbackPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
+	}
+}
+
+func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ourUser, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
+		}
+		Orm := utilities.Orm
+		dateStart := c.Query("date_start", "")
+		dateEnd := c.Query("date_end", "")
+		statuses := c.Query("statuses", "")
+
+		Query := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name"})
+		Query.Table("randevu_talepleri rt")
+		Query.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
+
+		if dateStart != "" {
+			Query.Where("rt.created_at", ">=", dateStart)
+		}
+		if dateEnd != "" {
+			Query.And("rt.created_at", "<=", dateEnd+" 23:59:59")
+		}
+		if statuses != "" {
+			statusList := strings.Split(statuses, ",")
+			sids := make([]interface{}, len(statusList))
+			for i, s := range statusList {
+				sids[i] = strings.TrimSpace(s)
+			}
+			Query.In("AND", "rt.status", sids)
+		}
+		if ourUser.Role != "admin" {
+			AllowedSids := []any{}
+			GetPermSids := Orm.Select([]string{"sid"})
+			GetPermSids.Table("user_branch_permissions")
+			GetPermSids.Where("uid", "=", ourUser.Uid)
+			GetPermSids.And("can_view", "=", true)
+			GetPermSids.Finish()
+			_ = GetPermSids.Execute()
+			permRows, _ := GetPermSids.Rows()
+			for _, r := range permRows {
+				AllowedSids = append(AllowedSids, r["sid"])
+			}
+			if len(AllowedSids) == 0 {
+				return c.Status(403).JSON(fiber.Map{"status": 403, "message": "Yetkiniz yok"})
+			}
+			Query.In("AND", "rt.sid", AllowedSids)
+		}
+		Query.OrderBy("rt.created_at", "DESC")
+		Query.Finish()
+		err = Query.Execute()
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Sorgu hatası"})
+		}
+		rows, err := Query.Rows()
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Veri hatası"})
+		}
+
+		f := excelize.NewFile()
+		sheet := "Randevu Talepleri"
+		f.SetSheetName("Sheet1", sheet)
+
+		// Başlık stili
+		headerStyle, _ := f.NewStyle(&excelize.Style{
+			Font: &excelize.Font{Bold: true, Color: "FFFFFF", Size: 11},
+			Fill: excelize.Fill{Type: "pattern", Color: []string{"2563EB"}, Pattern: 1},
+			Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center", WrapText: true},
+			Border: []excelize.Border{
+				{Type: "left", Color: "FFFFFF", Style: 1},
+				{Type: "right", Color: "FFFFFF", Style: 1},
+				{Type: "bottom", Color: "FFFFFF", Style: 1},
+			},
+		})
+		// Satır stili (çift)
+		evenStyle, _ := f.NewStyle(&excelize.Style{
+			Fill: excelize.Fill{Type: "pattern", Color: []string{"EFF6FF"}, Pattern: 1},
+			Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
+			Border: []excelize.Border{
+				{Type: "left", Color: "DBEAFE", Style: 1},
+				{Type: "right", Color: "DBEAFE", Style: 1},
+				{Type: "bottom", Color: "DBEAFE", Style: 1},
+			},
+		})
+		// Satır stili (tek)
+		oddStyle, _ := f.NewStyle(&excelize.Style{
+			Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
+			Border: []excelize.Border{
+				{Type: "left", Color: "DBEAFE", Style: 1},
+				{Type: "right", Color: "DBEAFE", Style: 1},
+				{Type: "bottom", Color: "DBEAFE", Style: 1},
+			},
+		})
+
+		headers := []string{"#", "Ad", "Soyad", "Telefon", "E-posta", "Şube", "Mesaj", "Durum", "Talep Tarihi"}
+		colWidths := []float64{5, 15, 15, 15, 25, 20, 40, 18, 20}
+		cols := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I"}
+
+		for i, h := range headers {
+			cell := cols[i] + "1"
+			f.SetCellValue(sheet, cell, h)
+			f.SetCellStyle(sheet, cell, cell, headerStyle)
+			f.SetColWidth(sheet, cols[i], cols[i], colWidths[i])
+		}
+		f.SetRowHeight(sheet, 1, 22)
+
+		statusLabels := map[string]string{
+			"yeni": "Yeni", "randevu-verildi": "Randevu Verildi",
+			"randevu-verilemedi": "Randevu Verilemedi", "ulasilamadi": "Ulaşılamadı",
+			"gelmedi": "Gelmedi", "hasta-vazgecti": "Hasta Vazgeçti", "hasta-arandi": "Hasta Arandı",
+		}
+
+		for i, row := range rows {
+			rowNum := i + 2
+			createdAt := ""
+			if t, ok := row["created_at"].(time.Time); ok {
+				createdAt = t.Format("02.01.2006 15:04")
+			}
+			status := lib.String(row["status"])
+			if label, ok := statusLabels[status]; ok {
+				status = label
+			}
+			values := []interface{}{
+				i + 1,
+				lib.String(row["patient_first_name"]),
+				lib.String(row["patient_last_name"]),
+				lib.String(row["patient_phone"]),
+				lib.String(row["patient_email"]),
+				lib.String(row["sube_name"]),
+				lib.String(row["message"]),
+				status,
+				createdAt,
+			}
+			style := oddStyle
+			if i%2 == 0 {
+				style = evenStyle
+			}
+			for j, val := range values {
+				cell := cols[j] + fmt.Sprintf("%d", rowNum)
+				f.SetCellValue(sheet, cell, val)
+				f.SetCellStyle(sheet, cell, cell, style)
+			}
+			f.SetRowHeight(sheet, rowNum, 18)
+		}
+
+		buf, err := f.WriteToBuffer()
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Excel oluşturma hatası"})
+		}
+
+		fileName := "randevu-talepleri-" + time.Now().Format("2006-01-02") + ".xlsx"
+		c.Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		c.Set("Content-Disposition", "attachment; filename="+fileName)
+		return c.Send(buf.Bytes())
+	}
+}
+
+func SubeGaleriEkle(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		_, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Yetkisiz"})
+		}
+
+		Sid := c.Params("sid")
+		Orm := utilities.Orm
+
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Form hatası"})
+		}
+
+		files := form.File["galeri_files"]
+		if len(files) == 0 {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Dosya seçilmedi"})
+		}
+
+		uploaded := []fiber.Map{}
+		for _, file := range files {
+			ext := filepath.Ext(file.Filename)
+			newFileName := fmt.Sprintf("sube-galeri-%s-%d%s", Sid, time.Now().UnixNano(), ext)
+			savePath := "static/files/subeler/galeri/" + newFileName
+
+			if err := os.MkdirAll("static/files/subeler/galeri", 0755); err != nil {
+				continue
+			}
+			if err := c.SaveFile(file, savePath); err != nil {
+				continue
+			}
+
+			mediaColumns := []string{"file_path", "file_name", "file_size", "mime_type", "alt_text", "title"}
+			mediaValues := []any{savePath, file.Filename, file.Size, file.Header.Get("Content-Type"), file.Filename, file.Filename}
+			InsertMedia := Orm.Insert(mediaColumns, mediaValues)
+			InsertMedia.Table("medias")
+			InsertMedia.Returning("mid")
+			InsertMedia.Finish()
+			err = InsertMedia.Execute()
+			if err != nil {
+				continue
+			}
+			newMid, _ := InsertMedia.LastInsertId()
+
+			galeriColumns := []string{"sid", "mid", "caption", "sort_order"}
+			galeriValues := []any{Sid, newMid, "", 0}
+			InsertGaleri := Orm.Insert(galeriColumns, galeriValues)
+			InsertGaleri.Table("sube_galerileri")
+			InsertGaleri.Returning("sgid")
+			InsertGaleri.Finish()
+			err = InsertGaleri.Execute()
+			if err != nil {
+				continue
+			}
+			newSgid, _ := InsertGaleri.LastInsertId()
+
+			uploaded = append(uploaded, fiber.Map{
+				"sgid":      newSgid,
+				"file_path": savePath,
+				"caption":   "",
+			})
+		}
+
+		return c.JSON(fiber.Map{"status": 200, "message": "Yüklendi", "items": uploaded})
+	}
+}
+
+func SubeGaleriSil(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		_, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Yetkisiz"})
+		}
+
+		Sgid := c.Params("sgid")
+		Orm := utilities.Orm
+
+		GetItem := Orm.Select([]string{"sg.sgid", "m.file_path"})
+		GetItem.Table("sube_galerileri sg")
+		GetItem.LeftJoin("medias m", "sg.mid", "=", "m.mid")
+		GetItem.Where("sg.sgid", "=", Sgid)
+		GetItem.Finish()
+		GetItem.Execute()
+		rows, _ := GetItem.Rows()
+
+		if len(rows) > 0 {
+			filePath := lib.String(rows[0]["file_path"])
+			if filePath != "" {
+				os.Remove(filePath)
+			}
+		}
+
+		DelGaleri := Orm.Delete()
+		DelGaleri.Table("sube_galerileri")
+		DelGaleri.Where("sgid", "=", Sgid)
+		DelGaleri.Finish()
+		DelGaleri.Execute()
+
+		return c.JSON(fiber.Map{"status": 200, "message": "Silindi"})
+	}
+}
+
+func SubeGaleriCaptionGuncelle(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		_, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Yetkisiz"})
+		}
+
+		Sgid := c.Params("sgid")
+		Orm := utilities.Orm
+
+		type CaptionBody struct {
+			Caption string `json:"caption"`
+		}
+		var body CaptionBody
+		c.BodyParser(&body)
+
+		UpdCaption := Orm.Update()
+		UpdCaption.Table("sube_galerileri")
+		UpdCaption.Set("caption", body.Caption)
+		UpdCaption.Where("sgid", "=", Sgid)
+		UpdCaption.Finish()
+		UpdCaption.Execute()
+
+		return c.JSON(fiber.Map{"status": 200, "message": "Güncellendi"})
 	}
 }

@@ -110,6 +110,7 @@ func main() {
 	baserouter.FrontendRouter(server, &AppState, &Utilities)
 	baserouter.PanelRouter(server, &AppState, &Utilities)
 	baserouter.BackendRouter(server, &AppState, &Utilities)
+	server.Get("/cerez-politikasi", frontend.CookiePolicyPage(&AppState, &Utilities))
 	server.Use(frontend.FallbackPage(&AppState, &Utilities))
 
 	log.Printf("Routes loaded")

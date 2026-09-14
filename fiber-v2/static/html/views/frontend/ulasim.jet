@@ -1,10 +1,16 @@
 <div class="compact-page-header">
     <div class="container">
+        <h1 class="sr-only">Ulaşım</h1>
         <ul class="compact-breadcrumb">
             <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
             <li><span class="current">Ulaşım</span></li>
         </ul>
     </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/content-dates.css">
+<div class="container" style="padding-top: 20px;">
+    {{ include "../../components/content-dates" }}
 </div>
 
 {{ range index1, CssContent := CssContents }}
@@ -14,40 +20,6 @@
 {{ end }}
 
 <style>
-  /* Ulaşım header: gerçek dikey ortalama */
-  .page-header .page-header__inner.ulasim-header{
-      position: relative !important;
-      display: flex !important;
-      align-items: center !important;   /* dikey ortala */
-      justify-content: center !important;/* yatay ortala */
-
-      /* Yükseklik/padding: burada kontrol et */
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-      min-height: 220px !important; /* İstersen 200-260 arası oynat */
-  }
-
-  /* İç container default padding/margin yüzünden aşağı kaymasın */
-  .page-header .page-header__inner.ulasim-header > .container{
-      width: 100% !important;
-      margin: 0 !important;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-  }
-
-  .page-header .page-header__inner.ulasim-header .page-header__content{
-      margin: 0 !important;
-      padding: 0 !important;
-      text-align: center !important;
-  }
-
-  /* BG garanti */
-  .page-header .page-header__bg{
-      position: absolute;
-      inset: 0;
-  }
-
-  /* Alt içerik padding */
   .service-details.section-space{
       padding-top: 15px !important;
       padding-bottom: 30px !important;

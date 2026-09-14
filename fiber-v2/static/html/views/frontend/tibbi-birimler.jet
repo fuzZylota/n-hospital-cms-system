@@ -1,64 +1,52 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Tıbbi Birimlerimiz</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Tıbbi Birimlerimiz</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
-
-<section class="section-space" style="padding-top: 40px; padding-bottom: 0;">
+<div class="compact-page-header">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="sec-title text-center">
-                    <h3 class="sec-title__title">Tıbbi <span>Birimlerimiz</span></h3>
-                    <p class="mt-3" style="max-width: 800px; margin: 10px auto 0; color: #6b7280; font-size: 16px;">
-                        Kurumumuzda hizmet veren tıbbi birimleri görüntüleyebilir ve ilgili birimlerin detay sayfalarına ulaşabilirsiniz.
-                    </p>
+        <h1 class="sr-only">Tıbbi Birimlerimiz</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Tıbbi Birimlerimiz</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birimler.css">
+
+<section class="tibbi-birimler-page section-space" style="padding-top: 30px;">
+    <div class="container">
+        {{ if len(TibbiBirimler) > 0 }}
+            <div class="row gutter-y-30">
+                {{ range index, TibbiBirim := TibbiBirimler }}
+                <div class="col-lg-4 col-md-6 col-6">
+                    <div class="birim-card wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
+                        <a class="birim-card__link-overlay" href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" aria-label="{{ TibbiBirim.Name }}"></a>
+
+                        <div class="birim-card__image" style='background-image: url("{{ TibbiBirim.CoverPath != "" ? PathOnStart + TibbiBirim.CoverPath : PathOnStart + "files/defaults/tibbi-birimler/default-birim.png" }}")'></div>
+
+                        <div class="birim-card__info">
+                            <div class="birim-card__identity">
+                                <h2 class="birim-card__name">
+                                    <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a>
+                                </h2>
+                            </div>
+                            <a class="birim-card__detail-btn" href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" onclick="event.stopPropagation()">
+                                Detaylı Bilgi <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        {{ else }}
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <div style="font-size: 64px; color: #6b7280; margin-bottom: 20px;">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h2 style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Tıbbi Birim Bulunamadı</h2>
+                        <p style="color: #6b7280; font-size: 16px;">Şu anda görüntülenecek tıbbi birim bulunamadı.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        {{ end }}
     </div>
 </section>
-
-<section class="service-details section-space" style="padding-top: 20px;">
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birimler.css">
-    <div class="container">
-        <div class="services-two services-two--home3">
-            <div class="row gutter-y-30">
-                {{ if len(TibbiBirimler) > 0 }}
-                    {{ range index, TibbiBirim := TibbiBirimler }}
-                        <div class="col-lg-6 col-md-6 col-12 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                            <div class="service-card-two">
-                                <div class="service-card-two__bg"></div><!-- /.service-card-two__bg -->
-                                <div class="service-card-two__content">
-                                    <img src="{{ TibbiBirim.CoverPath != "" ? PathOnStart + TibbiBirim.CoverPath : PathOnStart + "files/defaults/tibbi-birim/tibbi-birim-resim.png" }}" alt="{{ TibbiBirim.CoverAltText != "" ? TibbiBirim.CoverAltText : "Tıbbi Birim" }}" title="{{ TibbiBirim.CoverTitle != "" ? TibbiBirim.CoverTitle : "Tıbbi Birim" }}" class="service-card-two__image" onclick="window.location.href='/tibbi-birimler/{{ TibbiBirim.UrlName }}'" style="cursor: pointer;">
-                                    <h3 class="service-card-two__title"><a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a></h3><!-- /.service-card-two__title -->
-                                    <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" class="service-card-two__link">
-                                        <i class="icon-up-right-arrow"></i>
-                                    </a><!-- /.service-card-two__link -->
-                                </div><!-- /.service-card-two__content -->
-                            </div><!-- /.service-card-two -->
-                        </div><!-- /.col-xl-4 col-md-6 -->
-                    {{ end }}
-                {{ else }}
-                    <div class="col-12">
-                        <p style="text-align:center; color:#6b7280;">Şu anda görüntülenecek tıbbi birim bulunamadı.</p>
-                    </div>
-                {{ end }}
-            </div><!-- /.row gutter-y-30 -->
-        </div><!-- /.services-two services-two--home3 -->
-    </div><!-- /.container -->
-</section><!-- /.service-details section-space -->

@@ -1,0 +1,343 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/anlasmali-kurum-duzenle.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-edit"></i>
+                    Anlaşmalı Kurum Bilgilerini Düzenle
+                </h1>
+                <p class="page-subtitle">{{ AnlasmaliKurum.Name }} kurumunun bilgilerini düzenleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/anlasmali-kurumlar/{{ AnlasmaliKurum.Akid }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    Görüntüle
+                </a>
+                <a href="/panel/anlasmali-kurumlar" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="forms-container">
+            <!-- General Information Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Genel Bilgiler
+                    </h2>
+                    <p class="section-description">Kurumun temel bilgilerini düzenleyin</p>
+                </div>
+                <div class="section-content">
+                    <form id="generalForm" class="general-form" novalidate>
+                        <!-- Hidden inputs for old values -->
+                        <input type="hidden" name="old_name" value="{{ AnlasmaliKurum.Name }}">
+                        <input type="hidden" name="old_url_name" value="{{ AnlasmaliKurum.UrlName }}">
+                        <input type="hidden" name="old_type" value="{{ AnlasmaliKurum.Type }}">
+                        <input type="hidden" name="old_sid" value="{{ AnlasmaliKurum.Sid }}">
+                        <input type="hidden" name="old_contact_person" value="{{ AnlasmaliKurum.ContactPerson }}">
+                        <input type="hidden" name="old_phone" value="{{ AnlasmaliKurum.Phone }}">
+                        <input type="hidden" name="old_email" value="{{ AnlasmaliKurum.Email }}">
+                        <input type="hidden" name="old_address" value="{{ AnlasmaliKurum.Address }}">
+                        <input type="hidden" name="old_contract_start_date" value="{{ ctdi(AnlasmaliKurum.ContractStartDate, User.Timezone) }}">
+                        <input type="hidden" name="old_contract_end_date" value="{{ ctdi(AnlasmaliKurum.ContractEndDate, User.Timezone) }}">
+                        <input type="hidden" name="old_discount_rate" value="{{ AnlasmaliKurum.DiscountRate }}">
+                        <input type="hidden" name="old_payment_terms" value="{{ AnlasmaliKurum.PaymentTerms }}">
+                        <input type="hidden" name="old_notes" value="{{ AnlasmaliKurum.Notes }}">
+                        <input type="hidden" name="old_is_active" value="{{ AnlasmaliKurum.IsActive }}">
+
+                        <!-- Basic Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Temel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name" class="form-label required">Kurum Adı</label>
+                                    <input type="text" id="name" name="name" class="form-input" 
+                                           value="{{ AnlasmaliKurum.Name }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="url_name" class="form-label">URL Adı</label>
+                                    <input type="text" id="url_name" name="url_name" class="form-input" 
+                                           value="{{ AnlasmaliKurum.UrlName }}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="type" class="form-label required">Kurum Tipi</label>
+                                    <select id="type" name="type" class="form-select" required>
+                                        <option value="">Kurum tipini seçin</option>
+                                        <option value="sigorta" {{ if AnlasmaliKurum.Type == "sigorta" }}selected{{ end }}>Sigorta</option>
+                                        <option value="kurumsal" {{ if AnlasmaliKurum.Type == "kurumsal" }}selected{{ end }}>Kurumsal</option>
+                                        <option value="universite" {{ if AnlasmaliKurum.Type == "universite" }}selected{{ end }}>Üniversite</option>
+                                        <option value="devlet" {{ if AnlasmaliKurum.Type == "devlet" }}selected{{ end }}>Devlet</option>
+                                        <option value="ozel" {{ if AnlasmaliKurum.Type == "ozel" }}selected{{ end }}>Özel</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sid" class="form-label required">Bağlı Şube</label>
+                                    <select id="sid" name="sid" class="form-select" required>
+                                        <option value="">Şube seçin</option>
+                                        {{range Subeler}}
+                                        <option value="{{ .Sid }}" {{ if .Sid == AnlasmaliKurum.Sid }}selected{{ end }}>{{ .Name }}</option>
+                                        {{end}}
+                                    </select>
+                                    <div class="form-help">Bu kurumun bağlı olacağı şube</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="is_active" class="form-label">Aktif Durumu</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="is_active" name="is_active" {{ if AnlasmaliKurum.IsActive }}checked{{ end }}>
+                                        <label for="is_active" class="toggle-label">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">{{ if AnlasmaliKurum.IsActive }}Aktif{{ else }}Pasif{{ end }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">İletişim Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contact_person" class="form-label">Yetkili Kişi</label>
+                                    <input type="text" id="contact_person" name="contact_person" class="form-input" 
+                                           value="{{ AnlasmaliKurum.ContactPerson }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="form-label">Telefon</label>
+                                    <input type="tel" id="phone" name="phone" class="form-input" 
+                                           value="{{ AnlasmaliKurum.Phone }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">E-posta</label>
+                                <input type="email" id="email" name="email" class="form-input" 
+                                       value="{{ AnlasmaliKurum.Email }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="address" class="form-label">Adres</label>
+                                <textarea id="address" name="address" class="form-textarea" 
+                                          rows="3">{{ AnlasmaliKurum.Address }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Contract Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Sözleşme Bilgileri</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contract_start_date" class="form-label">Sözleşme Başlangıç Tarihi</label>
+                                    <input type="date" id="contract_start_date" name="contract_start_date" class="form-input" 
+                                           value="{{ ctdi(AnlasmaliKurum.ContractStartDate, User.Timezone) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract_end_date" class="form-label">Sözleşme Bitiş Tarihi</label>
+                                    <input type="date" id="contract_end_date" name="contract_end_date" class="form-input" 
+                                           value="{{ ctdi(AnlasmaliKurum.ContractEndDate, User.Timezone) }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="discount_rate" class="form-label">İndirim Oranı (%)</label>
+                                <input type="number" id="discount_rate" name="discount_rate" class="form-input" 
+                                       value="{{ AnlasmaliKurum.DiscountRate }}" step="0.01" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="payment_terms" class="form-label">Ödeme Koşulları</label>
+                                <textarea id="payment_terms" name="payment_terms" class="form-textarea" 
+                                          rows="3">{{ AnlasmaliKurum.PaymentTerms }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Ek Bilgiler</h3>
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Notlar</label>
+                                <textarea id="notes" name="notes" class="form-textarea" 
+                                          rows="3">{{ AnlasmaliKurum.Notes }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="generalSubmitBtn">
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Bilgileri Güncelle</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Picture Management Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-image"></i>
+                        Kurum Logosu
+                    </h2>
+                    <p class="section-description">Kurum logosunu yönetin</p>
+                </div>
+                <div class="section-content">
+                    <!-- Current Picture Display -->
+                    <div class="current-media-section">
+                        <h3 class="group-title">Mevcut Logo</h3>
+                        <div class="media-grid">
+                            <div class="media-item">
+                                <div class="media-header">
+                                    <h4 class="media-title">Kurum Logosu</h4>
+                                    {{ if AnlasmaliKurum.LogoPath }}
+                                    <button type="button" class="btn-delete-media" data-akid="{{ AnlasmaliKurum.Akid }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {{ end }}
+                                </div>
+                                <div class="media-preview">
+                                    {{ if AnlasmaliKurum.LogoPath }}
+                                    <img src="{{ PathOnStart }}{{ AnlasmaliKurum.LogoPath }}" alt="{{ AnlasmaliKurum.LogoAltText }}" 
+                                         title="{{ AnlasmaliKurum.LogoTitle }}" class="preview-image">
+                                    <div class="media-info">
+                                        <div class="info-item">
+                                            <strong>Alt Text:</strong> {{ AnlasmaliKurum.LogoAltText }}
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Title:</strong> {{ AnlasmaliKurum.LogoTitle }}
+                                        </div>
+                                    </div>
+                                    {{ else }}
+                                    <div class="no-media">
+                                        <i class="fas fa-image"></i>
+                                        <span>Kurum logosu yüklenmemiş</span>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Picture Upload Form -->
+                    <div class="media-upload-section">
+                        <h3 class="group-title">Logoyu Güncelle</h3>
+                        <form id="pictureForm" class="picture-form" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="old_logo_alt_text" value="{{ AnlasmaliKurum.LogoAltText }}">
+                            <input type="hidden" name="old_logo_title" value="{{ AnlasmaliKurum.LogoTitle }}">
+                            
+                            <div class="form-group">
+                                <label for="logo_path" class="form-label">Kurum Logosu</label>
+                                <div class="file-upload-area" data-target="logo_path">
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-upload"></i>
+                                        <p class="file-upload-text">Logo dosyasını sürükleyin veya <span class="file-browse">göz atın</span></p>
+                                        <p class="file-upload-hint">PNG, JPG, WEBP - Max 5MB</p>
+                                    </div>
+                                    <input type="file" id="logo_path" name="logo_path" 
+                                           class="file-input" accept="image/*">
+                                    <div class="file-preview" style="display: none;">
+                                        <img class="preview-image" src="" alt="Preview">
+                                        <button type="button" class="file-remove">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="file-meta-inputs">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="logo_alt_text" class="form-label">Logo Alt Metni</label>
+                                            <input type="text" id="logo_alt_text" name="logo_alt_text" 
+                                                   class="form-input" value="{{ AnlasmaliKurum.LogoAltText }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="logo_title" class="form-label">Logo Başlığı</label>
+                                            <input type="text" id="logo_title" name="logo_title" 
+                                                   class="form-input" value="{{ AnlasmaliKurum.LogoTitle }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="pictureSubmitBtn">
+                                    <i class="fas fa-upload"></i>
+                                    <span class="btn-text">Logoyu Güncelle</span>
+                                    <div class="btn-loader" style="display: none;">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">İşlem başarıyla tamamlandı.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deletePictureModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Logoyu Sil</h3>
+        <p class="modal-message">Bu logoyu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deletePictureModal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeletePictureBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.pageData = {
+        akid: "{{ AnlasmaliKurum.Akid }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/anlasmali-kurum-duzenle.js"></script>

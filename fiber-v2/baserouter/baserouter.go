@@ -14,7 +14,6 @@ import (
 	"randevular"
 	"subeler"
 	"tedkikler"
-	"testimonials"
 	"tibbibirimler"
 	"users"
 
@@ -29,8 +28,10 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 	routes.Get("/kurumsal/misyon-vizyon", frontend.MissionVisionPage(states, utilities))
 	routes.Get("/giris", frontend.LoginPage(states, utilities))
 	routes.Get("/iletisim", frontend.ContactPage(states, utilities))
-	routes.Get("/kurumsal/anlasmali-kurumlar", frontend.AnlasmaliKurumlarPage(states, utilities))
-	routes.Get("/kurumsal/kvkk", frontend.KvkkPage(states, utilities))
+	routes.Get("/kurumsal/anlasmali-kurumlar", frontend.AnlasmaliKurumlarSayfasiPage(states, utilities))
+	routes.Get("/kurumsal/organizasyon-semasi", frontend.OrganizasyonSemasiPage(states, utilities))
+        routes.Get("/kurumsal/kvkk", frontend.KvkkPage(states, utilities))
+	routes.Get("/ulasim", frontend.UlasimPage(states, utilities))
 	routes.Get("/kurumsal/insan-kaynaklari", frontend.InsanKaynaklariPage(states, utilities))
 	routes.Get("/haberler", frontend.HaberlerPage(states, utilities))
 	routes.Get("/haberler/:haber", frontend.HaberPage(states, utilities))
@@ -47,7 +48,10 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 	routes.Get("/merkezlerimiz/:sube/doktorlar/:doktor", frontend.DoktorPage(states, utilities))
 	routes.Get("/doktorlarimiz", frontend.TumDoktorlarPage(states, utilities))
 	routes.Get("/doktorlarimiz/:doktor", frontend.DoktorPageForDoktorlarimiz(states, utilities))
-	//routes.Get("*", frontend.FallbackPage(states, utilities))
+        routes.Get("/cerez-politikasi", frontend.CookiePolicyPage(states, utilities))
+	routes.Get("/kurumsal/cerez-politikasi", frontend.CookiePolicyPage(states, utilities))
+        routes.Get("/arama", frontend.SearchPage(states, utilities))
+        // routes.Get("*", frontend.FallbackPage(states, utilities))
 }
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
@@ -69,15 +73,14 @@ func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.U
 	routes.Get("/header-tuslari/:hbid/duzenle", panel.HeaderTusDuzenlePage(states, utilities))
 	routes.Get("/header-tusu-ekle", panel.HeaderTusEklePage(states, utilities))
 
-	routes.Get("/musteri-yorumlari", panel.TestimonialsPage(states, utilities))
-	routes.Get("/musteri-yorumu-ekle", panel.TestimonialsEklePage(states, utilities))
-	routes.Get("/musteri-yorumu/:tid", panel.TestimonialPage(states, utilities))
-	routes.Get("/musteri-yorumu/:tid/duzenle", panel.TestimonialsDuzenlePage(states, utilities))
 
 	routes.Get("/subeler", panel.SubelerPage(states, utilities))
 	routes.Get("/subeler/sube-ekle", panel.SubelerEklePage(states, utilities))
 	routes.Get("/subeler/:sid", panel.SubePage(states, utilities))
 	routes.Get("/subeler/:sid/duzenle", panel.SubeDuzenlePage(states, utilities))
+	routes.Post("/subeler/:sid/galeri/ekle", panel.SubeGaleriEkle(states, utilities))
+	routes.Delete("/subeler/:sid/galeri/:sgid", panel.SubeGaleriSil(states, utilities))
+	routes.Post("/subeler/:sid/galeri/:sgid/caption", panel.SubeGaleriCaptionGuncelle(states, utilities))
 
 	routes.Get("/anlasmali-kurumlar", panel.AnlasmaliKurumlarPage(states, utilities))
 	routes.Get("/anlasmali-kurumlar/anlasmali-kurumlar-ekle", panel.AnlasmaliKurumlarEklePage(states, utilities))
@@ -125,7 +128,9 @@ func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.U
 	routes.Get("/tedkikler/:tid/duzenle", panel.TedkikDuzenlePage(states, utilities))
 
 	routes.Get("/randevu-talepleri", panel.RandevuTalepleriPage(states, utilities))
+	routes.Get("/randevu-talepleri/export", panel.RandevuTalepleriExport(states, utilities))
 	routes.Get("/randevu-talepleri/:rrid", panel.RandevuTalebiPage(states, utilities))
+    routes.Get("/api/randevu-talepleri/latest", panel.RandevuTalepleriLatestAPI(states, utilities))
 	routes.Get("/randevular", panel.RandevularPage(states, utilities))
 	routes.Get("/randevular/:rid", panel.RandevuPage(states, utilities))
 	routes.Get("/randevular/:rid/duzenle", panel.RandevuDuzenlePage(states, utilities))
@@ -156,7 +161,6 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/option/:oid/delete", options.DeleteOption(states, utilities))
 	routes.Post("/option/:oid/delete-picture", options.DeleteOptionMedia(states, utilities))
 	routes.Post("/option/:oid/update-picture", options.UpdateOptionMedia(states, utilities))
-	routes.Post("/option/:oid/activate", options.ActivateOption(states, utilities))
 	routes.Post("/add-user", users.AddUser(states, utilities))
 	routes.Post("/user/:uid/edit", users.EditUser(states, utilities))
 	routes.Post("/user/:uid/change-password", users.ChangeUserPassword(states, utilities))
@@ -167,11 +171,6 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/header-button/:hbid/delete", headerbuttons.DeleteHeaderButton(states, utilities))
 	routes.Post("/header-button/:hbid/change-order", headerbuttons.ChangeHeaderButtonOrder(states, utilities))
 	routes.Post("/header-buttons/parents", headerbuttons.GetMainHeaderButtons(states, utilities))
-	routes.Post("/add-testimonial", testimonials.AddTestimonial(states, utilities))
-	routes.Post("/testimonial/:tid/edit", testimonials.EditTestimonial(states, utilities))
-	routes.Post("/testimonial/:tid/delete", testimonials.DeleteTestimonial(states, utilities))
-	routes.Post("/testimonial/:tid/delete-picture", testimonials.DeleteTestimonialPicture(states, utilities))
-	routes.Post("/testimonial/:tid/update-picture", testimonials.UpdateTestimonialPicture(states, utilities))
 	routes.Post("/add-sube", subeler.AddSube(states, utilities))
 	routes.Post("/sube/:sid/edit", subeler.EditSube(states, utilities))
 	routes.Post("/sube/:sid/delete", subeler.DeleteSube(states, utilities))
@@ -214,7 +213,6 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	routes.Post("/doctor/:did/get-expertises", doctors.GetExpertiseForDoctors(states, utilities))
 	routes.Post("/doctor/:did/add-expertise", doctors.AddExpertiseToADoctor(states, utilities))
 	routes.Post("/doctor/:did/remove-expertise", doctors.RemoveExpertiseFromADoctor(states, utilities))
-	routes.Post("/doctor/:did/move-to-a-branch", doctors.MoveDoctorToABranch(states, utilities))
 	routes.Post("/doctor/:did/add-experience", doctors.AddDoctorExperience(states, utilities))
 	routes.Post("/doctor/:did/edit-experience", doctors.EditDoctorExperience(states, utilities))
 	routes.Post("/doctor/:did/delete-experience", doctors.DeleteDoctorExperience(states, utilities))
@@ -262,8 +260,6 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 
 	routes.Post("/add-file", post.AddCustomMedia(states, utilities))
 	routes.Post("/delete-file", post.DeleteCustomMedia(states, utilities))
-	routes.Post("/modify-css", post.ModifyCss(states, utilities))
-	routes.Post("/modify-js", post.ModifyJs(states, utilities))
 
 	routes.Get("/notifications", post.NotificationWebsocket(states, utilities))
 }

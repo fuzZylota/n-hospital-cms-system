@@ -1,246 +1,120 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><a href="/doktorlarimiz">Doktorlarımız</a></li>
+            <li><span class="current">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</span></li>
+        </ul>
+    </div>
+</div>
+
 <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css">
 
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Doktor</span></li>
-                        <li><span>{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
 
-<section class="team-details section-space-top">
+<section class="dr-hero">
+    <div class="dr-hero__bg">
+        <img src="{{ Doktor.PhotoPath != "" ? PathOnStart + Doktor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}" alt="{{ Doktor.FirstName + " " + Doktor.LastName }}" class="dr-hero__bg-img">
+        <div class="dr-hero__overlay"></div>
+    </div>
     <div class="container">
-        <div class="team-details__inner">
-            <div class="team-details__image wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                <img src="{{ Doktor.PhotoPath != "" ? PathOnStart + Doktor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}" alt="{{ Doktor.PhotoAltText != "" ? Doktor.PhotoAltText : (Doktor.FirstName + " " + Doktor.LastName) }}" title="{{ Doktor.PhotoTitle != "" ? Doktor.PhotoTitle : (Doktor.FirstName + " " + Doktor.LastName) }}">
-                {{ if Options.Options.ShowDoctorSocialMedia }}
-                    <div class="social-links">
-                        {{ if Doktor.FacebookUrl != "" }}
-                            <a href="{{ Doktor.FacebookUrl }}" target="_blank" rel="noopener">
-                                <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                                <span class="sr-only">Facebook</span>
-                            </a>
-                        {{ end }}
-                        {{ if Doktor.InstagramUrl != "" }}
-                            <a href="{{ Doktor.InstagramUrl }}" target="_blank" rel="noopener">
-                                <i class="fab fa-instagram" aria-hidden="true"></i>
-                                <span class="sr-only">Instagram</span>
-                            </a>
-                        {{ end }}
-                        {{ if Doktor.XUrl != "" }}
-                            <a href="{{ Doktor.XUrl }}" target="_blank" rel="noopener">
-                                <i class="fab fa-twitter" aria-hidden="true"></i>
-                                <span class="sr-only">Twitter</span>
-                            </a>
-                        {{ end }}
-                        {{ if Doktor.LinkedinUrl != "" }}
-                            <a href="{{ Doktor.LinkedinUrl }}" target="_blank" rel="noopener">
-                                <i class="fab fa-linkedin-in" aria-hidden="true"></i>
-                                <span class="sr-only">Linkedin</span>
-                            </a>
-                        {{ end }}
-                        {{ if Doktor.PersonalUrl != "" }}
-                            <a href="https://{{ Doktor.PersonalUrl }}" target="_blank" rel="noopener">
-                                <i class="fa fa-globe" aria-hidden="true"></i>
-                                <span class="sr-only">Website</span>
-                            </a>
-                        {{ end }}
-                    </div><!-- /.social-links -->
-                {{ end }}
-                <div class="team-details__identity">
-                    <h3 class="team-details__name">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</h3><!-- /.team-details__name -->
-                    <p class="team-details__designation">{{ Doktor.BranchName }}</p>
-                </div><!-- /.team-details__identity -->
-            </div><!-- /.team-details__image -->
-            <div class="team-details__about wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
-                <div class="team-details__about__inner">
-                    <h3 class="team-details__about__title">Hakkında</h3><!-- /.team-details__about__title -->
-                    <p class="team-details__about__description">{{ Doktor.Biography != "" ? Doktor.Biography : "Doktor hakkında yakında detaylı bilgiler eklenecektir." }}</p><!-- /.team-details__about__description -->
-                </div><!-- /.team-details__about__inner -->
-                <ul class="team-details__contact list-unstyled">
-                    <li>
-                        <span class="team-details__contact__icon">
-                            <i class="icon-location"></i>
-                        </span>
-                        <div class="team-details__contact__content">
-                            <h3 class="team-details__contact__title">Çalıştığı Merkez</h3>
-                            {{ if Doktor.CalistigiSubelerText != "" }}
-                                <span class="team-details__contact__link">{{ Doktor.CalistigiSubelerText }}</span>
-                            {{ else }}
-                                <span class="team-details__contact__link">{{ Doktor.SubeName }}</span>
-                            {{ end }}
-                        </div>
-                    </li><!-- /.item -->
-                    {{ if Options.Options.ShowDoctorSocialMedia }}
-                        <li>
-                            <span class="team-details__contact__icon">
-                                <i class="icon-telephone"></i>
-                            </span>
-                            <div class="team-details__contact__content">
-                                <h3 class="team-details__contact__title">Telefon</h3>
-                                <a href="tel:{{ Doktor.Phone }}" class="team-details__contact__link">{{ Doktor.Phone }}</a>
-                            </div>
-                        </li><!-- /.item -->
-                    {{ end }}
-                    {{ if Options.Options.ShowDoctorSocialMedia }}
-                        <li>
-                            <span class="team-details__contact__icon">
-                                <i class="icon-email"></i>
-                            </span>
-                            <div class="team-details__contact__content">
-                                <h3 class="team-details__contact__title">E-posta</h3>
-                                <a href="mailto:{{ Doktor.Email }}" class="team-details__contact__link">{{ Doktor.Email }}</a>
-                            </div>
-                        </li><!-- /.item -->
-                    {{ end }}
-                </ul><!-- /.team-details__contact -->
-            </div><!-- /.team-details__about -->
-        </div><!-- /.team-details__inner -->
-    </div><!-- /.container -->
-</section><!-- /.team-details section-space-top -->
-
-{{ if Doktor.DoctorInfosHtml != "" }}
-    <style>
-        {{ Doktor.DoctorInfosCss | raw }}
-    </style>
-
-    {{ Doktor.DoctorInfosHtml | raw }}
-
-    <script>
-        {{ Doktor.DoctorInfosJs | raw }}
-    </script>
-{{ else }}
-    <section class="team-skills-one">
-        <div class="container">
-            <div class="row gutter-y-40">
-                <div class="col-lg-6">
-                    <h3 class="team-skills-one__title">Eğitim ve Diller</h3>
-                    <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                        <p class="team-skills-one__text"><strong>Eğitim:</strong> {{ Doktor.Education != "" ? Doktor.Education : "-" }}</p>
-                        <p class="team-skills-one__text"><strong>Diller:</strong> {{ Doktor.Languages != "" ? Doktor.Languages : "-" }}</p>
-                        {{ if Doktor.WorkingHours != "" }}
-                            <p class="team-skills-one__text"><strong>Çalışma Saatleri:</strong> <span class="doctor-working-hours" data-raw-hours="{{ Doktor.WorkingHours }}">{{ Doktor.WorkingHours | raw }}</span></p>
-                        {{ end }}
-                    </div>
-                </div>
-                {{ if Options.Options.ShowDoctorAppointmentFee }}
-                <div class="col-lg-6">
-                    <h3 class="team-skills-one__title">Ücret Bilgisi</h3>
-                    <div class="team-skills-one__description wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                        <p class="team-skills-one__text"><strong>Muayene Ücreti:</strong> {{ Doktor.AppointmentFee != 0.0 ? Doktor.AppointmentFee : "Bilgi yok" }}{{ Doktor.AppointmentFee != 0.0 ? " TL" : "" }}</p>
-                        <p class="team-skills-one__text"><strong>Branş:</strong> {{ Doktor.BranchName }}</p>
-                    </div>
-                </div>
-                {{ end }}
+        <div class="dr-hero__inner">
+            <div class="dr-hero__photo-wrap">
+                <img class="dr-hero__photo"
+                    src="{{ Doktor.PhotoPath != "" ? PathOnStart + Doktor.PhotoPath : PathOnStart + "files/defaults/doktorlar/default-doctor-pic.png" }}"
+                    alt="{{ Doktor.FirstName + " " + Doktor.LastName }}">
             </div>
-        </div><!-- /.container -->
-    </section><!-- /.team-skills-one -->
-
-
-    <section class="section-space">
-        <div class="container">
-            <div class="row gutter-y-30">
-                <div class="col-lg-6">
-                    <h3 class="team-skills-one__title doc-section-title">Deneyimler</h3>
-                    {{ if len(Doktor.Expertises) > 0 }}
-                    <div>
-                        {{ range index, Uz := Doktor.Expertises }}
-                        <div class="doc-card">
-                            <div class="doc-card__thumb doc-card__thumb--primary">
-                                <img class="doc-card__media doc-card__media--icon" src="{{ PathOnStart }}files/defaults/expertise/expertise-default.svg" alt="Expertise">
-                            </div>
-                            <div class="doc-card__body">
-                                <h4 class="doc-card__title">{{ Uz.UzmanlikName }} {{ if Uz.IsPrimary }}<span style="background: var(--theme-primary-color); color:#fff; padding:2px 8px; border-radius:12px; font-size:12px; margin-left:6px;">Birincil</span>{{ end }}</h4>
-                                <div class="doc-card__meta">{{ Uz.CertificationInstitution }}</div>
-                                {{ if Uz.UzmanlikDescription != "" }}<div class="doc-card__desc">{{ Uz.UzmanlikDescription }}</div>{{ end }}
-                            </div>
-                        </div>
-                        {{ end }}
+            <div class="dr-hero__meta">
+                <div class="dr-hero__info">
+                    <h1 class="dr-hero__name">{{ (Doktor.Title != "" ? Doktor.Title + " " : "") + Doktor.FirstName + " " + Doktor.LastName }}</h1>
+                    {{ if Doktor.BranchName != "" }}<p class="dr-hero__branch"><i class="fas fa-stethoscope"></i> {{ Doktor.BranchName }}</p>{{ end }}
+                    <div class="dr-hero__location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ if Doktor.CalistigiSubelerText != "" }}{{ Doktor.CalistigiSubelerText }}{{ else }}{{ Doktor.SubeName }}{{ end }}
                     </div>
-                    {{ else }}
-                    <p style="color:#6b7280;">Uzmanlık bilgisi bulunamadı.</p>
+                </div>
+                <div class="dr-hero__actions">
+                    <a href="/randevu" class="dr-hero__randevu-btn">
+                        <i class="fas fa-calendar-alt"></i> Randevu Al
+                    </a>
+                    {{ if Options.Options.ShowDoctorSocialMedia }}
+                    <div class="dr-hero__social">
+                        {{ if Doktor.FacebookUrl != "" }}<a href="{{ Doktor.FacebookUrl }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>{{ end }}
+                        {{ if Doktor.InstagramUrl != "" }}<a href="{{ Doktor.InstagramUrl }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>{{ end }}
+                        {{ if Doktor.XUrl != "" }}<a href="{{ Doktor.XUrl }}" target="_blank" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>{{ end }}
+                        {{ if Doktor.LinkedinUrl != "" }}<a href="{{ Doktor.LinkedinUrl }}" target="_blank" aria-label="Linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>{{ end }}
+                        {{ if Doktor.PersonalUrl != "" }}<a href="{{ Doktor.PersonalUrl }}" target="_blank" aria-label="Website"><i class="fa fa-globe" aria-hidden="true"></i></a>{{ end }}
+                    </div>
                     {{ end }}
                 </div>
             </div>
         </div>
-    </section>
-{{ end }}
+    </div>
+</section>
 
+<hr class="dr-divider">
 
+<section class="dr-tabs-section">
+    <div class="container">
+        <div class="dr-tabs">
+            <button class="dr-tab active" onclick="drTab(this, 'hakkinda')">Hakkında</button>
+            {{ if len(Doktor.Expertises) > 0 }}
+            <button class="dr-tab" onclick="drTab(this, 'uzmanlik')">Uzmanlıklar</button>
+            {{ end }}
+        </div>
+
+        <div id="dr-hakkinda" class="dr-tab-content active">
+            {{ if Doktor.DoctorInfosHtml != "" }}
+                <style>{{ Doktor.DoctorInfosCss | raw }}</style>
+                {{ Doktor.DoctorInfosHtml | raw }}
+                <script>{{ Doktor.DoctorInfosJs | raw }}</script>
+            {{ else }}
+                <p class="dr-about-text">{{ Doktor.Biography != "" ? Doktor.Biography : "Doktor hakkında yakında detaylı bilgiler eklenecektir." }}</p>
+                <div class="dr-info-grid">
+                    {{ if Doktor.ExperienceYears != 0 }}
+                    <div class="dr-info-item">
+                        <div class="dr-info-item__label">Deneyim</div>
+                        <div class="dr-info-item__value">{{ Doktor.ExperienceYears }} Yıl</div>
+                    </div>
+                    {{ end }}
+                    {{ if Options.Options.ShowDoctorAppointmentFee && Doktor.AppointmentFee != 0.0 }}
+                    <div class="dr-info-item">
+                        <div class="dr-info-item__label">Muayene Ücreti</div>
+                        <div class="dr-info-item__value">{{ Doktor.AppointmentFee }} TL</div>
+                    </div>
+                    {{ end }}
+                </div>
+            {{ end }}
+        </div>
+
+        {{ if len(Doktor.Expertises) > 0 }}
+        <div id="dr-uzmanlik" class="dr-tab-content">
+            <div class="dr-expertise-list">
+                {{ range index, Uz := Doktor.Expertises }}
+                <div class="dr-expertise-item">
+                    <div class="dr-expertise-item__name">
+                        {{ Uz.UzmanlikName }}
+                        {{ if Uz.IsPrimary }}<span class="dr-primary-badge">Birincil</span>{{ end }}
+                    </div>
+                    {{ if Uz.CertificationInstitution != "" }}
+                    <div class="dr-expertise-item__inst"><i class="fas fa-university" style="color:#e53935;margin-right:4px;"></i>{{ Uz.CertificationInstitution }}</div>
+                    {{ end }}
+                    {{ if Uz.UzmanlikDescription != "" }}
+                    <div class="dr-expertise-item__desc">{{ Uz.UzmanlikDescription }}</div>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+
+    </div>
+</section>
 
 <script>
-function decodeHtmlEntities(encoded) {
-    const txt = document.createElement('textarea');
-    txt.innerHTML = encoded;
-    return txt.value;
+function drTab(btn, id) {
+    document.querySelectorAll(".dr-tab").forEach(function(t) { t.classList.remove("active"); });
+    document.querySelectorAll(".dr-tab-content").forEach(function(c) { c.classList.remove("active"); });
+    btn.classList.add("active");
+    document.getElementById("dr-" + id).classList.add("active");
 }
-
-function formatWorkingHours(workingHoursJson, element) {
-    if (workingHoursJson && typeof workingHoursJson === 'object') {
-        let formattedHours = '';
-        for (const [day, hours] of Object.entries(workingHoursJson)) {
-            if (hours && ('' + hours).trim() !== '') {
-                formattedHours += day + ': ' + hours + '<br>';
-            }
-        }
-        if (formattedHours) {
-            element.innerHTML = formattedHours;
-        }
-    }
-}
-
-/*document.addEventListener('DOMContentLoaded', function() {
-    const elements = document.querySelectorAll('.doctor-working-hours');
-    elements.forEach(function(element) {
-        try {
-            const escaped = '{{ stj(Doktor.WorkingHours) }}';
-            const decoded = decodeHtmlEntities(escaped);
-            if (decoded && decoded.trim() !== '' && decoded !== 'null' && decoded !== 'undefined') {
-                let cleanJson = decoded.trim()
-                    .replace(/&quot;/g, '"')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>');
-
-                // Remove wrapping quotes if present to avoid stray " characters in UI
-                cleanJson = cleanJson.replace(/^"(.*)"$/, '$1');
-
-                if (cleanJson.startsWith('{') && cleanJson.endsWith('}')) {
-                    const jsonObj = JSON.parse(cleanJson);
-                    formatWorkingHours(jsonObj, element);
-                } else if (cleanJson.startsWith('"{') && cleanJson.endsWith('}"')) {
-                    const unwrapped = cleanJson.slice(1, -1);
-                    const jsonObj = JSON.parse(unwrapped);
-                    formatWorkingHours(jsonObj, element);
-                } else {
-                    // Non-JSON fallback: strip wrapping quotes before showing
-                    element.innerHTML = cleanJson;
-                }
-            } else {
-                const raw = element.getAttribute('data-raw-hours') || element.textContent;
-                if (raw && raw.trim() !== '') {
-                    element.innerHTML = raw;
-                }
-            }
-        } catch (e) {
-            const raw = element.getAttribute('data-raw-hours') || element.textContent;
-            if (raw && raw.trim() !== '') {
-                element.innerHTML = raw;
-            }
-        }
-    });
-});*/
 </script>

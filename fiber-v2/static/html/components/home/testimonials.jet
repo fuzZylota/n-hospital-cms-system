@@ -17,10 +17,10 @@
                                 </span>
 
 
-                                <h6 class="sec-title__tagline">Hasta Yorumları</h6><!-- /.sec-title__tagline -->
+                                <p class="sec-title__tagline">Hasta Yorumları</p><!-- /.sec-title__tagline -->
 
                             </div><!-- /.sec-title__top -->
-                            <h3 class="sec-title__title">Bizi Hastalarımızdan Dinleyin</h3><!-- /.sec-title__title -->
+                            <h2 class="sec-title__title">Bizi Hastalarımızdan Dinleyin</h2><!-- /.sec-title__title -->
                         </div><!-- /.sec-title -->
                         <div class="testimonials-three__image wow fadeInUp" data-wow-duration="1500ms">
                             <!-- buraya başka birşey gelecek. -->
@@ -97,7 +97,7 @@
                                             
                                             <p class="testimonial-card-three__quote">{{ Testimonial.Content }}</p><!-- /.testimonial-card-three__quote -->
                                             <div class="testimonial-card-three__identity">
-                                                <h4 class="testimonial-card-three__name">{{ Testimonial.FirstName }} {{ Testimonial.LastName }}</h4><!-- /.testimonial-card-three__name -->
+                                                <h3 class="testimonial-card-three__name">{{ Testimonial.FirstName }} {{ Testimonial.LastName }}</h3><!-- /.testimonial-card-three__name -->
                                                 <p class="testimonial-card-three__designation">{{ Testimonial.Occupation }}</p><!-- /.testimonial-card-three__designation -->
                                             </div><!-- /.testimonial-card-three__identity -->
                                         </div><!-- /.testimonial-card-three -->

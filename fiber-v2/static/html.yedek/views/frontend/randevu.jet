@@ -1,0 +1,173 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+                        <li><span class="current">Randevu</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-page.css">
+
+<section class="appointment-page section-space">
+    <div class="container">
+        <div class="appointment-page__wrapper">
+
+            <div class="appointment-page__form-card">
+                <div class="appointment-page__form-header">
+                    <h3 class="appointment-page__form-title">Randevu Talep Formu</h3>
+                    <p class="appointment-page__form-subtitle">* işaretli alanlar zorunludur.</p>
+                </div>
+                <form class="appointment-one__form form-one" data-wow-duration="1500ms">
+                    <div class="form-one__group">
+                        <div class="form-one__control">
+                            <label for="patientFirstName" class="form-one__label">Adınız*</label>
+                            <input type="text" id="patientFirstName" name="patient_first_name" placeholder="Adınız" required>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control">
+                            <label for="patientLastName" class="form-one__label">Soyadınız*</label>
+                            <input type="text" id="patientLastName" name="patient_last_name" placeholder="Soyadınız" required>
+                        </div><!-- /.form-one__control -->
+
+                        <div class="form-one__control form-one__control--full">
+                            <label for="patientPhone" class="form-one__label">Telefon Numaranız*</label>
+                            <input type="tel" id="patientPhone" name="patient_phone" placeholder="Telefon Numaranız" required>
+                        </div><!-- /.form-one__control -->
+                        <!--<div class="form-one__control appointment-one__form__date">
+                            <label for="appointmentDate" class="form-one__label">Tercih Ettiğiniz Tarih</label>
+                            <input type="text" id="appointmentDate" name="preferred_date" placeholder="Randevu Tarihi" class="mediox-datepicker">
+                            <span class="appointment-one__form__date__arrow" aria-hidden="true">
+                                <i class="icon-caret-down"></i>
+                            </span>
+                        </div>-->
+                        <div class="form-one__control form-one__control--full">
+                            <label for="appointmentBranch" class="form-one__label">Merkez Seçiniz</label>
+                            <select class="selectpicker" aria-label="Merkez Seçiniz" name="sid" id="appointmentBranch">
+                                <option value="" selected disabled>Merkez seçiniz</option>
+                                {{ range index2, Sube := AllSubeler }}
+                                    <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
+                                {{ end }}
+                            </select>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control form-one__control--full">
+                            <label for="appointmentMessage" class="form-one__label">Mesajınız</label>
+                            <textarea id="appointmentMessage" name="message" placeholder="Eklemek istediğiniz notları yazabilirsiniz..."></textarea>
+                        </div><!-- /.form-one__control -->
+                        <div class="form-one__control form-one__control--full appointment-page__kvkk">
+                            <label for="appointmentKVKK" class="checkbox-label">
+                                <input type="checkbox" id="appointmentKVKK" required>
+                                <span>
+                                    <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                </span>
+                            </label>
+                        </div>
+                        {{ if Options.Options.RecaptchaSiteKey != "" }}
+                        <div class="form-one__control form-one__control--full">
+                            <div id="randevuRecaptchaWidget"></div>
+                            <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+                        </div>
+                        {{ end }}
+                        <div class="form-one__control form-one__control--full">
+                            <button type="submit" class="mediox-btn mediox-btn--primary" id="appointmentSubmitBtn">
+                                <span>Randevu Al</span>
+                                <span class="mediox-btn__icon"><i class="icon-up-right-arrow randevu-btn"></i></span>
+                            </button><!-- /.mediox-btn -->
+                        </div><!-- /.form-one__control -->
+                    </div><!-- /.form-one__group -->
+                </form><!-- /.form-one -->
+                <div class="result"></div><!-- /.result -->
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
+<script>
+var recaptchaVerified = false;
+
+function onRecaptchaVerified(token) {
+    recaptchaVerified = true;
+    window._randevuCaptchaToken = token;
+    var tokenInput = document.getElementById('recaptchaToken');
+    if (tokenInput) tokenInput.value = token;
+    updateSubmitButtonState();
+}
+
+function onRecaptchaExpired() {
+    recaptchaVerified = false;
+    window._randevuCaptchaToken = '';
+    var tokenInput = document.getElementById('recaptchaToken');
+    if (tokenInput) tokenInput.value = '';
+    updateSubmitButtonState();
+}
+
+function updateSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('appointmentKVKK');
+    var submitButton = document.getElementById('appointmentSubmitBtn');
+    var recaptchaWidget = document.querySelector('.g-recaptcha');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerified;
+        }
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var headerBg = document.querySelector('.page-header__bg[data-bg]');
+    if (headerBg && headerBg.dataset.bg) {
+        headerBg.style.backgroundImage = 'url(' + headerBg.dataset.bg + ')';
+    }
+
+    var kvkkCheckbox = document.getElementById('appointmentKVKK');
+    var submitButton = document.getElementById('appointmentSubmitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        kvkkCheckbox.addEventListener('change', updateSubmitButtonState);
+        updateSubmitButtonState();
+    }
+});
+</script>
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script>
+function onRandevuRecaptchaLoad() {
+    var widget = document.getElementById('randevuRecaptchaWidget');
+    if (widget && typeof grecaptcha !== 'undefined' && widget.childElementCount === 0) {
+        try {
+            var widgetId = grecaptcha.render('randevuRecaptchaWidget', {
+                sitekey: '{{ Options.Options.RecaptchaSiteKey }}',
+                callback: 'onRecaptchaVerified',
+                'expired-callback': 'onRecaptchaExpired'
+            });
+            widget._widgetId = widgetId;
+            window._randevuCaptchaWidgetId = widgetId;
+        } catch(e) {}
+    }
+}
+var existingRecaptchaScript = document.querySelector('script[src*="recaptcha/api.js"]');
+if (!existingRecaptchaScript) {
+    var rs = document.createElement('script');
+    rs.src = 'https://www.google.com/recaptcha/api.js?onload=onRandevuRecaptchaLoad&render=explicit';
+    rs.async = true;
+    rs.defer = true;
+    document.head.appendChild(rs);
+} else {
+    document.addEventListener('DOMContentLoaded', function() {
+        var checkInterval = setInterval(function() {
+            if (typeof grecaptcha !== 'undefined' && typeof grecaptcha.render !== 'undefined') {
+                clearInterval(checkInterval);
+                setTimeout(onRandevuRecaptchaLoad, 300);
+            }
+        }, 200);
+    });
+}
+</script>
+{{ end }}
+<script src="{{ PathOnStart }}js/frontend/insert-randevu-talebi.js?v=20260311-fix2"></script>

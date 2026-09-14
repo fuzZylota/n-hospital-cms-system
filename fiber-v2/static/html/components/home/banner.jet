@@ -1,60 +1,78 @@
-<style>
-    {{ range index1, BannerContent := BannerContents }}
-        {{ if BannerContent.ContentType == "banner_page" }}
-            <style>
-            {{ BannerContent.ContentCss | raw }}
-            </style>
-        {{ end }}
-    {{ end }}
-</style>
-
+<!-- mobile button-group hide removed: buttons now shown compact on mobile too -->
 <section class="main-slider-three">
-    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{
-        "slidesToShow": 1,
-        "slidesToScroll": 1,
-        "fade": true,
-        "asNavFor": ".main-slider-three__carousel-counter",
-        "autoplay": true,
-        "autoplaySpeed": 4000,
-        "speed": 2000,
-        "infinite": true,
-        "dots": false,
-        "arrows": true,
-        "prevArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--prev\"><i class=\"icon-arrow-left\"></i></button>",
-        "nextArrow": "<button class=\"main-slider-three__slick-button main-slider-three__slick-button--next\"><i class=\"icon-arrow-right\"></i></button>"
-        }'>
+    <button type="button" class="nv-slider-arrow nv-slider-arrow--prev" aria-label="Önceki slide">
+        <span>&larr;</span>
+    </button>
+    <button type="button" class="nv-slider-arrow nv-slider-arrow--next" aria-label="Sonraki slide">
+        <span>&rarr;</span>
+    </button>
+    <button type="button" class="nv-slider-pause" id="nvSliderPause" aria-label="Otomatik geçişi durdur" aria-pressed="false">
+        <span class="nv-slider-pause__icon" aria-hidden="true">&#10073;&#10073;</span>
+    </button>
+    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{"slidesToShow":1,"slidesToScroll":1,"fade":true,"autoplay":true,"autoplaySpeed":4000,"speed":2000,"infinite":true,"dots":false,"arrows":true}'>
         {{ range index1, BannerContent := BannerContents }}
             {{ if BannerContent.ContentType == "banner_page" }}
-                {{ BannerContent.ContentHtml | raw }}
-            {{ end }}
-        {{ end }}
-        
-    </div><!-- /.main-slider-three__carousel -->
-    <div class="main-slider-three__carousel-counter mediox-slick__carousel" data-slick-options='{
-        "asNavFor": ".main-slider-three__carousel",
-        "slidesToShow": 3,
-        "slidesToScroll": 1,
-        "autoplay": true,
-        "autoplaySpeed": 10000,
-        "infinite": true,
-        "focusOnSelect": true,
-        "dots": false,
-        "arrows": false
-        }'>
-        {{ range index1, BannerContent := BannerContents }}
-            {{ if BannerContent.ContentType == "banner_page" }}
-                <div>
-                    <span class="main-slider-three__carousel-counter__text">{{ index1 + 1 }}</span>
+                <div class="main-slider-three__item" {{ if len(BannerContent.TibbiBirimUrlName) > 0 }}data-mobile-link="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}"{{ end }}>
+                    <div class="main-slider-three__bg"
+                         data-desktop="/{{ BannerContent.ContentHtml | raw }}"
+                         data-mobile="{{ if BannerContent.ContentCss != "" }}/{{ BannerContent.ContentCss | raw }}{{ else }}/{{ BannerContent.ContentHtml | raw }}{{ end }}"
+                         style="background-image: url(/{{ BannerContent.ContentHtml | raw }});"></div>
+                    <div class="main-slider-three__container container">
+                        <div class="banner-row row">
+                            <div class="col-xxl-10 col-xl-9 mx-auto">
+                                <div class="main-slider-three__content">
+                                    <div class="main-slider-three__button-group">
+                                        {{ if len(BannerContent.TibbiBirimUrlName) > 0 }}
+                                        <div class="main-slider-three__button-group__inner">
+                                            <div class="main-slider-three__button main-slider-three__button--1">
+                                                <a href="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}" class="mediox-btn" style="background-color: #1a3c6e !important; box-shadow: none !important; !important; border: none !important; overflow: hidden !important;">
+                                                    <span>İncele</span>
+                                                    <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {{ end }}
+                                        <div class="main-slider-three__button-group__inner">
+                                            <div class="main-slider-three__button main-slider-three__button--2">
+                                                <a href="/randevu" class="mediox-btn" style="background-color: #1a3c6e !important; box-shadow: none !important; !important; border: none !important; overflow: hidden !important;">
+                                                    <span>Randevu Al</span>
+                                                    <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             {{ end }}
         {{ end }}
-    </div><!-- /.main-slider-three__carousel-counter -->
-</section><!-- /.main-slider-three -->
+    </div>
+</section>
+<script>
+(function(){
+    function applyResponsiveSliderImages(){
+        var isMobile = window.innerWidth <= 767;
+        document.querySelectorAll('.main-slider-three__bg[data-mobile]').forEach(function(bg){
+            var url = isMobile ? bg.getAttribute('data-mobile') : bg.getAttribute('data-desktop');
+            if(url){ bg.style.backgroundImage = 'url(' + url + ')'; }
+        });
+    }
+    applyResponsiveSliderImages();
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(applyResponsiveSliderImages, 150);
+    });
 
-{{ range index1, BannerContent := BannerContents }}
-    {{ if BannerContent.ContentType == "banner_page" }}
-        <script>
-            {{ BannerContent.ContentJavascript | raw }}
-        </script>
-    {{ end }}
-{{ end }}
+    if(window.innerWidth > 767) return;
+    document.querySelectorAll('.main-slider-three__item[data-mobile-link]').forEach(function(item){
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function(e){
+            if(e.target.closest('button') || e.target.closest('a')) return;
+            window.location.href = item.getAttribute('data-mobile-link');
+        });
+    });
+})();
+</script>

@@ -1,0 +1,161 @@
+
+<style>
+    /* Preloader - fully self-contained */
+    .preloader-overlay {
+        position: fixed;
+        inset: 0;
+        background: var(--theme-primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity .5s ease, visibility .5s ease;
+    }
+
+    .preloader-overlay.preloader-hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .preloader-card {
+        width: 280px;
+        height: 280px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.06), var(--theme-secondary-color));
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 30px 120px rgba(0,0,0,.45);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Spinning ring + logo combo */
+    .preloader-ring {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--theme-primary-color), var(--theme-secondary-color), var(--theme-accent-color), var(--theme-primary-color));
+        -webkit-mask: radial-gradient(farthest-side, transparent 62%, #000 63%);
+        mask: radial-gradient(farthest-side, transparent 62%, #000 63%);
+        animation: spin 1.4s linear infinite;
+        filter: blur(.5px) saturate(1.2);
+    }
+
+    .preloader-glow {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: var(--theme-primary-color);
+        filter: blur(8px);
+        animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .preloader-logo {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--theme-primary-color), white 10%);
+        border: 1px solid rgba(255,255,255,0.08);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 10px 40px rgba(0,0,0,.45);
+    }
+
+    .preloader-logo img {
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 14px var(--theme-primary-color));
+        animation: float 2.4s ease-in-out infinite;
+    }
+
+    /* Progress bar */
+    .preloader-progress {
+        position: absolute;
+        bottom: 18px;
+        left: 18px;
+        right: 18px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+
+    .preloader-progress > span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--theme-primary-color), var(--theme-secondary-color), var(--theme-accent-color));
+        border-radius: inherit;
+        box-shadow: 0 0 24px var(--theme-primary-color);
+        transition: width .3s ease;
+    }
+
+    /* Keyframes */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: .7; }
+        50% { transform: scale(1.06); opacity: 1; }
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+</style>
+
+<!-- Preloader -->
+<div class="preloader-overlay" id="preloader">
+    <div class="preloader-card">
+        <div class="preloader-ring"></div>
+        <div class="preloader-glow"></div>
+        <div class="preloader-logo">
+            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" />
+        </div>
+        <div class="preloader-progress"><span id="preloaderBar"></span></div>
+    </div>
+</div>
+
+<script>
+    // Self-contained preloader logic
+    (function() {
+        var preloader = document.getElementById('preloader');
+        var bar = document.getElementById('preloaderBar');
+        var progress = 0;
+        var step = 7 + Math.random() * 8; // dynamic speed for natural look
+
+        function tick() {
+            progress = Math.min(100, progress + step);
+            bar.style.width = progress + '%';
+            if (progress < 100) {
+                step = Math.max(2, step * (0.92 + Math.random() * 0.1));
+                requestAnimationFrame(tick);
+            } else {
+                // small grace period for visual completion
+                setTimeout(hide, 250);
+            }
+        }
+
+        function hide() {
+            preloader.classList.add('preloader-hidden');
+            // Remove from DOM after transition ends
+            setTimeout(function() { if (preloader && preloader.parentNode) preloader.parentNode.removeChild(preloader); }, 1000);
+        }
+
+        // Safety timeout: hide after 6s in worst case
+        setTimeout(hide, 6000);
+
+        // Kickoff
+        requestAnimationFrame(tick);
+    })();
+</script>
+

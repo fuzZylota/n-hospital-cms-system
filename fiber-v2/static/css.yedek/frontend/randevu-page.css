@@ -1,0 +1,446 @@
+/* Randevu standalone page styles */
+
+.appointment-page {
+    background: #f8fafc;
+}
+
+.appointment-page .container {
+    position: relative;
+}
+
+.appointment-page__wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
+    gap: clamp(32px, 4vw, 48px);
+    align-items: flex-start;
+}
+
+.appointment-page__info {
+    background: linear-gradient(135deg, rgba(62, 130, 246, 0.08), rgba(14, 165, 233, 0.04));
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 24px;
+    padding: clamp(28px, 4vw, 40px);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.appointment-page__title {
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 700;
+    color: var(--theme-primary-color);
+    margin-bottom: 16px;
+}
+
+.appointment-page__description {
+    color: color-mix(in srgb, var(--theme-text-color), #6b7280 55%);
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+
+.appointment-page__highlights {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+}
+
+.appointment-page__highlights li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4);
+    color: color-mix(in srgb, var(--theme-text-color), #475569 50%);
+}
+
+.appointment-page__highlights li i {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--theme-primary-color);
+    font-size: 18px;
+}
+
+.appointment-page__form-card {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 30px 70px rgba(15, 23, 42, 0.1);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    padding: clamp(28px, 4vw, 40px);
+    position: relative;
+    overflow: hidden;
+}
+
+.appointment-page__form-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.12), transparent 45%);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.appointment-page__form-card > * {
+    position: relative;
+}
+
+.appointment-page__form-header {
+    margin-bottom: 24px;
+}
+
+.appointment-page__form-title {
+    font-size: clamp(24px, 2.6vw, 30px);
+    font-weight: 700;
+    color: var(--theme-text-color);
+    margin-bottom: 8px;
+}
+
+.appointment-page__form-subtitle {
+    font-size: 14px;
+    color: color-mix(in srgb, var(--theme-text-color), #94a3b8 60%);
+    margin: 0;
+}
+
+.appointment-page .form-one__label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: color-mix(in srgb, var(--theme-text-color), #475569 40%);
+    margin-bottom: 6px;
+}
+
+.appointment-page .form-one__control input,
+.appointment-page .form-one__control textarea,
+.appointment-page .form-one__control select {
+    background: rgba(248, 250, 252, 0.9);
+    border: 1.5px solid rgba(226, 232, 240, 0.9);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: var(--theme-text-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.appointment-page .form-one__control input::placeholder,
+.appointment-page .form-one__control textarea::placeholder {
+    color: color-mix(in srgb, var(--theme-text-color), #94a3b8 70%);
+}
+
+.appointment-page .form-one__control input:focus,
+.appointment-page .form-one__control textarea:focus,
+.appointment-page .form-one__control select:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.appointment-page .form-one__control textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.appointment-page .bootstrap-select .dropdown-toggle {
+    border-radius: 10px;
+    background: rgba(248, 250, 252, 0.9);
+    border-color: rgba(226, 232, 240, 0.9);
+    padding: 14px 18px;
+    font-size: 15px;
+    color: var(--theme-text-color);
+}
+
+.appointment-page .bootstrap-select .dropdown-toggle:focus,
+.appointment-page .bootstrap-select .dropdown-toggle:active {
+    outline: none !important;
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12) !important;
+    background: #ffffff;
+}
+
+.appointment-page .appointment-one__form__date {
+    position: relative;
+}
+
+.appointment-page .appointment-one__form__date .appointment-one__form__date__arrow {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    color: color-mix(in srgb, var(--theme-text-color), #94a3b8 60%);
+    pointer-events: none;
+}
+
+.appointment-page .mediox-btn {
+    min-height: 50px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.appointment-page .mediox-btn.is-disabled,
+.appointment-page .mediox-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.appointment-page .mediox-btn .mediox-btn__icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.appointment-page__kvkk {
+    background: rgba(248, 250, 252, 0.65);
+    border-radius: 12px;
+    padding: 16px 18px;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+.appointment-page__kvkk .checkbox-label {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    font-size: 14px;
+    color: color-mix(in srgb, var(--theme-text-color), #475569 40%);
+    cursor: pointer;
+    margin: 0;
+    align-items: flex-start;
+}
+
+.appointment-page__kvkk input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+.appointment-page__kvkk a {
+    color: var(--theme-primary-color);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    font-weight: 600;
+}
+
+.appointment-page__notice {
+    margin-top: 20px;
+    font-size: 14px;
+    color: color-mix(in srgb, var(--theme-text-color), #475569 50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(244, 244, 255, 0.9);
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 1px solid rgba(99, 102, 241, 0.18);
+}
+
+.appointment-page__notice i {
+    color: var(--theme-primary-color);
+}
+
+
+.appointment-page .result {
+    margin-top: 16px;
+}
+
+@media (max-width: 1199px) {
+    .appointment-page__wrapper {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .appointment-page__info {
+        order: 2;
+    }
+
+    .appointment-page__form-card {
+        order: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .appointment-page__info,
+    .appointment-page__form-card {
+        padding: 24px;
+        border-radius: 20px;
+    }
+
+    .appointment-page__highlights li {
+        grid-template-columns: auto 1fr;
+    }
+
+    .appointment-page__kvkk {
+        padding: 14px 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .appointment-page__wrapper {
+        gap: 28px;
+    }
+
+    .appointment-page__title {
+        font-size: 24px;
+    }
+
+    .appointment-page__form-card {
+        padding: 22px;
+    }
+
+    .appointment-page .form-one__control input,
+    .appointment-page .form-one__control textarea {
+        border-radius: 12px;
+        padding: 13px 16px;
+    }
+
+    .appointment-page .mediox-btn {
+        width: 100%;
+    }
+}
+
+
+/* Form tek kolon - ortalanmış */
+.appointment-page__wrapper {
+    display: block !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+}
+.appointment-page__form-card {
+    width: 100% !important;
+}
+
+/* Form boşluklarını azalt */
+.appointment-page .form-one__group {
+    gap: 12px !important;
+    row-gap: 12px !important;
+}
+.appointment-page .form-one__control {
+    margin-bottom: 0 !important;
+}
+
+/* KVKK linki siyah */
+.appointment-page__kvkk a {
+    color: #111827 !important;
+}
+.appointment-page__kvkk span {
+    color: #374151 !important;
+}
+
+/* Form kartını yukarı taşı */
+.appointment-page.section-space {
+    padding-top: 20px !important;
+}
+
+/* Form input yüksekliklerini düşür */
+.appointment-page .form-one__control input,
+.appointment-page .form-one__control textarea,
+.appointment-page .form-one__control select,
+.appointment-page .form-one__control .bootstrap-select .btn {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: unset !important;
+    height: auto !important;
+    font-size: 14px !important;
+}
+.appointment-page .form-one__control textarea {
+    min-height: 80px !important;
+}
+
+/* Merkez seçiniz - yükseklik düşür */
+.appointment-page .bootstrap-select,
+.appointment-page .bootstrap-select .btn,
+.appointment-page select#appointmentBranch {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+/* Merkez seçiniz - ok ikonu ortala ve ufalт */
+.appointment-page .bootstrap-select .btn .bs-caret,
+.appointment-page .bootstrap-select > .btn::after {
+    font-size: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    position: absolute !important;
+    right: 12px !important;
+}
+.appointment-page .bootstrap-select > .btn {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Merkez dropdown - ok içeride ve ortalı */
+.appointment-page .bootstrap-select > .btn {
+    padding-right: 36px !important;
+    overflow: hidden !important;
+}
+.appointment-page .bootstrap-select > .btn .caret {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    border-top-color: #6b7280 !important;
+    border-top-width: 5px !important;
+    border-left-width: 4px !important;
+    border-right-width: 4px !important;
+}
+
+/* Merkez dropdown - ok dikeyde tam orta */
+.appointment-page .bootstrap-select > .btn {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+}
+.appointment-page .bootstrap-select > .btn .filter-option {
+    flex: 1 !important;
+}
+.appointment-page .bootstrap-select > .btn .caret {
+    position: static !important;
+    transform: none !important;
+    margin: 0 0 0 auto !important;
+    align-self: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* Bootstrap-select dropdown ok - kırmızıyı gizle, gri ok ekle ortada */
+.appointment-page .bootstrap-select > .btn.dropdown-toggle::after {
+    display: none !important;
+}
+.appointment-page .bootstrap-select > .btn.dropdown-toggle {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 12px !important;
+    padding-right: 36px !important;
+}
+
+/* Kırmızı caret gizle */
+.appointment-page .bootstrap-select > .btn .caret {
+    display: none !important;
+}
+
+/* Bootstrap-select ::before ok - gizle */
+.appointment-page .bootstrap-select > .btn::before {
+    display: none !important;
+}
+.appointment-page .bootstrap-select > .btn.dropdown-toggle::before {
+    display: none !important;
+}

@@ -1,5 +1,6 @@
 <div class="compact-page-header">
     <div class="container">
+        <h1 class="sr-only">Arama</h1>
         <ul class="compact-breadcrumb">
             <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
             <li><span class="current">Arama</span></li>
@@ -10,7 +11,7 @@
     <div class="container">
         <form action="/arama" method="get" style="margin-bottom:40px;">
             <div style="display:flex;gap:12px;align-items:center;">
-                <input type="text" name="q" value="{{ Query }}" placeholder="Aramak istediğiniz kelimeyi yazın..." style="flex:1;padding:14px 20px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;outline:none;font-family:inherit;">
+                <input type="text" name="q" value="{{ Query }}" aria-label="Sitede ara" placeholder="Aramak istediğiniz kelimeyi yazın..." style="flex:1;padding:14px 20px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;font-family:inherit;">
                 <button type="submit" style="padding:14px 28px;background:#0a2241;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-family:inherit;">Ara</button>
             </div>
         </form>
@@ -20,10 +21,10 @@
                 <div style="text-align:center;padding:60px 0;color:#64748b;">
                     <i class="icon-search" style="font-size:48px;opacity:0.3;display:block;margin-bottom:16px;"></i>
                     <p style="font-size:18px;">"<strong>{{ Query }}</strong>" için sonuç bulunamadı.</p>
-                    <p style="font-size:14px;">Farklı anahtar kelimeler deneyebilirsiniz.</p>
+                    <p style="font-size:16px;">Farklı anahtar kelimeler deneyebilirsiniz.</p>
                 </div>
             {{ else }}
-                <p style="color:#64748b;margin-bottom:24px;font-size:15px;"><strong style="color:#0a2241;">{{ len(Results) }}</strong> sonuç bulundu.</p>
+                <p style="color:#64748b;margin-bottom:24px;font-size:16px;"><strong style="color:#0a2241;">{{ len(Results) }}</strong> sonuç bulundu.</p>
                 <div style="display:flex;flex-direction:column;gap:12px;">
                     {{ range index1, Result := Results }}
                         <a href="{{ Result.Url }}" style="display:flex;align-items:flex-start;gap:16px;padding:20px 24px;border:1px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;transition:border-color .2s,box-shadow .2s;">
@@ -31,9 +32,9 @@
                                 <span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;background:#f1f5f9;color:#0a2241;white-space:nowrap;">{{ Result.Type }}</span>
                             </div>
                             <div>
-                                <h3 style="margin:0 0 6px;font-size:16px;color:#0a2241;font-weight:600;">{{ Result.Title }}</h3>
+                                <h2 style="margin:0 0 6px;font-size:16px;color:#0a2241;font-weight:600;">{{ Result.Title }}</h2>
                                 {{ if Result.Excerpt != "" }}
-                                    <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6;">{{ Result.Excerpt }}...</p>
+                                    <p style="margin:0;font-size:16px;color:#64748b;line-height:1.6;">{{ Result.Excerpt }}...</p>
                                 {{ end }}
                             </div>
                             <div style="margin-left:auto;flex-shrink:0;color:#0a2241;opacity:0.4;padding-top:2px;">

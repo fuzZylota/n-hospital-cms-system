@@ -1,81 +1,62 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Merkezlerimiz</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Merkezlerimiz</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
-
-<section class="portfolio-page section-space">
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/subeler.css">
+<div class="compact-page-header">
     <div class="container">
-        <div class="row gutter-y-30">
-            {{ if len(Subeler) > 0 }}
+        <h1 class="sr-only">Merkezlerimiz</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Merkezlerimiz</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/subeler.css">
+
+<section class="merkezler-page section-space" style="padding-top: 30px;">
+    <div class="container">
+        {{ if len(Subeler) > 0 }}
+            <div class="row gutter-y-30">
                 {{ range Subeler }}
-                <div class="col-xl-4 col-md-6 wow fadeInUp" data-wow-duration="1500ms">
-                    <div class="sube-card">
-                        <a href="/merkezlerimiz/{{ .UrlName }}" class="sube-card__image">
-                            {{ if .MediaPath }}
-                                <img src="{{ .MediaPath }}" alt="{{ .MediaAltText }}" class="sube-card__img">
-                            {{ else }}
-                                <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ .Name }}" class="sube-card__img">
-                            {{ end }}
-                        </a>
-                        <div class="sube-card__header">
-                            <h4 class="sube-card__title">{{ .Name }}</h4>
-                        </div>
-                        <div class="sube-card__content">
-                            <div class="sube-card__info">
+                <div class="col-lg-4 col-md-6 col-6">
+                    <div class="merkez-card wow fadeInUp" data-wow-duration="1500ms">
+                        <a class="merkez-card__link-overlay" href="/merkezlerimiz/{{ .UrlName }}" aria-label="{{ .Name }}"></a>
+
+                        <div class="merkez-card__image" style='background-image: url("{{ .MediaPath != "" ? .MediaPath : PathOnStart + "files/defaults/sube/sube-default.png" }}")'></div>
+
+                        <div class="merkez-card__info">
+                            <div class="merkez-card__identity">
+                                <h2 class="merkez-card__name">
+                                    <a href="/merkezlerimiz/{{ .UrlName }}">{{ .Name }}</a>
+                                </h2>
                                 {{ if .City != "" }}
-                                    <div class="sube-card__info-item">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>{{ .City }}, {{ .District }}</span>
-                                    </div>
-                                {{ end }}
-                                {{ if .Phone != "" }}
-                                    <div class="sube-card__info-item">
-                                        <i class="fas fa-phone"></i>
-                                        <a href="tel:{{ .Phone }}">{{ .Phone }}</a>
-                                    </div>
-                                {{ end }}
-                                {{ if .Email != "" }}
-                                    <div class="sube-card__info-item">
-                                        <i class="fas fa-envelope"></i>
-                                        <a href="mailto:{{ .Email }}">{{ .Email }}</a>
-                                    </div>
-                                {{ end }}
-                                {{ if .TransportationInfo != "" }}
-                                    <div class="sube-card__info-item">
-                                        <i class="fas fa-bus"></i>
-                                        <span>{{ .TransportationInfo }}</span>
-                                    </div>
+                                <p class="merkez-card__location">
+                                    <i class="fas fa-map-marker-alt"></i> {{ .City }}{{ if .District != "" }}, {{ .District }}{{ end }}
+                                </p>
                                 {{ end }}
                             </div>
-                            <div class="d-flex" style="gap:10px;">
-                                <a href="/merkezlerimiz/{{ .UrlName }}" class="mediox-btn mediox-btn--normal"><span>Bilgiler</span></a>
-                                <a href="/doktorlarimiz" class="mediox-btn mediox-btn--normal"><span>Doktorlar</span></a>
+                            <div class="merkez-card__buttons">
+                                <a class="merkez-card__btn" href="/merkezlerimiz/{{ .UrlName }}" onclick="event.stopPropagation()">
+                                    Bilgiler <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <a class="merkez-card__btn merkez-card__btn--secondary" href="/doktorlarimiz" onclick="event.stopPropagation()">
+                                    Doktorlar <i class="fas fa-chevron-right"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
                 {{ end }}
-            {{ else }}
+            </div>
+        {{ else }}
+            <div class="row">
                 <div class="col-12">
-                    <div class="alert alert-info">Şube bulunamadı.</div>
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <div style="font-size: 64px; color: #6b7280; margin-bottom: 20px;">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <h2 style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Merkez Bulunamadı</h2>
+                        <p style="color: #6b7280; font-size: 16px;">Şu anda görüntülenecek merkez bulunamadı.</p>
+                    </div>
                 </div>
-            {{ end }}
-        </div><!-- /.row -->
-    </div><!-- /.container -->
-</section><!-- /.portfolio-page section-space -->
+            </div>
+        {{ end }}
+    </div>
+</section>

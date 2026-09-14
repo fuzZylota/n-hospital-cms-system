@@ -124,7 +124,7 @@
             }
 
             .popup-subtitle {
-                font-size: 14px;
+                font-size: 16px;
             }
         }
     </style>
@@ -273,12 +273,11 @@
                     .popup-btn {
                         padding: 12px 24px;
                         border-radius: 8px;
-                        font-size: 14px;
+                        font-size: 16px;
                         font-weight: 600;
                         cursor: pointer;
                         transition: all 0.3s ease;
                         border: none;
-                        outline: none;
                     }
 
                     .popup-btn-secondary {

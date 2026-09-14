@@ -1312,11 +1312,19 @@ func DeleteOption(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 func DeleteOptionMedia(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		_, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{
+				"status":  401,
+				"message": "Unauthorized",
+			})
+		}
+
 		fmt.Printf("%s", string(c.Body()))
 
 		inputs := models.DeleteOptionMediaInputs{}
 		Oid := c.Params("oid")
-		err := c.BodyParser(&inputs)
+		err = c.BodyParser(&inputs)
 
 		if err != nil {
 			log.Printf("Cannot parse body: %v %T\n", err, err)
@@ -2335,13 +2343,3 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 	}
 }
 
-func ActivateOption(states *models.AppState, utilities *models.Utilities) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		fmt.Printf("%s", string(c.Body()))
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "Option activated successfully",
-		})
-	}
-}

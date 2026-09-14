@@ -1,0 +1,151 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+                        <li><span class="current">İletişim</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
+<section class="contact-page">
+    <div class="contact-page__inner section-space" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row gutter-y-40 align-items-start">
+                <div class="col-xl-7 col-lg-6 order-1 order-lg-0 wow fadeInUp" data-wow-duration="1500ms">
+                    <div class="contact-page__form">
+                        <form id="contactForm" class="contact-form-validated form-one">
+                            <div class="form-one__group">
+                                <div class="form-one__control">
+                                    <input type="text" name="first_name" id="contactName" placeholder="Ad" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control">
+                                    <input type="text" name="last_name" id="contactSurname" placeholder="Soyad" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="email" name="email" id="contactEmail" placeholder="E-posta Adresi" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="text" name="subject" id="contactSubject" placeholder="Konu" required>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <input type="tel" name="phone" id="contactPhone" placeholder="Telefon Numarası">
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <textarea name="message" id="contactMessage" placeholder="Mesajınızı yazın..." required></textarea>
+                                </div><!-- /.form-one__control -->
+                                <div class="form-one__control form-one__control--full">
+                                    <label for="kvkk_approval" class="checkbox-label">
+                                        <input type="checkbox" id="kvkk_approval" name="kvkk_approval" required>
+                                        <span>
+                                            <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                                        </span>
+                                    </label>
+                                </div><!-- /.form-one__control -->
+                                {{ if Options.Options.RecaptchaSiteKey != "" }}
+                                <div class="form-one__control form-one__control--full">
+                                    <div class="g-recaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedContact" data-expired-callback="onRecaptchaExpiredContact"></div>
+                                    <input type="hidden" name="recaptcha_token" id="contactRecaptchaToken">
+                                </div><!-- /.form-one__control -->
+                                {{ end }}
+                                <div class="form-one__control form-one__control--full">
+                                    <button type="submit" class="mediox-btn" id="contactSubmitBtn">
+                                        <span>Mesaj Gönder</span>
+                                        <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
+                                    </button>
+                                    <!-- /.mediox-btn -->
+                                </div><!-- /.form-one__control -->
+                            </div><!-- /.form-one__group -->
+                        </form><!-- /.form-one -->
+                        <div class="result" id="contactResult"></div><!-- /.result -->
+                    </div><!-- /.contact-page__form -->
+                </div><!-- /.col-xl-7 col-lg-6 -->
+                <div class="col-xl-5 col-lg-6 order-0 order-lg-1" style="margin-top: -10px;">
+                    <div class="contact-page__info">
+                        <div class="sec-title @@extraClassName wow fadeInUp" data-wow-duration="1500ms">
+                            <div class="sec-title__top">
+
+                            </div><!-- /.sec-title__top -->
+
+                            <h3 class="sec-title__title">Bizimle <span>İletişime Geçin!</span></h3><!-- /.sec-title__title -->
+                        </div><!-- /.sec-title -->
+                        <div class="contact-page__info__inner wow fadeInUp" data-wow-duration="1500ms">
+                            <div class="contact-page__info__item">
+                                <span class="contact-page__info__icon">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <div class="contact-page__info__content">
+                                    <h4 class="contact-page__info__title">Telefon</h4>
+                                    <a href="tel:{{ Options.Options.ContactPhone }}" class="contact-page__info__link">{{ Options.Options.ContactPhone }}</a>
+                                </div>
+                            </div>
+                            <div class="contact-page__info__item">
+                                <span class="contact-page__info__icon">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <div class="contact-page__info__content">
+                                    <h4 class="contact-page__info__title">E-posta</h4>
+                                    <a href="mailto:{{ Options.Options.ContactEmail }}" class="contact-page__info__link">{{ Options.Options.ContactEmail }}</a>
+                                </div>
+                            </div>
+                        </div><!-- /.contact-page__info__inner -->
+                    </div><!-- /.contact-page__info -->
+                </div><!-- /.col-xl-5 col-lg-6 -->
+            </div><!-- /.row -->
+        </div><!-- /.container -->
+    </div><!-- /.contact-page__inner section-space -->
+</section><!-- /.contact-page section-space-top -->
+
+{{ if Options.Options.RecaptchaSiteKey != "" }}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{{ end }}
+<script>
+var recaptchaVerifiedContact = false;
+
+function onRecaptchaVerifiedContact(token) {
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedContact = true;
+    var tokenInput = document.getElementById('contactRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = token;
+    }
+    updateContactSubmitButtonState();
+}
+
+function onRecaptchaExpiredContact() {
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    if (!recaptchaWidget) return;
+    recaptchaVerifiedContact = false;
+    var tokenInput = document.getElementById('contactRecaptchaToken');
+    if (tokenInput) {
+        tokenInput.value = '';
+    }
+    updateContactSubmitButtonState();
+}
+
+function updateContactSubmitButtonState() {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('contactSubmitBtn');
+    var recaptchaWidget = document.querySelector('#contactForm .g-recaptcha');
+    
+    if (kvkkCheckbox && submitButton) {
+        var shouldDisable = !kvkkCheckbox.checked;
+        if (recaptchaWidget) {
+            shouldDisable = shouldDisable || !recaptchaVerifiedContact;
+        }
+        submitButton.disabled = shouldDisable;
+        submitButton.classList.toggle('is-disabled', shouldDisable);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var kvkkCheckbox = document.getElementById('kvkk_approval');
+    var submitButton = document.getElementById('contactSubmitBtn');
+
+    if (kvkkCheckbox && submitButton) {
+        kvkkCheckbox.addEventListener('change', updateContactSubmitButtonState);
+        updateContactSubmitButtonState();
+    }
+});
+</script>

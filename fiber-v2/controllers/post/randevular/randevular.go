@@ -10,6 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"encoding/json"
+	"strings"
+	wsb "github.com/Necoo33/fiber-ws-broadcaster"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -48,9 +51,8 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 		}
 
 		CheckIfItsRepeating := Orm.Count("randevu_talepleri")
-		CheckIfItsRepeating.Where("patient_first_name", "=", inputs.PatientFirstName)
-		CheckIfItsRepeating.And("patient_last_name", "=", inputs.PatientLastName)
-		CheckIfItsRepeating.AndExpr("created_at", ">=", "NOW() - INTERVAL '4 days'")
+		CheckIfItsRepeating.Where("patient_phone", "=", inputs.PatientPhone)
+		CheckIfItsRepeating.AndExpr("created_at", ">=", "NOW() - INTERVAL '24 hours'")
 		CheckIfItsRepeating.Finish()
 
 		err = CheckIfItsRepeating.Execute()
@@ -64,8 +66,8 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		if CheckIfItsRepeating.Length() > 0 {
 			return c.JSON(fiber.Map{
-				"status":  400,
-				"message": "Yakın zamanda zaten randevu isteği iletmişsiniz. Lütfen talebinize dönüş yapılmasını bekleyin.",
+				"status":  429,
+				"message": "Bekleyen bir randevu talebiniz bulunmaktadır. Sizinle en kısa sürede iletişime geçilecektir.",
 			})
 		}
 
@@ -532,6 +534,51 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
+		// WebSocket broadcast - tam veriyle
+		go func(rridVal string) {
+			broadcaster := states.Broadcaster
+			broadcaster.Handle("notifications")
+			room := broadcaster.RoomById("notifications")
+			if room == nil { return }
+			Orm2 := utilities.Orm
+			GetTalep := Orm2.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name", "rt.sid"})
+			GetTalep.Table("randevu_talepleri rt")
+			GetTalep.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
+			GetTalep.Where("rt.rrid", "=", rridVal)
+			GetTalep.Finish()
+			_ = GetTalep.Execute()
+			talepRows, _ := GetTalep.Rows()
+			if len(talepRows) == 0 { return }
+			row := talepRows[0]
+			createdAt := ""
+			if t, ok := row["created_at"].(time.Time); ok { createdAt = t.Format("2006-01-02T15:04:05Z07:00") }
+			msg := map[string]interface{}{"type": "new_randevu_talebi", "rrid": lib.String(row["rrid"]), "patient_first_name": lib.String(row["patient_first_name"]), "patient_last_name": lib.String(row["patient_last_name"]), "patient_phone": lib.String(row["patient_phone"]), "message": lib.String(row["message"]), "created_at": createdAt, "status": lib.String(row["status"]), "sube_name": lib.String(row["sube_name"]), "sid": lib.String(row["sid"])}
+			msgBytes, err2 := json.Marshal(msg)
+			if err2 != nil { return }
+			room.BroadcastIf(msgBytes, nil, func(c *wsb.Connection) bool {
+				if lib.String(c.Data) != "kullanici" { return false }
+				uid := strings.Split(lib.String(c.Id), "_")[0]
+				sid := lib.String(row["sid"])
+				GetRole := Orm2.Select([]string{"role"})
+				GetRole.Table("users")
+				GetRole.Where("uid", "=", uid)
+				GetRole.Finish()
+				_ = GetRole.Execute()
+				userRows, _ := GetRole.Rows()
+				if len(userRows) == 0 { return false }
+				role := lib.String(userRows[0]["role"])
+				if role == "admin" || role == "moderator" { return true }
+				CheckPerm := Orm2.Select([]string{"can_view"})
+				CheckPerm.Table("user_branch_permissions")
+				CheckPerm.Where("uid", "=", uid)
+				CheckPerm.And("sid", "=", sid)
+				CheckPerm.And("can_view", "=", true)
+				CheckPerm.Finish()
+				_ = CheckPerm.Execute()
+				permRows, _ := CheckPerm.Rows()
+				return len(permRows) > 0
+			})
+		}(lib.String(rrid))
 		return c.JSON(fiber.Map{
 			"status":  201,
 			"message": "Randevu talebi başarıyla oluşturuldu.",
@@ -550,7 +597,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
-		if ourUser.Role != "admin" {
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
 			return c.Status(403).JSON(fiber.Map{
 				"status":  403,
 				"message": "Forbidden: Admin access required",
@@ -565,6 +612,30 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
+		// Admin değilse can_delete iznini kontrol et
+		if ourUser.Role != "admin" {
+			Orm2 := utilities.Orm
+			GetTalepSube := Orm2.Select([]string{"sid"})
+			GetTalepSube.Table("randevu_talepleri")
+			GetTalepSube.Where("rrid", "=", Rrid)
+			GetTalepSube.Finish()
+			_ = GetTalepSube.Execute()
+			talepRows, _ := GetTalepSube.Rows()
+			if len(talepRows) > 0 {
+				talepSid := lib.String(talepRows[0]["sid"])
+				CheckDelPerm := Orm2.Select([]string{"can_delete"})
+				CheckDelPerm.Table("user_branch_permissions")
+				CheckDelPerm.Where("uid", "=", ourUser.Uid)
+				CheckDelPerm.And("sid", "=", talepSid)
+				CheckDelPerm.Finish()
+				_ = CheckDelPerm.Execute()
+				delPermRows, _ := CheckDelPerm.Rows()
+				if len(delPermRows) == 0 || !lib.Bool(delPermRows[0]["can_delete"]) {
+					return c.Status(403).JSON(fiber.Map{"status": 403, "message": "Randevu silme yetkiniz yoktur."})
+				}
+
+			}
+		}
 		Orm := utilities.Orm
 
 		// Check if request exists
@@ -653,6 +724,17 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 			})
 		}
 
+		// WebSocket broadcast - silme
+		go func() {
+			broadcaster := states.Broadcaster
+			broadcaster.Handle("notifications")
+			room := broadcaster.RoomById("notifications")
+			if room != nil {
+				msg := map[string]interface{}{"type": "randevu_talebi_silindi", "rrid": Rrid}
+				msgBytes, _ := json.Marshal(msg)
+				room.BroadcastIf(msgBytes, nil, func(c *wsb.Connection) bool { return lib.String(c.Data) == "kullanici" })
+			}
+		}()
 		return c.JSON(fiber.Map{
 			"status":  201,
 			"message": "Randevu talebi başarıyla silindi.",
@@ -791,6 +873,10 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 		UpdateRequest.Table("randevu_talepleri")
 		UpdateRequest.Set("status", NewStatus)
 		UpdateRequest.Set("last_modified_uid", ourUser.Uid)
+		statusColMap := map[string]string{"randevu-verildi": "randevu_verildi_at", "randevu-verilemedi": "randevu_verilemedi_at", "ulasilamadi": "ulasilamadi_at", "gelmedi": "gelmedi_at", "hasta-vazgecti": "hasta_vazgecti_at", "hasta-arandi": "hasta_arandi_at"}
+		if col, ok := statusColMap[NewStatus]; ok {
+			UpdateRequest.Set(col, time.Now())
+		}
 		UpdateRequest.Where("rrid", "=", Rrid)
 		UpdateRequest.Finish()
 		err = UpdateRequest.Execute()
@@ -823,6 +909,17 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 		}
 
 		Orm.Commit()
+		// WebSocket broadcast - status değişimi
+		go func() {
+			broadcaster := states.Broadcaster
+			broadcaster.Handle("notifications")
+			room := broadcaster.RoomById("notifications")
+			if room != nil {
+				msg := map[string]interface{}{"type": "randevu_talebi_status", "rrid": Rrid, "new_status": NewStatus}
+				msgBytes, _ := json.Marshal(msg)
+				room.BroadcastIf(msgBytes, nil, func(c *wsb.Connection) bool { return lib.String(c.Data) == "kullanici" })
+			}
+		}()
 
 		return c.JSON(fiber.Map{
 			"status":     201,
@@ -842,7 +939,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			})
 		}
 
-		if ourUser.Role != "admin" {
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
 			return c.Status(403).JSON(fiber.Map{
 				"status":  403,
 				"message": "Forbidden: Admin access required",
@@ -1300,7 +1397,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			})
 		}
 
-		if ourUser.Role != "admin" {
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
 			return c.JSON(fiber.Map{
 				"status":  403,
 				"message": "Forbidden",
@@ -1920,7 +2017,7 @@ func DeleteRandevu(states *models.AppState, utilities *models.Utilities) fiber.H
 			})
 		}
 
-		if ourUser.Role != "admin" {
+		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
 			return c.Status(403).JSON(fiber.Map{
 				"status":  403,
 				"message": "Forbidden: Admin access required",

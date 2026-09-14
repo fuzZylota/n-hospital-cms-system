@@ -1,324 +1,272 @@
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/sube.css">
-
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">{{ Sube.Name }}</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><a href="/subelerimiz">Merkezler</a></li>
-                        <li><span>{{ Sube.Name }}</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
-
-<section class="portfolio-details section-space">
+<div class="compact-page-header">
     <div class="container">
-        <div class="row gutter-y-50">
-            <div class="col-xl-8 col-lg-7">
-                <div class="portfolio-details__content">
-                    <div class="portfolio-details__image wow fadeInUp" data-wow-delay="00ms" data-wow-duration="1500ms">
-                        {{ if Sube.SubeMediaPath }}
-                            <img src="{{ PathOnStart }}{{ Sube.SubeMediaPath }}" alt="{{ Sube.SubeMediaAltText }}" title="{{ Sube.SubeMediaTitle }}">
-                        {{ else }}
-                            <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ Sube.Name }}" title="{{ Sube.Name }}">
-                        {{ end }}
-                    </div><!-- /.portfolio-details__image -->
-                    <h3 class="portfolio-details__title">{{ Sube.Name }}</h3><!-- /.portfolio-details__title -->
-                    <div class="portfolio-details__content__inner">
-                        <!--<{{ if Sube.Description }}
-                        <div class="sube-description">
-                            <p class="portfolio-details__text">{{ Sube.Description }}</p>
-                        </div>
-                        {{ end }}-->
-                        
-                        {{ if Sube.TransportationInfoHtml }}
-                        <div class="sube-transportation-info-html">
-                            {{ Sube.TransportationInfoHtml | raw }}
-                        </div>
-                        {{ end }}
-                        
-                       <!--<div class="sube-contact-info">
-                            <h4>📞 İletişim Bilgileri</h4>
-                            <div class="contact-list">
-                                {{ if Sube.Address }}
-                                <div class="contact-row contact-address">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span class="contact-label">📍 Adres:</span>
-                                    <span class="contact-value">{{ Sube.Address }}{{ if Sube.City }}, {{ Sube.City }}{{ end }}{{ if Sube.District }}, {{ Sube.District }}{{ end }}{{ if Sube.PostalCode }} {{ Sube.PostalCode }}{{ end }}</span>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.Phone }}
-                                <div class="contact-row contact-phone">
-                                    <i class="fas fa-phone"></i>
-                                    <span class="contact-label">📞 Telefon:</span>
-                                    <a href="tel:{{ Sube.Phone }}" class="contact-value">{{ Sube.Phone }}</a>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.Fax }}
-                                <div class="contact-row contact-fax">
-                                    <i class="fas fa-fax"></i>
-                                    <span class="contact-label">📠 Faks:</span>
-                                    <span class="contact-value">{{ Sube.Fax }}</span>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.Email }}
-                                <div class="contact-row contact-email">
-                                    <i class="fas fa-envelope"></i>
-                                    <span class="contact-label">📧 E-posta:</span>
-                                    <a href="mailto:{{ Sube.Email }}" class="contact-value">{{ Sube.Email }}</a>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.Website }}
-                                <div class="contact-row contact-website">
-                                    <i class="fas fa-globe"></i>
-                                    <span class="contact-label">🌐 Website:</span>
-                                    <a href="{{ Sube.Website }}" target="_blank" rel="noopener" class="contact-value">{{ Sube.Website }}</a>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.WorkingHours }}
-                                <div class="contact-row contact-working-hours">
-                                    <i class="fas fa-clock"></i>
-                                    <span class="contact-label">🕒 Çalışma Saatleri:</span>
-                                    <span class="contact-value working-hours-content" data-raw-hours="{{ Sube.WorkingHours }}">{{ Sube.WorkingHours }}</span>
-                                </div>
-                                {{ end }}
-                                
-                                {{ if Sube.TransportationInfo }}
-                                <div class="contact-row contact-transportation">
-                                    <i class="fas fa-bus"></i>
-                                    <span class="contact-label">🚌 Ulaşım:</span>
-                                    <span class="contact-value">{{ Sube.TransportationInfo }}</span>
-                                </div>
-                                {{ end }}
-                            </div>
-                        </div>-->
-                        
-                        {{ if Sube.AnlasmaliKurumlarHtml }}
-                        <div class="sube-anlasmali-kurumlar-html">
-                            {{ Sube.AnlasmaliKurumlarHtml | raw }}
-                        </div>
-                        {{ end }}
-                        
-                        <div class="d-flex">
-                            <a href="/doktorlarimiz" class="mediox-btn mediox-btn--normal"><span>Doktorlarımız</span></a>
-                        </div>
-                    </div><!-- /.portfolio-details__content__inner -->
-                </div><!-- /.portfolio-details__content -->
-                
-            </div><!-- /.col-xl-8 col-lg-7 -->
-            <div class="col-xl-4 col-lg-5">
-                <aside class="portfolio-sidebar">
-                    <!--<div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="00ms">
-                        <div class="portfolio-sidebar__info">
-                            <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">Merkez Bilgileri</h3>
-                            </div>
-                            <ul class="portfolio-sidebar__info__list">
-                                {{ if Sube.City }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Konum:</span>
-                                    <span class="portfolio-sidebar__info__text">{{ Sube.City }}{{ if Sube.District }}, {{ Sube.District }}{{ end }}</span>
-                                </li>
-                                {{ end }}
-                                
-                                {{ if Sube.WorkingHours }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Çalışma Saatleri:</span>
-                                    <span class="portfolio-sidebar__info__text working-hours-sidebar">{{ Sube.WorkingHours }}</span>
-                                </li>
-                                {{ end }}
-                                
-                                {{ if Sube.Latitude != 0 && Sube.Longitude != 0 }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Koordinatlar:</span>
-                                    <span class="portfolio-sidebar__info__text">{{ Sube.Latitude }}, {{ Sube.Longitude }}</span>
-                                </li>
-                                {{ end }}
-                                
-                                {{ if len(AnlasmaliKurumlar) > 0 }}
-                                <li>
-                                    <span class="portfolio-sidebar__info__title">Anlaşmalı Kurumlar:</span>
-                                    <span class="portfolio-sidebar__info__text">{{ len(AnlasmaliKurumlar) }} kurum</span>
-                                </li>
-                                {{ end }}
-                            </ul>
-                        </div>
-                    </div>-->
-                    
-                    <!-- Anlaşmalı Kurumlar Section -->
-                    {{ if len(AnlasmaliKurumlar) > 0 }}
-                    <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="300ms">
-                        <div class="portfolio-sidebar__info">
-                            <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">🤝 Anlaşmalı Kurumlar</h3>
-                            </div>
-                            <div class="anlasmali-kurumlar-list">
-                                {{ range AnlasmaliKurumlar }}
-                                <div class="anlasmali-kurum-item">
-                                    <div class="anlasmali-kurum-item-wrapper">
-                                        <div class="kurum-icon">
-                                            {{ if .Type == "sigorta" }}
-                                                <i class="fas fa-shield-alt"></i>
-                                            {{ else if .Type == "kurumsal" }}
-                                                <i class="fas fa-building"></i>
-                                            {{ else if .Type == "universite" }}
-                                                <i class="fas fa-graduation-cap"></i>
-                                            {{ else if .Type == "devlet" }}
-                                                <i class="fas fa-landmark"></i>
-                                            {{ else if .Type == "ozel" }}
-                                                <i class="fas fa-user-tie"></i>
-                                            {{ else }}
-                                                <i class="fas fa-handshake"></i>
-                                            {{ end }}
-                                        </div>
-                                        <div class="kurum-content">
-                                            <div class="kurum-name">{{ .Name }}</div>
-                                            <div class="kurum-type">
-                                                {{ if .Type == "sigorta" }}
-                                                    Sigorta
-                                                {{ else if .Type == "kurumsal" }}
-                                                    Kurumsal
-                                                {{ else if .Type == "universite" }}
-                                                    Üniversite
-                                                {{ else if .Type == "devlet" }}
-                                                    Devlet
-                                                {{ else if .Type == "ozel" }}
-                                                    Özel
-                                                {{ end }}
-                                            </div>
-                                            {{ if .ContactPerson }}
-                                            <div class="kurum-contact-info">
-                                                <i class="fas fa-user"></i>
-                                                {{ .ContactPerson }}
-                                            </div>
-                                            {{ end }}
-                                            {{ if .Phone }}
-                                            <div class="kurum-contact-info">
-                                                <i class="fas fa-phone"></i>
-                                                <a href="tel:{{ .Phone }}">{{ .Phone }}</a>
-                                            </div>
-                                            {{ end }}
-                                        </div>
-                                        <div class="kurum-status-wrapper">
-                                            {{ if .IsActive }}
-                                            <span class="kurum-status active">
-                                                <i class="fas fa-check-circle"></i>
-                                                Aktif
-                                            </span>
-                                            {{ else }}
-                                            <span class="kurum-status inactive">
-                                                <i class="fas fa-pause-circle"></i>
-                                                Pasif
-                                            </span>
-                                            {{ end }}
-                                        </div>
-                                    </div>
-                                </div>
-                                {{ end }}
-                            </div>
-                        </div>
-                    </div>
-                    {{ end }}
-                    
-                    <!-- Google Maps Section -->
-                    {{ if Sube.GoogleMapIframe }}
-                    <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="400ms">
-                        <div class="portfolio-sidebar__info">
-                            <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">🗺️ Konum</h3>
-                            </div>
-                            <div class="map-container">
-                                {{ Sube.GoogleMapIframe | raw }}
-                            </div>
-                        </div>
-                    </div>
-                    {{ end }}
-                    
-                    <!-- Şube Dokümanları Section -->
-                    {{ if len(SubeDocuments) > 0 }}
-                    <div class="portfolio-sidebar__item wow fadeInRight" data-wow-duration="1500ms" data-wow-delay="200ms">
-                        <div class="portfolio-sidebar__info">
-                            <div class="portfolio-sidebar__info__top">
-                                <h3 class="portfolio-sidebar__title">📄 Merkez Dokümanları</h3>
-                            </div>
-                            <div class="documents-list">
-                                {{ range SubeDocuments }}
-                                <div class="document-item" onclick="previewDocument('{{ .FilePath }}', '{{ .MimeType }}', '{{ .FileName }}')">
-                                    <div class="document-item-wrapper">
-                                        <div class="document-icon">
-                                            {{ if contains(.MimeType, "image/") }}
-                                                <i class="fas fa-image"></i>
-                                            {{ else if contains(.MimeType, "video/") }}
-                                                <i class="fas fa-video"></i>
-                                            {{ else if contains(.MimeType, "audio/") }}
-                                                <i class="fas fa-music"></i>
-                                            {{ else if contains(.MimeType, "application/pdf") }}
-                                                <i class="fas fa-file-pdf"></i>
-                                            {{ else if contains(.MimeType, "application/msword") }}
-                                                <i class="fas fa-file-word"></i>
-                                            {{ else if contains(.MimeType, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") }}
-                                                <i class="fas fa-file-word"></i>
-                                            {{ else if contains(.MimeType, "application/vnd.ms-excel") }}
-                                                <i class="fas fa-file-excel"></i>
-                                            {{ else if contains(.MimeType, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") }}
-                                                <i class="fas fa-file-excel"></i>
-                                            {{ else if contains(.MimeType, "application/vnd.ms-powerpoint") }}
-                                                <i class="fas fa-file-powerpoint"></i>
-                                            {{ else if contains(.MimeType, "application/vnd.openxmlformats-officedocument.presentationml.presentation") }}
-                                                <i class="fas fa-file-powerpoint"></i>
-                                            {{ else if contains(.MimeType, "text/") }}
-                                                <i class="fas fa-file-alt"></i>
-                                            {{ else if contains(.MimeType, "application/zip") }}
-                                                <i class="fas fa-file-archive"></i>
-                                            {{ else }}
-                                                <i class="fas fa-file"></i>
-                                            {{ end }}
-                                        </div>
-                                        <div class="document-content">
-                                            {{ if .Data }}
-                                                <div class="document-name">{{ .Data }}</div>
-                                            {{ else }}
-                                                <div class="document-name">{{ .FileName }}</div>
-                                            {{ end }}
-                                            
-                                             <div class="file-size" data-size="{{ .FileSize }}">{{ .FileSize }} bytes</div>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><a href="/merkezlerimiz">Merkezlerimiz</a></li>
+            <li><span class="current">{{ Sube.Name }}</span></li>
+        </ul>
+    </div>
+</div>
 
-                                        </div>
-                                        <div class="document-actions">
-                                            <button class="document-download-btn" onclick="event.stopPropagation(); downloadDocument('{{ .FilePath }}', '{{ .FileName }}')">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                        </div>
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/sube.css?v=20260311k">
+
+<!-- HERO -->
+<section class="sube-hero">
+    <div class="sube-hero__bg">
+        {{ if Sube.SubeMediaPath }}
+        <img src="{{ PathOnStart }}{{ Sube.SubeMediaPath }}" alt="{{ Sube.Name }}" class="sube-hero__bg-img">
+        {{ else }}
+        <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ Sube.Name }}" class="sube-hero__bg-img">
+        {{ end }}
+        <div class="sube-hero__overlay"></div>
+    </div>
+    <div class="container">
+        <div class="sube-hero__inner">
+            <div class="sube-hero__photo-wrap">
+                {{ if Sube.SubeMediaPath }}
+                <img src="{{ PathOnStart }}{{ Sube.SubeMediaPath }}" alt="{{ Sube.Name }}" class="sube-hero__photo">
+                {{ else }}
+                <img src="{{ PathOnStart }}files/defaults/sube/sube-default.png" alt="{{ Sube.Name }}" class="sube-hero__photo">
+                {{ end }}
+                {{ if Sube.Latitude != 0 && Sube.Longitude != 0 }}
+                <a href="https://www.google.com/maps/dir/Current+Location/{{ Sube.Latitude }},{{ Sube.Longitude }}" target="_blank" rel="noopener" class="sube-hero__directions">
+                    <i class="fas fa-route"></i> Yol Tarifi
+                </a>
+                {{ end }}
+            </div>
+            <div class="sube-hero__meta">
+                <div class="sube-hero__info">
+                    <h1 class="sube-hero__name">{{ Sube.Name }}</h1>
+                    {{ if Sube.City != "" }}
+                    <p class="sube-hero__location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ Sube.City }}{{ if Sube.District != "" }}, {{ Sube.District }}{{ end }}
+                    </p>
+                    {{ end }}
+                </div>
+                <div class="sube-hero__actions">
+                    <a href="/randevu" class="sube-hero__randevu-btn">
+                        <i class="fas fa-calendar-check"></i> Randevu Al
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="sube-main section-space">
+    <div class="container">
+        <div class="sube-layout">
+
+            <!-- SOL: Dikey Tab Menü -->
+            <aside class="sube-sidebar">
+                <button class="sube-tabs-arrow sube-tabs-arrow--left" id="subeTabsArrowLeft" type="button" aria-label="Sola kaydır"><i class="fas fa-chevron-left"></i></button>
+                <nav class="sube-tabs-vertical" id="subeTabs">
+                    <button class="sube-tab active" data-tab="tanitim">GENEL TANITIM</button>
+                    <button class="sube-tab" data-tab="doktorlar">DOKTORLARIMIZ</button>
+                    <button class="sube-tab" data-tab="fotogaleri">FOTO GALERİ</button>
+                    <button class="sube-tab" data-tab="ulasim">ULAŞIM</button>
+                    <button class="sube-tab" data-tab="iletisim">İLETİŞİM</button>
+                </nav>
+                <button class="sube-tabs-arrow sube-tabs-arrow--right" id="subeTabsArrowRight" type="button" aria-label="Sağa kaydır"><i class="fas fa-chevron-right"></i></button>
+            </aside>
+
+            <!-- SAĞ: İçerik -->
+            <div class="sube-content-area">
+
+                <!-- GENEL TANITIM -->
+                <div class="sube-panel active" id="tab-tanitim">
+                    <div class="sube-card">
+                        <h2 class="sube-card__title">Genel Tanıtım</h2>
+                        {{ if Sube.Description != "" }}
+                        <div class="sube-description">{{ Sube.Description }}</div>
+                        {{ end }}
+                        {{ if Sube.TransportationInfoHtml != "" }}
+                        <div class="sube-html-content">{{ Sube.TransportationInfoHtml | raw }}</div>
+                        {{ end }}
+                        {{ if Sube.Description == "" && Sube.TransportationInfoHtml == "" }}
+                        <p class="sube-empty-text">Merkez tanıtım bilgisi henüz eklenmemiş.</p>
+                        {{ end }}
+                    </div>
+                </div>
+
+                <!-- DOKTORLAR -->
+                <div class="sube-panel" id="tab-doktorlar">
+                    <div class="sube-card">
+                        <h2 class="sube-card__title">Doktorlarımız</h2>
+                        {{ if len(SubeDoktorlar) > 0 }}
+                        <div class="sube-doktor-grid">
+                            {{ range SubeDoktorlar }}
+                            <div class="sube-doktor-kart">
+                                <div class="sube-doktor-kart__foto">
+                                    {{ if .PhotoPath != "" }}
+                                    <img src="{{ PathOnStart }}{{ .PhotoPath }}" alt="{{ .PhotoAltText }}" title="{{ .PhotoTitle }}">
+                                    {{ else }}
+                                    <div class="sube-doktor-kart__foto-placeholder">
+                                        <i class="fas fa-user-md"></i>
                                     </div>
+                                    {{ end }}
                                 </div>
+                                <div class="sube-doktor-kart__info">
+                                    <p class="sube-doktor-kart__brans">{{ .BransName }}</p>
+                                    <h3 class="sube-doktor-kart__isim">{{ .Title }} {{ .FirstName }} {{ .LastName }}</h3>
+                                </div>
+                                <div class="sube-doktor-kart__butonlar">
+                                    <a href="/randevu?doktor={{ .UrlName }}" class="sube-doktor-btn sube-doktor-btn--randevu">
+                                        <i class="fas fa-calendar-alt"></i> Randevu Al
+                                    </a>
+                                    <a href="/doktorlarimiz/{{ .UrlName }}" class="sube-doktor-btn sube-doktor-btn--profil">
+                                        <i class="fas fa-user"></i> Profili Gör
+                                    </a>
+                                </div>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ else }}
+                        <div class="sube-empty-state">
+                            <i class="fas fa-user-md"></i>
+                            <p>Bu merkeze ait doktor bilgisi henüz eklenmemiş.</p>
+                        </div>
+                        {{ end }}
+                    </div>
+                </div>
+
+
+                <!-- FOTO GALERİ -->
+                <div class="sube-panel" id="tab-fotogaleri">
+                    <div class="sube-card">
+                        <h2 class="sube-card__title">Foto Galeri</h2>
+                        {{ if len(SubeGaleri) > 0 }}
+                        <div class="foto-galeri-grid">
+                            {{ range SubeGaleri }}
+                            <div class="foto-galeri-item" onclick="openLightbox('{{ PathOnStart }}{{ .FilePath }}', '{{ .Caption }}')">
+                                <img src="{{ PathOnStart }}{{ .FilePath }}" alt="{{ .AltText }}" title="{{ .Title }}" loading="lazy">
+                                {{ if .Caption != "" }}
+                                <div class="foto-galeri-caption">{{ .Caption }}</div>
                                 {{ end }}
                             </div>
+                            {{ end }}
                         </div>
+                        {{ else }}
+                        <p class="sube-empty-text">Henüz fotoğraf eklenmemiş.</p>
+                        {{ end }}
                     </div>
-                    {{ end }}
-                </aside><!-- /.portfolio-sidebar -->
-            </div><!-- /.col-xl-4 col-lg-5 -->
-        </div><!-- /.row gutter-y-50 -->
-    </div><!-- /.container -->
-</section><!-- /.portfolio-details section-space -->
+                </div>
+
+                <!-- ULAŞIM -->
+                <div class="sube-panel" id="tab-ulasim">
+                    <div class="sube-card">
+                        <h2 class="sube-card__title">Ulaşım</h2>
+                        {{ if Sube.Address != "" }}
+                        <div class="ulasim-item">
+                            <div class="ulasim-item__icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="ulasim-item__content">
+                                <span class="ulasim-item__label">Adres</span>
+                                <span class="ulasim-item__value">{{ Sube.Address }}{{ if Sube.City != "" }}, {{ Sube.City }}{{ end }}{{ if Sube.District != "" }}, {{ Sube.District }}{{ end }}</span>
+                            </div>
+                        </div>
+                        {{ end }}
+                        {{ if Sube.TransportationInfo != "" }}
+                        <div class="ulasim-item">
+                            <div class="ulasim-item__icon ulasim-item__icon--blue"><i class="fas fa-bus"></i></div>
+                            <div class="ulasim-item__content">
+                                <span class="ulasim-item__label">Toplu Taşıma</span>
+                                <span class="ulasim-item__value">{{ Sube.TransportationInfo }}</span>
+                            </div>
+                        </div>
+                        {{ end }}
+                        {{ if Sube.GoogleMapIframe != "" }}
+                        <div class="map-container">{{ Sube.GoogleMapIframe | raw }}</div>
+                        {{ end }}
+                        {{ if Sube.Latitude != 0 && Sube.Longitude != 0 }}
+                        <a href="https://www.google.com/maps/dir/Current+Location/{{ Sube.Latitude }},{{ Sube.Longitude }}" target="_blank" rel="noopener" class="sube-btn sube-btn--primary" style="margin-top:16px;">
+                            <i class="fas fa-route"></i> Yol Tarifi Al
+                        </a>
+                        {{ end }}
+                        {{ if Sube.Address == "" && Sube.TransportationInfo == "" && Sube.GoogleMapIframe == "" }}
+                        <p class="sube-empty-text">Ulaşım bilgisi henüz eklenmemiş.</p>
+                        {{ end }}
+                    </div>
+                </div>
+
+                <!-- İLETİŞİM -->
+                <div class="sube-panel" id="tab-iletisim">
+                    <div class="sube-card">
+                        <h2 class="sube-card__title">İletişim</h2>
+                        <div class="iletisim-grid">
+                            {{ if Sube.Phone != "" }}
+                            <a href="tel:{{ Sube.Phone }}" class="iletisim-card">
+                                <div class="iletisim-card__icon"><i class="fas fa-phone"></i></div>
+                                <div class="iletisim-card__content">
+                                    <span class="iletisim-card__label">Telefon</span>
+                                    <span class="iletisim-card__value">{{ Sube.Phone }}</span>
+                                </div>
+                            </a>
+                            {{ end }}
+                            {{ if Sube.Email != "" }}
+                            <a href="mailto:{{ Sube.Email }}" class="iletisim-card">
+                                <div class="iletisim-card__icon iletisim-card__icon--red"><i class="fas fa-envelope"></i></div>
+                                <div class="iletisim-card__content">
+                                    <span class="iletisim-card__label">E-posta</span>
+                                    <span class="iletisim-card__value">{{ Sube.Email }}</span>
+                                </div>
+                            </a>
+                            {{ end }}
+                            {{ if Sube.Fax != "" }}
+                            <div class="iletisim-card">
+                                <div class="iletisim-card__icon iletisim-card__icon--purple"><i class="fas fa-fax"></i></div>
+                                <div class="iletisim-card__content">
+                                    <span class="iletisim-card__label">Faks</span>
+                                    <span class="iletisim-card__value">{{ Sube.Fax }}</span>
+                                </div>
+                            </div>
+                            {{ end }}
+                            {{ if Sube.Address != "" }}
+                            <div class="iletisim-card">
+                                <div class="iletisim-card__icon iletisim-card__icon--green"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="iletisim-card__content">
+                                    <span class="iletisim-card__label">Adres</span>
+                                    <span class="iletisim-card__value">{{ Sube.Address }}{{ if Sube.City != "" }}, {{ Sube.City }}{{ end }}</span>
+                                </div>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ if Sube.Phone == "" && Sube.Email == "" && Sube.Address == "" }}
+                        <p class="sube-empty-text">İletişim bilgisi henüz eklenmemiş.</p>
+                        {{ end }}
+                    </div>
+                </div>
+
+            </div><!-- /.sube-content-area -->
+        </div><!-- /.sube-layout -->
+
+        <!-- MERKEZ ÖZELLİKLERİ (Anlaşmalı Kurumlar) -->
+        {{ if len(AnlasmaliKurumlar) > 0 }}
+        <div class="merkez-ozellikler">
+            <h2 class="merkez-ozellikler__title">Anlaşmalı Kurumlar</h2>
+            <div class="merkez-ozellikler__divider"></div>
+            <div class="merkez-ozellikler__grid">
+                {{ range AnlasmaliKurumlar }}
+                <div class="ozellik-kart">
+                    <div class="ozellik-kart__icon">
+                        {{ if .Type == "sigorta" }}<i class="fas fa-shield-alt"></i>
+                        {{ else if .Type == "kurumsal" }}<i class="fas fa-building"></i>
+                        {{ else if .Type == "universite" }}<i class="fas fa-graduation-cap"></i>
+                        {{ else if .Type == "devlet" }}<i class="fas fa-landmark"></i>
+                        {{ else }}<i class="fas fa-handshake"></i>{{ end }}
+                    </div>
+                    <span class="ozellik-kart__name">{{ .Name }}</span>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+
+    </div>
+</section>
 
 <script>
-    // Pass working hours data to JavaScript
-    window.workingHoursData = '{{ stj(Sube.WorkingHours) }}';
+window.subeUrlName = '{{ Sube.UrlName }}';
 </script>
-<script src="{{ PathOnStart }}js/frontend/sube.js"></script>
+<script src="{{ PathOnStart }}js/frontend/sube.js?v=20260311e"></script>

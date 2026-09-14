@@ -680,16 +680,26 @@ func EditDoctor(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			updateDoktor.Set("doctor_infos_js", inputs.DoctorInfosJs)
 			SomethingSet = true
 		}
-
-		if inputs.Sid != inputs.OldSid {
-			if inputs.Sid == "" {
-				updateDoktor.Set("sid", nil)
-			} else {
-				updateDoktor.Set("sid", inputs.Sid)
-			}
-
-			SomethingSet = true
-		}
+                // doktor_subeler tablosunu guncelle
+                if len(inputs.SubeIds) > 0 {
+                        DelDS := Orm.Delete()
+                        DelDS.Table("doktor_subeler")
+                        DelDS.Where("drid", "=", Drid)
+                        DelDS.Finish()
+                        DelDS.Execute()
+                        for _, subeId := range inputs.SubeIds {
+                                if subeId == "" { continue }
+                                dsColumns := []string{"drid", "sid"}
+                                dsValues := []any{Drid, subeId}
+                                InsDS := Orm.Insert(dsColumns, dsValues)
+                                InsDS.Table("doktor_subeler")
+                                InsDS.AppendCustom("ON CONFLICT (drid, sid) DO NOTHING")
+                                InsDS.Finish()
+                                InsDS.Execute()
+                        }
+                        updateDoktor.Set("sid", inputs.SubeIds[0])
+                        SomethingSet = true
+                }
 
 		if SomethingSet {
 			updateDoktor.Set("updated_at", "NOW()")
@@ -2278,17 +2288,6 @@ func RemoveExpertiseFromADoctor(states *models.AppState, utilities *models.Utili
 		return c.JSON(fiber.Map{
 			"status":  201,
 			"message": "Uzmanlık alanı başarıyla silindi.",
-		})
-	}
-}
-
-func MoveDoctorToABranch(states *models.AppState, utilities *models.Utilities) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		fmt.Printf("%s", string(c.Body()))
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "Doctor to a branch moved successfully",
 		})
 	}
 }

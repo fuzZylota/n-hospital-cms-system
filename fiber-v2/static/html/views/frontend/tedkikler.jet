@@ -1,54 +1,52 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Tetkikler</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Tetkikler</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
-
-<section class="tetkikler section-space" style="padding-top: 40px;">
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkikler.css">
+<div class="compact-page-header">
     <div class="container">
-        <div class="sec-title text-center">
-            <h3 class="sec-title__title">Tüm <span>Tetkikler</span></h3>
-            <p class="mt-3" style="max-width: 800px; margin: 10px auto 0; color: #6b7280; font-size: 16px;">
-                Kurumumuzda uygulanan tetkikleri görüntüleyebilir ve detaylarını inceleyebilirsiniz.
-            </p>
-        </div>
-        <div class="row gutter-y-30">
-            {{ if len(Tetkikler) > 0 }}
+        <h1 class="sr-only">Tetkikler</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Tetkikler</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkikler.css">
+
+<section class="tetkikler-page section-space" style="padding-top: 30px;">
+    <div class="container">
+        {{ if len(Tetkikler) > 0 }}
+            <div class="row gutter-y-30">
                 {{ range index, Tetkik := Tetkikler }}
-                <div class="col-xl-3 col-lg-4 col-md-6">
-                    <a href="/tetkikler/{{ Tetkik.UrlName }}" class="tedkik-card tedkik-card--link wow FadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 50 }}ms">
-                        <div class="tedkik-card__media">
-                            <img class="tedkik-card__image {{ Tetkik.CoverPath == "" ? "is-placeholder" : "" }}" src="{{ Tetkik.CoverPath != "" ? PathOnStart + Tetkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}" alt="{{ Tetkik.CoverAltText != "" ? Tetkik.CoverAltText : Tetkik.Name }}" title="{{ Tetkik.CoverTitle != "" ? Tetkik.CoverTitle : Tetkik.Name }}">
+                <div class="col-lg-4 col-md-6 col-6">
+                    <div class="tetkik-card wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
+                        <a class="tetkik-card__link-overlay" href="/tetkikler/{{ Tetkik.UrlName }}" aria-label="{{ Tetkik.Name }}"></a>
+
+                        <div class="tetkik-card__image" style='background-image: url("{{ Tetkik.CoverPath != "" ? PathOnStart + Tetkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}")'></div>
+
+                        <div class="tetkik-card__info">
+                            <div class="tetkik-card__identity">
+                                <h2 class="tetkik-card__name">
+                                    <a href="/tetkikler/{{ Tetkik.UrlName }}">{{ Tetkik.Name }}</a>
+                                </h2>
+                            </div>
+                            <a class="tetkik-card__detail-btn" href="/tetkikler/{{ Tetkik.UrlName }}" onclick="event.stopPropagation()">
+                                Detaylı Bilgi <i class="fas fa-chevron-right"></i>
+                            </a>
                         </div>
-                        <div class="tedkik-card__content">
-                            <h3 class="tedkik-card__title">{{ Tetkik.Name }}</h3>
-                            <span class="tedkik-card__link" aria-label="Detay">
-                                <i class="icon-up-right-arrow"></i>
-                            </span>
-                        </div>
-                    </a>
+                    </div>
                 </div>
                 {{ end }}
-            {{ else }}
+            </div>
+        {{ else }}
+            <div class="row">
                 <div class="col-12">
-                    <p style="text-align:center; color:#6b7280;">Görüntülenecek tetkik bulunamadı.</p>
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <div style="font-size: 64px; color: #6b7280; margin-bottom: 20px;">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h2 style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Tetkik Bulunamadı</h2>
+                        <p style="color: #6b7280; font-size: 16px;">Şu anda görüntülenecek tetkik bulunamadı.</p>
+                    </div>
                 </div>
-            {{ end }}
-        </div>
+            </div>
+        {{ end }}
     </div>
 </section>

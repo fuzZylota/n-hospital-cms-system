@@ -1,0 +1,276 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/tedkik.css">
+<!-- CodeMirror CSS for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/tedkikler" class="breadcrumb-link">
+                        <i class="fas fa-stethoscope"></i>
+                        Tedkikler
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Tedkik.Name }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Tedkik.Name }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Tedkik.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Tedkik.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Tedkik.Description}}
+                <p class="page-subtitle">{{ Tedkik.Description }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Tedkik.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/tedkikler/{{ Tedkik.Tid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <button class="btn btn-danger" id="deleteTedkikBtn" data-id="{{ Tedkik.Tid }}" data-name="{{ Tedkik.Name }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Tedkik Adı</label>
+                        <div class="info-value">{{ Tedkik.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL Adı</label>
+                        <div class="info-value">{{ Tedkik.UrlName }}</div>
+                    </div>
+                    {{if Tedkik.Description}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Açıklama</label>
+                        <div class="info-value">{{ Tedkik.Description }}</div>
+                    </div>
+                    {{end}}
+                    {{if Tedkik.CoverPath}}
+                    <div class="info-item">
+                        <label class="info-label">Tedkik Görseli</label>
+                        <div class="info-value">
+                            <div class="image-preview">
+                                <img src="{{ PathOnStart }}{{ Tedkik.CoverPath }}" alt="{{ Tedkik.CoverAltText }}" title="{{ Tedkik.CoverTitle }}" class="preview-image">
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Durum</label>
+                        <div class="info-value">
+                            {{if Tedkik.IsActive}}
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle"></i>
+                                Aktif
+                            </span>
+                            {{else}}
+                            <span class="status-badge inactive">
+                                <i class="fas fa-pause-circle"></i>
+                                Pasif
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- HTML Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-html5"></i>
+                </div>
+                <h3 class="card-title">HTML İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">HTML Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('htmlContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('htmlContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="htmlContent" class="code-editor" readonly>{{ if Tedkik.HtmlContent }}{{ Tedkik.HtmlContent }}{{ else }}<!-- HTML kodu bulunmuyor -->{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-css3-alt"></i>
+                </div>
+                <h3 class="card-title">CSS İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">CSS Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('cssContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('cssContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="cssContent" class="code-editor" readonly>{{ if Tedkik.CssContent }}{{ Tedkik.CssContent }}{{ else }}/* CSS kodu bulunmuyor */{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript Content Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fab fa-js-square"></i>
+                </div>
+                <h3 class="card-title">JavaScript İçeriği</h3>
+            </div>
+            <div class="card-content">
+                <div class="code-section">
+                    <div class="code-header">
+                        <span class="code-title">JavaScript Kodu</span>
+                        <div class="code-actions">
+                            <button class="btn-icon copy-btn" onclick="copyToClipboard('jsContent')" title="Kopyala">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon expand-btn" onclick="toggleCodeExpansion('jsContent')" title="Genişlet/Daralt">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-container">
+                        <textarea id="jsContent" class="code-editor" readonly>{{ if Tedkik.JavascriptContent }}{{ Tedkik.JavascriptContent }}{{ else }}// JavaScript kodu bulunmuyor{{ end }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Tedkiki Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı tedkiki silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.tedkikData = {
+        id: "{{ Tedkik.Tid }}",
+        name: "{{ Tedkik.Name }}",
+        htmlContent: `{{ Tedkik.HtmlContent }}`,
+        cssContent: `{{ Tedkik.CssContent }}`,
+        jsContent: `{{ Tedkik.JavascriptContent }}`
+    };
+</script>
+<!-- CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+<script src="{{ PathOnStart }}js/panel/tedkik.js"></script>

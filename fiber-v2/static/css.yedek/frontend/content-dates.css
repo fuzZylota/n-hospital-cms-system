@@ -1,0 +1,50 @@
+/* İçerik yayınlanma / son güncelleme tarihi rozeti - tüm içerik detay sayfalarında ortak */
+.content-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+}
+
+.content-dates__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.content-dates__item i {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.content-dates__item strong {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.content-dates__item--updated {
+    background: #eef2ff;
+}
+
+.content-dates__item--updated i {
+    color: #6366f1;
+}
+
+@media (max-width: 576px) {
+    .content-dates {
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .content-dates__item {
+        padding: 5px 12px;
+        font-size: 12px;
+    }
+}

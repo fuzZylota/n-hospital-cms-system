@@ -83,15 +83,7 @@ func AuthenticationController(states *models.AppState, utilities *models.Utiliti
 			return c.Redirect("/giris?error=user_is_not_active")
 		}
 
-		decryptedPassword, err := lib.Decrypt(rows[0]["password"].(string))
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris?error=internal_server_error")
-		}
-
-		if string(decryptedPassword) != inputs.Password {
-			log.Printf("%v\n", err)
+		if !lib.ComparePasswordHash(rows[0]["password"].(string), inputs.Password) {
 			return c.Redirect("/giris?error=password_is_incorrect")
 		}
 
@@ -195,7 +187,7 @@ func LogoutController(states *models.AppState, utilities *models.Utilities) fibe
 			MaxAge:   0,
 		})
 
-		return c.Redirect("/")
+		return c.Redirect("/giris")
 	}
 }
 
@@ -1329,7 +1321,16 @@ func EditHomepageContent(states *models.AppState, utilities *models.Utilities) f
 		if inputs.ContentJavascript != inputs.OldContentJavascript {
 			updateHomepageContent.Set("content_javascript", inputs.ContentJavascript)
 			SomethingSet = true
-		}
+
+                }
+                if inputs.TibbiBirimId != inputs.OldTibbiBirimId {
+                        if inputs.TibbiBirimId == "" {
+                                updateHomepageContent.Set("tibbi_birim_id", nil)
+                        } else {
+                                updateHomepageContent.Set("tibbi_birim_id", inputs.TibbiBirimId)
+                        }
+                        SomethingSet = true
+                }
 
 		if SomethingSet {
 			updateHomepageContent.Set("updated_at", "NOW()")
@@ -4447,22 +4448,6 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 	}
 }
 
-func ModifyCss(states *models.AppState, utilities *models.Utilities) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		fmt.Printf("%s", string(c.Body()))
-
-		return c.Redirect("/panel/css-duzenle")
-	}
-}
-
-func ModifyJs(states *models.AppState, utilities *models.Utilities) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		fmt.Printf("%s", string(c.Body()))
-
-		return c.Redirect("/panel/js-duzenle")
-	}
-}
-
 func NotificationWebsocket(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	Domain := os.Getenv("DOMAIN")
 
@@ -4486,7 +4471,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 		if err != nil {
 			id = string(lib.GenerateRandomString(10))
 		} else {
-			id = ourUser.Uid
+			id = ourUser.Uid + "_" + string(lib.GenerateRandomString(8))
 		}
 
 		protocol := lib.String(c.Locals("protocol"))

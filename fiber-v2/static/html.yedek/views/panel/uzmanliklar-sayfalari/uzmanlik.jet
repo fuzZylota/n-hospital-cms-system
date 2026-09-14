@@ -1,0 +1,305 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/uzmanlik.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/uzmanliklar" class="breadcrumb-link">
+                        <i class="fas fa-award"></i>
+                        Uzmanlıklar
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ Uzmanlik.Name }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ Uzmanlik.Name }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(Uzmanlik.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(Uzmanlik.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if Uzmanlik.Description}}
+                <p class="page-subtitle">{{ Uzmanlik.Description }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if Uzmanlik.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/uzmanliklar/{{ Uzmanlik.Uzid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <button class="btn btn-danger" id="deleteUzmanlikBtn" data-id="{{ Uzmanlik.Uzid }}" data-name="{{ Uzmanlik.Name }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Uzmanlık Adı</label>
+                        <div class="info-value">{{ Uzmanlik.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL Adı</label>
+                        <div class="info-value">{{ Uzmanlik.UrlName }}</div>
+                    </div>
+                    {{if Uzmanlik.Description}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Açıklama</label>
+                        <div class="info-value">{{ Uzmanlik.Description }}</div>
+                    </div>
+                    {{end}}
+                    {{if Uzmanlik.Icon}}
+                    <div class="info-item">
+                        <label class="info-label">İkon</label>
+                        <div class="info-value">
+                            <span class="icon-display">
+                                <i class="{{ Uzmanlik.Icon }}"></i>
+                                <span class="icon-name">{{ Uzmanlik.Icon }}</span>
+                            </span>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Durum</label>
+                        <div class="info-value">
+                            {{if Uzmanlik.IsActive}}
+                            <span class="status-badge active">
+                                <i class="fas fa-check-circle"></i>
+                                Aktif
+                            </span>
+                            {{else}}
+                            <span class="status-badge inactive">
+                                <i class="fas fa-pause-circle"></i>
+                                Pasif
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Doctors Section -->
+        {{if len(Doktorlar) > 0}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 class="card-title">Bu Uzmanlık Alanındaki Doktorlar ({{ len(Doktorlar) }})</h3>
+            </div>
+            <div class="card-content">
+                <div class="related-list">
+                    {{range Doktorlar}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .Title }} {{ .FirstName }} {{ .LastName }}</div>
+                            <div class="related-details">
+                                {{if .Phone}}
+                                <span class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    {{ .Phone }}
+                                </span>
+                                {{end}}
+                                {{if .Email}}
+                                <span class="detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    {{ .Email }}
+                                </span>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <a href="/panel/doktorlar/{{ .Drid }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Related Branches Section -->
+        {{if len(Branslar) > 0}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="card-title">Bu Uzmanlık Alanındaki Branşlar ({{ len(Branslar) }})</h3>
+            </div>
+            <div class="card-content">
+                <div class="related-list">
+                    {{range Branslar}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .Name }}</div>
+                            <div class="related-details">
+                                {{if .Phone}}
+                                <span class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    {{ .Phone }}
+                                </span>
+                                {{end}}
+                                {{if .Email}}
+                                <span class="detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    {{ .Email }}
+                                </span>
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <a href="/panel/branslar/{{ .Brid }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Related Appointments Section -->
+        {{if len(Randevular) > 0}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="card-title">Bu Uzmanlık Alanına Ait Randevular ({{ len(Randevular) }})</h3>
+            </div>
+            <div class="card-content">
+                <div class="related-list">
+                    {{range Randevular}}
+                    <div class="related-item">
+                        <div class="related-info">
+                            <div class="related-title">{{ .PatientFirstName }} {{ .PatientLastName }}</div>
+                            <div class="related-details">
+                                <span class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ mthr(.AppointmentDate, User.Timezone) }}
+                                </span>
+                                <span class="detail-item">
+                                    <i class="fas fa-phone"></i>
+                                    {{ .PatientPhone }}
+                                </span>
+                                <span class="detail-item status-{{ .Status }}">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ .Status }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="related-actions">
+                            <a href="/panel/randevular/{{ .Rid }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Uzmanlığı Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı uzmanlığı silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.uzmanlikData = {
+        id: parseInt("{{ Uzmanlik.Uzid }}"),
+        name: "{{ Uzmanlik.Name }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/uzmanlik.js"></script>

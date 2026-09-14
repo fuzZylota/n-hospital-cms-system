@@ -1,0 +1,548 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/haberler.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-newspaper"></i>
+                    Haberler
+                </h1>
+                <p class="page-subtitle">Haberleri ve duyuruları yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+                <a href="/panel/haber-ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Haber
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" name="query"
+                               placeholder="Haber başlığı, yazar veya içerik ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="filter-group">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="published"{{if Status == "published"}} selected{{end}}>Yayınlanmış</option>
+                    <option value="draft"{{if Status == "draft"}} selected{{end}}>Taslak</option>
+                </select>
+                <select id="featuredFilter" class="filter-select">
+                    <option value="all"{{if Featured == "all" || Featured == ""}} selected{{end}}>Tüm Haberler</option>
+                    <option value="featured"{{if Featured == "featured"}} selected{{end}}>Öne Çıkan</option>
+                    <option value="normal"{{if Featured == "normal"}} selected{{end}}>Normal</option>
+                </select>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="all"{{if Category == "all" || Category == ""}} selected{{end}}>Tüm Kategoriler</option>
+                    {{range Categories}}
+                    <option value="{{ . }}"{{if Category == .}} selected{{end}}>{{ . }}</option>
+                    {{end}}
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="title"{{if SortBy == "title" || SortBy == ""}} selected{{end}}>Başlık</option>
+                    <option value="summary"{{if SortBy == "summary"}} selected{{end}}>Özet</option>
+                    <option value="content"{{if SortBy == "content"}} selected{{end}}>İçerik</option>
+                    <option value="author"{{if SortBy == "author"}} selected{{end}}>Yazar</option>
+                    <option value="seo_title"{{if SortBy == "seo_title"}} selected{{end}}>SEO Başlık</option>
+                    <option value="seo_description"{{if SortBy == "seo_description"}} selected{{end}}>SEO Açıklama</option>
+                    <option value="seo_keywords"{{if SortBy == "seo_keywords"}} selected{{end}}>SEO Anahtar Kelimeler</option>
+                    <option value="publish_date"{{if SortBy == "publish_date"}} selected{{end}}>Yayın Tarihi</option>
+                    <option value="views_count"{{if SortBy == "views_count"}} selected{{end}}>Görüntülenme</option>
+                    <option value="updated_at"{{if SortBy == "updated_at"}} selected{{end}}>Son Güncelleme</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Haber</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon published">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="publishedCount">-</div>
+                    <div class="stat-label">Yayınlanmış</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon draft">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="draftCount">-</div>
+                    <div class="stat-label">Taslak</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon featured">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="featuredCount">-</div>
+                    <div class="stat-label">Öne Çıkan</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Haberler Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="haberlerTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="title">
+                                <span>Başlık</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="author">
+                                <span>Yazar</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="category">
+                                <span>Kategori</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="publish_date">
+                                <span>Yayın Tarihi</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="views_count">
+                                <span>Görüntülenme</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="is_published">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="is_featured">
+                                <span>Tür</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="updated_at">
+                                <span>Son Güncelleme</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(Haberler) > 0}}
+                            {{range Haberler}}
+                            <tr data-id="{{ .Hid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .Title }}</div>
+                                        {{if .Summary}}
+                                        <div class="secondary-text">{{ .Summary }}</div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .Author }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .Category }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ mthr(.PublishDate, User.Timezone) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .ViewsCount }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .IsPublished}}
+                                        <span class="status-badge published">
+                                            <i class="fas fa-check-circle"></i>
+                                            Yayınlanmış
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge draft">
+                                            <i class="fas fa-edit"></i>
+                                            Taslak
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .IsFeatured}}
+                                        <span class="news-badge featured">
+                                            <i class="fas fa-star"></i>
+                                            Öne Çıkan
+                                        </span>
+                                        {{else}}
+                                        <span class="news-badge normal">
+                                            <i class="fas fa-newspaper"></i>
+                                            Normal
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ mthr(.UpdatedAt, User.Timezone) }}</div>
+                                        <div class="secondary-text">{{ mthr(.CreatedAt, User.Timezone) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Hid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/haberler/{{ .Hid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/haberler/{{ .Hid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            <button class="action-item delete" data-id="{{ .Hid }}" data-name="{{ .Title }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-newspaper"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz haber bulunmuyor</div>
+                                        <div class="empty-description">İlk haberinizi oluşturmak için "Yeni Haber" butonuna tıklayın.</div>
+                                        <a href="/panel/haber-ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Haber Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="haberler-grid">
+                    {{if len(Haberler) > 0}}
+                        {{range Haberler}}
+                        <div class="haber-card" data-id="{{ .Hid }}">
+                            <div class="card-header">
+                                <div class="card-title">{{ .Title }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Hid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/haberler/{{ .Hid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/haberler/{{ .Hid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        <button class="action-item delete" data-id="{{ .Hid }}" data-name="{{ .Title }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                {{if .Summary}}
+                                <div class="card-field">
+                                    <div class="field-label">Özet</div>
+                                    <div class="field-value truncate">{{ .Summary }}</div>
+                                </div>
+                                {{end}}
+                                <div class="card-field">
+                                    <div class="field-label">Yazar</div>
+                                    <div class="field-value">{{ .Author }}</div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Kategori</div>
+                                    <div class="field-value">{{ .Category }}</div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Görüntülenme</div>
+                                    <div class="field-value">{{ .ViewsCount }}</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .IsFeatured}}
+                                    <span class="news-badge featured">
+                                        <i class="fas fa-star"></i>
+                                        Öne Çıkan
+                                    </span>
+                                    {{else}}
+                                    <span class="news-badge normal">
+                                        <i class="fas fa-newspaper"></i>
+                                        Normal
+                                    </span>
+                                    {{end}}
+                                    {{if .IsPublished}}
+                                    <span class="status-badge published">
+                                        <i class="fas fa-check-circle"></i>
+                                        Yayınlanmış
+                                    </span>
+                                    {{else}}
+                                    <span class="status-badge draft">
+                                        <i class="fas fa-edit"></i>
+                                        Taslak
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-date">{{ mthr(.UpdatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="empty-title">Henüz haber bulunmuyor</div>
+                            <div class="empty-description">İlk haberinizi oluşturmak için "Yeni Haber" butonuna tıklayın.</div>
+                            <a href="/panel/haber-ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Haber Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Haberi Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı haberi silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+    const escaped = '{{stj(Haberler)}}';
+    const decoded = decodeHtmlEntities(escaped);
+    let data = [];
+    try {
+        data = decoded ? JSON.parse(decoded) : [];
+    } catch (e) {
+        console.error('JSON parsing error:', e);
+        data = [];
+    }
+    window.pageData = {
+        haberler: data,
+        count: parseInt("{{ Count ? Count : 0 }}"),
+        currentPage: parseInt("{{ Page ? Page : 1 }}"),
+        perPage: parseInt("{{ 10 }}")
+    };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const featuredFilter = document.getElementById('featuredFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const featured = featuredFilter.value;
+            const category = categoryFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('is_active', status);
+            }
+            if (featured && featured !== 'all') {
+                params.append('is_featured', featured);
+            }
+            if (category && category !== 'all') {
+                params.append('categories', category);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
+</script>
+<script src="{{ PathOnStart }}js/panel/haberler.js"></script>

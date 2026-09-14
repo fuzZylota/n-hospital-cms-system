@@ -1,22 +1,13 @@
-<section class="page-header">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Gallery Filter</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="index.php">Home</a>
+<div class="compact-page-header">
+    <div class="container">
+        <h1 class="sr-only">Video Galeri</h1>
+        <ul class="compact-breadcrumb">
+            <li><a href="index.php">Home</a>
                         </li>
-                        <li><span>Our Gallery</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
+                        <li><span class="current">Our Gallery</span></li>
+        </ul>
+    </div>
+</div>
 
 <section class="gallery-page section-space">
     <div class="container">

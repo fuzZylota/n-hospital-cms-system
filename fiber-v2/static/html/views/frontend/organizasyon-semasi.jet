@@ -1,5 +1,6 @@
 <div class="compact-page-header">
     <div class="container">
+        <h1 class="sr-only">Organizasyon Şeması</h1>
         <ul class="compact-breadcrumb">
             <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
             <li><span class="current">Organizasyon Şeması</span></li>
@@ -80,14 +81,14 @@
       min-width: 0;
   }
   .org-doc-sube {
-      font-size: 11px;
+      font-size: 16px;
       color: #888;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 4px;
   }
   .org-doc-name {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 600;
       color: #222;
       word-break: break-word;

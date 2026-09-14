@@ -1,0 +1,474 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/randevu-talebi.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/randevu-talepleri" class="breadcrumb-link">
+                        <i class="fas fa-calendar-check"></i>
+                        Randevu Talepleri
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ RandevuTalebi.PatientFirstName }} {{ RandevuTalebi.PatientLastName }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">Randevu Talebi #{{ RandevuTalebi.Rrid }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(RandevuTalebi.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(RandevuTalebi.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+            </div>
+            <div class="page-actions">
+                <div class="action-buttons">
+                    <div class="status-section">
+                        <label class="status-label">Durum:</label>
+                        <span class="status-badge status-badge--{{ RandevuTalebi.Status }}" id="statusBadge" data-status="{{ RandevuTalebi.Status }}">{{ if RandevuTalebi.Status == "yeni" }}Yeni{{ else if RandevuTalebi.Status == "randevu-verildi" }}Randevu Verildi{{ else if RandevuTalebi.Status == "randevu-verilemedi" }}Randevu Verilemedi{{ else if RandevuTalebi.Status == "ulasilamadi" }}Ulaşılamadı{{ else if RandevuTalebi.Status == "gelmedi" }}Gelmedi{{ else if RandevuTalebi.Status == "hasta-vazgecti" }}Hasta Vazgeçti{{ else if RandevuTalebi.Status == "hasta-arandi" }}Hasta Arandı{{ else }}{{ RandevuTalebi.Status }}{{ end }}</span>
+                        <button class="btn btn-secondary btn-sm" id="toggleStatusBtn" data-status="{{ RandevuTalebi.Status }}">
+                            <i class="fas fa-sync-alt"></i>
+                            <span class="btn-text">Durumu Değiştir</span>
+                            <div class="btn-loader" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </div>
+                    {{if HasRelatedAppointment}}
+                    <button class="btn btn-info" id="viewRelatedAppointmentBtn" data-rid="{{ RelatedAppointment.Rid }}">
+                        <i class="fas fa-link"></i>
+                        Bağlı Randevuyu Görüntüle
+                    </button>
+                    {{else}}
+                    <button class="btn btn-success" id="createAppointmentBtn" data-rrid="{{ RandevuTalebi.Rrid }}">
+                        <i class="fas fa-plus"></i>
+                        Randevu Oluştur
+                    </button>
+                    {{end}}
+                    <button class="btn btn-danger" id="deleteRequestBtn" data-id="{{ RandevuTalebi.Rrid }}" data-name="{{ RandevuTalebi.PatientFirstName }} {{ RandevuTalebi.PatientLastName }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Patient Information -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 class="card-title">Hasta Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ad Soyad</label>
+                        <div class="info-value">{{ RandevuTalebi.PatientFirstName }} {{ RandevuTalebi.PatientLastName }}</div>
+                    </div>
+                    {{if RandevuTalebi.PatientPhone}}
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ RandevuTalebi.PatientPhone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ RandevuTalebi.PatientPhone }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if RandevuTalebi.PatientEmail}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ RandevuTalebi.PatientEmail }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ RandevuTalebi.PatientEmail }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor and Branch Information -->
+        {{if DoktorInfo.Drid || SubeInfo.Sid}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="card-title">Doktor ve Şube Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if DoktorInfo.Drid}}
+                    <div class="info-item">
+                        <label class="info-label">Doktor</label>
+                        <div class="info-value">
+                            <a href="/panel/doktorlar/{{ DoktorInfo.Drid }}" class="link">{{ DoktorInfo.Title }} {{ DoktorInfo.FirstName }} {{ DoktorInfo.LastName }}</a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if SubeInfo.Sid}}
+                    <div class="info-item">
+                        <label class="info-label">Şube</label>
+                        <div class="info-value">
+                            <a href="/panel/subeler/{{ SubeInfo.Sid }}" class="link">{{ SubeInfo.Name }}</a>
+                            {{if SubeInfo.City}} - {{ SubeInfo.City }}{{end}}
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Last Modified User Information -->
+        {{if RandevuTalebi.LastModifiedUid}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h3 class="card-title">Son Düzenleyen</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Ad Soyad</label>
+                        <div class="info-value">
+                            <a href="/panel/kullanicilar/{{ RandevuTalebi.LastModifiedUid }}" class="link">
+                                {{ RandevuTalebi.LastModifiedUserName }} {{ RandevuTalebi.LastModifiedUserSurname }}
+                            </a>
+                        </div>
+                    </div>
+                    {{if RandevuTalebi.LastModifiedUserEmail}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ RandevuTalebi.LastModifiedUserEmail }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ RandevuTalebi.LastModifiedUserEmail }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    <div class="info-item">
+                        <label class="info-label">Rol</label>
+                        <div class="info-value">
+                            <span class="role-badge {{ RandevuTalebi.LastModifiedUserRole }}">
+                                {{if RandevuTalebi.LastModifiedUserRole == "admin"}}
+                                <i class="fas fa-user-shield"></i>
+                                Admin
+                                {{else if RandevuTalebi.LastModifiedUserRole == "moderator"}}
+                                <i class="fas fa-user-cog"></i>
+                                Moderatör
+                                {{else if RandevuTalebi.LastModifiedUserRole == "santral"}}
+                                <i class="fas fa-phone"></i>
+                                Santral
+                                {{else if RandevuTalebi.LastModifiedUserRole == "ik"}}
+                                <i class="fas fa-briefcase"></i>
+                                İnsan Kaynakları
+                                {{else}}
+                                {{ RandevuTalebi.LastModifiedUserRole }}
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Message -->
+        {{if RandevuTalebi.Message}}
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <h3 class="card-title">Hasta Mesajı</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <div class="info-value">
+                            <div class="text-content">{{ RandevuTalebi.Message }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+        <!-- Related Appointment Information -->
+        {{if HasRelatedAppointment}}
+        <div class="content-card highlight-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h3 class="card-title">Bağlı Randevu</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Randevu No</label>
+                        <div class="info-value">
+                            <a href="/panel/randevular/{{ RelatedAppointment.Rid }}" class="link">#{{ RelatedAppointment.Rid }}</a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Randevu Tarihi</label>
+                        <div class="info-value">{{ sdti(RelatedAppointment.AppointmentDate, User.Timezone) }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Randevu Saati</label>
+                        <div class="info-value">{{ stti(RelatedAppointment.AppointmentTime, User.Timezone) }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Durum</label>
+                        <div class="info-value">
+                            <span class="status-badge status-{{ RelatedAppointment.Status }}">{{ RelatedAppointment.Status }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+<!-- Create Appointment Modal -->
+<div id="createAppointmentModal" class="modal" style="display: none;">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h3 class="modal-title">Randevu Oluştur</h3>
+            <button class="modal-close" onclick="closeCreateAppointmentModal()">
+                <i class="icon-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="createAppointmentForm" novalidate>
+                <input type="hidden" name="rrid" id="rrid" value="{{ RandevuTalebi.Rrid }}">
+                
+                <div class="form-section">
+                    <h4 class="section-title">Hasta Bilgileri</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient_first_name">Ad <span class="required">*</span></label>
+                            <input type="text" id="patient_first_name" name="patient_first_name" value="{{ RandevuTalebi.PatientFirstName }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient_last_name">Soyad <span class="required">*</span></label>
+                            <input type="text" id="patient_last_name" name="patient_last_name" value="{{ RandevuTalebi.PatientLastName }}" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient_phone">Telefon <span class="required">*</span></label>
+                            <input type="tel" id="patient_phone" name="patient_phone" value="{{ RandevuTalebi.PatientPhone }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient_email">E-posta</label>
+                            <input type="email" id="patient_email" name="patient_email" value="{{ RandevuTalebi.PatientEmail }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient_tc_kimlik">TC Kimlik No</label>
+                            <input type="text" id="patient_tc_kimlik" name="patient_tc_kimlik" maxlength="11" pattern="[0-9]{11}">
+                        </div>
+                        <div class="form-group">
+                            <label for="patient_birth_date">Doğum Tarihi</label>
+                            <input type="date" id="patient_birth_date" name="patient_birth_date">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient_gender">Cinsiyet</label>
+                            <select id="patient_gender" name="patient_gender">
+                                <option value="">Seçiniz</option>
+                                <option value="erkek">Erkek</option>
+                                <option value="kadın">Kadın</option>
+                                <option value="belirtmek istemiyorum">Belirtmek İstemiyorum</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4 class="section-title">Randevu Bilgileri</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sid">Şube <span class="required">*</span></label>
+                            <select id="sid" name="sid" required>
+                                <option value="">Şube seçiniz...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="brid">Branş</label>
+                            <select id="brid" name="brid" disabled>
+                                <option value="">Önce şube seçiniz...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="drid">Doktor</label>
+                            <select id="drid" name="drid" disabled>
+                                <option value="">Önce şube seçiniz...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="akid">Anlaşmalı Kurum</label>
+                            <select id="akid" name="akid">
+                                <option value="">Anlaşmalı kurum seçiniz...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tid">Tetkik</label>
+                            <select id="tid" name="tid">
+                                <option value="">Tetkik seçiniz...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tbid">Tıbbi Birim</label>
+                            <select id="tbid" name="tbid">
+                                <option value="">Tıbbi birim seçiniz...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment_date">Randevu Tarihi <span class="required">*</span></label>
+                            <input type="date" id="appointment_date" name="appointment_date" value="{{ if !RandevuTalebi.PreferredDate.IsZero() }}{{ ctdi(RandevuTalebi.PreferredDate, User.Timezone) }}{{ else }}{{ ctdi(RandevuTalebi.CreatedAt, User.Timezone) }}{{ end }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment_time">Randevu Saati <span class="required">*</span></label>
+                            <div class="time-input-container">
+                                <input type="text" id="appointment_time" name="appointment_time" placeholder="HH:MM" maxlength="5" pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" required>
+                                <div class="time-format-hint">24 saat formatı (örn: 14:30)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="duration">Süre (Dakika)</label>
+                            <input type="number" id="duration" name="duration" value="30" min="15" max="240" step="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Ücret (TL)</label>
+                            <input type="number" id="price" name="price" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4 class="section-title">Ek Bilgiler</h4>
+                    <div class="form-group">
+                        <label for="complaint">Şikayet</label>
+                        <textarea id="complaint" name="complaint" rows="3" placeholder="Hastanın şikayetleri...">{{ RandevuTalebi.Message }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notlar</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Randevu notları..."></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeCreateAppointmentModal()">İptal</button>
+            <button type="button" class="btn btn-success" id="saveAppointmentBtn">
+                <i class="fas fa-save"></i>
+                <span class="btn-text">Randevu Oluştur</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Randevu Talebini Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı randevu talebini silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.randevuTalebiData = {
+        rrid: parseInt("{{ RandevuTalebi.Rrid }}"),
+        patientName: "{{ RandevuTalebi.PatientFirstName }} {{ RandevuTalebi.PatientLastName }}",
+        patientFirstName: "{{ RandevuTalebi.PatientFirstName }}",
+        patientLastName: "{{ RandevuTalebi.PatientLastName }}",
+        patientPhone: "{{ RandevuTalebi.PatientPhone }}",
+        patientEmail: "{{ RandevuTalebi.PatientEmail }}",
+        preferredDate: "{{ RandevuTalebi.PreferredDate }}",
+        preferredTime: "{{ RandevuTalebi.PreferredTime }}",
+        message: "{{ RandevuTalebi.Message }}",
+        drid: "{{ RandevuTalebi.Drid }}",
+        sid: "{{ RandevuTalebi.Sid }}",
+        status: "{{ RandevuTalebi.Status }}",
+        hasRelatedAppointment: {{ HasRelatedAppointment }}
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/randevu-talebi.js"></script>

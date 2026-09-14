@@ -1,23 +1,12 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">{{ Haber.Title }}</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
                         <li><a href="/haberler">Haberler</a></li>
-                        <li><span>{{ Haber.Title }}</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
+                        <li><span class="current">{{ Haber.Title }}</span></li>
+        </ul>
+    </div>
+</div>
 
 <section class="blog-details-page section-space">
     <div class="container">
@@ -34,34 +23,37 @@
                         </div><!-- /.blog-card-four__image -->
                         <div class="blog-card-four__content">
                             <ul class="list-unstyled blog-card-four__meta">
-                                <li>
-                                    <span class="blog-card-four__meta__icon">
+                                <li><span class="blog-card-four__meta__icon">
                                         <i class="icon-user"></i>
                                     </span><!-- /.blog-card-four__meta__icon -->
                                     {{ Haber.Author != "" ? Haber.Author : "Yazar" }}
                                 </li>
-                                <li>
-                                    <span class="blog-card-four__meta__icon">
+                                <li><span class="blog-card-four__meta__icon">
                                         <i class="icon-calendar"></i>
                                     </span><!-- /.blog-card-four__meta__icon -->
                                     {{ ctdf(Haber.PublishDate) }}
                                 </li>
-                                <li>
-                                    <span class="blog-card-four__meta__icon">
+                                <li><span class="blog-card-four__meta__icon">
                                         <i class="icon-eye"></i>
                                     </span><!-- /.blog-card-four__meta__icon -->
                                     {{ Haber.ViewsCount }} görüntülenme
                                 </li>
                                 {{ if Haber.Category != "" }}
-                                <li>
-                                    <span class="blog-card-four__meta__icon">
+                                <li><span class="blog-card-four__meta__icon">
                                         <i class="icon-tag"></i>
                                     </span>
                                     <a href="/haberler?category={{ Haber.Category }}&page=1">{{ Haber.Category }}</a>
                                 </li>
                                 {{ end }}
+                                {{ if ShowUpdated }}
+                                <li><span class="blog-card-four__meta__icon">
+                                        <i class="icon-calendar"></i>
+                                    </span>
+                                    Son Güncelleme: {{ UpdatedDate }}
+                                </li>
+                                {{ end }}
                             </ul><!-- /.list-unstyled blog-card-four__meta -->
-                            <h3 class="blog-card-four__title">{{ Haber.Title }}</h3>
+                            <h1 class="blog-card-four__title">{{ Haber.Title }}</h1>
                             <!-- /.blog-card-four__title -->
                             <div class="blog-card-four__content__inner">
                                 {{ if Haber.Summary != "" }}
@@ -76,7 +68,7 @@
 
                     <div class="blog-details__meta wow fadeInUp" data-wow-duration="1500ms">
                         <div class="blog-details__tags">
-                            <h4 class="blog-details__meta__title">Etiketler:</h4><!-- /.blog-details__meta__title -->
+                            <h2 class="blog-details__meta__title">Etiketler:</h2><!-- /.blog-details__meta__title -->
                             <div class="blog-details__tags__box">
                                 {{ if len(Haber.Tags) > 0 }}
                                     {{ range index, t := Haber.Tags }}

@@ -1,0 +1,280 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/header-tusu-duzenle.css">
+
+{{ IndividualHeaderButton.SortOrder }}
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-edit"></i>
+                    Header Button'u Düzenle
+                </h1>
+                <p class="page-subtitle">{{ IndividualHeaderButton.Title }} header button'unun bilgilerini düzenleyin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/header-tuslari/{{ IndividualHeaderButton.Hbid }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    Görüntüle
+                </a>
+                <a href="/panel/header-tuslari" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="forms-container">
+            <!-- Header Button Information Form -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bars"></i>
+                        Header Button Bilgileri
+                    </h2>
+                    <p class="section-description">Header button'un genel bilgilerini düzenleyin</p>
+                </div>
+                <div class="section-content">
+                    <form id="headerButtonForm" class="header-button-form" novalidate>
+                        <!-- Hidden inputs for old values -->
+                        <input type="hidden" name="old_title" value="{{ IndividualHeaderButton.Title }}">
+                        <input type="hidden" name="old_url" value="{{ IndividualHeaderButton.Url }}">
+                        <input type="hidden" name="old_target" value="{{ IndividualHeaderButton.Target }}">
+                        <input type="hidden" name="old_icon" value="{{ IndividualHeaderButton.Icon }}">
+                        <input type="hidden" name="old_is_active" value="{{ IndividualHeaderButton.IsActive }}">
+                        <input type="hidden" name="old_parent_id" value="{{ IndividualHeaderButton.ParentId }}">
+                        <input type="hidden" name="old_button_type" value="{{ IndividualHeaderButton.ButtonType }}">
+                        <input type="hidden" name="hbid" value="{{ IndividualHeaderButton.Hbid }}">
+
+                        <!-- Basic Information -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Temel Bilgiler</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="title" class="form-label required">Başlık</label>
+                                    <input type="text" id="title" name="title" class="form-input" 
+                                           value="{{ IndividualHeaderButton.Title }}" required minlength="2" maxlength="100">
+                                    <div class="form-help">En az 2 karakter olmalıdır</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="url" class="form-label">URL</label>
+                                    <input type="text" id="url" name="url" class="form-input" 
+                                           value="{{ IndividualHeaderButton.Url }}" maxlength="255">
+                                    <div class="form-help">Geçerli bir URL girin (opsiyonel)</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="target" class="form-label required">Hedef</label>
+                                    <select id="target" name="target" class="form-select" required>
+                                        <option value="">Hedef seçin</option>
+                                        <option value="_self" {{ if IndividualHeaderButton.Target == "_self" }}selected{{ end }}>Aynı Sekme</option>
+                                        <option value="_blank" {{ if IndividualHeaderButton.Target == "_blank" }}selected{{ end }}>Yeni Sekme</option>
+                                    </select>
+                                    <div class="form-help">Linkin nasıl açılacağını belirler</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="icon" class="form-label">İkon</label>
+                                    <input type="text" id="icon" name="icon" class="form-input" 
+                                           value="{{ IndividualHeaderButton.Icon }}" maxlength="50" placeholder="home, user, etc.">
+                                    <div class="form-help">FontAwesome ikon adı (opsiyonel)</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="button_type" class="form-label required">Buton Tipi</label>
+                                    {{ if IndividualHeaderButton.ButtonType == "anasayfa" || IndividualHeaderButton.ButtonType == "diger" || IndividualHeaderButton.ButtonType == "kurumsal" }}
+                                    <select id="button_type" name="button_type" class="form-select" required>
+                                        <option value="kurumsal" {{ if IndividualHeaderButton.ButtonType == "kurumsal" }}selected{{ end }}>kurumsal</option>
+                                        <option value="anasayfa" {{ if IndividualHeaderButton.ButtonType == "anasayfa" }}selected{{ end }}>anasayfa</option>
+                                        <option value="diger" {{ if IndividualHeaderButton.ButtonType == "diger" }}selected{{ end }}>diger</option>
+                                    </select>
+                                    <div class="form-help">Menü tuşunun kategorisi (veritabanı şeması ile uyumlu)</div>
+                                    {{ else }}
+                                    <input type="text" id="button_type" name="button_type" class="form-input" value="{{ IndividualHeaderButton.ButtonType }}" readonly>
+                                    <div class="form-help">Bu buton tipi değiştirilemez (özel tip)</div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Settings -->
+                        <div class="form-group-section">
+                            <h3 class="group-title">Navigasyon Ayarları</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="is_active" class="form-label">Durum</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="is_active" name="is_active" {{ if IndividualHeaderButton.IsActive }}checked{{ end }}>
+                                        <label for="is_active" class="toggle-label">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">{{ if IndividualHeaderButton.IsActive }}Aktif{{ else }}Pasif{{ end }}</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-help">Header button'un aktif/pasif durumu</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Information Card -->
+                        <div class="form-group-section">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h4>Header Button Düzenleme Hakkında</h4>
+                                    <ul>
+                                        <li><strong>Başlık:</strong> Menüde görünecek metin</li>
+                                        <li><strong>URL:</strong> Tıklanınca gidilecek adres (boş bırakılabilir)</li>
+                                        <li><strong>Hedef:</strong> Linkin aynı sekmede mi yoksa yeni sekmede mi açılacağı</li>
+                                        <li><strong>İkon:</strong> FontAwesome ikon adı (home, user, etc.)</li>
+                                        <li><strong>Sıra:</strong> Menüdeki görünüm sırası</li>
+                                        <li><strong>Üst Menü:</strong> Alt menü yapmak için seçin</li>
+                                        <li><strong>Durum:</strong> Aktif olmayan butonlar menüde görünmez</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="headerButtonSubmitBtn">
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Header Button Bilgilerini Kaydet</span>
+                                <div class="btn-loader" style="display: none;">
+                                    <div class="spinner"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Button Statistics -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Button İstatistikleri
+                    </h2>
+                    <p class="section-description">Header button'un bilgileri ve aktivite durumu</p>
+                </div>
+                <div class="section-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Oluşturulma</div>
+                                <div class="stat-value">{{ mthr(IndividualHeaderButton.CreatedAt, User.Timezone) }}</div>
+                                <div class="stat-secondary">{{ mthr(IndividualHeaderButton.CreatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Son Güncelleme</div>
+                                <div class="stat-value">{{ mthr(IndividualHeaderButton.UpdatedAt, User.Timezone) }}</div>
+                                <div class="stat-secondary">{{ mthr(IndividualHeaderButton.UpdatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-sort-numeric-up"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Sıra Numarası</div>
+                                <div class="stat-value">#{{ IndividualHeaderButton.SortOrder }}</div>
+                                <div class="stat-secondary">{{ if IndividualHeaderButton.ParentId }}Alt Menü{{ else }}Ana Menü{{ end }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-bars"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Button ID</div>
+                                <div class="stat-value">#{{ IndividualHeaderButton.Hbid }}</div>
+                                <div class="stat-secondary">{{ if IndividualHeaderButton.IsActive }}Aktif{{ else }}Pasif{{ end }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-status-card">
+                        <div class="status-header">
+                            <h4>Button Durumu</h4>
+                            <span class="status-badge {{ if IndividualHeaderButton.IsActive }}active{{ else }}inactive{{ end }}">
+                                <i class="fas fa-{{ if IndividualHeaderButton.IsActive }}check-circle{{ else }}pause-circle{{ end }}"></i>
+                                {{ if IndividualHeaderButton.IsActive }}Aktif{{ else }}Pasif{{ end }}
+                            </span>
+                        </div>
+                        <div class="status-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Başlık:</span>
+                                <span class="detail-value">{{ IndividualHeaderButton.Title }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">URL:</span>
+                                <span class="detail-value">{{ if IndividualHeaderButton.Url }}{{ IndividualHeaderButton.Url }}{{ else }}Belirtilmemiş{{ end }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Hedef:</span>
+                                <span class="detail-value">{{ if IndividualHeaderButton.Target == "_blank" }}Yeni Sekme{{ else }}Aynı Sekme{{ end }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">İkon:</span>
+                                <span class="detail-value">{{ if IndividualHeaderButton.Icon }}{{ IndividualHeaderButton.Icon }}{{ else }}Belirtilmemiş{{ end }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Üst Menü:</span>
+                                <span class="detail-value">{{ if IndividualHeaderButton.ParentId }}ID: {{ IndividualHeaderButton.ParentId }}{{ else }}Ana Menü{{ end }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <div class="modal-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="modal-title">Başarılı!</h3>
+        <p class="modal-message" id="successMessage">İşlem başarıyla tamamlandı.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" onclick="closeModal('successModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorModal" class="modal" style="display: none;">
+    <div class="modal-content error">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h3 class="modal-title">Hata!</h3>
+        <p class="modal-message" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="closeModal('errorModal')">Tamam</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data to JavaScript safely
+    window.pageData = window.pageData || {};
+    window.pageData.hbid = parseInt("{{ (IndividualHeaderButton.Hbid) }}");
+</script>
+<script src="{{ PathOnStart }}js/panel/header-tusu-duzenle.js"></script>

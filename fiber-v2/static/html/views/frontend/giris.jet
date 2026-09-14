@@ -1,44 +1,35 @@
-<section class="page-header" style="margin-top: 200px;">
-    <div class="container-fluid">
-        <div class="page-header__inner">
-            <div class="page-header__bg" style="background-image: url({{ PathOnStart }}{{ Options.Options.DefaultPageMediaPath != "" ? Options.Options.DefaultPageMediaPath : "assets/images/backgrounds/institutional-default.jpg" }});"></div><!-- /.page-header__bg -->
-            <div class="container">
-                <div class="page-header__content">
-                    <h2 class="page-header__title">Giriş Sayfası</h2>
-                    <ul class="mediox-breadcrumb list-unstyled">
-                        <li>
-                            <span class="mediox-breadcrumb__icon"><i class="icon-home"></i></span>
-                            <a href="/">Anasayfa</a>
-                        </li>
-                        <li><span>Giriş Yap</span></li>
-                    </ul><!-- /.mediox-breadcrumb list-unstyled -->
-                </div><!-- /.page-header__content -->
-            </div><!-- /.container -->
-        </div><!-- /.page-header__inner -->
-    </div><!-- /.container-fluid -->
-</section><!-- /.page-header -->
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+                        <li><span class="current">Giriş Yap</span></li>
+        </ul>
+    </div>
+</div>
 
+<!-- FILETEST: 2025-12-19-01 -->
 <section class="login-page section-space">
     <div class="container">
-        <div class="row gutter-y-60 align-items-center">
-            <div class="col-lg-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
-                <div class="login-page__image">
-                    <div class="login-page__image__inner">
-                        <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}">
-                    </div><!-- /.login-page__image__inner -->
-                </div><!-- /.login-page__image -->
-            </div><!-- /.col-lg-6 -->
-            <div class="col-lg-6 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="100ms">
-                <form class="login-page__form" action="/backend/authenticate" method="post">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8 wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="00ms">
+                <form class="login-page__form" id="nvLoginForm" action="/backend/authenticate" method="post">
                     <div class="login-page__form__inner">
-                        <div class="login-page__form__top">
-                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "N-Hospital, Hastaneler için yüksek hız ve özelleştirme için geliştirilmiş bir yönetim sistemi" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "N-Hospital Logosu" }}" width="164" class="login-page__form__logo">
-                            <h3 class="login-page__form__title">Hoşgeldiniz</h3>
+                        <div class="login-page__form__top" style="text-align:center;margin-bottom:20px;">
+                            <img src="{{ PathOnStart }}{{ Options.Medias[0].FilePath != "" ? Options.Medias[0].FilePath : "files/defaults/logo/n-hospital-logo.png" }}" alt="Logo" style="height:48px;width:auto;object-fit:contain;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+                            <h1 class="login-page__form__title">Hoşgeldiniz</h1>
                         </div><!-- /.login-page__form__top -->
+                        <div id="nvLoginError" style="display:none;background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:16px;margin-bottom:12px;">
+                            <i class="fa fa-exclamation-circle"></i> <span id="nvLoginErrorMsg"></span>
+                        </div>
+                        {{ if isset(ErrorMessage) && ErrorMessage != "" }}
+                        <div style="background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:16px;margin-bottom:12px;">
+                            <i class="fa fa-exclamation-circle"></i> {{ ErrorMessage }}
+                        </div>
+                        {{ end }}
                         <div class="login-page__form__wrapp">
                             <div class="login-page__form__input-box">
-                                <label for="login_email_or_phone" class="login-page__form__label">E-Posta Ya Da Telefon</label>
-                                <input type="text" id="login_email_or_phone" placeholder="E-Posta ya da Telefon Giriniz" name="email_or_phone">
+                                <label for="login_email_or_phone" class="login-page__form__label">E-Posta</label>
+                                <input type="text" id="login_email_or_phone" placeholder="E-Posta Adresinizi Giriniz" name="email_or_phone">
                             </div>
                             <div class="login-page__form__input-box">
                                 <label for="login_password" class="login-page__form__label">Şifre</label>
@@ -55,7 +46,7 @@
                                 </label>
                             </div>
                             <div class="login-page__form__input-box login-page__form__input-box--4">
-                                <button type="submit" class="login-page__form__btn mediox-btn">Giriş Yap.</button>
+                                <button type="submit" class="login-page__form__btn mediox-btn">Giriş Yap</button>
                             </div>
                         </div><!-- /.login-page__form__wrapp -->
                     </div><!-- /.login-page__form__inner -->
@@ -64,3 +55,58 @@
         </div><!-- /.row gutter-y-60 -->
     </div><!-- /.container -->
 </section><!-- /.login-page section-space -->
+
+<script>
+(function(){
+    var form = document.getElementById('nvLoginForm');
+    var errorDiv = document.getElementById('nvLoginError');
+    var errorMsg = document.getElementById('nvLoginErrorMsg');
+    var btn = form ? form.querySelector('button[type="submit"]') : null;
+    var messages = {
+        'user_not_found': 'E-posta adresi bulunamadı.',
+        'password_is_incorrect': 'Şifre hatalı. Lütfen tekrar deneyin.',
+        'user_is_not_active': 'Hesabınız aktif değil. Yönetici ile iletişime geçin.',
+        'internal_server_error': 'Bir hata oluştu. Lütfen daha sonra deneyin.',
+        'error_while_getting_jwt': 'Oturum hatası. Lütfen tekrar giriş yapın.'
+    };
+
+    function showError(code){
+        var msg = messages[code] || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+        errorMsg.textContent = msg;
+        errorDiv.style.display = 'block';
+        if(btn){ btn.disabled = false; btn.textContent = 'Giriş Yap'; }
+    }
+
+    if(form){
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            if(btn){ btn.disabled = true; btn.textContent = 'Giriş yapılıyor...'; }
+            errorDiv.style.display = 'none';
+
+            var fd = new FormData(form);
+            var body = new URLSearchParams(fd).toString();
+
+            fetch('/backend/authenticate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body,
+                redirect: 'follow'
+            }).then(function(res){
+                var url = res.url;
+                if(url && url.indexOf('/giris') === -1){
+                    window.location.href = url;
+                } else if(url && url.indexOf('error=') !== -1){
+                    var code = new URL(url).searchParams.get('error');
+                    showError(code);
+                } else if(res.ok || res.status === 200){
+                    window.location.href = '/panel';
+                } else {
+                    showError('internal_server_error');
+                }
+            }).catch(function(){
+                showError('internal_server_error');
+            });
+        });
+    }
+})();
+</script>

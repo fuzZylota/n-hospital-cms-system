@@ -1,10 +1,4 @@
-<!-- ana sayfa'da header arkaplan'ın şeffaf olmasını şununla sağla: 
- 
-style="background-color: transparent !important;" 
 
-ayrıca tuşları da beyaz yap.
-
-ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı ayarla.-->
 
 <header class="main-header sticky-header sticky-header--normal transparent-bg-on-homepage">
     <div class="container-fluid">
@@ -29,17 +23,20 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                         {{ end }}
                     {{ end }}
                 </a>
-            </div><!-- /.main-header__logo -->
+            </div>
             <div class="main-header__right">
+                <div class="nv-mobile-search-btn d-block d-lg-none" id="nvMobileSearchBtn" style="cursor:pointer;margin-right:16px;display:flex;align-items:center;">
+                    <i class="icon-search" style="font-size:20px;"></i>
+                </div>
                 <div class="main-header__sidebar-btn sidebar-btn__toggler">
                     <span></span>
                     <span></span>
                     <span></span>
-                </div><!-- /.sidebar-btn__toggler -->
+                </div>
                 <nav class="main-header__nav main-menu">
                     <ul class="main-menu__list">
                         {{ range index1, HeaderButtons := Options.HeaderButtons }}
-                            {{ if HeaderButtons.ButtonType == "anasayfa" && HeaderButtons.ParentId == "" }}
+                            {{ if false && HeaderButtons.ButtonType == "anasayfa" && HeaderButtons.ParentId == "" }}
                                 <li>
                                     <a href="{{ HeaderButtons.Url }}" target="{{ HeaderButtons.Target }}">{{ HeaderButtons.Title }}</a>
                                 </li>
@@ -71,13 +68,6 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                                         {{ range index2, SubeLink := Options.SubelerLinks }}
                                         <li>
                                             <a href="/merkezlerimiz/{{ SubeLink.UrlName }}">{{ SubeLink.Name }}</a>
-                                            {{ if len(SubeLink.Documents) > 0 }}
-                                                <ul>
-                                                    {{ range index3, Document := SubeLink.Documents }}
-                                                        <li><a href="{{ PathOnStart }}{{ Document.FilePath }}" target="_blank">{{ Document.Data }}</a></li>
-                                                    {{ end }}
-                                                </ul>
-                                            {{ end }}
                                         </li>
                                         {{ end }}
                                     </ul>
@@ -111,35 +101,37 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                             {{ end }}
                         {{ end }}
                     </ul>
-                </nav><!-- /.main-header__nav -->
-                <div class="mobile-nav__btn mobile-nav__toggler">
+                </nav>
+                <button type="button" class="mobile-nav__btn mobile-nav__toggler" aria-label="Menüyü aç" aria-expanded="false" aria-controls="nvMobileNav">
                     <span></span>
                     <span></span>
                     <span></span>
-                </div><!-- /.mobile-nav__toggler -->
+                </button>
                 <div class="main-header__call">
                     <span class="main-header__call__icon">
                         <i class="icon-telephone"></i>
-                    </span><!-- /.main-header__call__icon -->
+                    </span>
                     <div class="main-header__call__content">
-                        <p class="main-header__call__title">İletişim</p><!-- /.call__title -->
+                        <p class="main-header__call__title">İletişim</p>
                         <h4 class="main-header__call__number">
-                            <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
-                        </h4><!-- /.main-header__call__number -->
-                    </div><!-- /.main-header__call__content -->
-                </div><!-- /.main-header__call -->
+                            <a href="tel:{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
+                        </h4>
+                    </div>
+                </div>
                 <a href="/randevu" class="mediox-btn main-header__btn">
                     <span>Randevu Al</span>
                     <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                </a><!-- /.mediox-btn -->
-            </div><!-- /.main-header__right -->
-        </div><!-- /.main-header__inner -->
-    </div><!-- /.container-fluid -->
-</header><!-- /.main-header --> 
+                </a>
+            </div>
+        </div>
+    </div>
+ 
 
-<div class="mobile-nav__wrapper">
+
+</header>
+<div class="mobile-nav__wrapper" id="nvMobileNav">
     <div class="mobile-nav__overlay mobile-nav__toggler"></div>
-    <!-- /.mobile-nav__overlay -->
+    
     <div class="mobile-nav__content">
         <span class="mobile-nav__close mobile-nav__toggler"><i class="icon-close"></i></span>
 
@@ -152,9 +144,9 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                 {{ end }}
             </a>
         </div>
-        <!-- /.logo-box -->
+        
         <div class="mobile-nav__container"></div>
-        <!-- /.mobile-nav__container -->
+        
 
         <ul class="mobile-nav__contact list-unstyled">
             <li>
@@ -167,28 +159,123 @@ ve "Make An Appointment" tuşuna hover yapılınca arkaplanını beyaz yapmayı 
                 <span class="mobile-nav__contact__icon">
                     <i class="fa fa-phone-alt"></i>
                 </span>
-                <a href="tel:+{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
+                <a href="tel:{{ Options.Options.ContactPhone }}">{{ Options.Options.ContactPhone }}</a>
             </li>
-        </ul><!-- /.mobile-nav__contact -->
+        </ul>
         <div class="mobile-nav__social social-links">
-            <a href="https://{{ Options.Options.FacebookUrl }}">
+            <a href="{{ Options.Options.FacebookUrl }}" aria-label="Facebook">
                 <i class="fab fa-facebook-f" aria-hidden="true"></i>
                 <span class="sr-only">Facebook</span>
             </a>
-            <a href="https://{{ Options.Options.TwitterUrl }}">
+            <a href="{{ Options.Options.TwitterUrl }}" aria-label="Twitter">
                 <i class="fab fa-twitter" aria-hidden="true"></i>
                 <span class="sr-only">Twitter</span>
             </a>
-            <a href="https://{{ Options.Options.InstagramUrl }}">
+            <a href="{{ Options.Options.InstagramUrl }}" aria-label="Instagram">
                 <i class="fab fa-instagram" aria-hidden="true"></i>
                 <span class="sr-only">Instagram</span>
             </a>
-            <a href="https://{{ Options.Options.LinkedinUrl }}">
+            <a href="{{ Options.Options.LinkedinUrl }}" aria-label="Youtube">
                 <i class="fab fa-youtube" aria-hidden="true"></i>
                 <span class="sr-only">Youtube</span>
             </a>
-        </div><!-- /.mobile-nav__social -->
+        </div>
     </div>
-    <!-- /.mobile-nav__content -->
+    
 </div>
-<!-- /.mobile-nav__wrapper -->
+
+
+<!-- Mobil Arama Bar -->
+<div id="nvMobileSearchBar" style="position:fixed;left:0;width:100%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9998;padding:12px 16px;visibility:hidden;opacity:0;transition:opacity 0.3s ease,visibility 0.3s ease;">
+    <form action="/arama" method="get">
+        <div style="display:flex;align-items:center;border:2px solid #0a2241;border-radius:8px;overflow:hidden;">
+            <input id="nvMobileSearchInput" type="text" name="q" aria-label="Sitede ara" placeholder="Aramak istediğiniz kelimeyi yazın..." style="flex:1;padding:10px 14px;border:none;font-size:16px;font-family:inherit;color:#0a2241;">
+            <button type="submit" style="padding:10px 14px;background:#0a2241;border:none;cursor:pointer;color:#fff;font-size:16px;"><i class="icon-search"></i></button>
+        </div>
+    </form>
+</div>
+<script>
+(function(){
+    var btn = document.getElementById('nvMobileSearchBtn');
+    var bar = document.getElementById('nvMobileSearchBar');
+    var input = document.getElementById('nvMobileSearchInput');
+    var icon = btn ? btn.querySelector('i') : null;
+    var open = false;
+
+    function positionBar(){
+        var headerFour = document.querySelector('.header-four');
+        if(headerFour && bar){
+            bar.style.top = headerFour.getBoundingClientRect().bottom + 'px';
+        }
+    }
+
+    if(btn && bar){
+        btn.addEventListener('click', function(e){
+            e.stopPropagation();
+            positionBar();
+            if(!open){
+                bar.style.visibility = 'visible';
+                bar.style.opacity = '1';
+                if(icon){ icon.className = 'icon-close'; }
+                setTimeout(function(){ if(input) input.focus(); }, 200);
+                open = true;
+            } else {
+                bar.style.visibility = 'hidden';
+                bar.style.opacity = '0';
+                if(icon){ icon.className = 'icon-search'; }
+                open = false;
+            }
+        });
+        document.addEventListener('click', function(e){
+            if(open && !bar.contains(e.target) && !btn.contains(e.target)){
+                bar.style.visibility = 'hidden';
+                bar.style.opacity = '0';
+                if(icon){ icon.className = 'icon-search'; }
+                open = false;
+            }
+        });
+    }
+})();
+
+(function(){
+    // Mobil menü panelini gerçek header yüksekliğine göre konumlar
+    // ve panel açıkken arka plan kaydırmasını kilitler.
+    function positionMobileNav(){
+        var wrapper = document.querySelector('.mobile-nav__wrapper');
+        var headerFour = document.querySelector('.header-four');
+        if(wrapper && headerFour){
+            wrapper.style.setProperty('top', headerFour.getBoundingClientRect().bottom + 'px', 'important');
+        }
+    }
+
+    var togglers = document.querySelectorAll('.mobile-nav__toggler');
+    togglers.forEach(function(el){
+        el.addEventListener('click', function(){
+            positionMobileNav();
+            document.body.classList.toggle('mobile-nav-scroll-lock');
+        });
+    });
+
+    window.addEventListener('resize', function(){
+        if(document.querySelector('.mobile-nav__wrapper.expanded')){
+            positionMobileNav();
+        }
+    });
+})();
+
+(function(){
+    // mediox.js'in "current" (aktif menü) tespiti, URL'nin son parçası boşsa
+    // (anasayfa gibi trailing-slash bağlantılarda) hatalı şekilde menüdeki
+    // İLK öğeyi (Kurumsal) her zaman aktif gösteriyor. Bu düzeltme, gerçek
+    // bir eşleşme olmayan bu durumda "current" sınıfını temizler.
+    window.addEventListener('load', function(){
+        var fileName = window.location.href.split('/').reverse()[0];
+        if (fileName === '') {
+            document.querySelectorAll('.main-menu__list, .mobile-nav__container .main-menu__list').forEach(function(list){
+                var firstLi = list.children[0];
+                if (firstLi) firstLi.classList.remove('current');
+            });
+        }
+    });
+})();
+</script>

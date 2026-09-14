@@ -1,0 +1,608 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/randevular.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Randevular
+                </h1>
+                <p class="page-subtitle">Hasta randevularını yönetin</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Yenile
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="filters-content">
+            <div class="search-group">
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Hasta adı, telefon veya e-posta ile ara..." 
+                               autocomplete="off" spellcheck="false" value="{{ Query }}">
+                        <button class="search-clear" id="searchClear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="search-filter-btn" id="filterBtn" title="Filtrele">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="filter-group">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all"{{if Status == "all" || Status == ""}} selected{{end}}>Tüm Durumlar</option>
+                    <option value="beklemede"{{if Status == "beklemede"}} selected{{end}}>Beklemede</option>
+                    <option value="onaylandi"{{if Status == "onaylandi"}} selected{{end}}>Onaylandı</option>
+                    <option value="iptal"{{if Status == "iptal"}} selected{{end}}>İptal</option>
+                    <option value="tamamlandi"{{if Status == "tamamlandi"}} selected{{end}}>Tamamlandı</option>
+                    <option value="gelmedi"{{if Status == "gelmedi"}} selected{{end}}>Gelmedi</option>
+                </select>
+                <select id="subeFilter" class="filter-select" name="sube">
+                    <option value="all"{{if Sube == "all" || Sube == ""}} selected{{end}}>Tüm Şubeler</option>
+                    {{range i, v := Subeler}}
+                        <option value="{{ v.Sid }}"{{if Sube == v.Sid}} selected{{end}}>{{ v.Name }}</option>
+                    {{end}}
+                </select>
+                <select id="sortBy" class="filter-select">
+                    <option value="patient_first_name"{{if SortBy == "patient_first_name" || SortBy == ""}} selected{{end}}>Hasta Adı</option>
+                    <option value="patient_last_name"{{if SortBy == "patient_last_name"}} selected{{end}}>Hasta Soy Adı</option>
+                    <option value="patient_phone"{{if SortBy == "patient_phone"}} selected{{end}}>Hasta Telefon Numarası</option>
+                    <option value="patient_email"{{if SortBy == "patient_email"}} selected{{end}}>Hasta E-Posta Adresi</option>
+                    <option value="appointment_date"{{if SortBy == "appointment_date"}} selected{{end}}>Randevu Tarihi</option>
+                    <option value="duration"{{if SortBy == "duration"}} selected{{end}}>Süre</option>
+                    <option value="status"{{if SortBy == "status"}} selected{{end}}>Durum</option>
+                </select>
+                <select id="sortOrder" class="filter-select">
+                    <option value="ASC"{{if SortOrder == "ASC" || SortOrder == ""}} selected{{end}}>Artan</option>
+                    <option value="DESC"{{if SortOrder == "DESC"}} selected{{end}}>Azalan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{Count}}</div>
+                    <div class="stat-label">Toplam Randevu</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="pendingCount">-</div>
+                    <div class="stat-label">Beklemede</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon confirmed">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="confirmedCount">-</div>
+                    <div class="stat-label">Onaylandı</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon completed">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="completedCount">-</div>
+                    <div class="stat-label">Tamamlandı</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Randevular Listesi</h3>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Dışa Aktar
+                    </button>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="table">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <!--<button class="view-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>-->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-wrapper" id="tableView">
+                <table class="data-table" id="randevularTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="patient_first_name">
+                                <span>Hasta</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="appointment_date">
+                                <span>Randevu Tarihi</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="appointment_time">
+                                <span>Saat</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th>
+                                <span>Doktor</span>
+                            </th>
+                            <th>
+                                <span>Şube</span>
+                            </th>
+                            <th class="sortable" data-column="status">
+                                <span>Durum</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="payment_status">
+                                <span>Ödeme</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="sortable" data-column="price">
+                                <span>Ücret</span>
+                                <i class="fas fa-sort sort-icon"></i>
+                            </th>
+                            <th class="actions-column">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if len(Randevular) > 0}}
+                            {{range Randevular}}
+                            <tr data-id="{{ .Rid }}">
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ .PatientFirstName }} {{ .PatientLastName }}</div>
+                                        {{if .PatientPhone}}
+                                        <div class="secondary-text">
+                                            <a href="tel:{{ .PatientPhone }}" class="phone-link">{{ .PatientPhone }}</a>
+                                        </div>
+                                        {{end}}
+                                        {{if .PatientEmail}}
+                                        <div class="secondary-text">
+                                            <a href="mailto:{{ .PatientEmail }}" class="email-link">{{ .PatientEmail }}</a>
+                                        </div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ ctdf(.AppointmentDate) }}</div>
+                                        {{if .Duration}}
+                                        <div class="secondary-text">{{ .Duration }} dk</div>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        <div class="primary-text">{{ cttf(.AppointmentTime) }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .DoctorName}}
+                                        <div class="primary-text">{{ .DoctorName }}</div>
+                                        {{if .BranchName}}
+                                        <div class="secondary-text">{{ .BranchName }}</div>
+                                        {{end}}
+                                        {{else}}
+                                        <span class="text-muted">-</span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .SubeName}}
+                                        <div class="primary-text">{{ .SubeName }}</div>
+                                        {{if .SubeCity}}
+                                        <div class="secondary-text">{{ .SubeCity }}</div>
+                                        {{end}}
+                                        {{else}}
+                                        <span class="text-muted">-</span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .Status == "beklemede"}}
+                                        <span class="status-badge pending">
+                                            <i class="fas fa-clock"></i>
+                                            Beklemede
+                                        </span>
+                                        {{else if .Status == "onaylandi"}}
+                                        <span class="status-badge confirmed">
+                                            <i class="fas fa-check-circle"></i>
+                                            Onaylandı
+                                        </span>
+                                        {{else if .Status == "iptal"}}
+                                        <span class="status-badge cancelled">
+                                            <i class="fas fa-times-circle"></i>
+                                            İptal
+                                        </span>
+                                        {{else if .Status == "tamamlandi"}}
+                                        <span class="status-badge completed">
+                                            <i class="fas fa-check-double"></i>
+                                            Tamamlandı
+                                        </span>
+                                        {{else if .Status == "gelmedi"}}
+                                        <span class="status-badge no-show">
+                                            <i class="fas fa-user-times"></i>
+                                            Gelmedi
+                                        </span>
+                                        {{else}}
+                                        <span class="status-badge unknown">
+                                            <i class="fas fa-question-circle"></i>
+                                            {{ .Status }}
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .PaymentStatus == "odendi"}}
+                                        <span class="payment-badge paid">
+                                            <i class="fas fa-check"></i>
+                                            Ödendi
+                                        </span>
+                                        {{else if .PaymentStatus == "kismen_odendi"}}
+                                        <span class="payment-badge partial">
+                                            <i class="fas fa-exclamation"></i>
+                                            Kısmen Ödendi
+                                        </span>
+                                        {{else}}
+                                        <span class="payment-badge unpaid">
+                                            <i class="fas fa-times"></i>
+                                            Ödenmedi
+                                        </span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cell-content">
+                                        {{if .Price > 0}}
+                                        <div class="primary-text">{{ .Price }} ₺</div>
+                                        {{else}}
+                                        <span class="text-muted">-</span>
+                                        {{end}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper">
+                                        <button class="action-trigger" data-id="{{ .Rid }}">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown">
+                                            <a href="/panel/randevular/{{ .Rid }}" class="action-item view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Görüntüle</span>
+                                            </a>
+                                            <a href="/panel/randevular/{{ .Rid }}/duzenle" class="action-item edit">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Düzenle</span>
+                                            </a>
+                                            <div class="action-divider"></div>
+                                            <button class="action-item delete" data-id="{{ .Rid }}" data-name="{{ .PatientFirstName }} {{ .PatientLastName }}">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Sil</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr class="empty-row">
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <div class="empty-title">Henüz randevu bulunmuyor</div>
+                                        <div class="empty-description">İlk randevunuzu oluşturmak için "Yeni Randevu" butonuna tıklayın.</div>
+                                        <a href="/panel/randevular/randevu-ekle" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                            Yeni Randevu Oluştur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div class="grid-wrapper" id="gridView" style="display: none;">
+                <div class="randevular-grid">
+                    {{if len(Randevular) > 0}}
+                        {{range Randevular}}
+                        <div class="randevu-card" data-id="{{ .Rid }}">
+                            <div class="card-header">
+                                <div class="card-title">{{ .PatientFirstName }} {{ .PatientLastName }}</div>
+                                <div class="card-actions">
+                                    <button class="action-trigger" data-id="{{ .Rid }}">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="action-dropdown">
+                                        <a href="/panel/randevular/{{ .Rid }}" class="action-item view">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Görüntüle</span>
+                                        </a>
+                                        <a href="/panel/randevular/{{ .Rid }}/duzenle" class="action-item edit">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Düzenle</span>
+                                        </a>
+                                        <div class="action-divider"></div>
+                                        <button class="action-item delete" data-id="{{ .Rid }}" data-name="{{ .PatientFirstName }} {{ .PatientLastName }}">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-field">
+                                    <div class="field-label">Randevu Tarihi</div>
+                                    <div class="field-value">{{ mthr(.AppointmentDate, User.Timezone) }}</div>
+                                </div>
+                                <div class="card-field">
+                                    <div class="field-label">Saat</div>
+                                    <div class="field-value">{{ mthr(.AppointmentTime, User.Timezone) }}</div>
+                                </div>
+                                {{if .DoctorName}}
+                                <div class="card-field">
+                                    <div class="field-label">Doktor</div>
+                                    <div class="field-value">{{ .DoctorName }}</div>
+                                </div>
+                                {{end}}
+                                {{if .SubeName}}
+                                <div class="card-field">
+                                    <div class="field-label">Şube</div>
+                                    <div class="field-value">{{ .SubeName }}</div>
+                                </div>
+                                {{end}}
+                                {{if .PatientPhone}}
+                                <div class="card-field">
+                                    <div class="field-label">İletişim</div>
+                                    <div class="field-value">
+                                        <a href="tel:{{ .PatientPhone }}" class="phone-link">{{ .PatientPhone }}</a>
+                                    </div>
+                                </div>
+                                {{end}}
+                            </div>
+                            <div class="card-footer">
+                                <div class="card-status">
+                                    {{if .Status == "beklemede"}}
+                                    <span class="status-badge pending">
+                                        <i class="fas fa-clock"></i>
+                                        Beklemede
+                                    </span>
+                                    {{else if .Status == "onaylandi"}}
+                                    <span class="status-badge confirmed">
+                                        <i class="fas fa-check-circle"></i>
+                                        Onaylandı
+                                    </span>
+                                    {{else if .Status == "iptal"}}
+                                    <span class="status-badge cancelled">
+                                        <i class="fas fa-times-circle"></i>
+                                        İptal
+                                    </span>
+                                    {{else if .Status == "tamamlandi"}}
+                                    <span class="status-badge completed">
+                                        <i class="fas fa-check-double"></i>
+                                        Tamamlandı
+                                    </span>
+                                    {{else if .Status == "gelmedi"}}
+                                    <span class="status-badge no-show">
+                                        <i class="fas fa-user-times"></i>
+                                        Gelmedi
+                                    </span>
+                                    {{end}}
+                                    {{if .PaymentStatus == "odendi"}}
+                                    <span class="payment-badge paid">
+                                        <i class="fas fa-check"></i>
+                                        Ödendi
+                                    </span>
+                                    {{else if .PaymentStatus == "kismen_odendi"}}
+                                    <span class="payment-badge partial">
+                                        <i class="fas fa-exclamation"></i>
+                                        Kısmen
+                                    </span>
+                                    {{else}}
+                                    <span class="payment-badge unpaid">
+                                        <i class="fas fa-times"></i>
+                                        Ödenmedi
+                                    </span>
+                                    {{end}}
+                                </div>
+                                <div class="card-date">{{ mthr(.UpdatedAt, User.Timezone) }}</div>
+                            </div>
+                        </div>
+                        {{end}}
+                    {{else}}
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="empty-title">Henüz randevu bulunmuyor</div>
+                            <div class="empty-description">İlk randevunuzu oluşturmak için "Yeni Randevu" butonuna tıklayın.</div>
+                            <a href="/panel/randevular/randevu-ekle" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Yeni Randevu Oluştur
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{if Count > 0}}
+    <div class="pagination-section">
+        <div class="pagination-info">
+            <span>Toplam {{Count}} kayıt gösteriliyor</span>
+        </div>
+        <div class="pagination-wrapper">
+            <nav class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </nav>
+        </div>
+        <div class="pagination-controls">
+            <select id="perPage" class="per-page-select">
+                <option value="10">10 / sayfa</option>
+                <option value="25">25 / sayfa</option>
+                <option value="50">50 / sayfa</option>
+                <option value="100">100 / sayfa</option>
+            </select>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Randevuyu Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı hastanın randevusunu silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    function decodeHtmlEntities(encoded) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = encoded;
+        return txt.value;
+    }
+
+    const escaped = '{{stj(Randevular)}}';
+    const decoded = decodeHtmlEntities(escaped);
+    const data = decoded ? JSON.parse(decoded) : [];
+    window.pageData = {
+        randevular: data,
+        count: parseInt("{{ Count ? Count : 0 }}"),
+        currentPage: parseInt("{{ Page ? Page : 1 }}"),
+        perPage: parseInt("{{ 10 }}")
+    };
+    
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filterBtn');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const subeFilter = document.getElementById('subeFilter');
+        const sortBy = document.getElementById('sortBy');
+        const sortOrder = document.getElementById('sortOrder');
+        
+        filterBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+            const sube = subeFilter.value;
+            const sortByValue = sortBy.value;
+            const sortOrderValue = sortOrder.value;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            if (query) {
+                params.append('query', query);
+            }
+            if (status && status !== 'all') {
+                params.append('is_active', status);
+            }
+            if (sube && sube !== 'all') {
+                params.append('sube', sube);
+            }
+            if (sortByValue) {
+                params.append('sort_by', sortByValue);
+            }
+            if (sortOrderValue) {
+                params.append('sort_order', sortOrderValue);
+            }
+            
+            // Redirect to same page with query parameters
+            const currentUrl = window.location.pathname;
+            const queryString = params.toString();
+            const newUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+            
+            window.location.href = newUrl;
+        });
+        
+        // Prevent form submission on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterBtn.click();
+            }
+        });
+        
+        // Prevent any automatic form submission
+        searchInput.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        // Ensure no automatic submission
+        searchInput.setAttribute('autocomplete', 'off');
+        searchInput.setAttribute('spellcheck', 'false');
+    });
+</script>
+<script src="{{ PathOnStart }}js/panel/randevular.js"></script>

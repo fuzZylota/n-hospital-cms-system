@@ -1,0 +1,218 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/dosyalar.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <h1 class="page-title">
+                    <i class="fas fa-folder-open"></i>
+                    Dosya Yöneticisi
+                </h1>
+                <p class="page-subtitle">Yüklenen dosyaları görüntüleyin, yönetin ve silin</p>
+            </div>
+            <div class="page-actions">
+                <a href="/panel/dosya-ekle" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Yeni Dosya Yükle
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content">
+        <!-- Filters and Search -->
+        <div class="filters-section">
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Dosya adı ile ara...">
+                </div>
+                <div class="filter-controls">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">Tüm Dosya Türleri</option>
+                        <option value="image">Resimler</option>
+                        <option value="video">Videolar</option>
+                        <option value="audio">Ses Dosyaları</option>
+                        <option value="document">Dökümanlar</option>
+                        <option value="archive">Arşivler</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                    <select id="sortFilter" class="filter-select">
+                        <option value="name">İsme Göre</option>
+                        <option value="size">Boyuta Göre</option>
+                        <option value="date">Tarihe Göre</option>
+                    </select>
+                    <button class="btn btn-secondary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files Grid -->
+        <div class="files-section">
+            <div class="files-header">
+                <div class="files-info">
+                    <span class="files-count" id="filesCount">0 dosya</span>
+                    <span class="files-size" id="totalSize">0 MB</span>
+                </div>
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="grid" title="Grid Görünümü">
+                        <i class="fas fa-th"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="files-container" id="filesContainer">
+                {{ if len(Files) > 0 }}
+                    <div class="files-grid" id="filesGrid">
+                        {{ range Files }}
+                        <div class="file-item" data-file-name="{{ .Name }}">
+                            <div class="file-icon {{ .Type }}">
+                                <i class="{{ .Icon }}"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">{{ .Name }}</div>
+                                <div class="file-details">
+                                    <span class="file-size" data-size="{{ .Size }}">{{ .Size }} bytes</span>
+                                    <span class="file-type">{{ .Type }}</span>
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="action-btn preview" data-action="preview" data-file-name="{{ .Name }}" title="Önizle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ .Url }}" class="action-btn download" data-action="download" data-file-name="{{ .Name }}" title="İndir" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button class="action-btn delete" data-action="delete" data-file-name="{{ .Name }}" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {{ end }}
+                    </div>
+                {{ else }}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 class="empty-title">Henüz Dosya Yok</h3>
+                        <p class="empty-description">
+                            Uploads klasöründe henüz dosya bulunmuyor.<br>
+                            Yeni dosya yüklemek için <a href="/panel/dosya-ekle" class="empty-link">dosya yükleme sayfasına</a> gidin.
+                        </p>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Preview Modal -->
+<div id="filePreviewModal" class="modal" style="display: none;">
+    <div class="modal-content file-preview-modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="previewFileName">Dosya Önizleme</h3>
+            <button class="modal-close" onclick="closeModal('filePreviewModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="preview-content" id="previewContent">
+                <!-- Preview content will be loaded here -->
+            </div>
+            <div class="image-zoom-controls" id="imageZoomControls" style="display: none;">
+                <button class="zoom-btn" id="zoomInBtn" title="Yakınlaştır">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomOutBtn" title="Uzaklaştır">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="zoom-btn" id="resetZoomBtn" title="Sıfırla">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="file-info" id="previewFileInfo">
+                <!-- File info will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="downloadFile()">
+                    <i class="fas fa-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-danger" onclick="deleteFile()">
+                    <i class="fas fa-trash"></i>
+                    Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Dosyayı Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteFileName"></span>" dosyasını silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.filesData = {
+        uploadsPath: "/uploads/",
+        maxFileSize: 10485760, // 10MB default
+        files: [
+            {{ range index, file := Files }}
+                {{ if index }},{{ end }}
+                {
+                    "name": "{{ file.Name }}",
+                    "url": "{{ file.Url }}",
+                    "size": {{ file.Size }},
+                    "type": "{{ file.Type }}"
+                }
+            {{ end }}
+        ]
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/dosyalar.js"></script>

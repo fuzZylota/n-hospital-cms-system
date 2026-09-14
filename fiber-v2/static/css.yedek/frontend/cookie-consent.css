@@ -1,0 +1,390 @@
+/* Cookie consent banner + preferences modal.
+   Consolidated from 3 overlapping/duplicated <style> blocks that used to live
+   inline in main.jet (the last one used !important to patch the first two).
+   Colors kept the same (var(--theme-primary-color, #0A2241) navy / white) — only structure, size and
+   duplication were cleaned up, and the banner was made compact for mobile. */
+
+#nvCookieBanner {
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    left: auto;
+    z-index: 2147483646;
+    width: min(400px, calc(100vw - 32px));
+    background: rgba(10, 34, 65, .92);
+    color: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .22);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#nvCookieBanner .nv-ck-wrap {
+    padding: 16px 18px;
+}
+
+#nvCookieBanner .nv-ck-title {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 5px;
+}
+
+#nvCookieBanner .nv-ck-desc {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, .82);
+    margin-bottom: 14px;
+}
+
+#nvCookieBanner .nv-ck-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#nvCookieBanner .nv-ck-btn {
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 10px 12px;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s ease, background .15s ease;
+}
+
+#nvCookieBanner .nv-ck-btn:hover {
+    transform: translateY(-1px);
+}
+
+#nvCookieBanner .nv-ck-btn--accept {
+    background: #fff;
+    color: var(--theme-primary-color, #0A2241);
+}
+
+#nvCookieBanner .nv-ck-btn--reject {
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .28);
+}
+
+#nvCookieBanner .nv-ck-btn--reject:hover {
+    background: rgba(255, 255, 255, .22);
+}
+
+#nvCookieBanner .nv-ck-manage-link {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 0;
+    background: none;
+    border: none;
+    text-align: center;
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, .72);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#nvCookieBanner .nv-ck-manage-link:hover {
+    color: #fff;
+}
+
+@media (max-width: 560px) {
+    #nvCookieBanner {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        border-radius: 14px;
+    }
+}
+
+/* Backdrop + preferences modal */
+#nvCookieBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    z-index: 99998;
+    display: none;
+}
+
+#nvCookieModal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 560px);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, .24);
+    z-index: 99999;
+    display: none;
+}
+
+.nv-cookie-modal-open {
+    overflow: hidden;
+}
+
+.nv-cookie-modal-open #nvCookieBanner {
+    display: none !important;
+}
+
+#nvCookieModal .nv-ckm-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+#nvCookieModal .nv-ckm-title {
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #111827;
+}
+
+#nvCookieModal .nv-ckm-subtitle {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #4b5563;
+}
+
+#nvCookieModal .nv-ckm-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #f3f4f6;
+    color: #111827;
+    border-radius: 10px;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+#nvCookieModal .nv-ckm-body {
+    padding: 14px 20px;
+}
+
+#nvCookieModal .nv-ckm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+#nvCookieModal .nv-ckm-row:last-of-type {
+    border-bottom: none;
+}
+
+#nvCookieModal .nv-ckm-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+#nvCookieModal .nv-ckm-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #4b5563;
+}
+
+#nvCookieModal .nv-ckm-links {
+    padding-top: 12px;
+}
+
+#nvCookieModal .nv-ckm-links a {
+    color: #0f5bd7;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#nvCookieModal .nv-ckm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 16px 20px 20px;
+    background: #f9fafb;
+    border-top: 1px solid rgba(15, 23, 42, .08);
+    flex-wrap: wrap;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-weight: 700;
+    font-size: 13.5px;
+    box-shadow: none;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--accept {
+    background: var(--theme-primary-color, #0A2241);
+    color: #fff;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--accept:hover {
+    background: #132c52;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--manage {
+    background: #fff;
+    color: var(--theme-primary-color, #0A2241);
+    border: 1.5px solid var(--theme-primary-color, #0A2241);
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--manage:hover {
+    background: #eef1f6;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--reject {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+#nvCookieModal .nv-ckm-actions .nv-ck-btn--reject:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* Toggle switches inside the modal */
+.nv-switch {
+    position: relative;
+    display: inline-flex;
+    width: 50px;
+    min-width: 50px;
+    height: 28px;
+}
+
+.nv-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.nv-slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 999px;
+    transition: .2s ease;
+    cursor: pointer;
+}
+
+.nv-slider:before {
+    content: "";
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    left: 3.5px;
+    top: 3.5px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .16);
+    transition: .2s ease;
+}
+
+.nv-switch input:checked + .nv-slider {
+    background: var(--theme-primary-color, #0A2241);
+}
+
+.nv-switch input:checked + .nv-slider:before {
+    transform: translateX(22px);
+}
+
+.nv-switch--locked {
+    opacity: .85;
+}
+
+/* Small persistent icon to reopen preferences after a decision is made */
+#nvCookiePrefsBtn {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    right: auto;
+    z-index: 99997;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: var(--theme-primary-color, #0A2241);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(10, 34, 65, .28);
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+#nvCookiePrefsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(10, 34, 65, .34);
+}
+
+#nvCookiePrefsBtn svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: currentColor;
+    flex: 0 0 18px;
+}
+
+@media (max-width: 767px) {
+    #nvCookieModal {
+        width: min(94vw, 94vw);
+        border-radius: 16px;
+    }
+
+    #nvCookieModal .nv-ckm-head,
+    #nvCookieModal .nv-ckm-body,
+    #nvCookieModal .nv-ckm-actions {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    #nvCookieModal .nv-ckm-row {
+        align-items: flex-start;
+    }
+
+    #nvCookieModal .nv-ckm-actions {
+        flex-direction: column;
+    }
+
+    #nvCookieModal .nv-ckm-actions .nv-ck-btn {
+        width: 100%;
+    }
+
+    #nvCookiePrefsBtn {
+        left: 12px;
+        right: auto;
+        bottom: 12px;
+    }
+}

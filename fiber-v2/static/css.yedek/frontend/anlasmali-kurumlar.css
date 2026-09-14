@@ -1,0 +1,165 @@
+/* Anlaşmalı Kurumlar Page Specific Styles */
+
+.anlasmali-kurumlar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.anlasmali-kurum-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.anlasmali-kurum-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.anlasmali-kurum-logo {
+    max-width: 200px;
+    width: auto;
+    height: auto;
+    max-height: 120px;
+    object-fit: contain;
+    margin: 0 auto 15px;
+    display: block;
+    border-radius: 8px;
+}
+
+.anlasmali-kurum-card-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.anlasmali-kurum-card-content {
+    text-align: center;
+}
+
+.anlasmali-kurum-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--theme-text-color);
+    margin-bottom: 10px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.anlasmali-kurum-sube {
+    color: var(--theme-accent-color);
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.anlasmali-kurum-sube i {
+    margin-right: 5px;
+}
+
+.anlasmali-kurum-discount {
+    color: color-mix(in srgb, var(--theme-text-color), #666 80%);
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.anlasmali-kurum-address {
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%);
+    font-size: 14px;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.anlasmali-kurum-description {
+    font-size: 14px;
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.team-card__name {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--theme-text-color) !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+}
+
+.team-card__designation {
+    font-size: 14px !important;
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%) !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+}
+
+.team-card__designation:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Force text colors for team card content */
+.team-card__content h3,
+.team-card__content p {
+    color: var(--theme-text-color) !important;
+}
+
+.team-card__content .team-card__name {
+    color: var(--theme-text-color) !important;
+}
+
+.team-card__content .team-card__designation {
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%) !important;
+}
+
+/* Ensure background contrast */
+.team-card {
+    background-color: #fff !important;
+    color: var(--theme-text-color) !important;
+}
+
+.team-card__content {
+    background-color: #fff !important;
+    color: var(--theme-text-color) !important;
+}
+
+.no-kurum-message {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin: 30px 0;
+}
+
+.no-kurum-message h3 {
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%);
+    margin-bottom: 15px;
+}
+
+.no-kurum-message p {
+    color: color-mix(in srgb, var(--theme-text-color), #666 50%);
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .anlasmali-kurumlar-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .anlasmali-kurum-card {
+        padding: 15px;
+    }
+    
+    .anlasmali-kurum-logo {
+        width: 60px;
+        height: 60px;
+    }
+}

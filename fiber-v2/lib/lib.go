@@ -21,12 +21,14 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/gofiber/contrib/websocket"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Necoo33/neormgo/v2"
 	"github.com/lib/pq"
@@ -742,7 +744,7 @@ func MakeTimeHumanReadable(GivenTime time.Time, UserTimezone string) string {
 }
 
 func MakeTimeHumanReadableWithoutNormalization(GivenTime time.Time) string {
-	return GivenTime.Format("15:04, 02/01/2006")
+	return GivenTime.Format("02.01.2006 15:04")
 }
 
 func ConvertTimeForTheDateInput(GivenTime time.Time, UserTimezone string) string {
@@ -819,6 +821,40 @@ func ConvertTimeForTheMonthForFrontend(GivenTime time.Time) string {
 
 func ConvertTimeForTheDayForFrontend(GivenTime time.Time) int {
 	return GivenTime.Day()
+}
+
+// FormatFrontendDate produces a Turkish-localized "15 Mart 2026" style date string.
+var turkishFrontendMonthNames = map[time.Month]string{
+	time.January:   "Ocak",
+	time.February:  "Şubat",
+	time.March:     "Mart",
+	time.April:     "Nisan",
+	time.May:       "Mayıs",
+	time.June:      "Haziran",
+	time.July:      "Temmuz",
+	time.August:    "Ağustos",
+	time.September: "Eylül",
+	time.October:   "Ekim",
+	time.November:  "Kasım",
+	time.December:  "Aralık",
+}
+
+func FormatFrontendDate(GivenTime time.Time) string {
+	if GivenTime.IsZero() {
+		return ""
+	}
+	return fmt.Sprintf("%d %s %d", GivenTime.Day(), turkishFrontendMonthNames[GivenTime.Month()], GivenTime.Year())
+}
+
+// IsDifferentDay reports whether two timestamps fall on different calendar days,
+// used to decide whether a "last updated" date should be shown alongside the publish date.
+func IsDifferentDay(a time.Time, b time.Time) bool {
+	if a.IsZero() || b.IsZero() {
+		return false
+	}
+	ay, am, ad := a.Date()
+	by, bm, bd := b.Date()
+	return ay != by || am != bm || ad != bd
 }
 
 func ShowDateOfTimeInput(t time.Time, UserTimezone string) string {
@@ -1120,4 +1156,52 @@ func VerifyRecaptcha(token string, secretKey string) bool {
 	}
 
 	return result.Success
+}
+
+// SQL kimlik doğrulayıcıları (kolon adı / sıralama yönü) - panel liste
+// sayfalarındaki "sort_by"/"sort_order" query parametreleri dogrudan
+// kullanicidan geldigi ve ham SQL'e (ORDER BY) eklendigi icin, SQL
+// injection'i engellemek amaciyla eklendi. Sadece harf/rakam/alt cizgi
+// ve tek bir nokta (tablo takma adi icin, orn "rt.created_at") kabul
+// edilir; uymayan her deger guvenli varsayilana dusurulur.
+var validSqlIdentifier = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$`)
+
+func SanitizeSortColumn(column string, fallback string) string {
+	if validSqlIdentifier.MatchString(column) {
+		return column
+	}
+
+	return fallback
+}
+
+func SanitizeSortOrder(order string) string {
+	upper := strings.ToUpper(strings.TrimSpace(order))
+
+	if upper == "ASC" || upper == "DESC" {
+		return upper
+	}
+
+	return "DESC"
+}
+
+// Kullanici sifreleri onceden geri-donusturulebilir AES sifrelemesiyle
+// (Encrypt/Decrypt) saklaniyordu - ENCRYPTION_KEY sizarsa tum sifreler
+// duz metin olarak geri elde edilebilirdi. Bundan sonra tek yonlu bcrypt
+// hash kullaniliyor; Encrypt/Decrypt sadece geriye donuk uyumluluk ve
+// diger kullanim yerleri (SMTP sifresi gibi) icin dosyada kalmaya devam
+// ediyor, sifreler icin artik kullanilmiyor.
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+func ComparePasswordHash(hash string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
+	return err == nil
 }

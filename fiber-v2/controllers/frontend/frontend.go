@@ -6,6 +6,7 @@ import (
 	"log"
 	"models"
 	"strconv"
+	"strings"
 
 	"lib"
 
@@ -195,10 +196,42 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			})
 		}
 
-		GetAllHomepageContents := Orm.Select([]string{"content_html", "content_javascript", "content_css", "later_than_which_content", "content_type"})
-		GetAllHomepageContents.Table("homepage_contents")
-		GetAllHomepageContents.Where("is_active", "=", true)
-		GetAllHomepageContents.OrderBy("sort_order", "ASC")
+                // Anasayfa icin Subeler (resimli)
+                HomeSubeler := []models.SubeForFrontendPages{}
+                GetHomeSubeler := Orm.Select([]string{"s.sid, s.name, s.url_name, s.city, s.district, s.phone, s.email, m.file_path as media_path, m.alt_text as media_alt_text, m.title as media_title"})
+                GetHomeSubeler.Table("subeler s")
+                GetHomeSubeler.LeftJoin("medias m", "s.mid", "=", "m.mid")
+                GetHomeSubeler.Where("s.is_active", "=", true)
+                GetHomeSubeler.OrderBy("s.name", "ASC")
+                GetHomeSubeler.Finish()
+                err = GetHomeSubeler.Execute()
+                if err != nil {
+                        log.Printf("%v\n", err)
+                }
+                rows, err = GetHomeSubeler.Rows()
+                if err != nil {
+                        log.Printf("%v\n", err)
+                }
+                for _, row := range rows {
+                        HomeSubeler = append(HomeSubeler, models.SubeForFrontendPages{
+                                Sid:          lib.String(row["sid"]),
+                                Name:         lib.String(row["name"]),
+                                UrlName:      lib.String(row["url_name"]),
+                                City:         lib.String(row["city"]),
+                                District:     lib.String(row["district"]),
+                                Phone:        lib.String(row["phone"]),
+                                Email:        lib.String(row["email"]),
+                                MediaPath:    lib.String(row["media_path"]),
+                                MediaAltText: lib.String(row["media_alt_text"]),
+                                MediaTitle:   lib.String(row["media_title"]),
+                        })
+                }
+
+                GetAllHomepageContents := Orm.Select([]string{"hc.content_html", "hc.content_javascript", "hc.content_css", "hc.later_than_which_content", "hc.content_type", "hc.tibbi_birim_id", "COALESCE(tb.url_name, '') as tb_url_name"})
+                GetAllHomepageContents.Table("homepage_contents hc")
+                GetAllHomepageContents.LeftJoin("tibbi_birimler tb", "hc.tibbi_birim_id", "=", "tb.tbid")
+                GetAllHomepageContents.Where("hc.is_active", "=", true)
+                GetAllHomepageContents.OrderBy("hc.sort_order", "ASC")
 		GetAllHomepageContents.Finish()
 		err = GetAllHomepageContents.Execute()
 
@@ -224,6 +257,8 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 					ContentCss:            lib.String(row["content_css"]),
 					LaterThanWhichContent: lib.Int64(row["later_than_which_content"]),
 					ContentType:           lib.String(row["content_type"]),
+                                        TibbiBirimId:          lib.String(row["tibbi_birim_id"]),
+                                        TibbiBirimUrlName:     lib.String(row["tb_url_name"]),
 				})
 			} else {
 				AllHomepageContents = append(AllHomepageContents, models.HomepageContents{
@@ -246,6 +281,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"Testimonials":        Testimonials,
 			"Doctors":             Doctors,
 			"AllSubeler":          AllSubeler,
+                        "Subeler":             HomeSubeler,
 			"AllHomepageContents": AllHomepageContents,
 			"BannerContents":      BannerContents,
 			"Title":               Options.Options.MainPageMetaTitle,
@@ -269,7 +305,7 @@ func AboutUsPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Options := database.Options{}
 		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
-		GetHakkimizdaContents := Orm.Select([]string{"content_html", "content_javascript", "content_css"})
+		GetHakkimizdaContents := Orm.Select([]string{"content_html", "content_javascript", "content_css", "created_at", "updated_at"})
 		GetHakkimizdaContents.Table("custom_contents")
 		GetHakkimizdaContents.Where("content_type", "=", "about-us")
 		GetHakkimizdaContents.And("is_active", "=", true)
@@ -300,6 +336,19 @@ func AboutUsPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
 		}
 
+		MinCreatedAt := lib.Time(nil)
+		MaxUpdatedAt := lib.Time(nil)
+		for _, row := range rows {
+			RowCreatedAt := lib.Time(row["created_at"])
+			RowUpdatedAt := lib.Time(row["updated_at"])
+			if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+				MinCreatedAt = RowCreatedAt
+			}
+			if RowUpdatedAt.After(MaxUpdatedAt) {
+				MaxUpdatedAt = RowUpdatedAt
+			}
+		}
+
 		return c.Render("views/frontend/about-us", fiber.Map{
 			"PathOnStart":        "../",
 			"Route":              "/kurumsal/hakkimizda",
@@ -310,6 +359,9 @@ func AboutUsPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			"JavascriptContents": JavascriptContents,
 			"Title":              "Hakkımızda | " + Options.Options.SiteName,
 			"Description":        "Bu sayfa, " + Options.Options.SiteName + " hakkında bilgi verir.",
+			"PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+			"UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+			"ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -423,7 +475,7 @@ func MissionVisionPage(states *models.AppState, utilities *models.Utilities) fib
 		Options := database.Options{}
 		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
-		GetMissionVisionContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
+		GetMissionVisionContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
 		GetMissionVisionContents.Table("custom_contents c")
 		GetMissionVisionContents.Where("c.content_type", "=", "mission-vision")
 		GetMissionVisionContents.And("c.is_active", "=", true)
@@ -456,9 +508,22 @@ func MissionVisionPage(states *models.AppState, utilities *models.Utilities) fib
 			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
 		}
 
+		MinCreatedAt := lib.Time(nil)
+		MaxUpdatedAt := lib.Time(nil)
+		for _, row := range rows {
+			RowCreatedAt := lib.Time(row["created_at"])
+			RowUpdatedAt := lib.Time(row["updated_at"])
+			if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+				MinCreatedAt = RowCreatedAt
+			}
+			if RowUpdatedAt.After(MaxUpdatedAt) {
+				MaxUpdatedAt = RowUpdatedAt
+			}
+		}
+
 		return c.Render("views/frontend/misyon-vizyon", fiber.Map{
 			"PathOnStart":        "../",
-			"Route":              "/misyon-vizyon",
+			"Route":              "/kurumsal/misyon-vizyon",
 			"Options":            Options,
 			"HtmlContents":       HtmlContents,
 			"CssContents":        CssContents,
@@ -466,6 +531,9 @@ func MissionVisionPage(states *models.AppState, utilities *models.Utilities) fib
 			"User":               OurUser,
 			"Title":              "Misyon ve Vizyon | " + Options.Options.SiteName,
 			"Description":        "Bu sayfa, " + Options.Options.SiteName + " sitesinin misyon ve vizyon sayfası olup, bu sayfada misyon ve vizyonumuzu bulabilirsiniz.",
+			"PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+			"UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+			"ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -552,7 +620,7 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 			return c.Redirect("/")
 		}
 
-		GetHrContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
+		GetHrContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
 		GetHrContents.Table("custom_contents c")
 		GetHrContents.Where("c.content_type", "=", "hr")
 		GetHrContents.And("c.is_active", "=", true)
@@ -585,6 +653,19 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
 		}
 
+		MinCreatedAt := lib.Time(nil)
+		MaxUpdatedAt := lib.Time(nil)
+		for _, row := range rows {
+			RowCreatedAt := lib.Time(row["created_at"])
+			RowUpdatedAt := lib.Time(row["updated_at"])
+			if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+				MinCreatedAt = RowCreatedAt
+			}
+			if RowUpdatedAt.After(MaxUpdatedAt) {
+				MaxUpdatedAt = RowUpdatedAt
+			}
+		}
+
 		return c.Render("views/frontend/insan-kaynaklari", fiber.Map{
 			"PathOnStart":        "../",
 			"Route":              "/kurumsal/insan-kaynaklari",
@@ -595,6 +676,9 @@ func InsanKaynaklariPage(states *models.AppState, utilities *models.Utilities) f
 			"HtmlContents":       HtmlContents,
 			"CssContents":        CssContents,
 			"JavascriptContents": JavascriptContents,
+			"PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+			"UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+			"ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -817,14 +901,22 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			SeoKeywords:    lib.String(rows[0]["seo_keywords"]),
 		}
 
+		HaberPublishedAt := Haber.PublishDate
+		if HaberPublishedAt.IsZero() {
+			HaberPublishedAt = Haber.CreatedAt
+		}
+
 		return c.Render("views/frontend/haber", fiber.Map{
-			"PathOnStart": "../",
-			"Route":       "/haberler/" + Haber.UrlName,
-			"Options":     Options,
-			"User":        OurUser,
-			"Haber":       Haber,
-			"Title":       Haber.SeoTitle,
-			"Description": Haber.SeoDescription,
+			"PathOnStart":   "../",
+			"Route":         "/haberler/" + Haber.UrlName,
+			"Options":       Options,
+			"User":          OurUser,
+			"Haber":         Haber,
+			"Title":         Haber.SeoTitle,
+			"Description":   Haber.SeoDescription,
+			"PublishedDate": lib.FormatFrontendDate(HaberPublishedAt),
+			"UpdatedDate":   lib.FormatFrontendDate(Haber.UpdatedAt),
+			"ShowUpdated":   lib.IsDifferentDay(HaberPublishedAt, Haber.UpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -881,6 +973,286 @@ func VideoGaleriPage(states *models.AppState, utilities *models.Utilities) fiber
 	}
 }
 
+func UlasimPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        OurUser, _ := lib.CheckAuth(c)
+        Orm := utilities.Orm
+
+        FrontendOptions := models.FrontendOptions{
+            Database: Orm,
+            User:     OurUser,
+            States:   states,
+        }
+
+        Options := database.Options{}
+        Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+        // ✅ Admin panelde "İçerik Tipi" = ulasim seçilecek
+        GetUlasimContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
+        GetUlasimContents.Table("custom_contents c")
+        GetUlasimContents.Where("c.content_type", "=", "ulasim")
+        GetUlasimContents.And("c.is_active", "=", true)
+        GetUlasimContents.OrderBy("c.sort_order", "ASC")
+        GetUlasimContents.Finish()
+
+        err := GetUlasimContents.Execute()
+        if err != nil {
+            log.Printf("%v\n", err)
+        }
+
+        rows, err := GetUlasimContents.Rows()
+        if err != nil {
+            log.Printf("%v\n", err)
+        }
+
+        HtmlContents := []string{}
+        CssContents := []string{}
+        JavascriptContents := []string{}
+
+        MinCreatedAt := lib.Time(nil)
+        MaxUpdatedAt := lib.Time(nil)
+        for _, row := range rows {
+            HtmlContents = append(HtmlContents, lib.String(row["content_html"]))
+            CssContents = append(CssContents, lib.String(row["content_css"]))
+            JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
+
+            RowCreatedAt := lib.Time(row["created_at"])
+            RowUpdatedAt := lib.Time(row["updated_at"])
+            if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+                MinCreatedAt = RowCreatedAt
+            }
+            if RowUpdatedAt.After(MaxUpdatedAt) {
+                MaxUpdatedAt = RowUpdatedAt
+            }
+        }
+
+        return c.Render("views/frontend/ulasim", fiber.Map{
+            "PathOnStart":        "../",
+            "Route":              "/ulasim",
+            "Options":            Options,
+            "User":               OurUser,
+            "HtmlContents":       HtmlContents,
+            "CssContents":        CssContents,
+            "JavascriptContents": JavascriptContents,
+            "Title":              "Ulaşım | " + Options.Options.SiteName,
+            "Description":        "Bu sayfa, " + Options.Options.SiteName + " kurumunun ulaşım bilgilerini içerir.",
+            "PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+            "UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+            "ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
+        }, "layouts/main/main")
+    }
+}
+
+
+func AnlasmaliKurumlarSayfasiPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+		Orm := utilities.Orm
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		GetContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
+		GetContents.Table("custom_contents c")
+		GetContents.Where("c.content_type", "=", "anlasmali-kurumlar")
+		GetContents.And("c.is_active", "=", true)
+		GetContents.OrderBy("c.sort_order", "ASC")
+		GetContents.Finish()
+		err := GetContents.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+		rows, err := GetContents.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+		HtmlContents := []string{}
+		CssContents := []string{}
+		JavascriptContents := []string{}
+		MinCreatedAt := lib.Time(nil)
+		MaxUpdatedAt := lib.Time(nil)
+		for _, row := range rows {
+			HtmlContents = append(HtmlContents, lib.String(row["content_html"]))
+			CssContents = append(CssContents, lib.String(row["content_css"]))
+			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
+
+			RowCreatedAt := lib.Time(row["created_at"])
+			RowUpdatedAt := lib.Time(row["updated_at"])
+			if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+				MinCreatedAt = RowCreatedAt
+			}
+			if RowUpdatedAt.After(MaxUpdatedAt) {
+				MaxUpdatedAt = RowUpdatedAt
+			}
+		}
+		return c.Render("views/frontend/anlasmali-kurumlar", fiber.Map{
+			"PathOnStart":        "../",
+			"Route":              "/kurumsal/anlasmali-kurumlar",
+			"Options":            Options,
+			"User":               OurUser,
+			"HtmlContents":       HtmlContents,
+			"CssContents":        CssContents,
+			"JavascriptContents": JavascriptContents,
+			"Title":              "Anlaşmalı Kurumlar | " + Options.Options.SiteName,
+			"Description":        "Bu sayfa, " + Options.Options.SiteName + " kurumunun anlaşmalı kurumlarını içerir.",
+			"PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+			"UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+			"ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
+		}, "layouts/main/main")
+	}
+}
+func OrganizasyonSemasiPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		OurUser, _ := lib.CheckAuth(c)
+		Orm := utilities.Orm
+		FrontendOptions := models.FrontendOptions{
+			Database: Orm,
+			User:     OurUser,
+			States:   states,
+		}
+		Options := database.Options{}
+		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+		// Tüm şubeleri getir
+		GetSubeler := Orm.Select([]string{"s.sid", "s.name", "s.document_mids"})
+		GetSubeler.Table("subeler s")
+		GetSubeler.Where("s.is_active", "=", true)
+		GetSubeler.OrderBy("s.sid", "ASC")
+		GetSubeler.Finish()
+		err := GetSubeler.Execute()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+		subeRows, err := GetSubeler.Rows()
+		if err != nil {
+			log.Printf("%v\n", err)
+		}
+
+		type OrgDoc struct {
+			SubeName string
+			FileName string
+			FilePath string
+		}
+		OrgDocs := []OrgDoc{}
+
+		for _, sube := range subeRows {
+			mids := lib.StringArray(sube["document_mids"])
+			if len(mids) == 0 {
+				continue
+			}
+			midArgs := []any{}
+			for _, m := range mids {
+				midArgs = append(midArgs, m)
+			}
+			GetDocs := Orm.Select([]string{"mid", "file_name", "file_path", "data"})
+			GetDocs.Table("medias")
+			GetDocs.In("WHERE", "mid", midArgs)
+			GetDocs.And("data", "=", "organizasyon-semasi")
+			GetDocs.Finish()
+			err = GetDocs.Execute()
+			if err != nil {
+				log.Printf("%v\n", err)
+				continue
+			}
+			docRows, err := GetDocs.Rows()
+			if err != nil {
+				log.Printf("%v\n", err)
+				continue
+			}
+			for _, doc := range docRows {
+				OrgDocs = append(OrgDocs, OrgDoc{
+					SubeName: lib.String(sube["name"]),
+					FileName: lib.String(doc["file_name"]),
+					FilePath: lib.String(doc["file_path"]),
+				})
+			}
+		}
+
+		return c.Render("views/frontend/organizasyon-semasi", fiber.Map{
+			"PathOnStart": "../",
+			"Route":       "/kurumsal/organizasyon-semasi",
+			"Options":     Options,
+			"User":        OurUser,
+			"OrgDocs":     OrgDocs,
+			"Title":       "Organizasyon Şeması | " + Options.Options.SiteName,
+			"Description": "Bu sayfa, " + Options.Options.SiteName + " kurumunun organizasyon şemasını içerir.",
+		}, "layouts/main/main")
+	}
+}
+
+func CookiePolicyPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+        return func(c *fiber.Ctx) error {
+                OurUser, _ := lib.CheckAuth(c)
+
+                Orm := utilities.Orm
+
+                FrontendOptions := models.FrontendOptions{
+                        Database: Orm,
+                        User:     OurUser,
+                        States:   states,
+                }
+
+                Options := database.Options{}
+                Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+
+                GetCookieContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
+                GetCookieContents.Table("custom_contents c")
+                GetCookieContents.Where("c.content_type", "=", "cookie-policy")
+                GetCookieContents.And("c.is_active", "=", true)
+                GetCookieContents.OrderBy("c.sort_order", "ASC")
+                GetCookieContents.Finish()
+
+                err := GetCookieContents.Execute()
+                if err != nil {
+                        log.Printf("%v\n", err)
+                }
+
+                rows, err := GetCookieContents.Rows()
+                if err != nil {
+                        log.Printf("%v\n", err)
+                }
+
+                HtmlContents := []string{}
+                CssContents := []string{}
+                JavascriptContents := []string{}
+
+                MinCreatedAt := lib.Time(nil)
+                MaxUpdatedAt := lib.Time(nil)
+                for _, row := range rows {
+                        HtmlContents = append(HtmlContents, lib.String(row["content_html"]))
+                        CssContents = append(CssContents, lib.String(row["content_css"]))
+                        JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
+
+                        RowCreatedAt := lib.Time(row["created_at"])
+                        RowUpdatedAt := lib.Time(row["updated_at"])
+                        if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+                                MinCreatedAt = RowCreatedAt
+                        }
+                        if RowUpdatedAt.After(MaxUpdatedAt) {
+                                MaxUpdatedAt = RowUpdatedAt
+                        }
+                }
+
+                return c.Render("views/frontend/kvkk", fiber.Map{
+                        "PathOnStart":        "../",
+                        "Route":              "/kurumsal/cerez-politikasi",
+                        "Options":            Options,
+                        "User":               OurUser,
+                        "HtmlContents":       HtmlContents,
+                        "CssContents":        CssContents,
+                        "JavascriptContents": JavascriptContents,
+                        "Title":              "Çerez Politikası | " + Options.Options.SiteName,
+                        "Description":        "Bu sayfa, " + Options.Options.SiteName + " sitesinin çerez politikası sayfasıdır.",
+                        "PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+                        "UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+                        "ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
+                }, "layouts/main/main")
+        }
+}
+
 func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, _ := lib.CheckAuth(c)
@@ -896,7 +1268,7 @@ func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		Options := database.Options{}
 		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
-		GetKvkkContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css"})
+		GetKvkkContents := Orm.Select([]string{"c.content_html", "c.content_javascript", "c.content_css", "c.created_at", "c.updated_at"})
 		GetKvkkContents.Table("custom_contents c")
 		GetKvkkContents.Where("c.content_type", "=", "privacy-policy")
 		GetKvkkContents.And("c.is_active", "=", true)
@@ -927,6 +1299,19 @@ func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			JavascriptContents = append(JavascriptContents, lib.String(row["content_javascript"]))
 		}
 
+		MinCreatedAt := lib.Time(nil)
+		MaxUpdatedAt := lib.Time(nil)
+		for _, row := range rows {
+			RowCreatedAt := lib.Time(row["created_at"])
+			RowUpdatedAt := lib.Time(row["updated_at"])
+			if !RowCreatedAt.IsZero() && (MinCreatedAt.IsZero() || RowCreatedAt.Before(MinCreatedAt)) {
+				MinCreatedAt = RowCreatedAt
+			}
+			if RowUpdatedAt.After(MaxUpdatedAt) {
+				MaxUpdatedAt = RowUpdatedAt
+			}
+		}
+
 		return c.Render("views/frontend/kvkk", fiber.Map{
 			"PathOnStart":        "../",
 			"Route":              "/kurumsal/kvkk",
@@ -937,6 +1322,9 @@ func KvkkPage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"JavascriptContents": JavascriptContents,
 			"Title":              "KVKK | " + Options.Options.SiteName,
 			"Description":        "Bu sayfa, " + Options.Options.SiteName + " sitesinin KVKK sayfası olup, bu sayfada KVKK bilgilerini bulabilirsiniz.",
+			"PublishedDate":      lib.FormatFrontendDate(MinCreatedAt),
+			"UpdatedDate":        lib.FormatFrontendDate(MaxUpdatedAt),
+			"ShowUpdated":        lib.IsDifferentDay(MinCreatedAt, MaxUpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -1158,7 +1546,65 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			})
 		}
 
-		return c.Render("views/frontend/sube", fiber.Map{
+                // Doktorlar sorgula
+                GetDoktorlar := Orm.Select([]string{"d.drid", "d.title", "d.first_name", "d.last_name", "d.url_name", "b.name as brans_name", "b.url_name as brans_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+                GetDoktorlar.Table("doktorlar d")
+                GetDoktorlar.LeftJoin("branslar b", "d.brid", "=", "b.brid")
+                GetDoktorlar.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
+                GetDoktorlar.LeftJoin("doktor_subeler ds", "d.drid", "=", "ds.drid")
+                GetDoktorlar.Where("ds.sid", "=", Sube.Sid)
+                GetDoktorlar.And("d.is_active", "=", true)
+                GetDoktorlar.AppendCustom("ORDER BY d.last_name ASC")
+                GetDoktorlar.Finish()
+                err = GetDoktorlar.Execute()
+                if err != nil {
+                        log.Printf("Doktor sorgu hatasi: %v\n", err)
+                }
+                doktorRows, _ := GetDoktorlar.Rows()
+                SubeDoktorlar := []models.DoktorForHomePage{}
+                for _, row := range doktorRows {
+                        SubeDoktorlar = append(SubeDoktorlar, models.DoktorForHomePage{
+                                Drid:         lib.String(row["drid"]),
+                                Title:        lib.String(row["title"]),
+                                FirstName:    lib.String(row["first_name"]),
+                                LastName:     lib.String(row["last_name"]),
+                                UrlName:      lib.String(row["url_name"]),
+                                BransName:    lib.String(row["brans_name"]),
+                                BransUrlName: lib.String(row["brans_url_name"]),
+                                PhotoPath:    lib.String(row["photo_path"]),
+                                PhotoAltText: lib.String(row["photo_alt_text"]),
+                                PhotoTitle:   lib.String(row["photo_title"]),
+                        })
+                }
+
+		// Galeri sorgula
+                GetGaleri := Orm.Select([]string{"sg.sgid", "sg.sid", "sg.mid", "sg.caption", "sg.sort_order", "m.file_path", "m.alt_text", "m.title"})
+                GetGaleri.Table("sube_galerileri sg")
+                GetGaleri.LeftJoin("medias m", "sg.mid", "=", "m.mid")
+                GetGaleri.Where("sg.sid", "=", Sube.Sid)
+                GetGaleri.And("sg.is_active", "=", true)
+                GetGaleri.AppendCustom("ORDER BY sg.sort_order ASC, sg.sgid ASC")
+                GetGaleri.Finish()
+                err = GetGaleri.Execute()
+                if err != nil {
+                        log.Printf("Galeri sorgu hatasi: %v\n", err)
+                }
+                galeriRows, _ := GetGaleri.Rows()
+                SubeGaleri := []models.SubeGaleri{}
+                for _, row := range galeriRows {
+                        SubeGaleri = append(SubeGaleri, models.SubeGaleri{
+                                Sgid:      lib.String(row["sgid"]),
+                                Sid:       lib.String(row["sid"]),
+                                Mid:       lib.Int64(row["mid"]),
+                                Caption:   lib.String(row["caption"]),
+                                SortOrder: int(lib.Int64(row["sort_order"])),
+                                IsActive:  lib.Bool(row["is_active"]),
+                                FilePath:  lib.String(row["file_path"]),
+                                AltText:   lib.String(row["alt_text"]),
+                                Title:     lib.String(row["title"]),
+                        })
+                }
+                return c.Render("views/frontend/sube", fiber.Map{
 			"PathOnStart":         "../../",
 			"Route":               "/merkezlerimiz/" + subeName,
 			"Options":             Options,
@@ -1167,6 +1613,8 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			"AnlasmaliKurumCount": AnlasmaliKurumCount,
 			"AnlasmaliKurumlar":   AnlasmaliKurumlar,
 			"SubeDocuments":       SubeDocumentsArray,
+                        "SubeGaleri":          SubeGaleri,
+                        "SubeDoktorlar":       SubeDoktorlar,
 			"Title":               Sube.Name + " | " + Options.Options.SiteName,
 			"Description":         "Bu sayfa, " + Options.Options.SiteName + " hastaneleri'nin " + Sube.Name + " merkezinin sayfası olup, bu sayfada " + Sube.Name + " merkezinin hakkında bilgi bulabilirsiniz.",
 		}, "layouts/main/main")
@@ -1317,7 +1765,7 @@ func TumDoktorlarPage(states *models.AppState, utilities *models.Utilities) fibe
 		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
 		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
-		GetDoctors.And("d.is_active", "=", true)
+		GetDoctors.Where("d.is_active", "=", true)
 		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		GetDoctors.Limit(int(ItemsPerPage))
 		GetDoctors.Offset(Offset)
@@ -1825,13 +2273,16 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 
 		return c.Render("views/frontend/tibbi-birim", fiber.Map{
-			"PathOnStart": "../",
-			"Route":       "/tibbi-birimler/" + tibbiBirimName,
-			"Options":     Options,
-			"User":        OurUser,
-			"TibbiBirim":  TibbiBirim,
-			"Title":       TibbiBirim.Name + " | " + Options.Options.SiteName,
-			"Description": "Bu sayfa, hastanemizin tibbi birimlerinden olan " + TibbiBirim.Name + " hakkında bilgi içeren sayfadır.",
+			"PathOnStart":   "../",
+			"Route":         "/tibbi-birimler/" + tibbiBirimName,
+			"Options":       Options,
+			"User":          OurUser,
+			"TibbiBirim":    TibbiBirim,
+			"Title":         TibbiBirim.Name + " | " + Options.Options.SiteName,
+			"Description":   "Bu sayfa, hastanemizin tibbi birimlerinden olan " + TibbiBirim.Name + " hakkında bilgi içeren sayfadır.",
+			"PublishedDate": lib.FormatFrontendDate(TibbiBirim.CreatedAt),
+			"UpdatedDate":   lib.FormatFrontendDate(TibbiBirim.UpdatedAt),
+			"ShowUpdated":   lib.IsDifferentDay(TibbiBirim.CreatedAt, TibbiBirim.UpdatedAt),
 		}, "layouts/main/main")
 	}
 }
@@ -1933,15 +2384,20 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				CoverPath:         lib.String(row["cover_path"]),
 				CoverAltText:      lib.String(row["cover_alt_text"]),
 				CoverTitle:        lib.String(row["cover_title"]),
+				CreatedAt:         lib.Time(row["created_at"]),
+				UpdatedAt:         lib.Time(row["updated_at"]),
 			}
 		}
 
 		return c.Render("views/frontend/tedkik", fiber.Map{
-			"PathOnStart": "../",
-			"Route":       "/tetkikler/" + tedkikName,
-			"Options":     Options,
-			"User":        OurUser,
-			"Tedkik":      Tedkik,
+			"PathOnStart":   "../",
+			"Route":         "/tetkikler/" + tedkikName,
+			"Options":       Options,
+			"User":          OurUser,
+			"Tedkik":        Tedkik,
+			"PublishedDate": lib.FormatFrontendDate(Tedkik.CreatedAt),
+			"UpdatedDate":   lib.FormatFrontendDate(Tedkik.UpdatedAt),
+			"ShowUpdated":   lib.IsDifferentDay(Tedkik.CreatedAt, Tedkik.UpdatedAt),
 			"Title":       Tedkik.Name + " | " + Options.Options.SiteName,
 			"Description": "Bu sayfa, hastanemiz bünyesinde yapılan tedkiklerden olan " + Tedkik.Name + " hakkında bilgi içeren sayfadır.",
 		}, "layouts/main/main")
@@ -1971,4 +2427,96 @@ func FallbackPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			"Description": "Bu sayfa, " + Options.Options.SiteName + " sitesinin sayfa bulunamadı sayfasıdır.",
 		}, "layouts/main/main")
 	}
+}
+
+func SearchPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+        return func(c *fiber.Ctx) error {
+                OurUser, _ := lib.CheckAuth(c)
+                Orm := utilities.Orm
+                FrontendOptions := models.FrontendOptions{
+                        Database: Orm,
+                        User:     OurUser,
+                        States:   states,
+                }
+                Options := database.Options{}
+                Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+                q := strings.TrimSpace(c.Query("q"))
+
+                type SearchResult struct {
+                        Title   string
+                        Url     string
+                        Excerpt string
+                        Type    string
+                }
+                results := []SearchResult{}
+
+                if q != "" {
+                        escaped := strings.NewReplacer("\\", "\\\\", "%", "\\%", "_", "\\_").Replace(q)
+                        like := "%" + escaped + "%"
+                        db := Orm.Pool
+
+                        rows, err := db.Query(`SELECT name, url_name, COALESCE(LEFT(description,150),'') FROM tibbi_birimler WHERE (name ILIKE $1 OR description ILIKE $1) AND is_active=true LIMIT 10`, like)
+                        if err != nil {
+                                log.Println("SearchPage tibbi_birimler query error:", err)
+                        }
+                        if rows != nil {
+                                for rows.Next() {
+                                        var t, u, e string
+                                        rows.Scan(&t, &u, &e)
+                                        results = append(results, SearchResult{Title: t, Url: "/tibbi-birimler/" + u, Excerpt: e, Type: "Tıbbi Birim"})
+                                }
+                                rows.Close()
+                        }
+
+                        rows2, err := db.Query(`SELECT title, url_name, COALESCE(LEFT(summary,150),'') FROM haberler WHERE (title ILIKE $1 OR content ILIKE $1) AND is_published=true LIMIT 10`, like)
+                        if err != nil {
+                                log.Println("SearchPage haberler query error:", err)
+                        }
+                        if rows2 != nil {
+                                for rows2.Next() {
+                                        var t, u, e string
+                                        rows2.Scan(&t, &u, &e)
+                                        results = append(results, SearchResult{Title: t, Url: "/haberler/" + u, Excerpt: e, Type: "Haber"})
+                                }
+                                rows2.Close()
+                        }
+
+                        rows3, err := db.Query(`SELECT CONCAT(title,' ',first_name,' ',last_name), url_name, COALESCE(LEFT(biography,150),'') FROM doktorlar WHERE (title ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR biography ILIKE $1) AND is_active=true LIMIT 10`, like)
+                        if err != nil {
+                                log.Println("SearchPage doktorlar query error:", err)
+                        }
+                        if rows3 != nil {
+                                for rows3.Next() {
+                                        var t, u, e string
+                                        rows3.Scan(&t, &u, &e)
+                                        results = append(results, SearchResult{Title: t, Url: "/doktorlarimiz/" + u, Excerpt: e, Type: "Doktor"})
+                                }
+                                rows3.Close()
+                        }
+
+                        rows4, err := db.Query(`SELECT name, url_name, COALESCE(LEFT(description,150),'') FROM tedkikler WHERE (name ILIKE $1 OR description ILIKE $1) AND is_active=true LIMIT 10`, like)
+                        if err != nil {
+                                log.Println("SearchPage tedkikler query error:", err)
+                        }
+                        if rows4 != nil {
+                                for rows4.Next() {
+                                        var t, u, e string
+                                        rows4.Scan(&t, &u, &e)
+                                        results = append(results, SearchResult{Title: t, Url: "/tetkikler/" + u, Excerpt: e, Type: "Tetkik"})
+                                }
+                                rows4.Close()
+                        }
+                }
+
+                return c.Render("views/frontend/arama", fiber.Map{
+                        "PathOnStart": "",
+                        "Route":       "/arama",
+                        "Options":     Options,
+                        "User":        OurUser,
+                        "Query":       q,
+                        "Results":     results,
+                        "Title":       "Arama | " + Options.Options.SiteName,
+                        "Description": "Site içi arama sonuçları",
+                }, "layouts/main/main")
+        }
 }

@@ -1,0 +1,51 @@
+<div class="compact-page-header">
+    <div class="container">
+        <ul class="compact-breadcrumb">
+            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
+            <li><span class="current">Tetkikler</span></li>
+        </ul>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkikler.css">
+
+<section class="tetkikler-page section-space" style="padding-top: 30px;">
+    <div class="container">
+        {{ if len(Tetkikler) > 0 }}
+            <div class="row gutter-y-30">
+                {{ range index, Tetkik := Tetkikler }}
+                <div class="col-lg-4 col-md-6 col-6">
+                    <div class="tetkik-card wow fadeInUp" data-wow-duration="1500ms" data-wow-delay="{{ index * 100 }}ms">
+                        <a class="tetkik-card__link-overlay" href="/tetkikler/{{ Tetkik.UrlName }}" aria-label="{{ Tetkik.Name }}"></a>
+
+                        <div class="tetkik-card__image" style='background-image: url("{{ Tetkik.CoverPath != "" ? PathOnStart + Tetkik.CoverPath : PathOnStart + "files/defaults/tedkik/tedkik-default.png" }}")'></div>
+
+                        <div class="tetkik-card__info">
+                            <div class="tetkik-card__identity">
+                                <h3 class="tetkik-card__name">
+                                    <a href="/tetkikler/{{ Tetkik.UrlName }}">{{ Tetkik.Name }}</a>
+                                </h3>
+                            </div>
+                            <a class="tetkik-card__detail-btn" href="/tetkikler/{{ Tetkik.UrlName }}" onclick="event.stopPropagation()">
+                                Detaylı Bilgi <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        {{ else }}
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center" style="padding: 60px 20px;">
+                        <div style="font-size: 64px; color: #6b7280; margin-bottom: 20px;">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h3 style="color: #374151; font-size: 24px; font-weight: 600; margin-bottom: 12px;">Tetkik Bulunamadı</h3>
+                        <p style="color: #6b7280; font-size: 16px;">Şu anda görüntülenecek tetkik bulunamadı.</p>
+                    </div>
+                </div>
+            </div>
+        {{ end }}
+    </div>
+</section>

@@ -1,0 +1,75 @@
+/*
+ * Kart tasarimi - genel gorsel cila (doktor / tibbi birim / tetkik kartlari).
+ * Renkler degistirilmedi (marka kirmizi/lacivert korunuyor); sadece
+ * kartlarin "raised" (yukselmis, belirgin) gorunmesi icin surekli
+ * yumusak golge ve fotografta hover'da hafif yakinlastirma eklendi.
+ * Bu dosya tum sayfalarda yuklenir - .team-card-three (doktorlar),
+ * .birim-card (tibbi birimler), .tetkik-card (tetkikler) ortak deseni.
+ */
+
+.team-card-three,
+.birim-card,
+.tetkik-card {
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.09) !important;
+    border-radius: 14px !important;
+}
+
+.team-card-three:hover,
+.birim-card:hover,
+.tetkik-card:hover {
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16) !important;
+}
+
+.team-card-three__image,
+.birim-card__image,
+.tetkik-card__image {
+    overflow: hidden !important;
+    transition: transform .4s ease !important;
+}
+
+.team-card-three:hover .team-card-three__image,
+.birim-card:hover .birim-card__image,
+.tetkik-card:hover .tetkik-card__image {
+    transform: scale(1.06) !important;
+}
+
+.doctor-randevu-btn,
+.birim-card__detail-btn,
+.tetkik-card__detail-btn {
+    transition: background .2s ease, transform .2s ease !important;
+}
+
+.doctor-randevu-btn:hover,
+.birim-card__detail-btn:hover,
+.tetkik-card__detail-btn:hover {
+    transform: translateY(-1px) !important;
+}
+
+/* Merkezlerimiz (sube) kartlari + ana sayfa "Merkezlerimiz"/"Tibbi
+   Birimlerimiz" widget kartlari - ayni "raised card" cilasi. */
+.merkez-card,
+.home-merkez-card,
+.home-tibbi-card {
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.09) !important;
+}
+
+.merkez-card:hover,
+.home-merkez-card:hover,
+.home-tibbi-card:hover {
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16) !important;
+    transform: translateY(-3px) !important;
+}
+
+.merkez-card__image {
+    overflow: hidden !important;
+    transition: transform .4s ease !important;
+}
+
+.merkez-card:hover .merkez-card__image {
+    transform: scale(1.06) !important;
+}
+
+/* Sube detay sayfasindaki bilgi kart(lar)i - ayni golge yogunlugu */
+.sube-card {
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.09) !important;
+}

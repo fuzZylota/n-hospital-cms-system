@@ -172,7 +172,7 @@
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -271,12 +271,12 @@
     }
     
     .randevu-modal__message {
-        font-size: 15px;
+        font-size: 16px;
     }
     
     .randevu-modal__btn {
         padding: 10px 20px;
-        font-size: 13px;
+        font-size: 16px;
         min-width: 100px;
     }
 }
@@ -305,4 +305,68 @@
     .randevu-modal__btn--secondary:hover {
         background: #4b5563;
     }
+}
+
+/* ===== Modal Result Styles ===== */
+.randevu-modal__result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px;
+    text-align: center;
+    gap: 12px;
+}
+.randevu-modal__result-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+.randevu-modal__result--success .randevu-modal__result-icon {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+.randevu-modal__result--error .randevu-modal__result-icon {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+.randevu-modal__result-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--theme-primary-color, #0A2241);
+    margin: 0;
+}
+.randevu-modal__result-text {
+    font-size: 16px;
+    color: #555;
+    margin: 0;
+    line-height: 1.6;
+}
+.randevu-modal__result-timer {
+    font-size: 16px;
+    color: #888;
+    margin-top: 4px;
+}
+.randevu-modal__result-timer span {
+    font-weight: 700;
+    color: var(--theme-primary-color, #0A2241);
+}
+.randevu-modal__result-btn {
+    margin-top: 8px;
+    padding: 10px 28px;
+    background: var(--theme-primary-color, #0A2241);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.randevu-modal__result-btn:hover {
+    background: #df0024;
 }

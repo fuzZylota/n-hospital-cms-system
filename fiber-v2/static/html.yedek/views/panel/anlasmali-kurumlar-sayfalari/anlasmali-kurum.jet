@@ -1,0 +1,332 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/panel/anlasmali-kurum.css">
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title-section">
+                <div class="breadcrumb">
+                    <a href="/panel/anlasmali-kurumlar" class="breadcrumb-link">
+                        <i class="fas fa-handshake"></i>
+                        Anlaşmalı Kurumlar
+                    </a>
+                    <i class="icon-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-current">{{ AnlasmaliKurum.Name }}</span>
+                </div>
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="title-content">
+                        <div class="title-main">{{ AnlasmaliKurum.Name }}</div>
+                        <div class="title-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ mthr(AnlasmaliKurum.CreatedAt, User.Timezone) }}
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                Son güncelleme: {{ mthr(AnlasmaliKurum.UpdatedAt, User.Timezone) }}
+                            </span>
+                        </div>
+                    </div>
+                </h1>
+                {{if AnlasmaliKurum.Description}}
+                <p class="page-subtitle">{{ AnlasmaliKurum.Description }}</p>
+                {{end}}
+            </div>
+            <div class="page-actions">
+                <div class="status-indicator">
+                    {{if AnlasmaliKurum.IsActive}}
+                    <span class="status-badge active">
+                        <i class="fas fa-check-circle"></i>
+                        Aktif
+                    </span>
+                    {{else}}
+                    <span class="status-badge inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Pasif
+                    </span>
+                    {{end}}
+                </div>
+                <div class="action-buttons">
+                    <a href="/panel/anlasmali-kurumlar/{{ AnlasmaliKurum.Akid }}/duzenle" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Düzenle
+                    </a>
+                    <button class="btn btn-danger" id="deleteAnlasmaliKurumBtn" data-id="{{ AnlasmaliKurum.Akid }}" data-name="{{ AnlasmaliKurum.Name }}">
+                        <i class="fas fa-trash"></i>
+                        <span class="btn-text">Sil</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-grid">
+        <!-- Basic Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 class="card-title">Temel Bilgiler</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Kurum Adı</label>
+                        <div class="info-value">{{ AnlasmaliKurum.Name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">URL Adı</label>
+                        <div class="info-value">{{ AnlasmaliKurum.UrlName }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Kurum Tipi</label>
+                        <div class="info-value">
+                            <span class="type-badge type-{{ AnlasmaliKurum.Type }}">
+                                {{if AnlasmaliKurum.Type == "sigorta"}}
+                                    <i class="fas fa-shield-alt"></i>
+                                    Sigorta
+                                {{else if AnlasmaliKurum.Type == "kurumsal"}}
+                                    <i class="fas fa-building"></i>
+                                    Kurumsal
+                                {{else if AnlasmaliKurum.Type == "universite"}}
+                                    <i class="fas fa-graduation-cap"></i>
+                                    Üniversite
+                                {{else if AnlasmaliKurum.Type == "devlet"}}
+                                    <i class="fas fa-landmark"></i>
+                                    Devlet
+                                {{else if AnlasmaliKurum.Type == "ozel"}}
+                                    <i class="fas fa-briefcase"></i>
+                                    Özel
+                                {{end}}
+                            </span>
+                        </div>
+                    </div>
+                    {{if AnlasmaliKurum.LogoPath}}
+                    <div class="info-item">
+                        <label class="info-label">Kurum Logosu</label>
+                        <div class="info-value">
+                            <div class="image-preview" data-media-id="{{ AnlasmaliKurum.LogoMid }}">
+                                <img src="{{ PathOnStart }}{{ AnlasmaliKurum.LogoPath }}" alt="{{ AnlasmaliKurum.LogoAltText }}" title="{{ AnlasmaliKurum.LogoTitle }}" class="preview-image zoomable">
+                                <div class="image-overlay">
+                                    <i class="icon-maximize"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3 class="card-title">İletişim Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if AnlasmaliKurum.ContactPerson}}
+                    <div class="info-item">
+                        <label class="info-label">İletişim Kişisi</label>
+                        <div class="info-value">{{ AnlasmaliKurum.ContactPerson }}</div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.Phone}}
+                    <div class="info-item">
+                        <label class="info-label">Telefon</label>
+                        <div class="info-value">
+                            <a href="tel:{{ AnlasmaliKurum.Phone }}" class="contact-link">
+                                <i class="icon-phone"></i>
+                                {{ AnlasmaliKurum.Phone }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.Email}}
+                    <div class="info-item">
+                        <label class="info-label">E-posta</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ AnlasmaliKurum.Email }}" class="contact-link">
+                                <i class="icon-mail"></i>
+                                {{ AnlasmaliKurum.Email }}
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.Address}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Adres</label>
+                        <div class="info-value">{{ AnlasmaliKurum.Address }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Şube Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="card-title">Bağlı Şube</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Şube Adı</label>
+                        <div class="info-value">
+                            <a href="/panel/subeler/{{ SubeData.Sid }}" class="sube-link">
+                                <i class="fas fa-building"></i>
+                                {{ SubeData.Name }}
+                            </a>
+                        </div>
+                    </div>
+                    {{if SubeData.SubeMediaPath}}
+                        <div class="info-item">
+                            <label class="info-label">Şube Logosu</label>
+                            <div class="info-value">
+                                <div class="image-preview" data-media-id="{{ AnlasmaliKurum.LogoMid }}">
+                                    <img src="{{ PathOnStart }}{{ SubeData.SubeMediaPath }}" alt="{{ SubeData.SubeMediaAltText }}" title="{{ SubeData.SubeMediaTitle }}" class="preview-image zoomable">
+                                    <div class="image-overlay">
+                                        <i class="icon-maximize"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contract Information Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h3 class="card-title">Sözleşme Bilgileri</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    {{if mthr(AnlasmaliKurum.ContractStartDate, User.Timezone)}}
+                    <div class="info-item">
+                        <label class="info-label">Sözleşme Başlangıç</label>
+                        <div class="info-value">{{ mthr(AnlasmaliKurum.ContractStartDate, User.Timezone) }}</div>
+                    </div>
+                    {{end}}
+                    {{if mthr(AnlasmaliKurum.ContractEndDate, User.Timezone)}}
+                    <div class="info-item">
+                        <label class="info-label">Sözleşme Bitiş</label>
+                        <div class="info-value">{{ mthr(AnlasmaliKurum.ContractEndDate, User.Timezone) }}</div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.DiscountRate > 0}}
+                    <div class="info-item">
+                        <label class="info-label">İndirim Oranı</label>
+                        <div class="info-value">{{ AnlasmaliKurum.DiscountRate }}%</div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.PaymentTerms}}
+                    <div class="info-item">
+                        <label class="info-label">Ödeme Koşulları</label>
+                        <div class="info-value">{{ AnlasmaliKurum.PaymentTerms }}</div>
+                    </div>
+                    {{end}}
+                    {{if AnlasmaliKurum.Notes}}
+                    <div class="info-item full-width">
+                        <label class="info-label">Notlar</label>
+                        <div class="info-value">{{ AnlasmaliKurum.Notes }}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content danger">
+        <div class="modal-icon">
+            <i class="icon-alert-circle"></i>
+        </div>
+        <h3 class="modal-title">Anlaşmalı Kurumu Sil</h3>
+        <p class="modal-message">
+            "<span id="deleteItemName"></span>" adlı anlaşmalı kurumu silmek istediğinizden emin misiniz? 
+            Bu işlem geri alınamaz ve tüm ilişkili veriler silinecektir.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="icon-trash-2"></i>
+                <span class="btn-text">Sil</span>
+                <div class="btn-loader" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="imageZoomModal" class="modal image-modal" style="display: none;">
+    <div class="modal-content image-content">
+        <button class="modal-close" onclick="closeImageModal()">
+            <i class="icon-x"></i>
+        </button>
+        <div class="image-container">
+            <img id="zoomedImage" src="" alt="Zoomed Image">
+        </div>
+        <div class="image-info">
+            <span id="imageTitle">Görsel</span>
+            <div class="image-actions">
+                <button class="btn btn-sm btn-secondary" onclick="downloadImage()">
+                    <i class="icon-download"></i>
+                    İndir
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="openImageInNewTab()">
+                    <i class="icon-external-link"></i>
+                    Yeni Sekmede Aç
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="successMessage" class="alert alert-success" style="display: none;">
+    <i class="icon-check-circle"></i>
+    <span class="alert-text">İşlem başarıyla tamamlandı.</span>
+    <button class="alert-close" onclick="closeAlert('successMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<div id="errorMessage" class="alert alert-error" style="display: none;">
+    <i class="icon-alert-circle"></i>
+    <span class="alert-text">Bir hata oluştu. Lütfen tekrar deneyin.</span>
+    <button class="alert-close" onclick="closeAlert('errorMessage')">
+        <i class="icon-x"></i>
+    </button>
+</div>
+
+<script>
+    // Pass data to JavaScript
+    window.anlasmaliKurumData = {
+        id: parseInt("{{ AnlasmaliKurum.Akid }}"),
+        name: "{{ AnlasmaliKurum.Name }}"
+    };
+</script>
+<script src="{{ PathOnStart }}js/panel/anlasmali-kurum.js"></script>

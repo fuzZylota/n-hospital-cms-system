@@ -24,9 +24,9 @@
     position: relative;
     max-width: 640px;
     text-align: center;
-    background: var(--theme-primary-color);
-    border: 1px solid color-mix(in srgb, var(--theme-primary-color) 12%, transparent);
-    box-shadow: 0 25px 80px color-mix(in srgb, var(--theme-secondary-color) 20%, rgba(0, 0, 0, 0.35));
+    background: #fff;
+    border: 1px solid #e8eaf0;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.12);
     border-radius: 16px;
     padding: 32px 28px 36px;
     backdrop-filter: blur(10px);
@@ -41,24 +41,24 @@
 
 .fallback__eyebrow {
     margin: 18px 0 8px;
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--theme-background-color) 90%, var(--theme-secondary-color));
+    color: #df0024;
 }
 
 .fallback__title {
     margin: 0 0 12px;
     font-size: clamp(26px, 4vw, 34px);
     line-height: 1.2;
-    color: var(--theme-background-color);
+    color: var(--theme-primary-color, #0A2241);
 }
 
 .fallback__text {
     margin: 0 0 20px;
     font-size: 16px;
     line-height: 1.6;
-    color: color-mix(in srgb, var(--theme-background-color) 85%, transparent);
+    color: #555;
 }
 
 .fallback__actions {
@@ -76,7 +76,7 @@
     padding: 12px 18px;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 16px;
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
@@ -120,3 +120,107 @@
     }
 }
 
+
+/* ── Compact Page Header (Global) ── */
+.compact-page-header {
+    margin-top: 0;
+    background: #f4f6fb;
+    padding: 0;
+    border-bottom: 1px solid #e8eaf0;
+    position: relative;
+    z-index: 10;
+    height: 48px;
+    display: flex;
+    align-items: center;
+}
+.compact-page-header .container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.compact-breadcrumb {
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    font-size: 16px !important;
+    color: #555;
+    list-style: none !important;
+    padding: 0 !important; margin: 0 !important;
+    flex-wrap: wrap;
+    visibility: visible !important;
+    opacity: 1 !important;
+    letter-spacing: 0.15px;
+}
+.compact-breadcrumb li {
+    display: flex !important;
+    align-items: center;
+    visibility: visible !important;
+    color: #555;
+}
+.compact-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.18s ease;
+}
+.compact-breadcrumb a i {
+    font-size: 12px;
+    opacity: 0.75;
+    transition: opacity 0.18s ease;
+}
+.compact-breadcrumb a:hover { color: #1a2b5e; }
+.compact-breadcrumb a:hover i { opacity: 1; }
+.compact-breadcrumb li + li::before { content: "›"; margin: 0 8px; color: #999; font-weight: 400; }
+.compact-breadcrumb .current { color: #1a2b5e; font-weight: 600; }
+.compact-breadcrumb span { color: #1a2b5e; font-weight: 600; }
+
+/* Mobilde uzun başlıklar alt satıra kaymasın - son öge tek satırda üç nokta ile kısalsın */
+@media (max-width: 767px) {
+    .compact-page-header .container {
+        overflow: hidden;
+    }
+    .compact-breadcrumb {
+        flex-wrap: nowrap !important;
+        overflow: hidden;
+        max-width: 100%;
+    }
+    .compact-breadcrumb li {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+    .compact-breadcrumb li:last-child {
+        flex-shrink: 1;
+        overflow: hidden;
+    }
+    .compact-breadcrumb li:last-child .current,
+    .compact-breadcrumb li:last-child span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ===== Fallback Buton Renk Düzeltme ===== */
+.fallback__actions .btn-primary {
+    background: var(--theme-primary-color, #0A2241) !important;
+    color: #fff !important;
+    border-color: var(--theme-primary-color, #0A2241) !important;
+}
+.fallback__actions .btn-primary:hover {
+    background: #df0024 !important;
+    border-color: #df0024 !important;
+}
+.fallback__actions .btn-secondary {
+    background: transparent !important;
+    color: var(--theme-primary-color, #0A2241) !important;
+    border-color: var(--theme-primary-color, #0A2241) !important;
+}
+.fallback__actions .btn-secondary:hover {
+    background: var(--theme-primary-color, #0A2241) !important;
+    color: #fff !important;
+}
+/* ===== /Fallback Buton Renk Düzeltme ===== */

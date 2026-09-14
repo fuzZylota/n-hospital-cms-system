@@ -1,0 +1,136 @@
+.transparent-bg-on-homepage-topbar {
+    background-color: var(--mediox-black)!important;
+}
+
+.topbar-one__info li a {
+    color: #ffffff;
+}
+
+.topbar-one__info li a:hover {
+    color: var(--mediox-base);
+}
+
+/* color-mix(in srgb, var(--my-color), black 20%); */
+
+.transparent-bg-on-homepage {
+    background-color: transparent !important;
+}
+
+.transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li > a {
+    color: #ffffff;
+}
+
+/* Ama dropdown içindeki alt menü linkleri beyaz olmasın */
+.transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li.dropdown ul li a {
+    color: initial; /* veya istediğin normal renk */
+}
+
+.transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li > a:hover {
+    color: var(--mediox-base);
+}
+
+.not-transparent-bg-on-homepage {
+    background-color: var(--theme-primary-color) !important;
+}
+
+.not-transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li > a {
+    color: #ffffff !important;
+}
+
+/* Ama dropdown içindeki alt menü linkleri beyaz olmasın */
+.not-transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li.dropdown ul li a {
+    color: initial !important; /* veya istediğin normal renk */
+}
+
+.not-transparent-bg-on-homepage 
+    .main-header__nav .main-menu__list > li > a:hover {
+    color: var(--mediox-base) !important;
+}
+
+.main-header__call__icon {
+    background-color: #ffffff;
+}
+
+.main-header__call__icon i:hover {
+    color: var(--mediox-base) !important;
+}
+
+.main-header__call__number a {
+    color: #ffffff;
+}
+
+.main-header__call__number a:hover {
+    color: var(--mediox-base);
+}
+
+.main-header__sidebar-btn span {
+    background-color: #ffffff;
+    color: #ffffff;
+}
+
+.mobile-nav__btn span {
+  background-color: var(--mediox-white) !important;
+}
+
+/* Ensure hamburger lines turn white on transparent header */
+.transparent-bg-on-homepage .mobile-nav__btn span {
+    background-color: #ffffff !important;
+}
+
+/* Banner Styles */
+
+.main-slider-three__title__inner {
+    color: #ffffff;
+}
+
+.icon-arrow-right {
+    color: #ffffff;
+}
+
+.icon-arrow-left {
+    color: #ffffff;
+}
+
+
+.main-slider-three__button--2 .mediox-btn {
+    border-color: #ffffff !important;
+}
+
+.main-slider-three__button--2 .mediox-btn:hover {
+    border-color: var(--mediox-base);
+    color: #ffffff;
+}
+
+.mediox-btn__icon i {
+    color: #ffffff;
+}
+
+.mediox-btn:hover .mediox-btn__icon .randevu-btn {
+    color: var(--theme-secondary-color);
+} 
+
+.mediox-btn__icon i:hover {
+    color: var(--theme-secondary-color);
+}
+
+.main-header__call__icon {
+    color: var(--theme-primary-color);
+}
+
+.main-header__call:hover .main-header__call__icon {
+    color: var(--mediox-white, #FFFFFF);
+    background-color: var(--mediox-base, #33C1ED);
+}
+
+.main-header__call:hover .main-header__call__icon i {
+color: #fff;
+}
+
+.main-header__call__icon i:hover {
+    color: #fff !important;
+}

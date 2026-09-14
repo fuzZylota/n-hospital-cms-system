@@ -1,0 +1,185 @@
+/* Merkezlerimiz - Kart Stili (Doktorlarimiz / Tibbi Birimler ile ayni yapi) */
+
+.merkezler-page.section-space {
+    padding-top: 30px;
+    padding-bottom: 60px;
+}
+
+.merkez-card {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.25s ease;
+    height: 100%;
+}
+.merkez-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.merkez-card__link-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.merkez-card__image {
+    width: 100%;
+    min-height: 370px;
+    max-height: 370px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    flex-shrink: 0;
+    background-color: #f1f5f9;
+}
+
+.merkez-card__info {
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 16px 18px;
+    flex: 1;
+}
+
+.merkez-card__identity {
+    text-align: center;
+    width: 100%;
+    padding-bottom: 10px;
+}
+.merkez-card__name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    line-height: 1.35;
+}
+.merkez-card__name a {
+    color: #111827;
+    text-decoration: none;
+    position: relative;
+    z-index: 3;
+}
+.merkez-card__name a:hover {
+    color: var(--mediox-base, #0e6cc9);
+}
+
+.merkez-card__location {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 6px 0 0;
+    font-weight: 500;
+}
+.merkez-card__location i {
+    color: var(--theme-secondary-color, #d6293e);
+    margin-right: 4px;
+    font-size: 12px;
+}
+
+.merkez-card__buttons {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.merkez-card__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    background: var(--theme-secondary-color, #d6293e);
+    color: #fff !important;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: background 0.2s ease, transform 0.2s ease;
+    letter-spacing: 0.3px;
+}
+.merkez-card__btn:hover {
+    background: #b80020;
+    transform: translateY(-1px);
+}
+.merkez-card__btn--secondary {
+    background: var(--mediox-base, #0e6cc9);
+}
+.merkez-card__btn--secondary:hover {
+    background: #0b5bab;
+}
+.merkez-card__btn i {
+    font-size: 9px;
+    transition: transform 0.2s ease;
+}
+.merkez-card__btn:hover i {
+    transform: translateX(3px);
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .merkez-card__image {
+        min-height: 200px;
+        max-height: 200px;
+    }
+    .merkez-card__name {
+        font-size: 13px;
+    }
+    .merkez-card__btn {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+    .merkez-card__info {
+        padding: 12px 12px 14px;
+    }
+}
+
+/* Mobil - 2li grid */
+@media (max-width: 576px) {
+    .merkezler-page .gutter-y-30 {
+        --bs-gutter-x: 12px;
+        --bs-gutter-y: 12px;
+    }
+    .merkez-card {
+        border-radius: 10px;
+    }
+    .merkez-card__image {
+        min-height: 160px;
+        max-height: 160px;
+    }
+    .merkez-card__info {
+        padding: 10px 8px 12px;
+    }
+    .merkez-card__identity {
+        padding-bottom: 6px;
+    }
+    .merkez-card__name {
+        font-size: 11px;
+    }
+    .merkez-card__location {
+        font-size: 10px;
+        margin-top: 4px;
+    }
+    .merkez-card__location i {
+        font-size: 9px;
+    }
+    .merkez-card__buttons {
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+    }
+    .merkez-card__btn {
+        font-size: 9px;
+        padding: 5px 8px;
+        justify-content: center;
+        width: 100%;
+    }
+}

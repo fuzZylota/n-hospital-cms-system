@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlarimiz.css">
+<section class="team-three section-space">
+    <div class="container">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+            <h3 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Doktorlarımız</h3>
+            <a href="/doktorlarimiz" class="home-all-doctors-btn">Tüm Doktorlar</a>
+        </div>
+        <div style="position:relative; padding:0 44px;">
+            <button class="team-three__nav-btn team-three__nav-btn--prev" id="doctorPrev"><i class="icon-arrow-left"></i></button>
+            <div class="team-three__carousel mediox-owl__carousel mediox-owl__carousel--basic-nav owl-carousel owl-theme" id="doctorCarousel" data-owl-options='{
+                "items": 4,
+                "margin": 20,
+                "loop": true,
+                "smartSpeed": 700,
+                "nav": false,
+                "dots": false,
+                "autoplay": true, "autoplayTimeout": 3000, "autoplayHoverPause": true,
+                "responsive": {
+                    "0": {"items": 2, "margin": 10},
+                    "768": {"items": 3, "margin": 16},
+                    "992": {"items": 4, "margin": 20}
+                }
+            }'>
+                {{ range index2, Doctor := Doctors }}
+                    <div class="item">
+                        <div class="team-card-three">
+                            <a class="team-card-three__link-overlay" href="/doktorlarimiz/{{ Doctor.UrlName }}"></a>
+                            <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? Doctor.PhotoPath : "files/defaults/doktorlar/default-doctor-pic.png" }}")' ></div>
+                            <div class="team-card-three__hover">
+                                <div class="team-card-three__identity">
+                                    <h3 class="team-card-three__name">{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</h3>
+                                    <p class="team-card-three__designation">{{ Doctor.BransName }}</p>
+                                </div>
+                                <a class="doctor-randevu-btn" href="/randevu" onclick="event.stopPropagation()">
+                                    Randevu Al <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+            <button class="team-three__nav-btn team-three__nav-btn--next" id="doctorNext"><i class="icon-arrow-right"></i></button>
+        </div>
+    </div>
+</section>
+<script>
+(function waitOwl() {
+    if (typeof $ === 'undefined' || !$.fn.owlCarousel) { setTimeout(waitOwl, 200); return; }
+    $('#doctorPrev').on('click', function() { $('#doctorCarousel').trigger('prev.owl.carousel'); });
+    $('#doctorNext').on('click', function() { $('#doctorCarousel').trigger('next.owl.carousel'); });
+})();
+</script>

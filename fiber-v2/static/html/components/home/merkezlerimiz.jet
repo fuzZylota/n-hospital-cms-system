@@ -1,7 +1,7 @@
 <section class="home-merkezlerimiz" style="padding: 40px 0 60px; background: #fff;">
     <div class="container">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
-            <h3 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Merkezlerimiz</h3>
+            <h2 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Merkezlerimiz</h2>
             <a href="/merkezlerimiz" class="home-all-doctors-btn">Tümünü Gör</a>
         </div>
         <div style="position:relative; padding:0 44px;">
