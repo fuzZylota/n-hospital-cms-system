@@ -14,3 +14,17 @@ fiber-v2/static/files/doctors
 fiber-v2/app.log
 fiber-v2/blabla.html
 fiber-v2/static/files/doktorlar
+
+# Yedek klasorleri
+fiber-v2/static/css.yedek/
+fiber-v2/static/html.yedek/
+fiber-v2/static/js.yedek/
+
+# Yedek dosyalari
+*.bak-*
+
+# Derlenmis binary
+fiber-v2/main/main
+
+# Calisma ciktilari
+nohup.out
