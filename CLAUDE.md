@@ -29,7 +29,7 @@ Ziyaretçi yaş ortalaması yüksek, trafik ağırlıklı mobil.
   nivgoz_db` (host/port belirtmeden) unix socket üzerinden YANLIŞLIKLA
   5433'e bağlanıyor ve boş/eski veri gösteriyor — bu az kalsın yanlış
   DB'ye yazma hatasına yol açıyordu. DOĞRU bağlantı:
-  `PGPASSWORD='NivGoz123.' psql -h 127.0.0.1 -p 5432 -U nivgoz -d nivgoz_db`
+DB bağlantı parolası repository dışında yönetilir; bağlantıda onaylı güvenli credential kaynağı kullanılır.
 - ORM: Necoo33/neormgo/v2
 - Tema: satın alınmış Mediox HTML teması (/static/assets/)
 - Banner: DB'de tek bir banner_page kaydı var, yani TEK slide.

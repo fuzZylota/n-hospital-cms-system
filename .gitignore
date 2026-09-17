@@ -1,4 +1,6 @@
-fiber-v2/.env
+.env
+.env.*
+!.env.example
 fiber-v2/static/uploads
 fiber-v2/static/files/options
 fiber-v2/static/files/subeler
