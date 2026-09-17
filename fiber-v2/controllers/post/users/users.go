@@ -1,7 +1,9 @@
 package users
 
 import (
-	
+	"encoding/json"
+	"errors"
+	"fmt"
 	lib "lib"
 	"log"
 	"models"
@@ -13,6 +15,61 @@ import (
 	"strconv"
 	"strings"
 )
+
+func collectUserEditFields(c *fiber.Ctx) (map[string][]string, error) {
+	fields := make(map[string][]string)
+	contentType := c.Get(fiber.HeaderContentType)
+
+	if strings.HasPrefix(contentType, fiber.MIMEApplicationJSON) {
+		var body map[string]interface{}
+		if err := json.Unmarshal(c.Body(), &body); err != nil {
+			return nil, err
+		}
+
+		for key, value := range body {
+			switch typedValue := value.(type) {
+			case []interface{}:
+				for _, item := range typedValue {
+					switch item.(type) {
+					case string, bool, float64:
+						fields[key] = append(fields[key], fmt.Sprint(item))
+					default:
+						return nil, errors.New("invalid user edit field value")
+					}
+				}
+			case nil:
+				fields[key] = []string{""}
+			case string, bool, float64:
+				fields[key] = []string{fmt.Sprint(typedValue)}
+			default:
+				return nil, errors.New("invalid user edit field value")
+			}
+		}
+
+		return fields, nil
+	}
+
+	if strings.HasPrefix(contentType, fiber.MIMEMultipartForm) {
+		form, err := c.MultipartForm()
+		if err != nil {
+			return nil, err
+		}
+		if len(form.File) != 0 {
+			return nil, errors.New("file fields are not allowed in user edit requests")
+		}
+		for key, values := range form.Value {
+			fields[key] = append([]string(nil), values...)
+		}
+		return fields, nil
+	}
+
+	c.Context().PostArgs().VisitAll(func(key []byte, value []byte) {
+		field := string(key)
+		fields[field] = append(fields[field], string(value))
+	})
+
+	return fields, nil
+}
 
 func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -61,8 +118,6 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 				})
 			}
 		}
-
-
 
 		if inputs.Password != inputs.PasswordConfirm {
 			return c.Redirect("/panel/kullanici-ekle?error=password_and_password_confirm_do_not_match")
@@ -231,306 +286,271 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 
 func EditUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		OurUser, err := lib.CheckAuth(c)
-
+		authenticatedUser, err := lib.CheckAuth(c)
 		if err != nil {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden",
-			})
+			return c.JSON(fiber.Map{"status": 403, "message": "Forbidden"})
 		}
 
-		inputs := models.UsersEdit{}
-		c.BodyParser(&inputs)
+		fields, err := collectUserEditFields(c)
+		if err != nil {
+			return c.JSON(fiber.Map{"status": 400, "message": "Bad request"})
+		}
 
-                // ---- permsChanged: Şube Yetkileri değişti mi? ----
-                permsChanged := false
-                if strings.Contains(string(c.Body()), "perm_view_") || strings.Contains(string(c.Body()), "perm_delete_") { permsChanged = true }
-                if mf, err := c.MultipartForm(); err == nil && mf != nil {
-                        for k := range mf.Value {
-                                if strings.HasPrefix(k, "perm_view_") || strings.HasPrefix(k, "perm_delete_") {
-                                        permsChanged = true
-                                        break
-                                }
-                        }
-                } else {
-                        // multipart değilse de form değerlerinden anlamaya çalış
-                        // (checkbox işaretliyse gelir, işaretsizse gelmez)
-                        // bu durumda permsChanged false kalabilir, ama en azından crash olmaz
-                }
-
-
+		targetUID := c.Params("uid")
 		Orm := utilities.Orm
 
-		if OurUser.Role != "admin" {
-			if OurUser.Uid != inputs.Uid {
-				return c.JSON(fiber.Map{
-					"status":  403,
-					"message": "Only admins can edit users",
-				})
+		lookupActor := func(uid string) (userEditActor, error) {
+			GetActor := Orm.Select([]string{"uid", "role", "is_active"})
+			GetActor.Table("users")
+			GetActor.Where("uid", "=", uid)
+			GetActor.Finish()
+			if lookupErr := GetActor.Execute(); lookupErr != nil {
+				return userEditActor{}, lookupErr
+			}
+			actorRows, lookupErr := GetActor.Rows()
+			if lookupErr != nil {
+				return userEditActor{}, lookupErr
+			}
+			if len(actorRows) == 0 {
+				return userEditActor{}, nil
+			}
+			if len(actorRows) != 1 {
+				return userEditActor{}, errors.New("multiple editing users found")
+			}
+			return userEditActor{
+				UID:      lib.String(actorRows[0]["uid"]),
+				Role:     lib.String(actorRows[0]["role"]),
+				IsActive: lib.Bool(actorRows[0]["is_active"]),
+			}, nil
+		}
+
+		decision, err := decideUserEditRequest(authenticatedUser.Uid, targetUID, fields, lookupActor)
+		if err != nil {
+			if errors.Is(err, errInvalidUserEditUID) || errors.Is(err, errInvalidUserProfile) {
+				return c.JSON(fiber.Map{"status": 400, "message": "Invalid user profile"})
+			}
+			if errors.Is(err, errUserEditActorLookup) {
+				log.Printf("Cannot load editing user: %v\n", err)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+			return c.JSON(fiber.Map{"status": 403, "message": "Only admins can edit protected user fields"})
+		}
+		fields = decision.Fields
+		policy := decision.Policy
+		targetUIDInt := decision.TargetUID
+
+		inputs := models.UsersEdit{}
+		if err = c.BodyParser(&inputs); err != nil {
+			return c.JSON(fiber.Map{"status": 400, "message": "Bad request"})
+		}
+		if !policy.IsAdmin {
+			if value, submitted := submittedFieldValue(fields, "name"); submitted {
+				inputs.Name = value
+			}
+			if value, submitted := submittedFieldValue(fields, "surname"); submitted {
+				inputs.Surname = value
+			}
+			if value, submitted := submittedFieldValue(fields, "email"); submitted {
+				inputs.Email = value
+			}
+			if value, submitted := submittedFieldValue(fields, "phone"); submitted {
+				inputs.Phone = value
+			}
+			if value, submitted := submittedFieldValue(fields, "timezone"); submitted {
+				inputs.Timezone = value
 			}
 		}
 
-		if OurUser.Role != "admin" && (inputs.Role != inputs.OldRole) {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Only admins can edit users role",
-			})
+		permissionChanges := []branchPermissionChange{}
+		if policy.UpdatePermissions {
+			permissionChanges, err = parseBranchPermissionChanges(targetUIDInt, fields)
+			if err != nil {
+				return c.JSON(fiber.Map{"status": 400, "message": "Invalid branch permissions"})
+			}
+
+			GetActiveBranches := Orm.Select([]string{"sid"})
+			GetActiveBranches.Table("subeler")
+			GetActiveBranches.Where("is_active", "=", true)
+			GetActiveBranches.Finish()
+			if err = GetActiveBranches.Execute(); err != nil {
+				log.Printf("Cannot load active branches: %v\n", err)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+			activeBranchRows, rowsErr := GetActiveBranches.Rows()
+			if rowsErr != nil {
+				log.Printf("Cannot read active branches: %v\n", rowsErr)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+			activeBranches := make(map[int]struct{}, len(activeBranchRows))
+			for _, row := range activeBranchRows {
+				branchID, conversionErr := strconv.Atoi(lib.String(row["sid"]))
+				if conversionErr != nil || branchID <= 0 {
+					log.Printf("Cannot parse active branch id")
+					return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+				}
+				activeBranches[branchID] = struct{}{}
+			}
+			for _, change := range permissionChanges {
+				if _, ok := activeBranches[change.BranchID]; !ok {
+					return c.JSON(fiber.Map{"status": 400, "message": "Invalid branch permissions"})
+				}
+			}
 		}
 
-		if OurUser.Role != "admin" && (inputs.IsActive != inputs.OldIsActive) {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Only admins can edit users ban status",
-			})
+		GetTarget := Orm.Select([]string{"uid", "email", "phone", "name", "surname", "role", "is_active", "timezone", "sid"})
+		GetTarget.Table("users")
+		GetTarget.Where("uid", "=", targetUID)
+		GetTarget.Finish()
+		if err = GetTarget.Execute(); err != nil {
+			log.Printf("Cannot load target user: %v\n", err)
+			return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
 		}
-
-		if OurUser.Role != "admin" && (inputs.Sid != inputs.OldSid) {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Only admins can edit users sube status",
-			})
+		targetRows, err := GetTarget.Rows()
+		if err != nil {
+			log.Printf("Cannot read target user: %v\n", err)
+			return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
 		}
+		if len(targetRows) != 1 {
+			return c.JSON(fiber.Map{"status": 404, "message": "User not found"})
+		}
+		currentUser := targetRows[0]
 
-		if inputs.Email != inputs.OldEmail {
+		if _, submitted := fields["email"]; submitted && inputs.Email != lib.String(currentUser["email"]) {
 			CheckIfEmailExists := Orm.Count("users")
 			CheckIfEmailExists.Where("email", "=", inputs.Email)
+			CheckIfEmailExists.And("uid", "!=", targetUID)
 			CheckIfEmailExists.Finish()
-
-			err = CheckIfEmailExists.Execute()
-
-			if err != nil {
+			if err = CheckIfEmailExists.Execute(); err != nil {
 				log.Printf("Cannot check if email exists: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
 			}
-
 			if CheckIfEmailExists.Length() > 0 {
-				return c.JSON(fiber.Map{
-					"status":  403,
-					"message": "Email already exists",
-				})
+				return c.JSON(fiber.Map{"status": 403, "message": "Email already exists"})
 			}
 		}
 
-		if inputs.Phone != inputs.OldPhone {
+		if _, submitted := fields["phone"]; submitted && inputs.Phone != lib.String(currentUser["phone"]) {
 			CheckIfPhoneExists := Orm.Count("users")
 			CheckIfPhoneExists.Where("phone", "=", inputs.Phone)
+			CheckIfPhoneExists.And("uid", "!=", targetUID)
 			CheckIfPhoneExists.Finish()
-
-			err = CheckIfPhoneExists.Execute()
-
-			if err != nil {
+			if err = CheckIfPhoneExists.Execute(); err != nil {
 				log.Printf("Cannot check if phone exists: %v\n", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Internal server error",
-				})
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
 			}
-
 			if CheckIfPhoneExists.Length() > 0 {
-				return c.JSON(fiber.Map{
-					"status":  403,
-					"message": "Phone already exists",
-				})
+				return c.JSON(fiber.Map{"status": 403, "message": "Phone already exists"})
 			}
 		}
 
 		UpdateUser := Orm.Update()
 		UpdateUser.Table("users")
-		SomethingSet := false
+		userChanged := false
+		if _, submitted := fields["email"]; submitted && inputs.Email != lib.String(currentUser["email"]) {
+			UpdateUser.Set("email", inputs.Email)
+			userChanged = true
+		}
+		if _, submitted := fields["phone"]; submitted && inputs.Phone != lib.String(currentUser["phone"]) {
+			UpdateUser.Set("phone", inputs.Phone)
+			userChanged = true
+		}
+		if _, submitted := fields["name"]; submitted && inputs.Name != lib.String(currentUser["name"]) {
+			UpdateUser.Set("name", inputs.Name)
+			userChanged = true
+		}
+		if _, submitted := fields["surname"]; submitted && inputs.Surname != lib.String(currentUser["surname"]) {
+			UpdateUser.Set("surname", inputs.Surname)
+			userChanged = true
+		}
+		if _, submitted := fields["timezone"]; submitted && inputs.Timezone != lib.String(currentUser["timezone"]) {
+			UpdateUser.Set("timezone", inputs.Timezone)
+			userChanged = true
+		}
 
-		{
-			if inputs.Email != inputs.OldEmail {
-				UpdateUser.Set("email", inputs.Email)
-				SomethingSet = true
-			}
-
-			if inputs.Phone != inputs.OldPhone {
-				UpdateUser.Set("phone", inputs.Phone)
-				SomethingSet = true
-			}
-
-			if inputs.Name != inputs.OldName {
-				UpdateUser.Set("name", inputs.Name)
-				SomethingSet = true
-			}
-
-			if inputs.Surname != inputs.OldSurname {
-				UpdateUser.Set("surname", inputs.Surname)
-				SomethingSet = true
-			}
-
-			if inputs.Role != inputs.OldRole {
+		if policy.IsAdmin {
+			if _, submitted := fields["role"]; submitted && inputs.Role != lib.String(currentUser["role"]) {
 				UpdateUser.Set("role", inputs.Role)
-				SomethingSet = true
+				userChanged = true
 			}
-
-			if inputs.IsActive != inputs.OldIsActive {
+			if _, submitted := fields["is_active"]; submitted && inputs.IsActive != lib.Bool(currentUser["is_active"]) {
 				UpdateUser.Set("is_active", inputs.IsActive)
-				SomethingSet = true
+				userChanged = true
 			}
-
-			if inputs.Timezone != inputs.OldTimezone {
-				UpdateUser.Set("timezone", inputs.Timezone)
-				SomethingSet = true
-			}
-
-			if inputs.Sid != inputs.OldSid {
+			if _, submitted := fields["sid"]; submitted && inputs.Sid != lib.String(currentUser["sid"]) {
 				UpdateUser.Set("sid", inputs.Sid)
-				SomethingSet = true
+				userChanged = true
 			}
 		}
 
-		if !SomethingSet && !permsChanged {
-			return c.JSON(fiber.Map{
-				"status":  400,
-				"message": "Nothing changed",
-			})
+		if !userChanged && len(permissionChanges) == 0 {
+			return c.JSON(fiber.Map{"status": 400, "message": "Nothing changed"})
 		}
 
-		if SomethingSet {
-		        		UpdateUser.Where("uid", "=", inputs.Uid)
-		        		UpdateUser.Finish()
-		        
-		        		err = UpdateUser.Execute()
-		        
-		        		if err != nil {
-		        			log.Printf("Cannot update user: %v\n", err)
-		        			return c.JSON(fiber.Map{
-		        				"status":  500,
-		        				"message": "Internal server error",
-		        			})
-		        		}
+		if userChanged {
+			UpdateUser.Where("uid", "=", targetUID)
+			UpdateUser.Finish()
+			if err = UpdateUser.Execute(); err != nil {
+				log.Printf("Cannot update user: %v\n", err)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
 		}
-                // ---- ŞUBE YETKİLERİ KAYDI (user_branch_permissions) ----
-                // Formdan perm_view_<sid> / perm_delete_<sid> checkboxlarını okuyup DB'ye yazar.
-                // Checkbox işaretli değilse FormValue boş gelir.
-                // uid: en doğrusu formdan gelen inputs.Uid (hidden uid alanı)
-                uidInt, errUid := strconv.Atoi(inputs.Uid)
-                if errUid != nil || uidInt == 0 {
-                        // fallback: route parametrelerinden dene
-                        uidStr := c.Params("uid")
-                        if uidStr == "" {
-                                uidStr = c.Params("user")
-                        }
-                        if uidStr == "" {
-                                uidStr = c.Params("kullanici")
-                        }
-                        uidInt, _ = strconv.Atoi(uidStr)
-                }
-                // aktif şubeleri çek
-                GetSubelerForPerm := Orm.Select([]string{"sid"})
-                GetSubelerForPerm.Table("subeler")
-                GetSubelerForPerm.Where("is_active", "=", true)
-                GetSubelerForPerm.Finish()
-                _ = GetSubelerForPerm.Execute()
-                subeRows, _ := GetSubelerForPerm.Rows()
 
-                for _, r := range subeRows {
-                        sidStr := lib.String(r["sid"])
-                        sidInt, _ := strconv.Atoi(sidStr)
-                        // perm_view_<sid> / perm_delete_<sid> multi-value oku (hidden=0 + checkbox=1)
-                        hasOne := func(vals []string) bool {
-                                for _, v := range vals {
-                                        if v == "1" || v == "true" || v == "on" {
-                                                return true
-                                        }
-                                }
-                                return false
-                        }
+		for _, change := range permissionChanges {
+			CheckPermission := Orm.Select([]string{"id"})
+			CheckPermission.Table("user_branch_permissions")
+			CheckPermission.Where("uid", "=", change.TargetUID)
+			CheckPermission.And("sid", "=", change.BranchID)
+			CheckPermission.Finish()
+			if err = CheckPermission.Execute(); err != nil {
+				log.Printf("Cannot check branch permission: %v\n", err)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+			permissionRows, rowsErr := CheckPermission.Rows()
+			if rowsErr != nil {
+				log.Printf("Cannot read branch permission: %v\n", rowsErr)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
 
-                        // JSON body'yi bir kez parse et
-                        var jsonBody map[string]interface{}
-                        _ = c.BodyParser(&jsonBody)
+			if len(permissionRows) > 0 {
+				UpdatePermission := Orm.Update()
+				UpdatePermission.Table("user_branch_permissions")
+				if change.CanView != nil {
+					UpdatePermission.Set("can_view", *change.CanView)
+				}
+				if change.CanDelete != nil {
+					UpdatePermission.Set("can_delete", *change.CanDelete)
+				}
+				UpdatePermission.Where("uid", "=", change.TargetUID)
+				UpdatePermission.And("sid", "=", change.BranchID)
+				UpdatePermission.Finish()
+				if err = UpdatePermission.Execute(); err != nil {
+					log.Printf("Cannot update branch permission: %v\n", err)
+					return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+				}
+				continue
+			}
 
-                        readAll := func(key string) []string {
-                                // JSON body'den oku
-                                if jsonBody != nil {
-                                        if val, ok := jsonBody[key]; ok {
-                                                switch v := val.(type) {
-                                                case string:
-                                                        return []string{v}
-                                                case bool:
-                                                        if v {
-                                                                return []string{"1"}
-                                                        }
-                                                        return []string{"0"}
-                                                case float64:
-                                                        if v == 1 {
-                                                                return []string{"1"}
-                                                        }
-                                                        return []string{"0"}
-                                                }
-                                        }
-                                }
-                                // multipart ise
-                                if mf, err := c.MultipartForm(); err == nil && mf != nil {
-                                        if vals, ok := mf.Value[key]; ok {
-                                                return vals
-                                        }
-                                }
-                                // urlencoded ise
-                                bvals := c.Context().PostArgs().PeekMulti(key)
-                                out := make([]string, 0, len(bvals))
-                                for _, bv := range bvals {
-                                        out = append(out, string(bv))
-                                }
-                                return out
-                        }
+			canView := false
+			canDelete := false
+			if change.CanView != nil {
+				canView = *change.CanView
+			}
+			if change.CanDelete != nil {
+				canDelete = *change.CanDelete
+			}
+			InsertPermission := Orm.Insert(
+				[]string{"uid", "sid", "can_view", "can_delete"},
+				[]interface{}{change.TargetUID, change.BranchID, canView, canDelete},
+			)
+			InsertPermission.Table("user_branch_permissions")
+			InsertPermission.Finish()
+			if err = InsertPermission.Execute(); err != nil {
+				log.Printf("Cannot insert branch permission: %v\n", err)
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+		}
 
-                        canView := hasOne(readAll("perm_view_" + sidStr))
-                        canDelete := hasOne(readAll("perm_delete_" + sidStr))
-
-
-
-                        // var mı?
-                        CheckPerm := Orm.Select([]string{"id"})
-                        CheckPerm.Table("user_branch_permissions")
-                        CheckPerm.Where("uid", "=", uidInt)
-                        CheckPerm.And("sid", "=", sidInt)
-                        CheckPerm.Finish()
-                        err = CheckPerm.Execute()
-                                if err != nil {
-                                        log.Printf("perm CheckPerm execute error: %v\n", err)
-                                }
-                        permRows, _ := CheckPerm.Rows()
-
-                        if len(permRows) > 0 {
-                                Upd := Orm.Update()
-                                Upd.Table("user_branch_permissions")
-                                Upd.Set("can_view", canView)
-                                Upd.Set("can_delete", canDelete)
-                                Upd.Where("uid", "=", uidInt)
-                                Upd.And("sid", "=", sidInt)
-                                Upd.Finish()
-                                err = Upd.Execute()
-                                  if err != nil {
-                                          log.Printf("perm update execute error: %v\n", err)
-                                  }
-                        } else {
-                                Ins := Orm.Insert(
-                                        []string{"uid", "sid", "can_view", "can_delete"},
-                                        []interface{}{uidInt, sidInt, canView, canDelete},
-                                )
-                                Ins.Table("user_branch_permissions")
-                                Ins.Finish()
-                                err = Ins.Execute()
-                                  if err != nil {
-                                          log.Printf("perm insert execute error: %v\n", err)
-                                  }
-                        }
-                }
-                // ---- ŞUBE YETKİLERİ KAYDI SON ----
-
-
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "User edited successfully",
-		})
+		return c.JSON(fiber.Map{"status": 201, "message": "User edited successfully"})
 	}
 }
 
@@ -704,7 +724,6 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 func DeleteUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		OurUser, err := lib.CheckAuth(c)
-
 
 		if err != nil {
 			return c.JSON(fiber.Map{

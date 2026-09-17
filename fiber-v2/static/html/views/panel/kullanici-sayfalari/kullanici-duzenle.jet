@@ -39,6 +39,7 @@
                 <div class="section-content">
                     <form id="userForm" class="user-form" novalidate>
                         <!-- Hidden inputs for old values -->
+                        {{ if IsAdmin }}
                         <input type="hidden" name="old_email" value="{{ IndividualUser.Email }}">
                         <input type="hidden" name="old_phone" value="{{ IndividualUser.Phone }}">
                         <input type="hidden" name="old_name" value="{{ IndividualUser.Name }}">
@@ -47,6 +48,7 @@
                         <input type="hidden" name="old_is_active" value="{{ IndividualUser.IsActive }}">
                         <input type="hidden" name="old_timezone" value="{{ IndividualUser.Timezone }}">
                         <input type="hidden" name="old_sid" value="{{ IndividualUser.Sid }}">
+                        {{ end }}
                         <input type="hidden" name="uid" value="{{ IndividualUser.Uid }}">
 
                         <!-- Personal Information -->
@@ -56,13 +58,13 @@
                                 <div class="form-group">
                                     <label for="name" class="form-label required">Ad</label>
                                     <input type="text" id="name" name="name" class="form-input" 
-                                           value="{{ IndividualUser.Name }}" required minlength="2" maxlength="255">
+                                           value="{{ IndividualUser.Name }}" required>
                                     <div class="form-help">En az 2 karakter olmalıdır</div>
                                 </div>
                                 <div class="form-group">
                                     <label for="surname" class="form-label required">Soyad</label>
                                     <input type="text" id="surname" name="surname" class="form-input" 
-                                           value="{{ IndividualUser.Surname }}" required minlength="2" maxlength="255">
+                                           value="{{ IndividualUser.Surname }}" required>
                                     <div class="form-help">En az 2 karakter olmalıdır</div>
                                 </div>
                             </div>
@@ -91,6 +93,7 @@
                         <div class="form-group-section">
                             <h3 class="group-title">Hesap Ayarları</h3>
                             <div class="form-row">
+                                {{ if IsAdmin }}
                                 <div class="form-group">
                                     <label for="role" class="form-label required">Kullanıcı Rolü</label>
                                     <select id="role" name="role" class="form-select" required>
@@ -115,6 +118,7 @@
                                 </div>
 <input type="hidden" name="sid" value="{{ IndividualUser.Sid }}">
 </div>
+                                {{ end }}
                                 <div class="form-group">
                                     <label for="timezone" class="form-label">Zaman Dilimi</label>
                                     <select id="timezone" name="timezone" class="form-select">
@@ -129,6 +133,7 @@
                                     <div class="form-help">Kullanıcının bulunduğu zaman dilimi</div>
                                 </div>
 
+{{ if IsAdmin }}
 <div class="form-section" style="margin-top: 18px;">
   <div class="section-header">
     <h2 class="section-title">
@@ -190,9 +195,11 @@
     </div>
   </div>
 </div>
+{{ end }}
 
 
                             </div>
+                            {{ if IsAdmin }}
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="is_active" class="form-label">Hesap Durumu</label>
@@ -206,6 +213,7 @@
                                     <div class="form-help">Hesabın aktif/pasif durumu</div>
                                 </div>
                             </div>
+                            {{ end }}
                         </div>
 
                         <!-- Information Card -->
@@ -356,7 +364,8 @@
     // Pass data to JavaScript
     window.pageData = {
         uid: {{ IndividualUser.Uid }},
-        sid: "{{ IndividualUser.Sid }}"
+        sid: "{{ IndividualUser.Sid }}",
+        isAdmin: {{ if IsAdmin }}true{{ else }}false{{ end }}
     };
 </script>
 <script src="{{ PathOnStart }}js/panel/kullanici-duzenle.js"></script>

@@ -1109,18 +1109,46 @@ func KullaniciEklePage(states *models.AppState, utilities *models.Utilities) fib
 func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
-
 		if err != nil {
 			return c.Redirect("/giris")
 		}
 
-		Oid := c.Params("kullanici")
-
+		targetUID := c.Params("kullanici")
 		Orm := utilities.Orm
+		lookupActor := func(uid string) (userEditPageActor, error) {
+			GetActor := Orm.Select([]string{"uid", "role", "is_active"})
+			GetActor.Table("users")
+			GetActor.Where("uid", "=", uid)
+			GetActor.Finish()
+			if lookupErr := GetActor.Execute(); lookupErr != nil {
+				return userEditPageActor{}, lookupErr
+			}
+			actorRows, lookupErr := GetActor.Rows()
+			if lookupErr != nil {
+				return userEditPageActor{}, lookupErr
+			}
+			if len(actorRows) == 0 {
+				return userEditPageActor{}, nil
+			}
+			if len(actorRows) != 1 {
+				return userEditPageActor{}, fmt.Errorf("multiple editing users found")
+			}
+			return userEditPageActor{
+				UID:      lib.String(actorRows[0]["uid"]),
+				Role:     lib.String(actorRows[0]["role"]),
+				IsActive: lib.Bool(actorRows[0]["is_active"]),
+			}, nil
+		}
+
+		currentActor, accessErr := authorizeUserEditPage(ourUser.Uid, targetUID, lookupActor)
+		if accessErr != nil {
+			log.Printf("User edit page access denied: %v\n", accessErr)
+			return c.SendStatus(fiber.StatusForbidden)
+		}
+		isAdmin := currentActor.Role == "admin"
 
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
-
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
@@ -1128,10 +1156,9 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 
 		Users := Orm.Select("*")
 		Users.Table("users")
-		Users.Where("uid", "=", Oid)
+		Users.Where("uid", "=", targetUID)
 		Users.Finish()
 		err = Users.Execute()
-
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
@@ -1141,6 +1168,9 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.Redirect("/giris")
+		}
+		if len(rows) != 1 {
+			return c.SendStatus(fiber.StatusNotFound)
 		}
 
 		User := models.Users{
@@ -1152,63 +1182,66 @@ func KullaniciDuzenlePage(states *models.AppState, utilities *models.Utilities) 
 			Role:      lib.String(rows[0]["role"]),
 			Sid:       lib.String(rows[0]["sid"]),
 			Timezone:  lib.String(rows[0]["timezone"]),
+			IsActive:  lib.Bool(rows[0]["is_active"]),
 			CreatedAt: lib.Time(rows[0]["created_at"]),
 			UpdatedAt: lib.Time(rows[0]["updated_at"]),
 		}
 
-		GetSubeler := Orm.Select([]string{"sid", "name"})
-		GetSubeler.Table("subeler")
-		GetSubeler.Where("is_active", "=", true)
-		GetSubeler.Finish()
-		err = GetSubeler.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		rows, err = GetSubeler.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
 		Subeler := []models.Subeler{}
-		for _, row := range rows {
-			Subeler = append(Subeler, models.Subeler{
-				Sid:  lib.String(row["sid"]),
-				Name: lib.String(row["name"]),
-			})
+		UserPermSids := map[string]map[string]bool{}
+		if isAdmin {
+			GetSubeler := Orm.Select([]string{"sid", "name"})
+			GetSubeler.Table("subeler")
+			GetSubeler.Where("is_active", "=", true)
+			GetSubeler.Finish()
+			if err = GetSubeler.Execute(); err != nil {
+				log.Printf("%v\n", err)
+				return c.Redirect("/giris")
+			}
+			branchRows, rowsErr := GetSubeler.Rows()
+			if rowsErr != nil {
+				log.Printf("%v\n", rowsErr)
+				return c.Redirect("/giris")
+			}
+			for _, row := range branchRows {
+				Subeler = append(Subeler, models.Subeler{
+					Sid:  lib.String(row["sid"]),
+					Name: lib.String(row["name"]),
+				})
+			}
+
+			GetPerms := Orm.Select([]string{"sid", "can_view", "can_delete"})
+			GetPerms.Table("user_branch_permissions")
+			GetPerms.Where("uid", "=", targetUID)
+			GetPerms.Finish()
+			if err = GetPerms.Execute(); err != nil {
+				log.Printf("%v\n", err)
+				return c.Redirect("/giris")
+			}
+			permRows, rowsErr := GetPerms.Rows()
+			if rowsErr != nil {
+				log.Printf("%v\n", rowsErr)
+				return c.Redirect("/giris")
+			}
+			for _, row := range permRows {
+				sid := lib.String(row["sid"])
+				UserPermSids[sid] = map[string]bool{
+					"can_view":   lib.Bool(row["can_view"]),
+					"can_delete": lib.Bool(row["can_delete"]),
+				}
+			}
 		}
 
-		
-                // Kullanıcının şube izinlerini getir
-                GetPerms := Orm.Select([]string{"sid", "can_view", "can_delete"})
-                GetPerms.Table("user_branch_permissions")
-                GetPerms.Where("uid", "=", Oid)
-                GetPerms.Finish()
-                err = GetPerms.Execute()
-                if err != nil {
-                        log.Printf("%v\n", err)
-                }
-                permRows, _ := GetPerms.Rows()
-                UserPermSids := map[string]map[string]bool{}
-                for _, row := range permRows {
-                        sid := lib.String(row["sid"])
-                        UserPermSids[sid] = map[string]bool{
-                                "can_view":   lib.Bool(row["can_view"]),
-                                "can_delete": lib.Bool(row["can_delete"]),
-                        }
-                }
-
-return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
+		return c.Render("views/panel/kullanici-sayfalari/kullanici-duzenle", fiber.Map{
 			"PathOnStart":    "../../../",
 			"PageTitle":      "Kullanıcı Düzenle",
 			"User":           ourUser,
 			"IndividualUser": User,
 			"Options":        GetOptions,
 			"Subeler":        Subeler,
-		                        "UserPermSids":   UserPermSids,
-}, "layouts/panel/panel")
+			"UserPermSids":   UserPermSids,
+			"IsAdmin":        isAdmin,
+		}, "layouts/panel/panel")
 	}
 }
 

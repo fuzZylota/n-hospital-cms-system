@@ -6,6 +6,7 @@
 class UserEditHandler {
     constructor() {
         this.uid = window.pageData.uid;
+        this.isAdmin = window.pageData.isAdmin === true;
         this.userForm = document.getElementById('userForm');
         this.userSubmitBtn = document.getElementById('userSubmitBtn');
         
@@ -37,8 +38,12 @@ class UserEditHandler {
                 // Collect all form data - simple approach
                 const data = {};
                 const allInputs = this.userForm.querySelectorAll('input, textarea, select');
+                const selfEditFields = new Set(['uid', 'name', 'surname', 'email', 'phone', 'timezone']);
                 
                 allInputs.forEach(input => {
+                    if (!this.isAdmin && !selfEditFields.has(input.name)) {
+                        return;
+                    }
                     if (input.type === 'checkbox') {
                         data[input.name] = input.checked;
                     } else if (input.type === 'hidden') {
@@ -270,6 +275,7 @@ class UserEditHandler {
      */
     validateName(field) {
         const value = field.value.trim();
+        const characterCount = Array.from(value).length;
         let isValid = true;
         let errorMessage = '';
 
@@ -277,15 +283,15 @@ class UserEditHandler {
         if (!value) {
             isValid = false;
             errorMessage = 'Bu alan zorunludur.';
-        } else if (value.length < 2) {
+        } else if (characterCount < 2) {
             isValid = false;
             errorMessage = 'En az 2 karakter olmalıdır.';
-        } else if (value.length > 255) {
+        } else if (characterCount > 255) {
             isValid = false;
             errorMessage = 'En fazla 255 karakter olmalıdır.';
-        } else if (!/^[a-zA-ZğĞıİöÖüÜşŞçÇ\s]+$/.test(value)) {
+        } else if (!validatePersonName(value)) {
             isValid = false;
-            errorMessage = 'Sadece harf ve boşluk karakterleri kullanılabilir.';
+            errorMessage = 'Yalnızca harf, boşluk, apostrof ve tire kullanılabilir.';
         }
 
         this.setFieldState(field, isValid, errorMessage);
@@ -329,16 +335,12 @@ class UserEditHandler {
         if (!phone) {
             isValid = false;
             errorMessage = 'Telefon numarası zorunludur.';
-        } else if (phone.length > 255) {
+        } else if (Array.from(phone).length > 255) {
             isValid = false;
             errorMessage = 'Telefon numarası çok uzun.';
-        } else {
-            // Basic phone validation (at least 10 digits, can include +, spaces, parentheses, hyphens)
-            const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
-            if (!phoneRegex.test(phone)) {
-                isValid = false;
-                errorMessage = 'Geçerli bir telefon numarası girin.';
-            }
+        } else if (!validateInternationalPhone(phone)) {
+            isValid = false;
+            errorMessage = 'Geçerli bir telefon numarası girin.';
         }
         
         this.setFieldState(field, isValid, errorMessage);
@@ -648,16 +650,70 @@ function formatDate(dateString) {
     });
 }
 
-function validateTurkishName(name) {
-    // Turkish name validation: only Turkish letters, spaces, and common name characters
-    const turkishNameRegex = /^[a-zA-ZğĞıİöÖüÜşŞçÇ\s]+$/;
-    return turkishNameRegex.test(name.trim());
+let unicodeLetterPattern = null;
+try {
+    unicodeLetterPattern = new RegExp('^\\p{L}$', 'u');
+} catch (error) {
+    // Older browsers fall back to case conversion; the server remains authoritative.
 }
 
-function validateTurkishPhone(phone) {
-    // Turkish phone validation: supports various Turkish phone formats
-    const turkishPhoneRegex = /^(\+90|0)?([1-9]\d{2})(\d{3})(\d{2})(\d{2})$/;
-    return turkishPhoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+function isUnicodeLetter(character) {
+    if (unicodeLetterPattern) {
+        return unicodeLetterPattern.test(character);
+    }
+    return character.toLocaleUpperCase() !== character.toLocaleLowerCase();
+}
+
+function validatePersonName(name) {
+    const characters = Array.from(name.trim());
+    if (characters.length < 2 || characters.length > 255) {
+        return false;
+    }
+
+    const separators = new Set([' ', "'", '’', '-']);
+    let letterCount = 0;
+    let previousWasSeparator = false;
+
+    for (let index = 0; index < characters.length; index += 1) {
+        const character = characters[index];
+        if (isUnicodeLetter(character)) {
+            letterCount += 1;
+            previousWasSeparator = false;
+            continue;
+        }
+
+        if (!separators.has(character)
+            || index === 0
+            || index === characters.length - 1
+            || previousWasSeparator) {
+            return false;
+        }
+        previousWasSeparator = true;
+    }
+
+    return letterCount >= 2;
+}
+
+function validateInternationalPhone(phone) {
+    const characters = Array.from(phone.trim());
+    let digitCount = 0;
+
+    for (let index = 0; index < characters.length; index += 1) {
+        const character = characters[index];
+        if (character >= '0' && character <= '9') {
+            digitCount += 1;
+            continue;
+        }
+        if (character === ' ' || character === '(' || character === ')' || character === '-') {
+            continue;
+        }
+        if (character === '+' && index === 0) {
+            continue;
+        }
+        return false;
+    }
+
+    return digitCount >= 10 && digitCount <= 15;
 }
 
 // Initialize when DOM is loaded
