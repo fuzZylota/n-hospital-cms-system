@@ -67,6 +67,17 @@ talimatıdır; diğer belgeler yalnız görevle ilişkili olduklarında okunur.
 - Güvenlik kararı menü görünürlüğüne dayanamaz; endpoint seviyesinde rol ve hedef
   nesne/şube yetkisi gerekir.
 
+## Dependency sahipliği
+
+- Yeni veya değiştirilen dış bağımlılıklar açık kullanıcı onayı gerektirir.
+- Kaldırılması kararlaştırılmış dependency kaynaklarına ağ erişimi veya indirme
+  yapılamaz; bunların module/import yolları yeniden eklenemez.
+- Proje sahipliğindeki veri katmanı ve notification hub tercih edilir;
+  [onaylı geçiş planı](docs/ai/OWNED_DATA_LAYER_MIGRATION_PLAN.md) uygulanır.
+- Tarihsel audit/migration belgeleri eski bağımlılıkları açıklama amacıyla açık
+  `retired/removed` bağlamında anabilir; bu istisna aktif kod, import, manifest,
+  checksum veya build/binary metadata için geçerli değildir.
+
 ## Kod değişikliği kuralları
 
 - Görevi dar tut; ilgisiz cleanup, framework değişimi, bağımlılık güncellemesi

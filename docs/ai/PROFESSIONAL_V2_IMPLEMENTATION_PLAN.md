@@ -318,6 +318,16 @@ Bir dalga tek commit anlamına gelmez. Paket başına mümkünse 1–3 ilişkili
 sınırı korunur. `OPS-001` ve `DATA-001` kapanmadan hiçbir dalga production'a
 çıkamaz; şema gerektiren paketler tasarım aşamasından uygulamaya geçemez.
 
+FAZ 3B'nin onaylanan veri katmanı ve notification hub geçişi,
+[Owned Data Layer Migration Plan](OWNED_DATA_LAYER_MIGRATION_PLAN.md) içindedir.
+`REL-001A`, migration kodlamasından önceki kritik dar görev olarak kalır;
+`N01–N11` programı ancak `REL-001A` kabul/test kapısı geçildikten sonra başlar.
+Mevcut dalga sırası ve güvenlik kapıları korunur. Geçişin release/build kabulü
+için 21 modülün doğrulanması, offline/boş-cache build/test kanıtı ve aktif
+kaynak/import/manifest/checksum/build çıktısı/binary metadata'da sıfır eski
+bağımlılık referansı gerekir; tarihsel belge istisnası yeni planda tanımlıdır.
+Bu ek, migration kodlaması veya deployment yürütme onayı değildir.
+
 ### İçindekiler — uygulama dalgaları
 
 | Dalga | Başlık | Zorunlu sıra notu |
