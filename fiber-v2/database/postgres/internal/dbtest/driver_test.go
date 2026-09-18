@@ -750,6 +750,181 @@ func TestConcurrentRowsConfigurationSnapshots(t *testing.T) {
 	}
 }
 
+func TestRowsCloseErrorLifecycle(t *testing.T) {
+	closeErr := errors.New("synthetic close failure")
+	for _, test := range []struct {
+		name     string
+		closeErr error
+		explicit bool
+	}{
+		{"EOF error", closeErr, false},
+		{"explicit error", closeErr, true},
+		{"EOF nil", nil, false},
+		{"explicit nil", nil, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			plan := dbtest.NewRows([]string{"id"}, []any{1}).WithCloseError(test.closeErr)
+			_, db := openDB(t, dbtest.Query(plan))
+			func() {
+				rows, err := db.QueryContext(context.Background(), "SELECT id")
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer func() {
+					if err := rows.Close(); err != nil {
+						t.Errorf("deferred repeat Close = %v", err)
+					}
+				}()
+				if test.explicit {
+					if err := rows.Close(); !errors.Is(err, test.closeErr) {
+						t.Fatalf("first Close = %v, want %v", err, test.closeErr)
+					}
+				} else {
+					count := 0
+					for rows.Next() {
+						var id int64
+						if err := rows.Scan(&id); err != nil || id != 1 {
+							t.Fatalf("id=%d error=%v", id, err)
+						}
+						count++
+					}
+					if count != 1 {
+						t.Fatalf("row count = %d", count)
+					}
+				}
+				if !errors.Is(rows.Err(), test.closeErr) {
+					t.Fatalf("Rows.Err = %v, want %v", rows.Err(), test.closeErr)
+				}
+				if err := rows.Close(); err != nil || plan.CloseCount() != 1 {
+					t.Fatalf("repeat Close = %v, count = %d", err, plan.CloseCount())
+				}
+				if !errors.Is(rows.Err(), test.closeErr) {
+					t.Fatal("repeat Close changed Rows.Err")
+				}
+			}()
+			if plan.CloseCount() != 1 {
+				t.Fatalf("close count after defer = %d", plan.CloseCount())
+			}
+		})
+	}
+}
+
+func TestRowsCloseErrorSnapshots(t *testing.T) {
+	firstErr, secondErr := errors.New("first close"), errors.New("second close")
+	plan := dbtest.NewRows([]string{"id"}, []any{1}).WithCloseError(firstErr)
+	_, db := openDB(t, dbtest.Query(plan), dbtest.Query(plan), dbtest.Query(plan))
+	db.SetMaxOpenConns(3)
+	first, err := db.QueryContext(context.Background(), "SELECT first")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer first.Close()
+	plan.WithCloseError(secondErr)
+	second, err := db.QueryContext(context.Background(), "SELECT second")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer second.Close()
+	plan.WithCloseError(nil)
+	third, err := db.QueryContext(context.Background(), "SELECT third")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer third.Close()
+	for _, test := range []struct {
+		rows *sql.Rows
+		want error
+	}{
+		{first, firstErr}, {second, secondErr}, {third, nil},
+	} {
+		if err := test.rows.Close(); !errors.Is(err, test.want) {
+			t.Fatalf("snapshot Close = %v, want %v", err, test.want)
+		}
+	}
+	if plan.CloseCount() != 3 {
+		t.Fatalf("close count = %d, want 3", plan.CloseCount())
+	}
+}
+
+func TestConcurrentRowsCloseErrorSnapshots(t *testing.T) {
+	t.Parallel()
+	const operations = 40
+	firstErr, secondErr := errors.New("first close"), errors.New("second close")
+	plan := dbtest.NewRows([]string{"id"}, []any{1})
+	steps := make([]dbtest.Step, operations)
+	for i := range steps {
+		steps[i] = dbtest.Query(plan)
+	}
+	connector, db := openDB(t, steps...)
+	db.SetMaxOpenConns(operations)
+	start := make(chan struct{})
+	var wait sync.WaitGroup
+	wait.Add(1)
+	go func() {
+		defer wait.Done()
+		<-start
+		for i := 0; i < operations; i++ {
+			plan.WithCloseError(firstErr)
+			plan.WithCloseError(secondErr)
+			plan.WithCloseError(nil)
+		}
+	}()
+	for i := 0; i < operations; i++ {
+		wait.Add(1)
+		go func() {
+			defer wait.Done()
+			<-start
+			rows, err := db.QueryContext(context.Background(), "SELECT id")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			closeErr := rows.Close()
+			if closeErr != nil && !errors.Is(closeErr, firstErr) && !errors.Is(closeErr, secondErr) {
+				t.Errorf("unexpected close error = %v", closeErr)
+			}
+			if !errors.Is(rows.Err(), closeErr) {
+				t.Error("close snapshot changed")
+			}
+			if err := rows.Close(); err != nil {
+				t.Errorf("repeat Close = %v", err)
+			}
+		}()
+	}
+	close(start)
+	wait.Wait()
+	if plan.CloseCount() != operations || len(connector.Events()) != operations || connector.Remaining() != 0 {
+		t.Fatalf("close count=%d recorder=%v", plan.CloseCount(), connector)
+	}
+}
+
+type closeDetailError string
+
+func (e closeDetailError) Error() string { return string(e) }
+
+func TestRowsCloseErrorIsNotImplicitlyFormatted(t *testing.T) {
+	const detail = "synthetic-private-close-detail"
+	closeErr := closeDetailError(detail)
+	plan := dbtest.NewRows([]string{"id"}).WithCloseError(closeErr)
+	connector, db := openDB(t, dbtest.Query(plan))
+	rows, err := db.QueryContext(context.Background(), "SELECT id")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := rows.Close(); !errors.Is(err, closeErr) {
+		t.Fatalf("Close = %v", err)
+	}
+	// Error injection is explicit; fixture/recorder formatting must not dump it.
+	for _, value := range []any{plan, connector, connector.Events()} {
+		for _, format := range []string{"%s", "%v", "%+v", "%#v"} {
+			if strings.Contains(fmt.Sprintf(format, value), detail) {
+				t.Fatalf("%T format %s exposed close detail", value, format)
+			}
+		}
+	}
+}
+
 func openDB(t *testing.T, steps ...dbtest.Step) (*dbtest.Connector, *sql.DB) {
 	t.Helper()
 	connector := dbtest.NewConnector(steps...)

@@ -23,10 +23,15 @@ type Rows struct {
 	fixtureErr error
 	errAfter   int
 	err        error
+	closeErr   error
 
 	mu         sync.Mutex
 	closeCount int
 }
+
+// String and GoString deliberately omit fixture data and injected errors.
+func (*Rows) String() string     { return "dbtest rows fixture" }
+func (r *Rows) GoString() string { return r.String() }
 
 // NewRows snapshots columns and values, including byte slices. It accepts nil,
 // string, bool, []byte, time.Time, built-in signed/unsigned integers and floats.
@@ -67,6 +72,16 @@ func (r *Rows) WithErrorAfter(rowCount int, err error) *Rows {
 	return r
 }
 
+// WithCloseError sets the error returned by an iterator's first Close call.
+// Like WithErrorAfter, it snapshots configuration at open under the same mutex;
+// changing it does not affect already opened iterators. Nil restores success.
+func (r *Rows) WithCloseError(err error) *Rows {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.closeErr = err
+	return r
+}
+
 // Closed reports whether database/sql closed at least one opened row iterator.
 func (r *Rows) Closed() bool { return r.CloseCount() > 0 }
 
@@ -100,6 +115,7 @@ func (r *Rows) open() (driver.Rows, error) {
 		values:   values,
 		errAfter: r.errAfter,
 		err:      r.err,
+		closeErr: r.closeErr,
 	}, nil
 }
 
@@ -110,6 +126,7 @@ type scriptedRows struct {
 	index    int
 	errAfter int
 	err      error
+	closeErr error
 	closed   bool
 }
 
@@ -125,7 +142,7 @@ func (r *scriptedRows) Close() error {
 	r.owner.mu.Lock()
 	r.owner.closeCount++
 	r.owner.mu.Unlock()
-	return nil
+	return r.closeErr
 }
 
 func (r *scriptedRows) Next(dest []driver.Value) error {
