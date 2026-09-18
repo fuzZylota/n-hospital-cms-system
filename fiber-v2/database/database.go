@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	lib "lib"
-	"log"
-	"os"
 	"strings"
 
 	"models"
@@ -13,17 +11,18 @@ import (
 	orm "github.com/Necoo33/neormgo/v2"
 )
 
-func Database(connString string) orm.Neorm {
-	orm := orm.Neorm{}
+func Database(connString string) (orm.Neorm, error) {
+	connector := orm.Neorm{}
 
-	database, err := orm.Connect(connString, "postgres")
+	database, err := connector.Connect(connString, "postgres")
 
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		// Ownership transfers only on success. Failed Connect cleanup belongs
+		// to the legacy library; its partial-resource behavior is unknown.
+		return orm.Neorm{}, errors.New("legacy database startup failed")
 	}
 
-	return database
+	return database, nil
 }
 
 // mapRowToOptions — DB satırını models.Options struct'ına dönüştürür.
@@ -696,7 +695,6 @@ func (options *Options) FetchOptionsForFrontend(db *orm.Neorm, otherColumns any,
 		}
 
 	}
-
 
 	Options.SubelerLinks = &SubelerLinks
 

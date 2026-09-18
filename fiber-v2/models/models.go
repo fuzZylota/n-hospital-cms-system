@@ -1,6 +1,7 @@
 package models
 
 import (
+	"models/data"
 	"time"
 
 	wsb "github.com/Necoo33/fiber-ws-broadcaster"
@@ -41,7 +42,8 @@ type AppState struct {
 
 // type that represents all the unchanging utilites.
 type Utilities struct {
-	Orm *orm.Neorm
+	Orm                *orm.Neorm
+	HeaderButtonReader data.HeaderButtonReader
 	// Limiter
 }
 
@@ -510,7 +512,6 @@ type TestimonialsEdit struct {
 	OldUpdatedAt          time.Time `form:"old_updated_at" json:"old_updated_at"`
 }
 
-
 type SubeGaleri struct {
 	Sgid      string `form:"sgid" json:"sgid"`
 	Sid       string `form:"sid" json:"sid"`
@@ -856,7 +857,7 @@ type DoktorlarEdit struct {
 	OldBrid                 string    `form:"old_brid" json:"old_brid"`
 	Sid                     string    `form:"sid" json:"sid"`
 	OldSid                  string    `form:"old_sid" json:"old_sid"`
-        SubeIds                 []string  `form:"sube_ids" json:"sube_ids"`
+	SubeIds                 []string  `form:"sube_ids" json:"sube_ids"`
 	HeadDrid                string    `form:"head_drid" json:"head_drid"`
 	OldHeadDrid             string    `form:"old_head_drid" json:"old_head_drid"`
 	RoomNumber              string    `form:"room_number" json:"room_number"`
@@ -1026,7 +1027,7 @@ type HomepageContents struct {
 	ContentCss            string    `form:"content_css" json:"content_css"`
 	Description           string    `form:"description" json:"description"`
 	TibbiBirimId          string    `form:"tibbi_birim_id" json:"tibbi_birim_id"`
-        TibbiBirimUrlName      string    `form:"tibbi_birim_url_name" json:"tibbi_birim_url_name"`
+	TibbiBirimUrlName     string    `form:"tibbi_birim_url_name" json:"tibbi_birim_url_name"`
 	IsActive              bool      `form:"is_active" json:"is_active"`
 	CreatedAt             time.Time `form:"created_at" json:"created_at"`
 	UpdatedAt             time.Time `form:"updated_at" json:"updated_at"`
@@ -1053,8 +1054,8 @@ type HomepageContentsEdit struct {
 	Description              string    `form:"description" json:"description"`
 	OldDescription           string    `form:"old_description" json:"old_description"`
 	IsActive                 bool      `form:"is_active" json:"is_active"`
-        TibbiBirimId             string    `form:"tibbi_birim_id" json:"tibbi_birim_id"`
-        OldTibbiBirimId          string    `form:"old_tibbi_birim_id" json:"old_tibbi_birim_id"`
+	TibbiBirimId             string    `form:"tibbi_birim_id" json:"tibbi_birim_id"`
+	OldTibbiBirimId          string    `form:"old_tibbi_birim_id" json:"old_tibbi_birim_id"`
 	OldIsActive              bool      `form:"old_is_active" json:"old_is_active"`
 	CreatedAt                time.Time `form:"created_at" json:"created_at"`
 	OldCreatedAt             time.Time `form:"old_created_at" json:"old_created_at"`

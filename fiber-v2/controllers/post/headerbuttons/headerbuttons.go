@@ -2,9 +2,11 @@ package headerbuttons
 
 import (
 	"fmt"
+	"headerbuttons/parentread"
 	lib "lib"
 	"log"
 	"models"
+	"models/data"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -530,54 +532,11 @@ func DeleteHeaderButton(states *models.AppState, utilities *models.Utilities) fi
 func GetMainHeaderButtons(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
-
-		if err != nil {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden",
-			})
+		var reader data.HeaderButtonReader
+		if utilities != nil {
+			reader = utilities.HeaderButtonReader
 		}
-
-		Orm := utilities.Orm
-
-		// Fetch top-level header buttons (parents)
-		SelectParents := Orm.Select([]string{"hbid", "title", "parent_id"})
-		SelectParents.Table("header_buttons")
-		SelectParents.Where("parent_id", "IS", nil)
-		SelectParents.Finish()
-
-		err = SelectParents.Execute()
-		if err != nil {
-			log.Printf("Cannot fetch header buttons: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Internal server error",
-			})
-		}
-
-		rows, err := SelectParents.Rows()
-		if err != nil {
-			log.Printf("Cannot get rows: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Internal server error",
-			})
-		}
-
-		HeaderButtons := []models.HeaderButton{}
-		for _, row := range rows {
-			HeaderButtons = append(HeaderButtons, models.HeaderButton{
-				Hbid:     lib.String(row["hbid"]),
-				Title:    lib.String(row["title"]),
-				ParentId: lib.String(row["parent_id"]),
-			})
-		}
-
-		return c.JSON(fiber.Map{
-			"status":         200,
-			"message":        "Header buttons fetched successfully",
-			"header_buttons": HeaderButtons,
-		})
+		return c.JSON(parentread.Response(c.UserContext(), err == nil, reader))
 	}
 }
 

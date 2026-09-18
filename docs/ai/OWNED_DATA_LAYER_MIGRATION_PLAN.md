@@ -154,6 +154,151 @@ dönüşümü ve mevcut mesajlar test edilir. Sıralama garantisi olmayan sonuç
 test yapay ORDER BY zorlamaz. Header yazma/silme/sıralama, stored function,
 cache, route ve rol politikası değişikliği pilot dışındadır.
 
+### N03B — Onaylı pool sahipliği ve uygulama kapısı (2026-09-18)
+
+Karar durumu: **kullanıcının N03B görevi ve devam kararlarıyla onaylandı;
+kod uygulandı, tam paket kabulü BLOCKED**.
+Geçiş sırasında legacy ORM pool ve owned `database/sql` pool geçici olarak
+yan yana bulunabilir. Process başına tek owned pool'un oluşturma, ping ve
+kapatma sahibi composition root'tur; yeni repository'ler aynı pool'u paylaşır.
+Handler/repository pool açmaz veya kapatmaz. İlk tüketici yalnız salt okunur
+`GetMainHeaderButtons` oldu; fallback/çift sorgu yapılmaz. Aynı transaction veya
+atomik akış iki pool'a bölünemez. N09'da legacy pool kaldırılır; owned pool kalır.
+
+Onaylı pilot varsayılanları: `MaxOpenConns=2`, `MaxIdleConns=1`,
+`ConnMaxLifetime=5 dakika`, `ConnMaxIdleTime=1 dakika`, startup ping timeout
+`5 saniye`. Bunlar kodda uygulanmıştır; production kapasite kanıtı değildir.
+`CONNECTION_STRING` composition root'ta bir kez okunup iki başlangıca aktarılır;
+yeni zorunlu environment değişkeni yoktur. Ping tamamlanmadan HTTP listener
+başlamaz. Normal kapanışta listener kapatılarak yeni trafik durdurulur, mevcut
+işler en fazla 10 saniyelik shutdown context'iyle beklenir, ardından owned ve
+legacy pool kapatılır. Shutdown hatası da pool cleanup'ını atlamaz. Rollback birimi handler,
+injection, pool lifecycle ve ilgili ayarlardır.
+
+İnceleme baseline'ı:
+`nivgoz-professional-v2`, `9cfa06b3b01776488ebb0b6577b57229e28daf60`.
+İlk incelemedeki iki blokaj kullanıcı tarafından dar kapsamla çözüldü:
+
+- Yalnız `github.com/lib/pq v1.10.9`, `proxy.golang.org` üzerinden indirildi,
+  `sum.golang.org` kaydı ve mevcut checksum'larla doğrulandı. Modül checksum'ı
+  `h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=`, go.mod checksum'ı
+  `h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=`. İndirme öncesi 35
+  manifest/checksum dosyasının SHA256 snapshot'ı alındı; tek fark
+  `database/go.mod` içindeki pq `indirect` işaretinin kaldırılmasıdır.
+- Legacy sahipliği yalnız başarılı `Connect` dönüşünde composition root'a
+  geçer; mevcut `Close()` çağrısı korunur. Hatalı nesnede tahmini Close yoktur.
+  Başarısız Connect'in içeride kısmi kaynak bırakması **UNKNOWN** kabul edildi;
+  bu kalıntı risk N09'da legacy dependency kaldırılmasıyla kapanır. Legacy hata
+  verirse owned opener çağrılmaz; `Database` sabit, güvenli error döndürür.
+
+Uygulama kanıtı: `database/postgres/pool.go`, `startup_dialer.go`,
+`main/main.go`, `main/lifecycle.go`, `models/models.go`,
+`controllers/post/headerbuttons/headerbuttons.go` ve `parentread/response.go`
+(yollar `fiber-v2/` altındadır). `pq.NewConnector` + `sql.OpenDB` kullanılır;
+uygulama `sql.Register`/global pool/init kullanmaz. pq v1.10.9'da dial sonrası
+TLS/auth okumaları yalnız context ile sınırlanmadığından startup socket'lerine
+deadline/cancel koruması uygulanır; başarılı ping sonrasında bu geçici koruma
+kaldırılır. Başlangıç hatası DSN/backend cause taşımayan staged error üretir;
+context kimliği `errors.Is` ile korunur. Normal edinim/kapanış sırası
+legacy → owned → HTTP / HTTP → owned → legacy'dir. SIGKILL garantisi yoktur.
+
+Bağımsız inceleme düzeltmesi (2026-09-18): dialer durumu `starting` → `active`
+veya `starting` → `failed` olarak mutex altında yönetilir. Yalnız başarılı Ping
+ve deadline temizliği active durumuna geçirir. Başarısızlık pool kapatılmadan
+önce terminal durumu kurar; takip edilen socket'leri kapatır, geç cancellation
+dial'larını underlying dial'a ulaşmadan reddeder. Daha önce başlamış dial'ın
+geç dönen bağlantısı da kapatılır. Tekrarlı fail idempotenttir; active sonrasında
+fail normal bağlantıları kapatmaz. Close yolu state mutex'ini geri almaz.
+Listen + shutdown hata birleşiminde ilk güvenli listen hatası primary kalır;
+yalnız sabit shutdown aşaması secondary olarak eklenir, ham hata saklanmaz.
+
+Owned connector bağlantı politikası: her yeni normal/cancel bağlantısında
+`connect_timeout=5` uygulanır; DSN'deki mevcut değer (0, daha kısa/uzun veya
+sayısal olmayan değer dahil) bu sabit politika ile değiştirilir. Bu karar
+kullanıcının runtime connection timeout düzeltme kapsamı içindedir; legacy
+connector ayarı değişmez. Keyword boş son değer inceleme bulgusu için Yön A
+uygulandı: URI önce pq.ParseURL ile keyword biçimine çevrilir; yalnız bu
+connection-option sınırında quote, backslash, Unicode whitespace, boş değer ve
+duplicate key kurallarını işleyen dar bir parser kullanılır. Duplicate key'de
+pq gibi son değer kazanır. Yalnız connect_timeout değiştirilir; bütün değerler
+apostrof/backslash escape edilerek quoted canonical keyword DSN olarak üretilir
+ve pq.NewConnector ile tekrar ayrıştırılır. Böylece application_name= ve
+password= boş kalır; password=abc= dolu değer olarak aynen korunur. Naif suffix,
+regex veya whitespace bölme kullanılmaz. Bu yön, kapanmış dialer/lifecycle
+bulgularını yeniden tasarlamadan DSN sınırını düzeltmek için seçildi. TCP dial ayrıca
+context ile en fazla 5 saniyedir; pq aynı establishment bütçesini SSLRequest,
+TLS/auth socket I/O'suna uygular ve normal bağlantıda startup tamamlanınca
+temizler. Cancel bağlantısı bu deadline altında EOF bekler ve kapanır.
+Normal query read/write süresine genel 5 saniyelik limit konmaz.
+
+Auth/route sırası değişmedi. Handler, gerçek `parentread.Response` yardımcısını
+kullanır: yetkisizde reader çağrısı 0, yetkili non-nil reader'da 1; JSON
+403/200/500, mesajlar ve tam eski HeaderButton JSON şekli korunur. Reader nil
+ve repository hatası güvenli 500, boş liste `[]`, nil parent `""` olur.
+
+Test kanıtı ve sınırlama: bütün sonraki Go komutlarında `GOPROXY=off`,
+`GOSUMDB=off`, `GOTOOLCHAIN=local` kullanıldı. Workspace `-mod=readonly` pool
+ve tam main/database/headerbuttons testleri, kaldırılması planlanmış legacy
+modülün eksik metadata/kaynağı nedeniyle **BLOCKED**; indirme yapılmadı.
+Owned kaynakların kendisi geçici GOPATH junction'larıyla (kaynak kopyalamadan,
+yalnız onaylı pq + standart kütüphane + owned paketler) test edildi. Bu izole
+derlemede Go 1.25 timer davranışı için `GODEBUG=asynctimerchan=0` kullanıldı.
+Pool/repository/dbtest, data, saf response ve gerçek lifecycle yardımcıları
+20 tekrar geçti; hedefli vet geçti. Lifecycle testleri gerçek server başlatmaz.
+pq'nun gerçek startup yolu, yanıt vermeyen bellek içi `net.Pipe` bağlantılarıyla
+test edildi: 5 saniyede güvenli deadline hatası, ağ/DB yok. `sslmode=require`
+vakası SSLRequest yanıtında bekler; tam TLS handshake kanıtı değildir.
+`TestRealPQQueryAfterStartupDeadline`, production openPostgresPool/dialer ve
+gerçek pq ile plaintext startup paketi → AuthenticationOk → ReadyForQuery →
+başarılı Ping → eski deadline geçtikten sonra aynı bağlantıda SELECT 1 zincirini
+doğrular. Sentetik peer yalnız bu protokol akışını sunar; credential doğrulama,
+gerçek DB veya TLS güvenliği kanıtı değildir. Peer ve bağlantı test sonunda kapanır.
+`TestRealPQActiveConnectionStartupTimeout`, connect_timeout=0 application_name=
+ile ikinci runtime bağlantısında auth beklemesini 5 saniyeyle sınırlar.
+URI/keyword özel karakter ve timeout override pozitif/negatif testleri pq'nun
+kendi ayrıştırdığı seçenekleri karşılaştırır. Boş son değer düzeltmesinin 26
+DSN vakası ve 40 quote/escape/whitespace grammar kombinasyonu timeout dışındaki
+bütün seçeneklerin semantik eşliğini ve etkin timeout=5 değerini doğrular.
+Kapsam: boş/quoted boş application_name ve password; sonu '=' ile biten parola;
+boş/sıfır/uzun/geçersiz/duplicate timeout; trailing whitespace/newline/tab;
+apostrof/backslash; IPv4/IPv6 keyword host; percent-encoded URI ve URI timeout.
+`TestRealPQDSNStartupAndPasswordSemantics`, aynı 26 DSN'de gerçek pq ile startup
+application_name parametresini ve AuthenticationCleartextPassword yanıtındaki
+sentetik PasswordMessage değerini özgün pq seçenekleriyle karşılaştırır. Boş
+parola ve abc= ayrıca bu yoldan geçer. Sonrasında eski deadline geçince aynı
+bağlantıda SELECT 1 okunur ve peer/socket kapanır. Açık password seçeneği, boş
+olsa da pq'nun .pgpass okumasını önler. Bu yalnız plaintext protokol ve sentetik
+veri kanıtıdır; tam TLS, gerçek kimlik doğrulama veya production kanıtı değildir.
+Hatalı keyword/URI/connector seçenekleri sabit güvenli hata üretir; seçenek
+değerleri test failure çıktısına basılmaz. Runtime/release kapıları BLOCKED kalır.
+Late-cancel regresyonu kanal/barrier ile eşdeğer gecikmiş dial'ı ve in-flight
+sonucu doğrular; gerçek pq scheduler yarışını yeniden ürettiği iddia edilmez.
+Düzeltme sonrası owned testler tek ve 20 tekrar, hedefli pool/dialer testleri
+`-count=20 -parallel=8 -cpu=1,4`, lifecycle grubu tek ve 20 tekrar geçti.
+Hedefli vet, izole go list -deps, gofmt -d ve git diff --check temizdir.
+Race denemesi mevcut `CGO_ENABLED=0` ortamında çalışmadı; derleyici kurulmadı.
+Native tam paket kontrolü eksik legacy dependency nedeniyle yine BLOCKED;
+izole başarı, production signature/wiring veya release kabulü değildir.
+Socket deadline ile context timer sırasının değişmesi hata kimliğini bozmaz.
+Auth adapter, JSON alan eşliği, legacy güvenli hata dönüşü, composition wiring,
+Fatal/Exit sınırı ve yerel import graph kontrolleri **AST/statiktir**; tam Fiber
+handler/main runtime veya external API derleme kanıtı değildir. Gerçek DB,
+SMTP, uygulama, migration veya production çalıştırılmadı. Güven: test edilen
+owned davranış ve statik wiring için yüksek; tam paket/production kabulü açık.
+
+Deployment kapısı: yeni instance başına `database/sql` pool tavanı **2**;
+pq protokol cancellation için ayrıca kısa ömürlü bağlantı açabilir, dolayısıyla
+bu değer mutlak socket tavanı değildir. Bu ek bağlantılar da bütçelenmelidir;
+legacy tavanı tracked kaynakta **UNKNOWN**. Rollout bütçesi eski instance'ların
+legacy bağlantıları + yeni instance'ların (legacy + en fazla 2 owned)
+pool bağlantıları + geçici cancel bağlantıları + diğer DB istemcileri + yönetim
+rezervidir. Instance sayıları,
+legacy tavanı, diğer istemciler, rezerv ve gerçek DB kapasitesi **UNKNOWN**.
+Doğrulanmış şema ve bu bağlantı bütçesi ayrı deployment engelleridir; tek başına
+kod commit'ini engellemezler. Main/router zincirinde özel DB readiness endpoint'i
+saptanmadı; startup sonrasında DB kaybını tespit/traffic'ten çıkarma davranışı
+**UNKNOWN / sonraki iş** olarak kalır. N03B geniş bir health sistemi kurmaz.
+
 ## 8. N04 notification hub sözleşmesi
 
 Hub sözleşmesi: Register(connection identity, Sink), idempotent Unregister,

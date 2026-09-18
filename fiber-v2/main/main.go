@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"database/postgres"
+	"errors"
 	"fmt"
 	"frontend"
 	lib "lib"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,9 +27,16 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		log.Print("Server stopped because startup or shutdown failed")
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0755)
 	if err != nil {
-		log.Fatalf("Log file could not be opened: %v", err)
+		return errors.New("log file could not be opened")
 	}
 	defer file.Close() // Close the file when the program ends
 
@@ -33,23 +44,60 @@ func main() {
 
 	// Redirect the logger to the file
 	log.SetOutput(file)
+	defer log.SetOutput(os.Stderr)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	err = env.Load()
 
 	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
+		log.Print("Environment file could not be loaded")
 	}
 
 	log.Printf("Env's loaded")
 
-	connString := os.Getenv("CONNECTION_STRING")
+	config := appConfig{
+		dsn:         os.Getenv("CONNECTION_STRING"),
+		port:        os.Getenv("PORT"),
+		environment: os.Getenv("ENVIRONMENT"),
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	utilities := &models.Utilities{}
+	return runLifecycle(ctx, bootstrap{
+		openLegacy: func() (func(), error) {
+			legacy, err := db.Database(config.dsn)
+			if err != nil {
+				return nil, err
+			}
+			utilities.Orm = &legacy
+			return func() { legacy.Close() }, nil
+		},
+		openOwned: func(ctx context.Context) (func(), error) {
+			pool, err := postgres.OpenPool(ctx, config.dsn)
+			if err != nil {
+				return nil, err
+			}
+			utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)
+			return func() {
+				if err := pool.Close(); err != nil {
+					log.Print("Owned database pool cleanup failed")
+				}
+			}, nil
+		},
+		newServer: func() (httpLifecycle, error) { return newHTTPServer(config, utilities) },
+	})
+}
 
-	Db := db.Database(connString)
+type appConfig struct {
+	dsn         string
+	port        string
+	environment string
+}
 
+func newHTTPServer(config appConfig, utilities *models.Utilities) (httpLifecycle, error) {
 	htmlFiles := jet.New("./static/html", ".jet")
 
-	if os.Getenv("ENVIRONMENT") == "dev" || os.Getenv("ENVIRONMENT") == "development" {
+	if config.environment == "dev" || config.environment == "development" {
 		htmlFiles.Reload(true)
 	}
 
@@ -97,9 +145,9 @@ func main() {
 	}))
 
 	server.Use(lib.JWTMiddleware())
-	server.Use(lib.HandleUserBanning(&Db))
+	server.Use(lib.HandleUserBanning(utilities.Orm))
 
-	if os.Getenv("ENVIRONMENT") == "dev" || os.Getenv("ENVIRONMENT") == "development" {
+	if config.environment == "dev" || config.environment == "development" {
 		server.Use(func(c *fiber.Ctx) error {
 			fmt.Println("Request came:", c.Path())
 			return c.Next()
@@ -117,36 +165,28 @@ func main() {
 		Broadcaster: &Broadcaster,
 	}
 
-	Utilities := models.Utilities{
-		Orm: &Db,
-	}
-
 	log.Printf("AppState loaded")
 
-	baserouter.FrontendRouter(server, &AppState, &Utilities)
-	baserouter.PanelRouter(server, &AppState, &Utilities)
-	baserouter.BackendRouter(server, &AppState, &Utilities)
-	server.Get("/cerez-politikasi", frontend.CookiePolicyPage(&AppState, &Utilities))
-	server.Use(frontend.FallbackPage(&AppState, &Utilities))
+	baserouter.FrontendRouter(server, &AppState, utilities)
+	baserouter.PanelRouter(server, &AppState, utilities)
+	baserouter.BackendRouter(server, &AppState, utilities)
+	server.Get("/cerez-politikasi", frontend.CookiePolicyPage(&AppState, utilities))
+	server.Use(frontend.FallbackPage(&AppState, utilities))
 
 	log.Printf("Routes loaded")
 
-	defer Db.Close()
-
-	// Graceful shutdown
-	go func() {
-		if err := server.Listen(":" + os.Getenv("PORT")); err != nil {
-			log.Fatalf("Sunucu başlatılamadı: %v", err)
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	log.Printf("Sunucu kapatılıyor...")
-	if err := server.Shutdown(); err != nil {
-		log.Fatalf("Sunucu kapatılırken hata: %v", err)
+	// Bind synchronously after pool readiness. Closing this listener also stops
+	// a delayed Listener call when a signal races with the serving goroutine.
+	listener, err := net.Listen("tcp", ":"+config.port)
+	if err != nil {
+		return httpLifecycle{}, errors.New("HTTP bind failed")
 	}
-	log.Printf("Sunucu başarıyla kapatıldı.")
+	ownedListener := &onceListener{Listener: listener}
+	return httpLifecycle{
+		listen: func() error { return server.Listener(ownedListener) },
+		shutdown: func(ctx context.Context) error {
+			_ = ownedListener.Close()
+			return server.ShutdownWithContext(ctx)
+		},
+	}, nil
 }
