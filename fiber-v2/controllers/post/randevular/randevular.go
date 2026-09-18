@@ -43,7 +43,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("Cannot fetch options: %v\n", err)
+			log.Printf("operation=AddRandevuRequest stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -57,7 +57,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		err = CheckIfItsRepeating.Execute()
 		if err != nil {
-			log.Printf("Cannot check if its repeating: %v\n", err)
+			log.Printf("operation=AddRandevuRequest stage=duplicate_check")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -107,7 +107,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 		insertReq.Returning("rrid")
 		insertReq.Finish()
 		if err := insertReq.Execute(); err != nil {
-			log.Printf("Cannot insert randevu request: %v\n", err)
+			log.Printf("operation=AddRandevuRequest stage=record_insert")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -116,7 +116,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		rrid, err := insertReq.LastInsertId()
 		if err != nil {
-			log.Printf("Cannot get last insert id for randevu request: %v\n", err)
+			log.Printf("operation=AddRandevuRequest stage=insert_id")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -126,12 +126,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.PatientEmail != "" {
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 			if RootDir == "" {
-				Orm.Rollback()
-				log.Printf("ROOT_DIRECTORY not set")
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
+				log.Printf("operation=AddRandevuRequest stage=message_build")
 			}
 
 			GetLogo := ""
@@ -530,7 +525,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			err = lib.SendEmail(&CreateEmailInfos)
 
 			if err != nil {
-				log.Printf("Cannot send email: %v\n", err)
+				log.Printf("operation=AddRandevuRequest stage=%s", lib.EmailFailureStage(err))
 			}
 		}
 
@@ -948,7 +943,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		var inputs models.Randevular
 		if err := c.BodyParser(&inputs); err != nil {
-			log.Printf("Body parse error: %v\n", err)
+			log.Printf("operation=AddRandevu stage=request_parse")
 			return c.JSON(fiber.Map{
 				"status":  400,
 				"message": "Geçersiz veri formatı",
@@ -979,7 +974,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=AddRandevu stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1005,7 +1000,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			err = CheckDoctorAvailability.Execute()
 
 			if err != nil {
-				log.Printf("%v\n", err)
+				log.Printf("operation=AddRandevu stage=availability_read")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1013,7 +1008,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			}
 
 			if CheckDoctorAvailability.Length() > 0 {
-				log.Printf("%v\n", err)
+				log.Printf("operation=AddRandevu stage=availability_conflict")
 				return c.JSON(fiber.Map{
 					"status":  400,
 					"message": "Seçilen doktorun bu tarih ve saatte başka bir randevusu bulunmaktadır",
@@ -1024,7 +1019,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		// Begin transaction
 		err = Orm.Begin()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=AddRandevu stage=transaction_begin")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1097,7 +1092,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		if err != nil {
 			Orm.Rollback()
-			log.Printf("%v\n", err)
+			log.Printf("operation=AddRandevu stage=record_insert")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1108,7 +1103,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		err = Orm.Commit()
 		if err != nil {
 			Orm.Rollback()
-			log.Printf("%v\n", err)
+			log.Printf("operation=AddRandevu stage=transaction_commit")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1119,7 +1114,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.PatientEmail != "" {
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 			if RootDir == "" {
-				log.Printf("ROOT_DIRECTORY not set")
+				log.Printf("operation=AddRandevu stage=message_build")
 			} else {
 				GetLogo := ""
 
@@ -1141,13 +1136,13 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 					err = GetSubeName.Execute()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=AddRandevu stage=branch_read")
 					}
 
 					GetSubeNameRows, err := GetSubeName.Rows()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=AddRandevu stage=branch_rows")
 					}
 
 					SubeName = lib.String(GetSubeNameRows[0]["name"])
@@ -1161,13 +1156,13 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 					err = GetDoctorName.Execute()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=AddRandevu stage=doctor_read")
 					}
 
 					GetDoctorNameRows, err := GetDoctorName.Rows()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=AddRandevu stage=doctor_rows")
 					}
 
 					DoctorName = lib.String(GetDoctorNameRows[0]["title"]) + " " + lib.String(GetDoctorNameRows[0]["first_name"]) + " " + lib.String(GetDoctorNameRows[0]["last_name"]) + " - " + SubeName
@@ -1178,7 +1173,6 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				Html := ""
 
 				{
-					log.Printf("appointment time: %v", inputs.AppointmentTime)
 					// Create professional HTML email template for appointment confirmation
 					dateString := fmt.Sprintf("%d.%d.%d", inputs.AppointmentDate.Day(), int(inputs.AppointmentDate.Month()), inputs.AppointmentDate.Year())
 					timeString := fmt.Sprintf("%02d:%02d", inputs.AppointmentTime.Hour(), inputs.AppointmentTime.Minute())
@@ -1374,7 +1368,7 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				err = lib.SendEmail(&CreateEmailInfos)
 
 				if err != nil {
-					log.Printf("Cannot send email: %v\n", err)
+					log.Printf("operation=AddRandevu stage=%s", lib.EmailFailureStage(err))
 				}
 			}
 		}
@@ -1403,16 +1397,13 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				"message": "Forbidden",
 			})
 		}
-
-		log.Printf("req body: %s", string(c.Body()))
-
 		Rid := c.Params("rid")
 
 		var inputs models.RandevularEdit
 		err = c.BodyParser(&inputs)
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=request_parse")
 			return c.JSON(fiber.Map{
 				"status":  400,
 				"message": "Invalid request body",
@@ -1435,7 +1426,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1450,7 +1441,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		err = CheckQuery.Execute()
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=record_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1459,7 +1450,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		checkRows, err := CheckQuery.Rows()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=record_rows")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1492,7 +1483,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			err = CheckDoctorAvailability.Execute()
 
 			if err != nil {
-				log.Printf("%v\n", err)
+				log.Printf("operation=EditRandevu stage=availability_read")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1500,7 +1491,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			}
 
 			if CheckDoctorAvailability.Length() > 0 {
-				log.Printf("%v\n", err)
+				log.Printf("operation=EditRandevu stage=availability_conflict")
 				return c.JSON(fiber.Map{
 					"status":  400,
 					"message": "Seçilen doktorun bu tarih ve saatte başka bir randevusu bulunmaktadır",
@@ -1511,7 +1502,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		// Begin transaction
 		err = Orm.Begin()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=transaction_begin")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1692,12 +1683,10 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		UpdateQuery.Where("rid", "=", inputs.Rid)
 		UpdateQuery.Finish()
 
-		log.Printf("query string: %s", UpdateQuery.Query)
-
 		err = UpdateQuery.Execute()
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=record_update")
 			Orm.Rollback()
 			return c.JSON(fiber.Map{
 				"status":  500,
@@ -1708,7 +1697,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		// Check if any rows were affected
 		rowsAffected, err := UpdateQuery.RowsAffected()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=affected_rows")
 			Orm.Rollback()
 			return c.JSON(fiber.Map{
 				"status":  500,
@@ -1727,7 +1716,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		// Commit transaction
 		err = Orm.Commit()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=EditRandevu stage=transaction_commit")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1739,7 +1728,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 
 			if RootDir == "" {
-				log.Printf("ROOT_DIRECTORY not set")
+				log.Printf("operation=EditRandevu stage=message_build")
 			} else {
 				GetLogo := ""
 
@@ -1761,13 +1750,13 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 					err = GetSubeName.Execute()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=EditRandevu stage=branch_read")
 					}
 
 					GetSubeNameRows, err := GetSubeName.Rows()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=EditRandevu stage=branch_rows")
 					}
 
 					SubeName = lib.String(GetSubeNameRows[0]["name"])
@@ -1781,13 +1770,13 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 					err = GetDoctorName.Execute()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=EditRandevu stage=doctor_read")
 					}
 
 					GetDoctorNameRows, err := GetDoctorName.Rows()
 
 					if err != nil {
-						log.Printf("%v\n", err)
+						log.Printf("operation=EditRandevu stage=doctor_rows")
 					}
 
 					DoctorName = lib.String(GetDoctorNameRows[0]["title"]) + " " + lib.String(GetDoctorNameRows[0]["first_name"]) + " " + lib.String(GetDoctorNameRows[0]["last_name"]) + " - " + SubeName
@@ -1798,12 +1787,10 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				Html := ""
 
 				{
-					log.Printf("appointment time: %v", inputs.AppointmentTime)
 					// Create professional HTML email template for appointment confirmation
 					dateString := fmt.Sprintf("%d.%d.%d", inputs.AppointmentDate.Day(), int(inputs.AppointmentDate.Month()), inputs.AppointmentDate.Year())
 					timeString := fmt.Sprintf("%02d:%02d", inputs.AppointmentTime.Hour(), inputs.AppointmentTime.Minute())
 
-					log.Printf("time string: %s", timeString)
 					// Build doctor and clinic information
 					doctorInfo := ""
 					if DoctorName != "" {
@@ -1995,7 +1982,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				err = lib.SendEmail(&CreateEmailInfos)
 
 				if err != nil {
-					log.Printf("Cannot send email: %v\n", err)
+					log.Printf("operation=EditRandevu stage=%s", lib.EmailFailureStage(err))
 				}
 			}
 		}

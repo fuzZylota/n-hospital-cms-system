@@ -2182,7 +2182,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("Cannot fetch options: %v\n", err)
+			log.Printf("operation=AddContactRequest stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2197,7 +2197,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		err = CheckIfItsRepeating.Execute()
 		if err != nil {
-			log.Printf("Cannot check if its repeating: %v\n", err)
+			log.Printf("operation=AddContactRequest stage=duplicate_check")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2246,7 +2246,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 		InsertContactRequest.Finish()
 		err = InsertContactRequest.Execute()
 		if err != nil {
-			log.Printf("Cannot insert contact request: %v\n", err)
+			log.Printf("operation=AddContactRequest stage=record_insert")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2255,7 +2255,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		crid, err := InsertContactRequest.LastInsertId()
 		if err != nil {
-			log.Printf("Cannot get last insert id: %v\n", err)
+			log.Printf("operation=AddContactRequest stage=insert_id")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2274,11 +2274,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 			if RootDir == "" {
-				log.Printf("ROOT_DIRECTORY not set")
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
+				log.Printf("operation=AddContactRequest stage=message_build")
 			}
 
 			if (*GetOptions.Medias)[0].FilePath != "" {
@@ -2585,7 +2581,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 			err = lib.SendEmail(&CreateEmailInfos)
 
 			if err != nil {
-				log.Printf("Cannot send email: %v\n", err)
+				log.Printf("operation=AddContactRequest stage=%s", lib.EmailFailureStage(err))
 			}
 		}
 
@@ -2774,7 +2770,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=auth")
 			return c.JSON(fiber.Map{
 				"status":  401,
 				"message": "Unauthorized",
@@ -2798,7 +2794,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		}
 
 		if err := c.BodyParser(&inputs); err != nil {
-			log.Printf("Cannot parse request body: %v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=request_parse")
 			return c.JSON(fiber.Map{
 				"status":  400,
 				"message": "Invalid request data",
@@ -2822,7 +2818,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("Cannot fetch options: %v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2844,7 +2840,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 
 		err = CheckContactRequest.Execute()
 		if err != nil {
-			log.Printf("Cannot check contact request: %v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=record_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2853,7 +2849,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 
 		rows, err := CheckContactRequest.Rows()
 		if err != nil {
-			log.Printf("Cannot get contact request rows: %v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=record_rows")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2884,7 +2880,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 
 		RootDir := os.Getenv("ROOT_DIRECTORY")
 		if RootDir == "" {
-			log.Printf("ROOT_DIRECTORY not set")
+			log.Printf("operation=RespondToContactRequest stage=message_build")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -3142,34 +3138,26 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			Attachments: []string{GetLogo},
 		}
 
-		err = lib.SendEmail(&CreateEmailInfos)
-
+		err = lib.SendEmailThenMarkReplied(
+			func() error {
+				return lib.SendEmail(&CreateEmailInfos)
+			},
+			func() error {
+				UpdateContactRequest := Orm.Update()
+				UpdateContactRequest.Table("contact_requests")
+				UpdateContactRequest.Set("is_replied", true)
+				UpdateContactRequest.Set("response_date", "NOW()")
+				UpdateContactRequest.Set("updated_at", "NOW()")
+				UpdateContactRequest.Where("crid", "=", ContactRequestId)
+				UpdateContactRequest.Finish()
+				return UpdateContactRequest.Execute()
+			},
+		)
 		if err != nil {
-			log.Printf("Cannot send email: %v\n", err)
+			log.Printf("operation=RespondToContactRequest stage=%s", lib.EmailFailureStage(err))
 		}
 
-		// 4. Update the "is_replied" column
-		UpdateContactRequest := Orm.Update()
-		UpdateContactRequest.Table("contact_requests")
-		UpdateContactRequest.Set("is_replied", true)
-		UpdateContactRequest.Set("response_date", "NOW()")
-		UpdateContactRequest.Set("updated_at", "NOW()")
-		UpdateContactRequest.Where("crid", "=", ContactRequestId)
-		UpdateContactRequest.Finish()
-
-		err = UpdateContactRequest.Execute()
-		if err != nil {
-			log.Printf("Cannot update contact request: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "Cevap başarıyla gönderildi.",
-		})
+		return c.JSON(lib.ReplyEmailResponse(err))
 	}
 }
 
@@ -3200,7 +3188,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("Cannot fetch options: %v\n", err)
+			log.Printf("operation=AddJobApplication stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -3214,7 +3202,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 
 		err = CheckIfItsRepeating.Execute()
 		if err != nil {
-			log.Printf("Cannot check if its repeating: %v\n", err)
+			log.Printf("operation=AddJobApplication stage=duplicate_check")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -3235,6 +3223,17 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 					"message": "reCAPTCHA doğrulama hatası. Lütfen tekrar deneyin.",
 				})
 			}
+		}
+
+		cvInput, cvErr := c.FormFile("cv_file")
+		hasCV := cvErr == nil
+		RootDir := os.Getenv("ROOT_DIRECTORY")
+		if !lib.JobApplicationUploadRootAvailable(hasCV, RootDir) {
+			log.Printf("operation=AddJobApplication stage=cv_upload_root")
+			return c.JSON(fiber.Map{
+				"status":  500,
+				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
+			})
 		}
 
 		columns := []string{"first_name", "last_name", "email", "city", "cover_letter"}
@@ -3319,7 +3318,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		insertReq.Returning("jaid")
 		insertReq.Finish()
 		if err := insertReq.Execute(); err != nil {
-			log.Printf("Cannot insert job application: %v\n", err)
+			log.Printf("operation=AddJobApplication stage=record_insert")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -3329,7 +3328,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		lid, err := insertReq.LastInsertId()
 
 		if err != nil {
-			log.Printf("Cannot get last insert id for job application: %v\n", err)
+			log.Printf("operation=AddJobApplication stage=insert_id")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -3343,21 +3342,9 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		RootDir := os.Getenv("ROOT_DIRECTORY")
-		if RootDir == "" {
-			Orm.Rollback()
-			log.Printf("ROOT_DIRECTORY not set")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		cvInput, err := c.FormFile("cv_file")
-		if err == nil {
+		if hasCV {
 			// File size validation
 			if cvInput.Size > GetOptions.Options.MaxUploadSize {
-				Orm.Rollback()
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")
 			}
 
@@ -3365,8 +3352,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + cvInput.Filename)
 
 			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot get unique file path: %v\n", err)
+				log.Printf("operation=AddJobApplication stage=cv_path")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
 			}
 
@@ -3374,7 +3360,6 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			case ".pdf", ".doc", ".docx":
 				break
 			default:
-				Orm.Rollback()
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=invalid_file_type")
 			}
 
@@ -3400,8 +3385,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			CvMediaMid, err := OurOptions.InsertMedia(Orm, media, optionals)
 
 			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot insert CV media: %v\n", err)
+				log.Printf("operation=AddJobApplication stage=cv_media_insert")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
 			}
 
@@ -3413,21 +3397,23 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			updateDoctor.Finish()
 			err = updateDoctor.Execute()
 			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot update doctor with CV: %v\n", err)
+				log.Printf("operation=AddJobApplication stage=cv_media_link")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
 			}
 
 			// Save CV file
 			err = lib.SaveFileWithBuffering(estimatedPath, *cvInput)
 			if err != nil {
-				Orm.Rollback()
-				log.Printf("Cannot save CV file: %v\n", err)
+				log.Printf("operation=AddJobApplication stage=cv_file_save")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
 			}
 		}
 
-		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.Email != "" {
+		emailConfigured := GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.Email != ""
+		if emailConfigured && RootDir == "" {
+			log.Printf("operation=AddJobApplication stage=message_build")
+		}
+		if emailConfigured && RootDir != "" {
 			GetLogo := ""
 
 			if (*GetOptions.Medias)[0].FilePath != "" {
@@ -3770,7 +3756,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			err = lib.SendEmail(&CreateEmailInfos)
 
 			if err != nil {
-				log.Printf("Cannot send email: %v\n", err)
+				log.Printf("operation=AddJobApplication stage=%s", lib.EmailFailureStage(err))
 			}
 		}
 
@@ -4048,7 +4034,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=auth")
 			return c.JSON(fiber.Map{
 				"status":  401,
 				"message": "Unauthorized",
@@ -4072,7 +4058,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 		}
 
 		if err := c.BodyParser(&inputs); err != nil {
-			log.Printf("Cannot parse request body: %v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=request_parse")
 			return c.JSON(fiber.Map{
 				"status":  400,
 				"message": "Invalid request data",
@@ -4097,7 +4083,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 
 		err = CheckJobApplication.Execute()
 		if err != nil {
-			log.Printf("Cannot check job application: %v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=record_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -4106,7 +4092,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 
 		rows, err := CheckJobApplication.Rows()
 		if err != nil {
-			log.Printf("Cannot get job application rows: %v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=record_rows")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -4141,7 +4127,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
 
 		if err != nil {
-			log.Printf("Cannot fetch options: %v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=options_read")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -4159,7 +4145,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 
 		RootDir := os.Getenv("ROOT_DIRECTORY")
 		if RootDir == "" {
-			log.Printf("ROOT_DIRECTORY not set")
+			log.Printf("operation=RespondToJobApplication stage=message_build")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -4417,34 +4403,26 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 			Attachments: []string{GetLogo},
 		}
 
-		err = lib.SendEmail(&CreateEmailInfos)
-
+		err = lib.SendEmailThenMarkReplied(
+			func() error {
+				return lib.SendEmail(&CreateEmailInfos)
+			},
+			func() error {
+				UpdateJobApplication := Orm.Update()
+				UpdateJobApplication.Table("job_applications")
+				UpdateJobApplication.Set("is_replied", true)
+				UpdateJobApplication.Set("response_date", "NOW()")
+				UpdateJobApplication.Set("updated_at", "NOW()")
+				UpdateJobApplication.Where("jaid", "=", JobApplicationId)
+				UpdateJobApplication.Finish()
+				return UpdateJobApplication.Execute()
+			},
+		)
 		if err != nil {
-			log.Printf("Cannot send email: %v\n", err)
+			log.Printf("operation=RespondToJobApplication stage=%s", lib.EmailFailureStage(err))
 		}
 
-		// 4. Update the job application with response
-		UpdateJobApplication := Orm.Update()
-		UpdateJobApplication.Table("job_applications")
-		UpdateJobApplication.Set("is_replied", true)
-		UpdateJobApplication.Set("response_date", "NOW()")
-		UpdateJobApplication.Set("updated_at", "NOW()")
-		UpdateJobApplication.Where("jaid", "=", JobApplicationId)
-		UpdateJobApplication.Finish()
-
-		err = UpdateJobApplication.Execute()
-		if err != nil {
-			log.Printf("Cannot update job application: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "Cevap başarıyla gönderildi.",
-		})
+		return c.JSON(lib.ReplyEmailResponse(err))
 	}
 }
 

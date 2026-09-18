@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
@@ -12,11 +11,8 @@ import (
 	"io"
 	"log"
 	"math/rand"
-	"mime"
 	"mime/multipart"
-	"mime/quotedprintable"
 	"net/http"
-	"net/smtp"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -42,15 +38,6 @@ func GenerateRandomString(length int) []byte {
 	b := make([]byte, length)
 	rand.Read(b)
 	return b
-}
-
-func generateBoundary(prefix string) string {
-	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 16)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))] // #nosec G104
-	}
-	return prefix + "-" + string(b)
 }
 
 func Encrypt(plaintext []byte) (string, error) {
@@ -541,7 +528,6 @@ func UniqueFilePath(path string) (UniqueFilePathResponse, error) {
 			Error:     nil,
 		}, nil
 	} else if err != nil {
-		log.Printf("%v\n", err)
 		return UniqueFilePathResponse{
 			BaseName:  "",
 			FilePath:  "",
@@ -614,7 +600,6 @@ func SaveFileWithBuffering(dstDir string, fileHeader multipart.FileHeader) error
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		log.Printf("%v\n", err)
 		return err
 	}
 	defer file.Close()
@@ -634,7 +619,6 @@ func SaveFileWithBuffering(dstDir string, fileHeader multipart.FileHeader) error
 				if err == io.EOF {
 					break
 				} else {
-					log.Printf("%v\n", werr)
 					return werr
 				}
 
@@ -646,14 +630,12 @@ func SaveFileWithBuffering(dstDir string, fileHeader multipart.FileHeader) error
 		}
 
 		if err != nil {
-			log.Printf("%v\n", err)
 			return err
 		}
 	}
 
 	// Diske sync et
 	if err := dst.Sync(); err != nil {
-		log.Printf("%v\n", err)
 		return fmt.Errorf("dosya sync edilemedi: %w", err)
 	}
 
@@ -925,219 +907,22 @@ func TurnStructIntoJson(v interface{}) string {
 }
 
 func SendEmail(infos *models.EmailInfos) error {
-	encodedFrom := mime.QEncoding.Encode("utf-8", "Gönderen Adı")
-	from := fmt.Sprintf("%s <%s>", encodedFrom, infos.From)
-
-	// mesajı oluştur
-	msg, err := buildHTMLWithAttachments(from, infos.To, infos.Subject, infos.PlainText, infos.Body, infos.Attachments)
-	if err != nil {
-		log.Fatalf("mesaj oluşturulamadı: %v", err)
-		return err
+	if infos == nil {
+		return &EmailError{stage: EmailMessageBuild, cause: errors.New("e-posta bilgileri eksik")}
 	}
 
-	auth := smtp.PlainAuth("", infos.Username, infos.Password, infos.Host)
-
-	// gönder
-	addr := infos.Host + ":" + strconv.FormatInt(infos.Port, 10)
-	if err := smtp.SendMail(addr, auth, infos.Username, infos.To, msg); err != nil {
-		log.Fatalf("mail gönderilemedi: %v", err)
-		return err
-	}
-
-	return nil
-}
-
-/*
-func buildHTMLWithAttachments(from string, to []string, subject, plainText, html string, files []string) ([]byte, error) {
-	var b bytes.Buffer
-
-	// boundaryler
-	mixedBoundary := generateBoundary("MIXED")
-	altBoundary := generateBoundary("ALT")
-
-	// headerlar
-	encodedSubject := mime.QEncoding.Encode("utf-8", subject)
-	toHeader := strings.Join(to, ", ")
-
-	headers := map[string]string{
-		"From":         from,
-		"To":           toHeader,
-		"Subject":      encodedSubject,
-		"MIME-Version": "1.0",
-		"Content-Type": `multipart/mixed; boundary="` + mixedBoundary + `"`,
-	}
-
-	for k, v := range headers {
-		fmt.Fprintf(&b, "%s: %s\r\n", k, v)
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	// -- multipart/alternative (plain + html)
-	fmt.Fprintf(&b, "--%s\r\n", mixedBoundary)
-	fmt.Fprintf(&b, "Content-Type: multipart/alternative; boundary=\"%s\"\r\n\r\n", altBoundary)
-
-	// plain text part
-	fmt.Fprintf(&b, "--%s\r\n", altBoundary)
-	fmt.Fprintf(&b, "Content-Type: text/plain; charset=\"utf-8\"\r\n")
-	fmt.Fprintf(&b, "Content-Transfer-Encoding: quoted-printable\r\n\r\n")
-	qp := quotedprintable.NewWriter(&b)
-	if _, err := qp.Write([]byte(plainText)); err != nil {
-		return nil, err
-	}
-	if err := qp.Close(); err != nil {
-		return nil, err
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	// html part
-	fmt.Fprintf(&b, "--%s\r\n", altBoundary)
-	fmt.Fprintf(&b, "Content-Type: text/html; charset=\"utf-8\"\r\n")
-	fmt.Fprintf(&b, "Content-Transfer-Encoding: quoted-printable\r\n\r\n")
-	qp2 := quotedprintable.NewWriter(&b)
-	if _, err := qp2.Write([]byte(html)); err != nil {
-		return nil, err
-	}
-	if err := qp2.Close(); err != nil {
-		return nil, err
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	fmt.Fprintf(&b, "--%s--\r\n", altBoundary) // alt bitiş
-
-	// -- attachments
-	for _, fpath := range files {
-		data, err := os.ReadFile(fpath)
-		if err != nil {
-			return nil, err
-		}
-		filename := filepath.Base(fpath)
-		encoded := base64.StdEncoding.EncodeToString(data)
-
-		fmt.Fprintf(&b, "--%s\r\n", mixedBoundary)
-		fmt.Fprintf(&b, "Content-Type: application/octet-stream; name=\"%s\"\r\n", filename)
-		fmt.Fprintf(&b, "Content-Transfer-Encoding: base64\r\n")
-		fmt.Fprintf(&b, "Content-Disposition: attachment; filename=\"%s\"\r\n\r\n", filename)
-
-		// 76 karakter satır uzunluğu kuralı
-		for i := 0; i < len(encoded); i += 76 {
-			end := i + 76
-			if end > len(encoded) {
-				end = len(encoded)
-			}
-			fmt.Fprintf(&b, "%s\r\n", encoded[i:end])
-		}
-		fmt.Fprintf(&b, "\r\n")
-	}
-
-	fmt.Fprintf(&b, "--%s--\r\n", mixedBoundary) // mixed bitiş
-
-	return b.Bytes(), nil
-}
-*/
-
-func buildHTMLWithAttachments(from string, to []string, subject, plainText, html string, files []string) ([]byte, error) {
-	var b bytes.Buffer
-
-	// boundaryler
-	mixedBoundary := generateBoundary("MIXED")
-	altBoundary := generateBoundary("ALT")
-
-	// gönderen adresini sadeleştir (adı kaldır)
-	// eğer kullanıcı "Ad <mail@domain>" şeklinde verdiyse sadece mail kısmını al
-	if strings.Contains(from, "<") && strings.Contains(from, ">") {
-		start := strings.Index(from, "<") + 1
-		end := strings.Index(from, ">")
-		from = strings.TrimSpace(from[start:end])
-	}
-
-	// headerlar
-	encodedSubject := mime.QEncoding.Encode("utf-8", subject)
-	toHeader := strings.Join(to, ", ")
-
-	headers := map[string]string{
-		"From":         from,
-		"To":           toHeader,
-		"Subject":      encodedSubject,
-		"MIME-Version": "1.0",
-		"Content-Type": `multipart/mixed; boundary="` + mixedBoundary + `"`,
-	}
-
-	for k, v := range headers {
-		fmt.Fprintf(&b, "%s: %s\r\n", k, v)
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	// -- multipart/alternative (plain + html)
-	fmt.Fprintf(&b, "--%s\r\n", mixedBoundary)
-	fmt.Fprintf(&b, "Content-Type: multipart/alternative; boundary=\"%s\"\r\n\r\n", altBoundary)
-
-	// plain text part
-	fmt.Fprintf(&b, "--%s\r\n", altBoundary)
-	fmt.Fprintf(&b, "Content-Type: text/plain; charset=\"utf-8\"\r\n")
-	fmt.Fprintf(&b, "Content-Transfer-Encoding: quoted-printable\r\n\r\n")
-	qp := quotedprintable.NewWriter(&b)
-	if _, err := qp.Write([]byte(plainText)); err != nil {
-		return nil, err
-	}
-	if err := qp.Close(); err != nil {
-		return nil, err
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	// html part
-	fmt.Fprintf(&b, "--%s\r\n", altBoundary)
-	fmt.Fprintf(&b, "Content-Type: text/html; charset=\"utf-8\"\r\n")
-	fmt.Fprintf(&b, "Content-Transfer-Encoding: quoted-printable\r\n\r\n")
-	qp2 := quotedprintable.NewWriter(&b)
-	if _, err := qp2.Write([]byte(html)); err != nil {
-		return nil, err
-	}
-	if err := qp2.Close(); err != nil {
-		return nil, err
-	}
-	fmt.Fprintf(&b, "\r\n")
-
-	fmt.Fprintf(&b, "--%s--\r\n", altBoundary) // alt bitiş
-
-	// -- attachments (inline + normal)
-	for _, fpath := range files {
-		data, err := os.ReadFile(fpath)
-		if err != nil {
-			return nil, err
-		}
-		filename := filepath.Base(fpath)
-		mimeType := mime.TypeByExtension(filepath.Ext(filename))
-		if mimeType == "" {
-			mimeType = "application/octet-stream"
-		}
-		encoded := base64.StdEncoding.EncodeToString(data)
-
-		fmt.Fprintf(&b, "--%s\r\n", mixedBoundary)
-		fmt.Fprintf(&b, "Content-Type: %s; name=\"%s\"\r\n", mimeType, filename)
-		fmt.Fprintf(&b, "Content-Transfer-Encoding: base64\r\n")
-
-		// eğer HTML içinde "cid:filename" geçiyorsa inline olarak ekle
-		if strings.Contains(html, "cid:"+filename) {
-			fmt.Fprintf(&b, "Content-Disposition: inline; filename=\"%s\"\r\n", filename)
-			fmt.Fprintf(&b, "Content-ID: <%s>\r\n\r\n", filename)
-		} else {
-			fmt.Fprintf(&b, "Content-Disposition: attachment; filename=\"%s\"\r\n\r\n", filename)
-		}
-
-		// 76 karakterlik satır kuralı
-		for i := 0; i < len(encoded); i += 76 {
-			end := i + 76
-			if end > len(encoded) {
-				end = len(encoded)
-			}
-			fmt.Fprintf(&b, "%s\r\n", encoded[i:end])
-		}
-		fmt.Fprintf(&b, "\r\n")
-	}
-
-	fmt.Fprintf(&b, "--%s--\r\n", mixedBoundary) // mixed bitiş
-
-	return b.Bytes(), nil
+	return sendEmail(emailMessage{
+		From:        infos.From,
+		To:          infos.To,
+		Username:    infos.Username,
+		Password:    infos.Password,
+		Host:        infos.Host,
+		Port:        infos.Port,
+		Subject:     infos.Subject,
+		PlainText:   infos.PlainText,
+		Body:        infos.Body,
+		Attachments: infos.Attachments,
+	}, buildEmailMessage, sendEmailSMTP)
 }
 
 func ShortenTextForFrontend(s string, max int) string {
