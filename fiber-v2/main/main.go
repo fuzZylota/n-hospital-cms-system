@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"frontend"
 	lib "lib"
+	"lib/notificationhub"
 	"log"
 	"net"
 	"os"
@@ -16,7 +17,6 @@ import (
 
 	env "github.com/joho/godotenv"
 
-	wsb "github.com/Necoo33/fiber-ws-broadcaster"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	jet "github.com/gofiber/template/jet/v2"
@@ -84,9 +84,21 @@ func run() error {
 				}
 			}, nil
 		},
+		openHub: func() (func(context.Context) error, error) {
+			// 32 waiting messages + one active write per client. Best-effort
+			// notifications disconnect slow clients rather than grow without bound.
+			hub, err := notificationhub.New(notificationQueueCapacity)
+			if err != nil {
+				return nil, err
+			}
+			utilities.NotificationHub = hub
+			return hub.Shutdown, nil
+		},
 		newServer: func() (httpLifecycle, error) { return newHTTPServer(config, utilities) },
 	})
 }
+
+const notificationQueueCapacity = 32
 
 type appConfig struct {
 	dsn         string
@@ -158,11 +170,8 @@ func newHTTPServer(config appConfig, utilities *models.Utilities) (httpLifecycle
 
 	log.Printf("JWT middleware loaded")
 
-	Broadcaster := wsb.New()
-
 	AppState := models.AppState{
 		Connections: []models.WebsocketConnection{},
-		Broadcaster: &Broadcaster,
 	}
 
 	log.Printf("AppState loaded")

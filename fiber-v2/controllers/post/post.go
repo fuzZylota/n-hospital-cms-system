@@ -7,14 +7,16 @@ import (
 	lib "lib"
 	"log"
 	"models"
+	"models/notify"
 	"os"
 	"path/filepath"
+	"post/notificationevent"
+	"post/notificationws"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	wsb "github.com/Necoo33/fiber-ws-broadcaster"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
@@ -4439,314 +4441,208 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 		Domain = "http://localhost:" + Port
 	}
 
-	return websocket.New(func(c *websocket.Conn) {
-		ourUser, err := lib.CheckAuth(c)
-
-		broadcaster := states.Broadcaster
-
-		id := ""
-
-		if err != nil {
-			id = string(lib.GenerateRandomString(10))
-		} else {
-			id = ourUser.Uid + "_" + string(lib.GenerateRandomString(8))
-		}
-
-		protocol := lib.String(c.Locals("protocol"))
-
-		broadcaster.Handle("notifications")
-
-		room := broadcaster.RoomById("notifications")
-
-		room.Handle(c, id, protocol)
-
+	return notificationws.Handler(utilities.NotificationHub, func(c *fiber.Ctx) (notify.UserID, error) {
+		user, err := lib.CheckAuth(c)
+		return notify.UserID(user.Uid), err
+	}, func(event notificationws.Event, msg []byte) {
 		Orm := utilities.Orm
-
-		var (
-			mt   int
-			msg  []byte
-			err2 error
-		)
-
-		// mesaj tipleri şöyle: 1: text, 2: binary, 8: close, 9: ping, 10: pong
-		//err2 = c.WriteMessage(1, []byte("Merhaba"))
-
-	Loop:
-		for {
-			mt, msg, err2 = c.ReadMessage()
-
-			if err2 != nil {
-				room.RemoveById(id)
-
-				broadcaster.RemoveIf(func(r *wsb.Room) bool {
-					return r.IsRoomEmpty()
-				})
-
-				break Loop
+		var err error
+		WebsocketMessage := models.WebsocketMessage{}
+		if json.Unmarshal(msg, &WebsocketMessage) != nil {
+			return
+		}
+		// Compatibility UID is deliberately ignored, including nonempty mismatch.
+		// herşeyden önce bildirim link ve metni oluşturulacak.
+		if event == notificationws.Appointment {
+			RandevuTalebi := models.RandevuRequests{}
+			if json.Unmarshal([]byte(WebsocketMessage.Message), &RandevuTalebi) != nil {
+				return
 			}
 
-			switch mt {
-			case 1:
-				// text message
-				WebsocketMessage := models.WebsocketMessage{}
-				json.Unmarshal(msg, &WebsocketMessage)
+			bildirimLink := "/panel/randevu-talepleri/" + RandevuTalebi.Rrid + "?notification=true"
+			bildirimMetni := RandevuTalebi.PatientFirstName + " " + RandevuTalebi.PatientLastName + " tarafından"
 
-				// herşeyden önce bildirim link ve metni oluşturulacak.
-				if protocol == "randevu" && (id != WebsocketMessage.Uid) {
-					RandevuTalebi := models.RandevuRequests{}
-					json.Unmarshal([]byte(WebsocketMessage.Message), &RandevuTalebi)
-
-					bildirimLink := "/panel/randevu-talepleri/" + RandevuTalebi.Rrid + "?notification=true"
-					bildirimMetni := RandevuTalebi.PatientFirstName + " " + RandevuTalebi.PatientLastName + " tarafından"
-
-					if RandevuTalebi.PatientEmail != "" {
-						if !RandevuTalebi.PreferredDate.IsZero() {
-							bildirimMetni += ", " + RandevuTalebi.PreferredDate.Format("02.01.2006") + " tarihinde "
-						}
-
-						if !RandevuTalebi.PreferredTime.IsZero() {
-							bildirimMetni += ", " + RandevuTalebi.PreferredTime.Format("15:04") + " saatinde "
-						}
-
-						if RandevuTalebi.PreferredDate.IsZero() && RandevuTalebi.PreferredTime.IsZero() {
-							bildirimMetni += " randevu talebi gönderildi."
-						} else {
-							bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
-						}
-					} else {
-						bildirimMetni += " hızlı randevu formuyla randevu talebi gönderildi."
-					}
-
-					NewWebsocketMessage := models.WebsocketMessage{
-						Uid: "",
-						//InsertForm:  "randevu",
-						Message:     bildirimMetni,
-						RequestLink: bildirimLink,
-					}
-
-					Columns := []string{"message", "notification_type", "notification_level", "link"}
-					Values := []interface{}{bildirimMetni, "info", "santral", bildirimLink}
-
-					if RandevuTalebi.Sid != "" {
-						Columns = append(Columns, "sid")
-						Values = append(Values, RandevuTalebi.Sid)
-					}
-
-					InsertNotification := Orm.Insert(
-						Columns,
-						Values,
-					)
-
-					InsertNotification.Table("notifications")
-					InsertNotification.Returning("nid")
-					InsertNotification.Finish()
-
-					err = InsertNotification.Execute()
-
-					if err != nil {
-						log.Println("cannot insert notification:", err)
-					}
-
-					lid, err := InsertNotification.LastInsertId()
-
-					if err != nil {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					if lid == "" {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					NewWebsocketMessageBytes, err := json.Marshal(NewWebsocketMessage)
-
-					if err != nil {
-						log.Println("json marshal:", err)
-					}
-
-					room.BroadcastIf(NewWebsocketMessageBytes, nil, func(c *wsb.Connection) bool {
-						if lib.String(c.Data) != "kullanici" {
-							return false
-						}
-
-						GetUserRole := Orm.Select([]string{"role", "sid"})
-						GetUserRole.Table("users")
-						GetUserRole.Where("uid", "=", lib.String(c.Id))
-						GetUserRole.Finish()
-
-						err = GetUserRole.Execute()
-
-						// eğer bu kullanıcı randevuyu oluşturan ziyaretçiyse, buradaki hata'dan çıkış
-						// yapılıyor.
-						if err != nil {
-							return false
-						}
-
-						rows, err := GetUserRole.Rows()
-						if err != nil {
-							return false
-						}
-
-						if len(rows) == 0 {
-							return false
-						}
-
-						Role := lib.String(rows[0]["role"])
-						Sid := lib.String(rows[0]["sid"])
-
-						if Role == "admin" || Role == "moderator" {
-							return true
-						}
-
-						if Role == "santral" && Sid == RandevuTalebi.Sid {
-							return true
-						}
-
-						return false
-					})
+			if RandevuTalebi.PatientEmail != "" {
+				if !RandevuTalebi.PreferredDate.IsZero() {
+					bildirimMetni += ", " + RandevuTalebi.PreferredDate.Format("02.01.2006") + " tarihinde "
 				}
 
-				if protocol == "is-basvurusu" && (id != WebsocketMessage.Uid) {
-					JobApplication := models.JobApplications{}
-					json.Unmarshal([]byte(WebsocketMessage.Message), &JobApplication)
-
-					bildirimLink := "/panel/is-basvurulari/" + JobApplication.Jaid + "?notification=true"
-					bildirimMetni := JobApplication.FirstName + " " + JobApplication.LastName + " tarafından bir iş başvurusu gönderildi."
-
-					NewWebsocketMessage := models.WebsocketMessage{
-						Uid: "",
-						//InsertForm:  "is-basvurusu",
-						Message:     bildirimMetni,
-						RequestLink: bildirimLink,
-					}
-
-					InsertNotification := Orm.Insert(
-						[]string{"message", "notification_type", "notification_level", "link"},
-						[]interface{}{bildirimMetni, "info", "ik", bildirimLink},
-					)
-
-					InsertNotification.Table("notifications")
-					InsertNotification.Returning("nid")
-					InsertNotification.Finish()
-
-					err = InsertNotification.Execute()
-
-					if err != nil {
-						log.Println("cannot insert notification:", err)
-					}
-
-					lid, err := InsertNotification.LastInsertId()
-
-					if err != nil {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					if lid == "" {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					NewWebsocketMessageBytes, err := json.Marshal(NewWebsocketMessage)
-
-					if err != nil {
-						log.Println("json marshal:", err)
-					}
-
-					room.BroadcastIf(NewWebsocketMessageBytes, nil, func(c *wsb.Connection) bool {
-						if lib.String(c.Data) != "kullanici" {
-							return false
-						}
-
-						CheckIfUserIsAdminOrIk := Orm.Count("users")
-						CheckIfUserIsAdminOrIk.Where("uid", "=", lib.String(c.Id))
-						CheckIfUserIsAdminOrIk.OpenParenthesis("AND")
-						CheckIfUserIsAdminOrIk.And("role", "=", "admin")
-						CheckIfUserIsAdminOrIk.Or("role", "=", "moderator")
-						CheckIfUserIsAdminOrIk.Or("role", "=", "ik")
-						CheckIfUserIsAdminOrIk.CloseParenthesis()
-						CheckIfUserIsAdminOrIk.Finish()
-
-						err = CheckIfUserIsAdminOrIk.Execute()
-
-						if err != nil {
-							return false
-						}
-
-						if CheckIfUserIsAdminOrIk.Length() == 0 {
-							return false
-						}
-
-						return true
-					})
+				if !RandevuTalebi.PreferredTime.IsZero() {
+					bildirimMetni += ", " + RandevuTalebi.PreferredTime.Format("15:04") + " saatinde "
 				}
 
-				if protocol == "iletisim" && WebsocketMessage.Uid == "" {
-					ContactRequest := models.ContactRequests{}
-					json.Unmarshal([]byte(WebsocketMessage.Message), &ContactRequest)
-
-					bildirimLink := "/panel/iletisim-istekleri/" + ContactRequest.Crid + "?notification=true"
-					bildirimMetni := ContactRequest.FirstName + " " + ContactRequest.LastName + " tarafından bir iletişim talebi gönderildi."
-
-					NewWebsocketMessage := models.WebsocketMessage{
-						Uid: "",
-						//InsertForm:  "is-basvurusu",
-						Message:     bildirimMetni,
-						RequestLink: bildirimLink,
-					}
-
-					InsertNotification := Orm.Insert(
-						[]string{"message", "notification_type", "notification_level", "link"},
-						[]interface{}{bildirimMetni, "info", "all", bildirimLink},
-					)
-
-					InsertNotification.Table("notifications")
-					InsertNotification.Returning("nid")
-					InsertNotification.Finish()
-
-					err = InsertNotification.Execute()
-
-					if err != nil {
-						log.Println("cannot insert notification:", err)
-					}
-
-					lid, err := InsertNotification.LastInsertId()
-
-					if err != nil {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					if lid == "" {
-						log.Println("cannot get last insert id:", err)
-					}
-
-					NewWebsocketMessageBytes, err := json.Marshal(NewWebsocketMessage)
-
-					if err != nil {
-						log.Println("json marshal:", err)
-					}
-
-					room.BroadcastIf(NewWebsocketMessageBytes, nil, func(c *wsb.Connection) bool {
-						return lib.String(c.Data) == "kullanici"
-					})
+				if RandevuTalebi.PreferredDate.IsZero() && RandevuTalebi.PreferredTime.IsZero() {
+					bildirimMetni += " randevu talebi gönderildi."
+				} else {
+					bildirimMetni += "gerçekleşmek üzere randevu talebi gönderildi."
 				}
+			} else {
+				bildirimMetni += " hızlı randevu formuyla randevu talebi gönderildi."
+			}
 
-				break Loop
-			case 2:
-				// binary message
-			case 8:
-				log.Printf("Close message received")
+			NewWebsocketMessage := notificationevent.Message{
+				Uid: "",
+				//InsertForm:  "randevu",
+				Message:     bildirimMetni,
+				RequestLink: bildirimLink,
+			}
 
-				room.RemoveById(id)
+			Columns := []string{"message", "notification_type", "notification_level", "link"}
+			Values := []interface{}{bildirimMetni, "info", "santral", bildirimLink}
 
-				broadcaster.RemoveIf(func(r *wsb.Room) bool {
-					return r.IsRoomEmpty()
-				})
+			if RandevuTalebi.Sid != "" {
+				Columns = append(Columns, "sid")
+				Values = append(Values, RandevuTalebi.Sid)
+			}
 
-				break Loop
-			case 9:
-				// ping message
-			case 10:
-				// pong message
+			InsertNotification := Orm.Insert(
+				Columns,
+				Values,
+			)
+
+			InsertNotification.Table("notifications")
+			InsertNotification.Returning("nid")
+			InsertNotification.Finish()
+
+			err = InsertNotification.Execute()
+
+			if err != nil {
+				log.Print("notification: insert failed")
+			}
+
+			lid, err := InsertNotification.LastInsertId()
+
+			if err != nil {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if lid == "" {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.AppointmentRecipients(notify.BranchID(RandevuTalebi.Sid), func(uid notify.UserID) (notificationevent.User, bool) {
+				GetUserRole := Orm.Select([]string{"role", "sid"})
+				GetUserRole.Table("users")
+				GetUserRole.Where("uid", "=", string(uid))
+				GetUserRole.Finish()
+				if GetUserRole.Execute() != nil {
+					return notificationevent.User{}, false
+				}
+				rows, lookupErr := GetUserRole.Rows()
+				if lookupErr != nil || len(rows) == 0 {
+					return notificationevent.User{}, false
+				}
+				return notificationevent.User{Role: notify.Role(lib.String(rows[0]["role"])), Branch: notify.BranchID(lib.String(rows[0]["sid"]))}, true
+			})); publishErr != nil {
+				log.Print("notification: publication failed")
 			}
 		}
+
+		if event == notificationws.Application {
+			JobApplication := models.JobApplications{}
+			if json.Unmarshal([]byte(WebsocketMessage.Message), &JobApplication) != nil {
+				return
+			}
+
+			bildirimLink := "/panel/is-basvurulari/" + JobApplication.Jaid + "?notification=true"
+			bildirimMetni := JobApplication.FirstName + " " + JobApplication.LastName + " tarafından bir iş başvurusu gönderildi."
+
+			NewWebsocketMessage := notificationevent.Message{
+				Uid: "",
+				//InsertForm:  "is-basvurusu",
+				Message:     bildirimMetni,
+				RequestLink: bildirimLink,
+			}
+
+			InsertNotification := Orm.Insert(
+				[]string{"message", "notification_type", "notification_level", "link"},
+				[]interface{}{bildirimMetni, "info", "ik", bildirimLink},
+			)
+
+			InsertNotification.Table("notifications")
+			InsertNotification.Returning("nid")
+			InsertNotification.Finish()
+
+			err = InsertNotification.Execute()
+
+			if err != nil {
+				log.Print("notification: insert failed")
+			}
+
+			lid, err := InsertNotification.LastInsertId()
+
+			if err != nil {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if lid == "" {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.ApplicationRecipients(func(uid notify.UserID) (notificationevent.User, bool) {
+				GetUserRole := Orm.Select([]string{"role"})
+				GetUserRole.Table("users")
+				GetUserRole.Where("uid", "=", string(uid))
+				GetUserRole.Finish()
+				if GetUserRole.Execute() != nil {
+					return notificationevent.User{}, false
+				}
+				rows, lookupErr := GetUserRole.Rows()
+				if lookupErr != nil || len(rows) == 0 {
+					return notificationevent.User{}, false
+				}
+				return notificationevent.User{Role: notify.Role(lib.String(rows[0]["role"]))}, true
+			})); publishErr != nil {
+				log.Print("notification: publication failed")
+			}
+		}
+
+		if event == notificationws.Contact {
+			ContactRequest := models.ContactRequests{}
+			if json.Unmarshal([]byte(WebsocketMessage.Message), &ContactRequest) != nil {
+				return
+			}
+
+			bildirimLink := "/panel/iletisim-istekleri/" + ContactRequest.Crid + "?notification=true"
+			bildirimMetni := ContactRequest.FirstName + " " + ContactRequest.LastName + " tarafından bir iletişim talebi gönderildi."
+
+			NewWebsocketMessage := notificationevent.Message{
+				Uid: "",
+				//InsertForm:  "is-basvurusu",
+				Message:     bildirimMetni,
+				RequestLink: bildirimLink,
+			}
+
+			InsertNotification := Orm.Insert(
+				[]string{"message", "notification_type", "notification_level", "link"},
+				[]interface{}{bildirimMetni, "info", "all", bildirimLink},
+			)
+
+			InsertNotification.Table("notifications")
+			InsertNotification.Returning("nid")
+			InsertNotification.Finish()
+
+			err = InsertNotification.Execute()
+
+			if err != nil {
+				log.Print("notification: insert failed")
+			}
+
+			lid, err := InsertNotification.LastInsertId()
+
+			if err != nil {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if lid == "" {
+				log.Print("notification: insert result unavailable")
+			}
+
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.Recipient); publishErr != nil {
+				log.Print("notification: publication failed")
+			}
+		}
+
 	}, websocket.Config{
 		Subprotocols: []string{"kullanici", "randevu", "is-basvurusu", "iletisim"},
 		Origins:      []string{Domain},

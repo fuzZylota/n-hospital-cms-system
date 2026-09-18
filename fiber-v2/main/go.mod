@@ -3,7 +3,6 @@ module main
 go 1.25.1
 
 require (
-	github.com/Necoo33/fiber-ws-broadcaster v0.2.0
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/template/jet/v2 v2.1.13
 	github.com/joho/godotenv v1.5.1

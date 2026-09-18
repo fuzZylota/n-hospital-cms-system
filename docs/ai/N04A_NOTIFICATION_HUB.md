@@ -39,6 +39,22 @@ koyar; `baserouter/baserouter.go:272` route'u bağlar. Public
 olayını ve genel message/request_link yapısını tüketir, close sonrası reconnect
 yapar. Runtime teslimat sırası consumer'lardan kanıtlanamaz.
 
+N04B route/middleware düzeltmesi (2026-09-18): Bu endpoint anonim değildir.
+`main/main.go` global JWT/ban middleware'lerini ve notification handshake'ini
+kaydeder; `baserouter/baserouter.go:BackendRouter` `/backend` grubunu
+`lib.PanelAuthMiddleware()` ile kurar ve `/notifications` route'unu bu gruba
+ekler. PanelAuth, `GetJWT(c)` hatası veya boş UID için isteği sonlandırır;
+UID'yi locals'a yazmaz. N04A baseline handler'ı upgrade sonrasında cookie'yi
+yeniden parse ediyordu. N04B'de `notificationws.Handler`, HTTP `CheckAuth(c)`
+sonucunu upgrade öncesi cloned `notify.UserID` olarak string anahtarlı locals'a
+yazar; socket handler yalnız bu typed değeri kabul eder. Kullanıcının dar kaynak
+indirme onayıyla incelenen contrib/websocket v1.3.4 `New`, locals'ı ayrı map'e
+kopyalar; Fiber context saklanmaz, socket içinde JWT tekrar parse edilmez.
+İlk incelemenin kaynak yokluğu engeli kalktı; gerçek Fiber integration testleri
+eksik transitif girdiler nedeniyle hâlâ BLOCKED. Public JS'nin bu korunan route'a bağlanması
+`FLOW-001` borcudur; anonim handler erişimi kanıtı değildir. Ayrıntı ve güvenli
+durma/devam kaydı: [N04B wiring raporu](N04B_NOTIFICATION_HUB_WIRING.md).
+
 ## Yerleşim ve karar
 
 Saf sözleşme `models/notify`, somut çekirdek `lib/notificationhub`.

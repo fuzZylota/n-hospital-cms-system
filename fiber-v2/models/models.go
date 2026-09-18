@@ -2,9 +2,9 @@ package models
 
 import (
 	"models/data"
+	"models/notify"
 	"time"
 
-	wsb "github.com/Necoo33/fiber-ws-broadcaster"
 	orm "github.com/Necoo33/neormgo/v2"
 	"github.com/gofiber/contrib/websocket"
 )
@@ -27,7 +27,6 @@ type WebsocketMessage struct {
 
 // type that represents all the changeable app states
 type AppState struct {
-	Broadcaster        *wsb.Broadcaster
 	Connections        []WebsocketConnection
 	ActiveOptions      Options
 	TestingOptions     Options
@@ -42,6 +41,7 @@ type AppState struct {
 
 // type that represents all the unchanging utilites.
 type Utilities struct {
+	NotificationHub    notify.Hub
 	Orm                *orm.Neorm
 	HeaderButtonReader data.HeaderButtonReader
 	// Limiter

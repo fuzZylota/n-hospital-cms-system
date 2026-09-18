@@ -3,8 +3,6 @@ filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4
 github.com/Azure/azure-sdk-for-go/sdk/azcore v0.19.0/go.mod h1:h6H6c8enJmmocHUbLiiGY6sx7f9i+X3m1CHdd5c6Rdw=
 github.com/Azure/azure-sdk-for-go/sdk/azidentity v0.11.0/go.mod h1:HcM1YX14R7CJcghJGOYCgdezslRSVzqwLf/q+4Y2r/0=
 github.com/Azure/azure-sdk-for-go/sdk/internal v0.7.0/go.mod h1:yqy467j36fJxcRV2TzfVZ1pCb5vxm4BtZPUdYWe/Xo8=
-github.com/Necoo33/fiber-ws-broadcaster v0.2.0 h1:4e8ht9B5JcQLHBcp3/M4Q+swq4qyyQmm5V8xYPw9xPs=
-github.com/Necoo33/fiber-ws-broadcaster v0.2.0/go.mod h1:i28HNdn8vP6m/VExAedNZSsoSQ6ugdKIHacCV6rPJ8c=
 github.com/Necoo33/neormgo/v2 v2.0.2 h1:xje6jf7tp8L1/TiEQCnvPc3c7APsxsdlifyAIebZzRQ=
 github.com/Necoo33/neormgo/v2 v2.0.2/go.mod h1:t7Kpx4HSieG9nlEPBt1v/XJBqjB31dhg10bSQ/23nmA=
 github.com/andybalholm/brotli v1.1.0 h1:eLKJA0d02Lf0mVpIDgYnqXcUn0GqVmEFny3VuID1U3M=

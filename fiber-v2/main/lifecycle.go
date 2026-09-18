@@ -9,12 +9,14 @@ import (
 )
 
 const shutdownTimeout = 10 * time.Second
+const hubShutdownTimeout = 5 * time.Second
 
 // bootstrap is the narrow composition seam. Openers transfer ownership only
 // on success. A failed owned opener closes its own partially acquired pool.
 type bootstrap struct {
 	openLegacy func() (close func(), err error)
 	openOwned  func(context.Context) (close func(), err error)
+	openHub    func() (shutdown func(context.Context) error, err error)
 	newServer  func() (httpLifecycle, error)
 }
 
@@ -46,6 +48,18 @@ func runLifecycle(ctx context.Context, boot bootstrap) (err error) {
 		return err // Owned opener already supplies a safe staged error.
 	}
 	defer closeOwned()
+	shutdownHub, err := boot.openHub()
+	if err != nil {
+		return errors.New("notification hub startup failed")
+	}
+	defer func() {
+		// Always use a fresh budget, independent of HTTP shutdown/caller expiry.
+		hubCtx, cancel := context.WithTimeout(context.Background(), hubShutdownTimeout)
+		defer cancel()
+		if shutdownHub(hubCtx) != nil {
+			err = errors.Join(err, errors.New("notification hub shutdown failed"))
+		}
+	}()
 	server, err := boot.newServer()
 	if err != nil {
 		return errors.New("HTTP startup failed")

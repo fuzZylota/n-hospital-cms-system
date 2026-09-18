@@ -3,7 +3,6 @@ module models
 go 1.25.1
 
 require (
-	github.com/Necoo33/fiber-ws-broadcaster v0.2.0
 	github.com/Necoo33/neormgo/v2 v2.4.0
 	github.com/gofiber/contrib/websocket v1.3.4
 )

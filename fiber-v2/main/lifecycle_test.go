@@ -36,6 +36,7 @@ func TestLifecycleOwnershipAndOrder(t *testing.T) {
 			finished := make(chan struct{})
 			listened := false
 			err := runLifecycle(ctx, bootstrap{
+				openHub: func() (func(context.Context) error, error) { return func(context.Context) error { return nil }, nil },
 				openLegacy: func() (func(), error) {
 					events = append(events, "legacy")
 					if tc.name == "legacy error" {
@@ -131,6 +132,7 @@ func TestShutdownDeadlineStillClosesPools(t *testing.T) {
 		start := time.Now()
 		closed := 0
 		err := runLifecycle(ctx, bootstrap{
+			openHub:    func() (func(context.Context) error, error) { return func(context.Context) error { return nil }, nil },
 			openLegacy: func() (func(), error) { return func() { closed++ }, nil },
 			openOwned:  func(context.Context) (func(), error) { return func() { closed++ }, nil },
 			newServer: func() (httpLifecycle, error) {
@@ -164,6 +166,7 @@ func TestLifecyclePrimaryAndSecondaryFailures(t *testing.T) {
 			finished := make(chan struct{})
 			backend := errors.New("private-backend password")
 			err := runLifecycle(ctx, bootstrap{
+				openHub:    func() (func(context.Context) error, error) { return func(context.Context) error { return nil }, nil },
 				openLegacy: func() (func(), error) { return func() { events = append(events, "legacy") }, nil },
 				openOwned:  func(context.Context) (func(), error) { return func() { events = append(events, "owned") }, nil },
 				newServer: func() (httpLifecycle, error) {
