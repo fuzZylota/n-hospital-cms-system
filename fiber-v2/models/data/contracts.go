@@ -1,4 +1,17 @@
-// Package data defines application-owned data access contracts.
+// Package data defines application-owned, infrastructure-independent data
+// access contracts.
+//
+// Identifiers stay strings at this application boundary. When an identifier is
+// backed by a numeric database column, the concrete repository owns strict
+// base-10 conversion and canonicalization. A canonical numeric identifier has
+// no sign, whitespace, or leading zeroes and is greater than zero. Empty
+// strings are not identifiers. Nullable identifiers use nil to represent SQL
+// NULL; a non-nil pointer must point to a valid identifier.
+//
+// Reader and writer implementations return only safe application errors. They
+// must not expose SQL text, backend names, credentials, connection details, or
+// row contents. When cancellation or a deadline causes failure, wrapping must
+// preserve context.Canceled or context.DeadlineExceeded for errors.Is.
 package data
 
 import "context"
