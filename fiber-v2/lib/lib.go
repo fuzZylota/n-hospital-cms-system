@@ -26,10 +26,11 @@ import (
 	"github.com/gofiber/contrib/websocket"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/Necoo33/neormgo/v2"
 	"github.com/lib/pq"
 
+	"lib/userstatus"
 	"models"
+	"models/data"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -375,29 +376,10 @@ func JWTMiddleware() fiber.Handler {
 	}
 }
 
-func HandleUserBanning(Orm *neormgo.Neorm) fiber.Handler {
+func HandleUserBanning(reader data.UserStatusReader) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := GetJWT(c)
-		if err != nil {
-			return c.Next()
-		}
-
-		if ourUser.Uid == "" {
-			return c.Next()
-		}
-
-		CheckIfUserExists := Orm.Count("users")
-		CheckIfUserExists.Where("uid", "=", ourUser.Uid)
-		CheckIfUserExists.Finish()
-
-		err = CheckIfUserExists.Execute()
-
-		if err != nil {
-			log.Printf("Error on check if user exists: %s", err)
-			return c.Next()
-		}
-
-		if CheckIfUserExists.Length() == 0 {
+		if err == nil && ourUser.Uid != "" && userstatus.ShouldExpireAuthCookies(c.UserContext(), reader, ourUser.Uid) {
 			cookieName := os.Getenv("AUTH_COOKIE_NAME")
 
 			if cookieName == "" {
@@ -413,39 +395,6 @@ func HandleUserBanning(Orm *neormgo.Neorm) fiber.Handler {
 			}
 
 			c.Cookie(&cookie)
-
-			return c.Next()
-		}
-
-		CheckIfUserStillActive := Orm.Count("users")
-		CheckIfUserStillActive.Where("uid", "=", ourUser.Uid)
-		CheckIfUserStillActive.And("is_active", "=", false)
-		CheckIfUserStillActive.Finish()
-
-		err = CheckIfUserStillActive.Execute()
-
-		if err != nil {
-			log.Printf("Error on check if user is still active: %s", err)
-			return c.Next()
-		}
-
-		if CheckIfUserStillActive.Length() > 0 {
-			cookieName := os.Getenv("AUTH_COOKIE_NAME")
-
-			if cookieName == "" {
-				cookieName = "n-hospital-auth"
-			}
-
-			cookie := fiber.Cookie{
-				Name:     cookieName,
-				Value:    "",
-				Expires:  time.Now().Add(-time.Hour * 24),
-				HTTPOnly: true,
-				MaxAge:   0,
-			}
-
-			c.Cookie(&cookie)
-			return c.Next()
 		}
 
 		return c.Next()

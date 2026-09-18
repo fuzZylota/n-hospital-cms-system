@@ -24,6 +24,7 @@ import (
 	"baserouter"
 	db "database"
 	"models"
+	"models/data"
 )
 
 func main() {
@@ -63,6 +64,7 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	utilities := &models.Utilities{}
+	var userStatusReader data.UserStatusReader
 	return runLifecycle(ctx, bootstrap{
 		openLegacy: func() (func(), error) {
 			legacy, err := db.Database(config.dsn)
@@ -78,6 +80,7 @@ func run() error {
 				return nil, err
 			}
 			utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)
+			userStatusReader = postgres.NewUserStatusRepository(pool)
 			return func() {
 				if err := pool.Close(); err != nil {
 					log.Print("Owned database pool cleanup failed")
@@ -94,7 +97,7 @@ func run() error {
 			utilities.NotificationHub = hub
 			return hub.Shutdown, nil
 		},
-		newServer: func() (httpLifecycle, error) { return newHTTPServer(config, utilities) },
+		newServer: func() (httpLifecycle, error) { return newHTTPServer(config, utilities, userStatusReader) },
 	})
 }
 
@@ -106,7 +109,7 @@ type appConfig struct {
 	environment string
 }
 
-func newHTTPServer(config appConfig, utilities *models.Utilities) (httpLifecycle, error) {
+func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusReader data.UserStatusReader) (httpLifecycle, error) {
 	htmlFiles := jet.New("./static/html", ".jet")
 
 	if config.environment == "dev" || config.environment == "development" {
@@ -157,7 +160,7 @@ func newHTTPServer(config appConfig, utilities *models.Utilities) (httpLifecycle
 	}))
 
 	server.Use(lib.JWTMiddleware())
-	server.Use(lib.HandleUserBanning(utilities.Orm))
+	server.Use(lib.HandleUserBanning(userStatusReader))
 
 	if config.environment == "dev" || config.environment == "development" {
 		server.Use(func(c *fiber.Ctx) error {
