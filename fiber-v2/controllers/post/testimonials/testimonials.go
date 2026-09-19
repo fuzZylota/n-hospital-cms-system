@@ -7,6 +7,7 @@ import (
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -42,10 +43,10 @@ func AddTestimonial(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 
 		BackendOptions := database.Options{}
-		BackendOptions, err = BackendOptions.FetchOptionsForBackend(Orm, []string{}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/musteri-yorumu-ekle?error=internal_server_error")
 		}
 
@@ -132,7 +133,7 @@ func AddTestimonial(states *models.AppState, utilities *models.Utilities) fiber.
 				return c.Redirect("/panel/musteri-yorumu-ekle?error=internal_server_error")
 			}
 
-			if customerPictureInput.Size > BackendOptions.Options.MaxUploadSize {
+			if customerPictureInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v bytes\n", customerPictureInput.Size)
 				return c.Redirect("/panel/musteri-yorumu-ekle?error=file_size_is_too_large")
@@ -376,10 +377,10 @@ func UpdateTestimonialPicture(states *models.AppState, utilities *models.Utiliti
 
 		Orm := utilities.Orm
 
-		GetOptions, err := BackendOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
@@ -416,7 +417,7 @@ func UpdateTestimonialPicture(states *models.AppState, utilities *models.Utiliti
 		if err == nil {
 			Orm.Begin()
 
-			if customerPictureInput.Size > GetOptions.Options.MaxUploadSize {
+			if customerPictureInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", err)
 				return c.JSON(fiber.Map{
