@@ -238,6 +238,7 @@ func TestAddDoctorKeepsTransactionBoundLegacyRead(t *testing.T) {
 func TestProductionOptionsCallerInventory(t *testing.T) {
 	root := sourcePath(t, "..", "..", "..", "..")
 	counts := map[string]int{}
+	uploadPolicyCallers := 0
 	passwordPolicyCallers := 0
 	optionsCacheImports := 0
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
@@ -270,6 +271,9 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 			if callName(call) == "passwordpolicy.Read" {
 				passwordPolicyCallers++
 			}
+			if callName(call) == "uploadpolicy.Read" {
+				uploadPolicyCallers++
+			}
 			return true
 		})
 		return nil
@@ -279,7 +283,7 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 	}
 
 	legacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForBackend"] + counts["FetchOptionsForPanel"]
-	if legacyTotal != 127 || counts["FetchOptionsForBackend"] != 25 {
+	if legacyTotal != 123 || counts["FetchOptionsForBackend"] != 21 {
 		t.Fatal("production options caller inventory changed unexpectedly")
 	}
 	if counts["InsertMedia"] != 31 {
@@ -287,6 +291,9 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 	}
 	if passwordPolicyCallers != 2 {
 		t.Fatal("password-policy production callers changed")
+	}
+	if uploadPolicyCallers != 11 {
+		t.Fatal("upload-policy production callers changed")
 	}
 	if optionsCacheImports != 0 {
 		t.Fatal("site options cache became production-wired")

@@ -7,6 +7,7 @@ import (
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -78,11 +79,9 @@ func AddNews(states *models.AppState, utilities *models.Utilities) fiber.Handler
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/haberler/haber-ekle?error=internal_server_error")
 		}
 
@@ -122,7 +121,7 @@ func AddNews(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 
 			// File size validation (5MB max)
-			if haberMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if haberMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", haberMediaInput.Size)
 				return c.Redirect("/panel/haberler/haber-ekle?error=file_size_is_too_large")
@@ -530,11 +529,9 @@ func UpdateNewsPicture(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -554,7 +551,7 @@ func UpdateNewsPicture(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			// File size validation (5MB max)
-			if haberMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if haberMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,

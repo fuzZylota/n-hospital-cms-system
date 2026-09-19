@@ -7,6 +7,7 @@ import (
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -59,11 +60,9 @@ func AddTedkik(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/tedkikler/tedkik-ekle?error=internal_server_error")
 		}
 
@@ -103,7 +102,7 @@ func AddTedkik(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 
 			// File size validation (5MB max)
-			if tedkikMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if tedkikMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", tedkikMediaInput.Size)
 				return c.Redirect("/panel/tedkikler/tedkik-ekle?error=file_size_is_too_large")
@@ -471,11 +470,9 @@ func UpdateTedkikPicture(states *models.AppState, utilities *models.Utilities) f
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -495,7 +492,7 @@ func UpdateTedkikPicture(states *models.AppState, utilities *models.Utilities) f
 			}
 
 			// File size validation (5MB max)
-			if coverInput.Size > GetOptions.Options.MaxUploadSize {
+			if coverInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
