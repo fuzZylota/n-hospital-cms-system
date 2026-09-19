@@ -44,6 +44,7 @@ type Utilities struct {
 	NotificationHub      notify.Hub
 	Orm                  *orm.Neorm
 	HeaderButtonReader   data.HeaderButtonReader
+	UploadPolicyReader   data.UploadPolicyReader
 	PasswordPolicyReader data.PasswordPolicyReader
 	// Limiter
 }

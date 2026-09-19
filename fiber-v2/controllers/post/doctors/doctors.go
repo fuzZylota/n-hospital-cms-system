@@ -2,12 +2,13 @@ package doctors
 
 import (
 	"database"
-	
+
 	lib "lib"
 	"log"
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 	"regexp"
 	"time"
 
@@ -1124,11 +1125,9 @@ func UpdateDoctorPicture(states *models.AppState, utilities *models.Utilities) f
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1148,7 +1147,7 @@ func UpdateDoctorPicture(states *models.AppState, utilities *models.Utilities) f
 			}
 
 			// File size validation (5MB max)
-			if photoInput.Size > GetOptions.Options.MaxUploadSize {
+			if photoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -1518,11 +1517,9 @@ func UpdateDoctorCv(states *models.AppState, utilities *models.Utilities) fiber.
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1542,7 +1539,7 @@ func UpdateDoctorCv(states *models.AppState, utilities *models.Utilities) fiber.
 			}
 
 			// File size validation (5MB max)
-			if cvInput.Size > GetOptions.Options.MaxUploadSize {
+			if cvInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -2337,10 +2334,9 @@ func AddDoctorExperience(states *models.AppState, utilities *models.Utilities) f
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Print("Cannot get options")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2444,7 +2440,7 @@ func AddDoctorExperience(states *models.AppState, utilities *models.Utilities) f
 			}
 
 			// File size validation
-			if photoInput.Size > GetOptions.Options.MaxUploadSize {
+			if photoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.Status(400).JSON(fiber.Map{
 					"status":  400,
@@ -2916,11 +2912,9 @@ func UpdateDoctorExperiencePicture(states *models.AppState, utilities *models.Ut
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -2940,7 +2934,7 @@ func UpdateDoctorExperiencePicture(states *models.AppState, utilities *models.Ut
 			}
 
 			// File size validation (5MB max)
-			if photoInput.Size > GetOptions.Options.MaxUploadSize {
+			if photoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
