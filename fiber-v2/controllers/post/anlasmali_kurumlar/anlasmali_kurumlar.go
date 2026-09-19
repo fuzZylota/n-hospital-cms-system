@@ -2,12 +2,13 @@ package anlasmali_kurumlar
 
 import (
 	"database"
-	
+
 	lib "lib"
 	"log"
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 	"regexp"
 
 	"github.com/gofiber/fiber/v2"
@@ -93,11 +94,9 @@ func AddAnlasmaliKurum(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/anlasmali-kurumlar/anlasmali-kurumlar-ekle?error=internal_server_error")
 		}
 
@@ -137,7 +136,7 @@ func AddAnlasmaliKurum(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			// File size validation (5MB max)
-			if anlasmaliKurumMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if anlasmaliKurumMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", anlasmaliKurumMediaInput.Size)
 				return c.Redirect("/panel/anlasmali-kurumlar/anlasmali-kurumlar-ekle?error=file_size_is_too_large")
@@ -626,8 +625,6 @@ func UpdateAnlasmaliKurumPicture(states *models.AppState, utilities *models.Util
 			})
 		}
 
-
-
 		AnlasmaliKurumId := c.Params("akid")
 		anlasmaliKurumMediaAltText := c.FormValue("logo_alt_text")
 		anlasmaliKurumMediaTitle := c.FormValue("logo_title")
@@ -645,11 +642,9 @@ func UpdateAnlasmaliKurumPicture(states *models.AppState, utilities *models.Util
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -670,7 +665,7 @@ func UpdateAnlasmaliKurumPicture(states *models.AppState, utilities *models.Util
 			}
 
 			// File size validation (5MB max)
-			if anlasmaliKurumMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if anlasmaliKurumMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,

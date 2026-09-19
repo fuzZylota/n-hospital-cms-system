@@ -3,12 +3,13 @@ package branslar
 import (
 	"database"
 	"encoding/json"
-	
+
 	lib "lib"
 	"log"
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -499,11 +500,9 @@ func UpdateBranchPicture(states *models.AppState, utilities *models.Utilities) f
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -523,7 +522,7 @@ func UpdateBranchPicture(states *models.AppState, utilities *models.Utilities) f
 			}
 
 			// File size validation (5MB max)
-			if bransMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if bransMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
