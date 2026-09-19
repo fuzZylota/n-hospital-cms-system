@@ -5,6 +5,7 @@ import (
 	lib "lib"
 	"log"
 	"models"
+	"options/optionmediasnapshot"
 	"os"
 	"path/filepath"
 
@@ -1505,7 +1506,6 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 
 		Oid := c.Params("oid")
 
-		OurOptions := database.Options{}
 		RootDir := os.Getenv("ROOT_DIRECTORY")
 
 		if RootDir == "" {
@@ -1518,10 +1518,10 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := *utilities.Orm
 
-		GetOptions, err := OurOptions.FetchOptionsForBackend(&Orm, []string{"o.site_logo_mid", "o.site_light_logo_mid", "o.site_favicon_mid", "o.default_page_mid"}, []string{})
+		optionMediaSnapshot, err := optionmediasnapshot.Read(c.UserContext(), utilities.OptionMediaMutationSnapshotReader)
 
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot read option media mutation snapshot")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
@@ -1532,7 +1532,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		if err == nil {
 			Orm.Begin()
 
-			if siteLogoInput.Size > GetOptions.Options.MaxUploadSize {
+			if siteLogoInput.Size > optionMediaSnapshot.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -1701,7 +1701,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 
 			Orm.Commit()
 		} else {
-			if GetOptions.Options.SiteLogoMid != 0 && (siteLogoAltText != oldSiteLogoAltText || siteLogoTitle != oldSiteLogoTitle) {
+			if optionMediaSnapshot.SiteLogoID != nil && (siteLogoAltText != oldSiteLogoAltText || siteLogoTitle != oldSiteLogoTitle) {
 				UpdateMedia := Orm.Update()
 				UpdateMedia.Table("medias")
 
@@ -1721,7 +1721,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 					}
 				}
 
-				UpdateMedia.Where("mid", "=", GetOptions.Options.SiteLogoMid)
+				UpdateMedia.Where("mid", "=", *optionMediaSnapshot.SiteLogoID)
 				UpdateMedia.And("target_id", "=", Oid)
 				UpdateMedia.Finish()
 
@@ -1746,7 +1746,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		if err == nil {
 			Orm.Begin()
 
-			if siteLightLogoInput.Size > GetOptions.Options.MaxUploadSize {
+			if siteLightLogoInput.Size > optionMediaSnapshot.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -1915,7 +1915,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			states.TestingOptions = models.Options{}
 			states.Medias = []models.Medias{}
 		} else {
-			if GetOptions.Options.SiteLightLogoMid != 0 && (siteLightLogoAltText != oldSiteLightLogoAltText || siteLightLogoTitle != oldSiteLightLogoTitle) {
+			if optionMediaSnapshot.SiteLightLogoID != nil && (siteLightLogoAltText != oldSiteLightLogoAltText || siteLightLogoTitle != oldSiteLightLogoTitle) {
 				UpdateMedia := Orm.Update()
 				UpdateMedia.Table("medias")
 
@@ -1935,7 +1935,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 					}
 				}
 
-				UpdateMedia.Where("mid", "=", GetOptions.Options.SiteLightLogoMid)
+				UpdateMedia.Where("mid", "=", *optionMediaSnapshot.SiteLightLogoID)
 				UpdateMedia.And("target_id", "=", Oid)
 				UpdateMedia.Finish()
 
@@ -1960,7 +1960,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		if err == nil {
 			Orm.Begin()
 
-			if siteFaviconInput.Size > GetOptions.Options.MaxUploadSize {
+			if siteFaviconInput.Size > optionMediaSnapshot.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -2126,7 +2126,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		if err == nil {
 			Orm.Begin()
 
-			if defaultPageInput.Size > GetOptions.Options.MaxUploadSize {
+			if defaultPageInput.Size > optionMediaSnapshot.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", err)
 				return c.JSON(fiber.Map{
@@ -2295,7 +2295,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 			states.TestingOptions = models.Options{}
 			states.Medias = []models.Medias{}
 		} else {
-			if GetOptions.Options.DefaultPageMid != 0 && (defaultPageMediaAltText != oldDefaultPageMediaAltText || defaultPageMediaTitle != oldDefaultPageMediaTitle) {
+			if optionMediaSnapshot.DefaultPageMediaID != nil && (defaultPageMediaAltText != oldDefaultPageMediaAltText || defaultPageMediaTitle != oldDefaultPageMediaTitle) {
 				UpdateMedia := Orm.Update()
 				UpdateMedia.Table("medias")
 
@@ -2315,7 +2315,7 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 					}
 				}
 
-				UpdateMedia.Where("mid", "=", GetOptions.Options.DefaultPageMid)
+				UpdateMedia.Where("mid", "=", *optionMediaSnapshot.DefaultPageMediaID)
 				UpdateMedia.And("target_id", "=", Oid)
 				UpdateMedia.Finish()
 
@@ -2342,4 +2342,3 @@ func UpdateOptionMedia(states *models.AppState, utilities *models.Utilities) fib
 		})
 	}
 }
-
