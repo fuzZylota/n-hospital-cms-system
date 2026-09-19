@@ -7,6 +7,7 @@ import (
 	"models"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -55,10 +56,9 @@ func AddTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.H
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/tibbi-birim-ekle?error=internal_server_error")
 		}
 
@@ -96,7 +96,7 @@ func AddTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.H
 				return c.Redirect("/panel/tibbi-birim-ekle?error=internal_server_error")
 			}
 
-			if tibbiBirimCoverInput.Size > GetOptions.Options.MaxUploadSize {
+			if tibbiBirimCoverInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.Redirect("/panel/tibbi-birim-ekle?error=file_size_is_too_large")
 			}
@@ -174,7 +174,7 @@ func AddTibbiBirim(states *models.AppState, utilities *models.Utilities) fiber.H
 				return c.Redirect("/panel/tibbi-birim-ekle?error=internal_server_error")
 			}
 
-			if tibbiBirimVideoInput.Size > GetOptions.Options.MaxUploadSize {
+			if tibbiBirimVideoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.Redirect("/panel/tibbi-birim-ekle?error=file_size_is_too_large")
 			}
@@ -600,11 +600,10 @@ func UpdateTibbiBirimPicture(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -624,7 +623,7 @@ func UpdateTibbiBirimPicture(states *models.AppState, utilities *models.Utilitie
 			}
 
 			// File size validation (5MB max)
-			if tibbiBirimCoverInput.Size > GetOptions.Options.MaxUploadSize {
+			if tibbiBirimCoverInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -994,11 +993,10 @@ func UpdateTibbiBirimVideo(states *models.AppState, utilities *models.Utilities)
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1018,7 +1016,7 @@ func UpdateTibbiBirimVideo(states *models.AppState, utilities *models.Utilities)
 			}
 
 			// File size validation (5MB max)
-			if tibbiBirimVideoInput.Size > GetOptions.Options.MaxUploadSize {
+			if tibbiBirimVideoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
