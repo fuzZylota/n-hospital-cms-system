@@ -80,6 +80,7 @@ func run() error {
 				return nil, err
 			}
 			utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)
+			utilities.PasswordPolicyReader = postgres.NewOptionsRepository(pool)
 			userStatusReader = postgres.NewUserStatusRepository(pool)
 			return func() {
 				if err := pool.Close(); err != nil {

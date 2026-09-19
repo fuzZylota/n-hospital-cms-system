@@ -8,8 +8,7 @@ import (
 	"log"
 	"models"
 	"regexp"
-
-	"database"
+	"users/passwordpolicy"
 
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -146,17 +145,16 @@ func AddUser(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			})
 		}
 
-		Options := database.Options{}
-		GetOptions, err := Options.FetchOptionsForBackend(Orm, []string{"require_strong_password"}, []string{})
+		passwordPolicy, err := passwordpolicy.Read(c.UserContext(), utilities.PasswordPolicyReader)
 		if err != nil {
-			log.Printf("Cannot get options: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
 			})
 		}
 
-		if GetOptions.Options.RequireStrongPassword {
+		if passwordPolicy.RequireStrong {
 			if len(inputs.Password) < 8 {
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -588,17 +586,16 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 			})
 		}
 
-		Options := database.Options{}
-		GetOptions, err := Options.FetchOptionsForBackend(Orm, []string{"require_strong_password"}, []string{})
+		passwordPolicy, err := passwordpolicy.Read(c.UserContext(), utilities.PasswordPolicyReader)
 		if err != nil {
-			log.Printf("Cannot get options: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Internal server error",
 			})
 		}
 
-		if GetOptions.Options.RequireStrongPassword {
+		if passwordPolicy.RequireStrong {
 			if len(inputs.Password) < 8 {
 				return c.JSON(fiber.Map{
 					"status":  400,

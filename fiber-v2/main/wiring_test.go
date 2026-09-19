@@ -61,13 +61,13 @@ func TestCompositionWiringAndExitBoundary(t *testing.T) {
 			return true
 		})
 	}
-	for _, name := range []string{"dsn", "db.Database", "postgres.OpenPool", "postgres.NewHeaderButtonRepository", "postgres.NewUserStatusRepository", "legacy.Close", "pool.Close", "runLifecycle", "signal.NotifyContext", "server.Listener", "server.ShutdownWithContext"} {
+	for _, name := range []string{"dsn", "db.Database", "postgres.OpenPool", "postgres.NewHeaderButtonRepository", "postgres.NewOptionsRepository", "postgres.NewUserStatusRepository", "legacy.Close", "pool.Close", "runLifecycle", "signal.NotifyContext", "server.Listener", "server.ShutdownWithContext"} {
 		if counts[name] != 1 {
 			t.Errorf("%s calls=%d", name, counts[name])
 		}
 	}
 	text := syntax(f)
-	for _, required := range []string{"utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)", "userStatusReader = postgres.NewUserStatusRepository(pool)", "lib.HandleUserBanning(userStatusReader)", "baserouter.BackendRouter(server, &AppState, utilities)", "if err := run(); err != nil"} {
+	for _, required := range []string{"utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)", "utilities.PasswordPolicyReader = postgres.NewOptionsRepository(pool)", "userStatusReader = postgres.NewUserStatusRepository(pool)", "lib.HandleUserBanning(userStatusReader)", "baserouter.BackendRouter(server, &AppState, utilities)", "if err := run(); err != nil"} {
 		if !strings.Contains(text, required) {
 			t.Errorf("missing wiring: %s", required)
 		}
