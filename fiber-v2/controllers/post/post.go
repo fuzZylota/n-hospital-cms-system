@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"post/notificationevent"
 	"post/notificationws"
+	"post/uploadpolicy"
 	"regexp"
 	"strconv"
 	"strings"
@@ -204,10 +205,9 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(utilities.Orm, []string{}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot get options: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -233,11 +233,10 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 		if err == nil {
 			// Single file upload
 			// Check file size
-			maxFileSize := GetOptions.Options.MaxUploadSize
-			if file.Size > maxFileSize {
+			if file.Size > uploadPolicy.MaxBytes {
 				return c.JSON(fiber.Map{
 					"status":  400,
-					"message": fmt.Sprintf("Dosya boyutu çok büyük. Maksimum dosya boyutu: %d bytes", maxFileSize),
+					"message": fmt.Sprintf("Dosya boyutu çok büyük. Maksimum dosya boyutu: %d bytes", uploadPolicy.MaxBytes),
 				})
 			}
 
@@ -284,8 +283,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 				}
 
 				// Check file size
-				maxFileSize := GetOptions.Options.MaxUploadSize
-				if file.Size > maxFileSize {
+				if file.Size > uploadPolicy.MaxBytes {
 					continue
 				}
 
