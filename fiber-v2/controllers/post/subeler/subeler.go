@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"post/uploadpolicy"
 	"regexp"
 	"strconv"
 	"strings"
@@ -110,11 +111,9 @@ func AddSube(states *models.AppState, utilities *models.Utilities) fiber.Handler
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.Redirect("/panel/subeler/sube-ekle?error=internal_server_error")
 		}
 
@@ -154,7 +153,7 @@ func AddSube(states *models.AppState, utilities *models.Utilities) fiber.Handler
 			}
 
 			// File size validation (5MB max)
-			if subeMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if subeMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", subeMediaInput.Size)
 				return c.Redirect("/panel/subeler/sube-ekle?error=file_size_is_too_large")
@@ -777,11 +776,9 @@ func UpdateSubePicture(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
-
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot fetch options for backend: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -801,7 +798,7 @@ func UpdateSubePicture(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			// File size validation (5MB max)
-			if subeMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if subeMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -1154,10 +1151,9 @@ func AddSubeDocuments(states *models.AppState, utilities *models.Utilities) fibe
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{}, []string{})
+		uploadPolicy, err := uploadpolicy.Read(c.UserContext(), utilities.UploadPolicyReader)
 		if err != nil {
-			log.Printf("Cannot get options: %v\n", err)
+			log.Print("Cannot get options")
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1232,8 +1228,7 @@ func AddSubeDocuments(states *models.AppState, utilities *models.Utilities) fibe
 			data := c.FormValue("data" + strconv.Itoa(i))
 
 			// Check file size
-			maxFileSize := GetOptions.Options.MaxUploadSize
-			if file.Size > maxFileSize {
+			if file.Size > uploadPolicy.MaxBytes {
 				continue
 			}
 

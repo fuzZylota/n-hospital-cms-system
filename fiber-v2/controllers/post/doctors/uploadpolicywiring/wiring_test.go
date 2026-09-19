@@ -282,8 +282,9 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 		t.Fatal("cannot inspect production caller inventory")
 	}
 
-	legacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForBackend"] + counts["FetchOptionsForPanel"]
-	if legacyTotal != 120 || counts["FetchOptionsForBackend"] != 18 {
+	otherLegacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"]
+	legacyTotal := otherLegacyTotal + counts["FetchOptionsForBackend"]
+	if legacyTotal != 117 || counts["FetchOptionsForBackend"] != 15 || otherLegacyTotal != 102 {
 		t.Fatal("production options caller inventory changed unexpectedly")
 	}
 	if counts["InsertMedia"] != 31 {
@@ -292,7 +293,7 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 	if passwordPolicyCallers != 2 {
 		t.Fatal("password-policy production callers changed")
 	}
-	if uploadPolicyCallers != 14 {
+	if uploadPolicyCallers != 17 {
 		t.Fatal("upload-policy production callers changed")
 	}
 	if optionsCacheImports != 0 {
