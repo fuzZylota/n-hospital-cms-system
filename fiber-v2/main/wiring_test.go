@@ -67,7 +67,7 @@ func TestCompositionWiringAndExitBoundary(t *testing.T) {
 		}
 	}
 	text := syntax(f)
-	for _, required := range []string{"utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)", "optionsRepository := postgres.NewOptionsRepository(pool)", "utilities.UploadPolicyReader = optionsRepository", "utilities.PasswordPolicyReader = optionsRepository", "userStatusReader = postgres.NewUserStatusRepository(pool)", "lib.HandleUserBanning(userStatusReader)", "baserouter.BackendRouter(server, &AppState, utilities)", "if err := run(); err != nil"} {
+	for _, required := range []string{"utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)", "optionsRepository := postgres.NewOptionsRepository(pool)", "utilities.UploadPolicyReader = optionsRepository", "utilities.PasswordPolicyReader = optionsRepository", "utilities.ContactRequestWorkflowSnapshotReader = optionsRepository", "userStatusReader = postgres.NewUserStatusRepository(pool)", "lib.HandleUserBanning(userStatusReader)", "baserouter.BackendRouter(server, &AppState, utilities)", "if err := run(); err != nil"} {
 		if !strings.Contains(text, required) {
 			t.Errorf("missing wiring: %s", required)
 		}

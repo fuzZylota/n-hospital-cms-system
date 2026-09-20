@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"bytes"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"io/fs"
@@ -23,10 +25,12 @@ const (
 type contactRequestScannerConfig struct {
 	dataImportPath       string
 	repositoryImportPath string
+	helperImportPath     string
 	contractPath         string
 	repositoryPath       string
 	optionsPath          string
 	addContactPath       string
+	helperPath           string
 }
 
 type contactRequestSource struct {
@@ -77,14 +81,20 @@ type contactRequestImportBindings struct {
 	dotData           bool
 }
 
-func TestContactRequestWorkflowSnapshotHasNoProductionWiring(t *testing.T) {
+func TestContactRequestWorkflowSnapshotHasOnlyApprovedProductionWiring(t *testing.T) {
 	root := contactRequestWorkspaceRoot(t)
 	count, ok := scanContactRequestWorkspace(root)
 	if !ok {
 		t.Fatal("production reference scan failed")
 	}
-	if count != 0 {
+	if count != 10 {
 		t.Fatal("unexpected contact-request production consumer")
+	}
+	if !hasExactApprovedContactRequestWiring(root) || !hasExactApprovedContactRequestSymbolInventory(root) {
+		t.Fatal("approved contact-request production wiring changed")
+	}
+	if !hasOnlyApprovedContactRequestHelperReferences(root) {
+		t.Fatal("unexpected contact-request helper reference")
 	}
 }
 
@@ -92,10 +102,12 @@ func TestContactRequestProductionReferenceScannerFixtures(t *testing.T) {
 	config := contactRequestScannerConfig{
 		dataImportPath:       "models/data",
 		repositoryImportPath: "database/postgres",
+		helperImportPath:     "post/contactrequestsnapshot",
 		contractPath:         "models/data/contact_request_workflow_snapshot.go",
 		repositoryPath:       "database/postgres/contact_request_workflow_snapshot.go",
 		optionsPath:          "database/postgres/options.go",
 		addContactPath:       "controllers/post/post.go",
+		helperPath:           "controllers/post/contactrequestsnapshot/decision.go",
 	}
 	positive := []contactRequestSource{
 		{relativePath: "consumer/default.go", source: []byte(`package consumer
@@ -702,63 +714,176 @@ func writeContactRequestFixtureFile(root, relativePath, contents string) bool {
 	return os.WriteFile(path, []byte(contents), 0600) == nil
 }
 
-func TestAddContactRequestRemainsOnLegacyReader(t *testing.T) {
+func TestAddContactRequestUsesOnlyApprovedOwnedReader(t *testing.T) {
 	root := contactRequestWorkspaceRoot(t)
 	path := filepath.Join(root, "controllers", "post", "post.go")
 	source, err := os.ReadFile(path)
 	if err != nil {
-		t.Fatal("cannot read legacy contact-request caller")
+		t.Fatal("cannot read contact-request caller")
 	}
 	file, err := parser.ParseFile(token.NewFileSet(), path, source, 0)
 	if err != nil {
-		t.Fatal("cannot parse legacy contact-request caller")
+		t.Fatal("cannot parse contact-request caller")
 	}
-	if !hasExactAddContactRequestLegacyAssignmentCall(file) {
-		t.Fatal("AddContactRequest legacy options call shape changed")
+	if !hasExactAddContactRequestSnapshotAssignmentCall(file) {
+		t.Fatal("AddContactRequest owned snapshot call shape changed")
 	}
 }
 
-func TestAddContactRequestLegacyCallGuardFixtures(t *testing.T) {
+func TestAddContactRequestOwnedCallGuardFixtures(t *testing.T) {
 	positive := `package fixture
 func AddContactRequest() func() {
 	return func() {
-		GetOptions, err := GetOptions.FetchOptionsForBackend(nil, nil, nil)
-		_, _ = GetOptions, err
+		contactRequestSnapshot, err := contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader)
+		_, _ = contactRequestSnapshot, err
 	}
 }`
 	negative := []string{
 		`package fixture
-func AddContactRequest() func() { return func() { _ = GetOptions.FetchOptionsForBackend } }`,
+func AddContactRequest() func() { return func() { _ = contactrequestsnapshot.Read } }`,
 		`package fixture
-func AddContactRequest() func() { return func() { fn := GetOptions.FetchOptionsForBackend; _ = fn } }`,
+func AddContactRequest() func() { return func() { fn := contactrequestsnapshot.Read; _ = fn } }`,
 		`package fixture
 func AddContactRequest() func() { return func() {} }
-func other() { GetOptions, err := GetOptions.FetchOptionsForBackend(nil, nil, nil); _, _ = GetOptions, err }`,
+func other() { contactRequestSnapshot, err := contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader); _, _ = contactRequestSnapshot, err }`,
 		`package fixture
 func AddContactRequest() func() {
 	return func() {
-		GetOptions, err := GetOptions.FetchOptionsForBackend(nil, nil, nil)
-		GetOptions, err = GetOptions.FetchOptionsForBackend(nil, nil, nil)
-		_, _ = GetOptions, err
+		contactRequestSnapshot, err := contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader)
+		contactRequestSnapshot, err = contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader)
+		_, _ = contactRequestSnapshot, err
 	}
 }`,
 		`package fixture
 func AddContactRequest() func() {
 	return func() {
-		GetOptions, err := Other.FetchOptionsForBackend(nil, nil, nil)
-		_, _ = GetOptions, err
+		contactRequestSnapshot, err := other.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader)
+		_, _ = contactRequestSnapshot, err
+	}
+}`,
+		`package fixture
+func AddContactRequest() func() {
+	return func() {
+		contactRequestSnapshot, err := contactrequestsnapshot.Read(context.Background(), utilities.ContactRequestWorkflowSnapshotReader)
+		_, _ = contactRequestSnapshot, err
+	}
+}`,
+		`package fixture
+func AddContactRequest() func() {
+	return func() {
+		contactRequestSnapshot, err := contactrequestsnapshot.Read(c.UserContext(), utilities.OtherReader)
+		_, _ = contactRequestSnapshot, err
 	}
 }`,
 	}
 	file, ok := parseContactRequestFixture(positive)
-	if !ok || !hasExactAddContactRequestLegacyAssignmentCall(file) {
-		t.Fatal("legacy call guard rejected the exact assignment call")
+	if !ok || !hasExactAddContactRequestSnapshotAssignmentCall(file) {
+		t.Fatal("owned call guard rejected the exact assignment call")
 	}
 	for _, source := range negative {
 		file, ok := parseContactRequestFixture(source)
-		if !ok || hasExactAddContactRequestLegacyAssignmentCall(file) {
-			t.Fatal("legacy call guard accepted an invalid call shape")
+		if !ok || hasExactAddContactRequestSnapshotAssignmentCall(file) {
+			t.Fatal("owned call guard accepted an invalid call shape")
 		}
+	}
+}
+
+func TestContactRequestHelperReferenceScannerFixtures(t *testing.T) {
+	config := contactRequestScannerConfig{
+		helperImportPath: "post/contactrequestsnapshot",
+		addContactPath:   "controllers/post/post.go",
+		helperPath:       "controllers/post/contactrequestsnapshot/decision.go",
+	}
+	approved := []contactRequestSource{
+		{relativePath: config.helperPath, source: []byte(`package contactrequestsnapshot
+func Read(any, any) (any, error) { return nil, nil }`)},
+		{relativePath: config.addContactPath, source: []byte(`package post
+import "post/contactrequestsnapshot"
+func AddContactRequest() {
+	contactRequestSnapshot, err := contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader)
+	_, _ = contactRequestSnapshot, err
+}`)},
+	}
+	if !contactRequestHelperReferencesAreApproved(approved, config) {
+		t.Fatal("approved helper reference fixture was rejected")
+	}
+
+	mutations := [][]contactRequestSource{
+		{{relativePath: "controllers/post/leaked.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func leakedContactReader() any { return contactrequestsnapshot.Read }`)}},
+		{{relativePath: "controllers/post/second.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func AddContactRequestSecond() { _, _ = contactrequestsnapshot.Read(c.UserContext(), utilities.ContactRequestWorkflowSnapshotReader) }`)}},
+		{{relativePath: "controllers/post/alias.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func leaked() { fn := contactrequestsnapshot.Read; _ = fn }`)}},
+		{{relativePath: "controllers/post/package_value.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+var leaked = contactrequestsnapshot.Read`)}},
+		{{relativePath: "controllers/post/struct.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+var leaked = struct{ Read any }{Read: contactrequestsnapshot.Read}`)}},
+		{{relativePath: "controllers/post/callback.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func consume(any) {}
+func leaked() { consume(contactrequestsnapshot.Read) }`)}},
+		{{relativePath: "controllers/post/explicit.go", source: []byte(`package post
+import helper "post/contactrequestsnapshot"
+func leaked() any { return helper.Read }`)}},
+		{{relativePath: "controllers/post/dot.go", source: []byte(`package post
+import . "post/contactrequestsnapshot"
+func leaked() any { return Read }`)}},
+		{
+			{relativePath: "controllers/post/alias_source.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+var helperAlias = contactrequestsnapshot.Read`)},
+			{relativePath: "controllers/post/alias_consumer.go", source: []byte(`package post
+var leaked = helperAlias`)},
+		},
+		{{relativePath: "controllers/post/contactrequestsnapshot/leaked.go", source: []byte(`package contactrequestsnapshot
+func leaked() any { return Read }`)}},
+		{{relativePath: "controllers/post/parenthesized.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func leaked() any { return (contactrequestsnapshot.Read) }`)}},
+	}
+	for _, mutation := range mutations {
+		sources := append(append([]contactRequestSource{}, approved...), mutation...)
+		if contactRequestHelperReferencesAreApproved(sources, config) {
+			t.Fatal("forbidden helper reference fixture was accepted")
+		}
+	}
+
+	safe := append(append([]contactRequestSource{}, approved...),
+		contactRequestSource{relativePath: "controllers/post/shadow.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+func shadow(contactrequestsnapshot struct{ Read any }) any { return contactrequestsnapshot.Read }`)},
+		contactRequestSource{relativePath: "controllers/post/contactrequestsnapshot/rand.go", source: []byte(`package contactrequestsnapshot
+import "crypto/rand"
+func unrelatedRead(buffer []byte) (int, error) { return rand.Read(buffer) }`)},
+		contactRequestSource{relativePath: "controllers/post/contactrequestsnapshot/io.go", source: []byte(`package contactrequestsnapshot
+import "io"
+func readerRead(reader io.Reader, buffer []byte) (int, error) { return reader.Read(buffer) }`)},
+		contactRequestSource{relativePath: "controllers/post/contactrequestsnapshot/local.go", source: []byte(`package contactrequestsnapshot
+type localReadField struct{ Read any }
+type localReadMethod struct{}
+func (localReadMethod) Read() {}
+func useLocalReadField(value localReadField) any { return value.Read }
+func useLocalReadMethod(value localReadMethod) { value.Read() }
+func useLocalReadVariable() { Read := func() {}; Read() }
+func useLocalReadParameter(Read func()) { Read() }`)},
+		contactRequestSource{relativePath: "controllers/post/other.go", source: []byte(`package post
+import other "example.invalid/other"
+var otherRead = other.Read
+const text = "contactrequestsnapshot.Read"
+// contactrequestsnapshot.Read
+`)},
+		contactRequestSource{relativePath: "controllers/post/ignored_test.go", source: []byte(`package post
+import "post/contactrequestsnapshot"
+var ignored = contactrequestsnapshot.Read`)},
+	)
+	if !contactRequestHelperReferencesAreApproved(safe, config) {
+		t.Fatal("safe helper reference fixture was rejected")
 	}
 }
 
@@ -801,9 +926,10 @@ func TestContactRequestWiringDiagnosticsAreConstant(t *testing.T) {
 	}
 }
 
-func hasExactAddContactRequestLegacyAssignmentCall(file *ast.File) bool {
+func hasExactAddContactRequestSnapshotAssignmentCall(file *ast.File) bool {
 	functionCount := 0
 	callCount := 0
+	candidateCallCount := 0
 	assignmentCount := 0
 	for _, declaration := range file.Decls {
 		function, ok := declaration.(*ast.FuncDecl)
@@ -820,7 +946,16 @@ func hasExactAddContactRequestLegacyAssignmentCall(file *ast.File) bool {
 				return false
 			}
 			call, ok := node.(*ast.CallExpr)
-			if ok && isExactLegacyOptionsCall(call) {
+			if ok {
+				selector, selectorOK := call.Fun.(*ast.SelectorExpr)
+				if selectorOK {
+					receiver, receiverOK := selector.X.(*ast.Ident)
+					if receiverOK && receiver.Name == "contactrequestsnapshot" && selector.Sel.Name == "Read" {
+						candidateCallCount++
+					}
+				}
+			}
+			if ok && isExactContactRequestSnapshotCall(call) {
 				callCount++
 			}
 			assignment, ok := node.(*ast.AssignStmt)
@@ -830,13 +965,13 @@ func hasExactAddContactRequestLegacyAssignmentCall(file *ast.File) bool {
 			options, optionsOK := assignment.Lhs[0].(*ast.Ident)
 			errValue, errOK := assignment.Lhs[1].(*ast.Ident)
 			call, callOK := assignment.Rhs[0].(*ast.CallExpr)
-			if optionsOK && errOK && callOK && options.Name == "GetOptions" && errValue.Name == "err" && isExactLegacyOptionsCall(call) {
+			if optionsOK && errOK && callOK && options.Name == "contactRequestSnapshot" && errValue.Name == "err" && isExactContactRequestSnapshotCall(call) {
 				assignmentCount++
 			}
 			return true
 		})
 	}
-	return functionCount == 1 && callCount == 1 && assignmentCount == 1
+	return functionCount == 1 && candidateCallCount == 1 && callCount == 1 && assignmentCount == 1
 }
 
 func contactRequestHandlerBody(function *ast.FuncDecl) (*ast.BlockStmt, bool) {
@@ -854,13 +989,395 @@ func contactRequestHandlerBody(function *ast.FuncDecl) (*ast.BlockStmt, bool) {
 	return handler.Body, true
 }
 
-func isExactLegacyOptionsCall(call *ast.CallExpr) bool {
+func isExactContactRequestSnapshotCall(call *ast.CallExpr) bool {
 	selector, ok := call.Fun.(*ast.SelectorExpr)
-	if !ok || selector.Sel.Name != "FetchOptionsForBackend" {
+	if !ok || selector.Sel.Name != "Read" || len(call.Args) != 2 {
 		return false
 	}
 	receiver, ok := selector.X.(*ast.Ident)
-	return ok && receiver.Name == "GetOptions"
+	if !ok || receiver.Name != "contactrequestsnapshot" || receiver.Obj != nil {
+		return false
+	}
+	contextCall, ok := call.Args[0].(*ast.CallExpr)
+	if !ok || len(contextCall.Args) != 0 {
+		return false
+	}
+	contextSelector, ok := contextCall.Fun.(*ast.SelectorExpr)
+	if !ok || contextSelector.Sel.Name != "UserContext" {
+		return false
+	}
+	contextReceiver, ok := contextSelector.X.(*ast.Ident)
+	if !ok || contextReceiver.Name != "c" {
+		return false
+	}
+	reader, ok := call.Args[1].(*ast.SelectorExpr)
+	if !ok || reader.Sel.Name != contactRequestSnapshotReader {
+		return false
+	}
+	utilities, ok := reader.X.(*ast.Ident)
+	return ok && utilities.Name == "utilities"
+}
+
+type contactRequestHelperImportBindings struct {
+	aliases map[string]bool
+	dot     bool
+}
+
+func hasOnlyApprovedContactRequestHelperReferences(root string) bool {
+	sources, ok := contactRequestProductionSources(root)
+	if !ok {
+		return false
+	}
+	config, ok := contactRequestScannerConfigForWorkspace(root)
+	if !ok {
+		return false
+	}
+	config.helperImportPath, ok = canonicalContactRequestImportPath(root, "controllers/post", "contactrequestsnapshot")
+	if !ok {
+		return false
+	}
+	config.helperPath = "controllers/post/contactrequestsnapshot/decision.go"
+	return contactRequestHelperReferencesAreApproved(sources, config)
+}
+
+func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, config contactRequestScannerConfig) bool {
+	parsed := []contactRequestParsedSource{}
+	var helperDeclaration *ast.FuncDecl
+	for _, source := range sources {
+		if strings.HasSuffix(source.relativePath, "_test.go") {
+			continue
+		}
+		file, err := parser.ParseFile(token.NewFileSet(), source.relativePath, source.source, 0)
+		if err != nil {
+			return false
+		}
+		parsedSource := contactRequestParsedSource{relativePath: source.relativePath, file: file}
+		parsed = append(parsed, parsedSource)
+		if source.relativePath != config.helperPath || file.Name.Name != "contactrequestsnapshot" {
+			continue
+		}
+		for _, declaration := range file.Decls {
+			function, ok := declaration.(*ast.FuncDecl)
+			if !ok || function.Recv != nil || function.Name.Name != "Read" {
+				continue
+			}
+			if helperDeclaration != nil {
+				return false
+			}
+			helperDeclaration = function
+		}
+	}
+	if helperDeclaration == nil {
+		return false
+	}
+
+	references := 0
+	approved := 0
+	valid := true
+	for _, source := range parsed {
+		bindings := contactRequestHelperImports(source.file, config.helperImportPath)
+		declarations := contactRequestDeclarationIdentifiers(source.file)
+		selectorIdentifiers := map[*ast.Ident]bool{}
+		ast.Inspect(source.file, func(node ast.Node) bool {
+			selector, ok := node.(*ast.SelectorExpr)
+			if ok {
+				selectorIdentifiers[selector.Sel] = true
+			}
+			return true
+		})
+		stack := []ast.Node{}
+		ast.Inspect(source.file, func(node ast.Node) bool {
+			if node == nil {
+				stack = stack[:len(stack)-1]
+				return true
+			}
+			parent := ast.Node(nil)
+			if len(stack) > 0 {
+				parent = stack[len(stack)-1]
+			}
+			isReference := false
+			switch typed := node.(type) {
+			case *ast.SelectorExpr:
+				receiver, ok := typed.X.(*ast.Ident)
+				isReference = ok && typed.Sel.Name == "Read" && bindings.aliases[receiver.Name] && (receiver.Obj == nil || receiver.Obj.Kind == ast.Pkg)
+			case *ast.Ident:
+				if typed != helperDeclaration.Name && !selectorIdentifiers[typed] && !declarations[typed] && typed.Name == "Read" {
+					samePackage := contactRequestSourceIsPackage(source, pathpkg.Dir(config.helperPath), "contactrequestsnapshot")
+					isReference = (bindings.dot && typed.Obj == nil) || (samePackage && (typed.Obj == nil || typed.Obj.Decl == helperDeclaration))
+				}
+			}
+			if isReference {
+				references++
+				call, callOK := parent.(*ast.CallExpr)
+				function := enclosingContactRequestFunction(stack)
+				if source.relativePath == config.addContactPath && callOK && call.Fun == node && function != nil && function.Name.Name == "AddContactRequest" && isExactContactRequestSnapshotCall(call) {
+					approved++
+				} else {
+					valid = false
+				}
+			}
+			stack = append(stack, node)
+			return true
+		})
+	}
+	return valid && references == 1 && approved == 1
+}
+
+func contactRequestHelperImports(file *ast.File, helperImportPath string) contactRequestHelperImportBindings {
+	bindings := contactRequestHelperImportBindings{aliases: map[string]bool{}}
+	for _, imported := range file.Imports {
+		importPath, err := strconv.Unquote(imported.Path.Value)
+		if err != nil || importPath != helperImportPath {
+			continue
+		}
+		alias := pathpkg.Base(importPath)
+		if imported.Name != nil {
+			alias = imported.Name.Name
+		}
+		if alias == "." {
+			bindings.dot = true
+		} else if alias != "_" {
+			bindings.aliases[alias] = true
+		}
+	}
+	return bindings
+}
+
+func contactRequestDeclarationIdentifiers(file *ast.File) map[*ast.Ident]bool {
+	declarations := map[*ast.Ident]bool{}
+	ast.Inspect(file, func(node ast.Node) bool {
+		switch typed := node.(type) {
+		case *ast.ImportSpec:
+			if typed.Name != nil {
+				declarations[typed.Name] = true
+			}
+		case *ast.TypeSpec:
+			declarations[typed.Name] = true
+		case *ast.FuncDecl:
+			declarations[typed.Name] = true
+		case *ast.Field:
+			for _, name := range typed.Names {
+				declarations[name] = true
+			}
+		case *ast.ValueSpec:
+			for _, name := range typed.Names {
+				declarations[name] = true
+			}
+		case *ast.AssignStmt:
+			if typed.Tok == token.DEFINE {
+				for _, expression := range typed.Lhs {
+					if name, ok := expression.(*ast.Ident); ok {
+						declarations[name] = true
+					}
+				}
+			}
+		case *ast.RangeStmt:
+			if typed.Tok == token.DEFINE {
+				if name, ok := typed.Key.(*ast.Ident); ok {
+					declarations[name] = true
+				}
+				if name, ok := typed.Value.(*ast.Ident); ok {
+					declarations[name] = true
+				}
+			}
+		}
+		return true
+	})
+	return declarations
+}
+
+func enclosingContactRequestFunction(stack []ast.Node) *ast.FuncDecl {
+	for index := len(stack) - 1; index >= 0; index-- {
+		if function, ok := stack[index].(*ast.FuncDecl); ok {
+			return function
+		}
+	}
+	return nil
+}
+
+func hasExactApprovedContactRequestWiring(root string) bool {
+	modelsFile, ok := parseContactRequestProductionFile(root, "models/models.go")
+	if !ok || modelsFile.Name.Name != "models" || !hasExactUtilitiesContactRequestReader(modelsFile) {
+		return false
+	}
+	mainFile, ok := parseContactRequestProductionFile(root, "main/main.go")
+	if !ok || mainFile.Name.Name != "main" || !hasExactMainContactRequestInjection(mainFile) {
+		return false
+	}
+	helperFile, ok := parseContactRequestProductionFile(root, "controllers/post/contactrequestsnapshot/decision.go")
+	if !ok || helperFile.Name.Name != "contactrequestsnapshot" || !hasExactContactRequestHelper(helperFile) {
+		return false
+	}
+	postFile, ok := parseContactRequestProductionFile(root, "controllers/post/post.go")
+	return ok && postFile.Name.Name == "post" && hasExactImport(postFile, "post/contactrequestsnapshot") && hasExactAddContactRequestSnapshotAssignmentCall(postFile)
+}
+
+func hasExactApprovedContactRequestSymbolInventory(root string) bool {
+	sources, ok := contactRequestProductionSources(root)
+	if !ok {
+		return false
+	}
+	readerSelectors := 0
+	helperImports := 0
+	helperCalls := 0
+	readerMethodCalls := 0
+	constructorCalls := 0
+	for _, source := range sources {
+		file, err := parser.ParseFile(token.NewFileSet(), source.relativePath, source.source, 0)
+		if err != nil {
+			return false
+		}
+		for _, imported := range file.Imports {
+			value, err := strconv.Unquote(imported.Path.Value)
+			if err == nil && value == "post/contactrequestsnapshot" {
+				helperImports++
+			}
+		}
+		ast.Inspect(file, func(node ast.Node) bool {
+			switch typed := node.(type) {
+			case *ast.SelectorExpr:
+				if typed.Sel.Name == contactRequestSnapshotReader {
+					readerSelectors++
+				}
+				if typed.Sel.Name == contactRequestSnapshotMethod {
+					readerMethodCalls++
+				}
+			case *ast.CallExpr:
+				selector, selectorOK := typed.Fun.(*ast.SelectorExpr)
+				if selectorOK {
+					receiver, receiverOK := selector.X.(*ast.Ident)
+					if receiverOK && receiver.Name == "contactrequestsnapshot" && selector.Sel.Name == "Read" {
+						helperCalls++
+					}
+					if selector.Sel.Name == "NewOptionsRepository" {
+						constructorCalls++
+					}
+				}
+			}
+			return true
+		})
+	}
+	return readerSelectors == 6 && helperImports == 1 && helperCalls == 1 && readerMethodCalls == 1 && constructorCalls == 1
+}
+
+func parseContactRequestProductionFile(root, relativePath string) (*ast.File, bool) {
+	path := filepath.Join(root, filepath.FromSlash(relativePath))
+	file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+	return file, err == nil
+}
+
+func hasExactUtilitiesContactRequestReader(file *ast.File) bool {
+	if !hasExactImport(file, "models/data") {
+		return false
+	}
+	count := 0
+	for _, declaration := range file.Decls {
+		general, ok := declaration.(*ast.GenDecl)
+		if !ok || general.Tok != token.TYPE {
+			continue
+		}
+		for _, specification := range general.Specs {
+			typeSpec, ok := specification.(*ast.TypeSpec)
+			if !ok || typeSpec.Name.Name != "Utilities" {
+				continue
+			}
+			structure, ok := typeSpec.Type.(*ast.StructType)
+			if !ok {
+				return false
+			}
+			for _, field := range structure.Fields.List {
+				if len(field.Names) == 1 && field.Names[0].Name == contactRequestSnapshotReader && contactRequestNodeText(field.Type) == "data."+contactRequestSnapshotReader {
+					count++
+				}
+			}
+		}
+	}
+	return count == 1
+}
+
+func hasExactMainContactRequestInjection(file *ast.File) bool {
+	run := findContactRequestFunction(file, "run")
+	if run == nil {
+		return false
+	}
+	repositoryAssignments := 0
+	injections := 0
+	var repositoryObject *ast.Object
+	ast.Inspect(run, func(node ast.Node) bool {
+		assignment, ok := node.(*ast.AssignStmt)
+		if !ok || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 {
+			return true
+		}
+		if assignment.Tok == token.DEFINE && contactRequestNodeText(assignment.Rhs[0]) == "postgres.NewOptionsRepository(pool)" {
+			name, nameOK := assignment.Lhs[0].(*ast.Ident)
+			if nameOK && name.Name == "optionsRepository" {
+				repositoryAssignments++
+				repositoryObject = name.Obj
+			}
+		}
+		left, leftOK := assignment.Lhs[0].(*ast.SelectorExpr)
+		right, rightOK := assignment.Rhs[0].(*ast.Ident)
+		if assignment.Tok == token.ASSIGN && leftOK && rightOK && contactRequestNodeText(left) == "utilities."+contactRequestSnapshotReader && right.Name == "optionsRepository" {
+			if repositoryObject != nil && right.Obj == repositoryObject {
+				injections++
+			}
+		}
+		return true
+	})
+	return repositoryAssignments == 1 && injections == 1
+}
+
+func hasExactContactRequestHelper(file *ast.File) bool {
+	if !hasExactImport(file, "models/data") {
+		return false
+	}
+	readCount := 0
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Name.Name != "Read" {
+			continue
+		}
+		readCount++
+		if function.Recv != nil || function.Type.Params == nil || len(function.Type.Params.List) != 2 || function.Type.Results == nil || len(function.Type.Results.List) != 2 {
+			return false
+		}
+		if contactRequestNodeText(function.Type.Params.List[0].Type) != "context.Context" || contactRequestNodeText(function.Type.Params.List[1].Type) != "data."+contactRequestSnapshotReader {
+			return false
+		}
+		if contactRequestNodeText(function.Type.Results.List[0].Type) != "data."+contactRequestSnapshotType || contactRequestNodeText(function.Type.Results.List[1].Type) != "error" {
+			return false
+		}
+	}
+	return readCount == 1
+}
+
+func hasExactImport(file *ast.File, importPath string) bool {
+	count := 0
+	for _, imported := range file.Imports {
+		value, err := strconv.Unquote(imported.Path.Value)
+		if err == nil && value == importPath && (imported.Name == nil || imported.Name.Name == pathpkg.Base(importPath)) {
+			count++
+		}
+	}
+	return count == 1
+}
+
+func findContactRequestFunction(file *ast.File, name string) *ast.FuncDecl {
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if ok && function.Recv == nil && function.Name.Name == name {
+			return function
+		}
+	}
+	return nil
+}
+
+func contactRequestNodeText(node ast.Node) string {
+	var buffer bytes.Buffer
+	if format.Node(&buffer, token.NewFileSet(), node) != nil {
+		return ""
+	}
+	return buffer.String()
 }
 
 func contactRequestScannerConfigForWorkspace(root string) (contactRequestScannerConfig, bool) {

@@ -9,6 +9,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"io/fs"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -602,7 +603,6 @@ func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
 		file *ast.File
 		name string
 	}{
-		{postFile, "AddContactRequest"},
 		{postFile, "RespondToContactRequest"},
 		{postFile, "AddJobApplication"},
 		{postFile, "RespondToJobApplication"},
@@ -614,7 +614,7 @@ func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
 	for _, test := range tests {
 		fn := function(t, test.file, test.name)
 		legacyCalls := 0
-		ownedCalls := 0
+		contactSnapshotCalls := 0
 		ast.Inspect(fn, func(node ast.Node) bool {
 			call, ok := node.(*ast.CallExpr)
 			if !ok {
@@ -623,13 +623,84 @@ func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
 			switch callName(call) {
 			case "GetOptions.FetchOptionsForBackend":
 				legacyCalls++
-			case "uploadpolicy.Read":
-				ownedCalls++
+			case "contactrequestsnapshot.Read":
+				contactSnapshotCalls++
 			}
 			return true
 		})
-		if legacyCalls != 1 || ownedCalls != 0 {
-			t.Fatalf("mail/CAPTCHA options caller changed: %s", test.name)
+		if legacyCalls != 1 || contactSnapshotCalls != 0 {
+			t.Fatal("mail/CAPTCHA legacy caller changed")
 		}
 	}
+
+	addContactRequest := function(t, postFile, "AddContactRequest")
+	legacyCalls := 0
+	contactSnapshotCalls := 0
+	ast.Inspect(addContactRequest, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		switch callName(call) {
+		case "GetOptions.FetchOptionsForBackend":
+			legacyCalls++
+		case "contactrequestsnapshot.Read":
+			contactSnapshotCalls++
+		}
+		return true
+	})
+	if legacyCalls != 0 || contactSnapshotCalls != 1 {
+		t.Fatal("AddContactRequest owned options caller changed")
+	}
+
+	backendCalls, legacyTotal, ok := productionLegacyOptionCallInventory(t)
+	if !ok || backendCalls != 10 || legacyTotal != 112 {
+		t.Fatal("global legacy options caller inventory changed")
+	}
+}
+
+func productionLegacyOptionCallInventory(t *testing.T) (int, int, bool) {
+	t.Helper()
+	root := filepath.Clean(sourcePath(t, "..", "..", ".."))
+	counts := map[string]int{}
+	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			switch entry.Name() {
+			case ".git", "static", "vendor":
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if filepath.Ext(path) != ".go" || strings.HasSuffix(path, "_test.go") {
+			return nil
+		}
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			return err
+		}
+		ast.Inspect(file, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			selector, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+			switch selector.Sel.Name {
+			case "FetchOptionsForBackend", "FetchOptionsForFrontendWithCache", "FetchOptionsForFrontend", "FetchOptionsForPanel":
+				counts[selector.Sel.Name]++
+			}
+			return true
+		})
+		return nil
+	})
+	if err != nil {
+		return 0, 0, false
+	}
+	backend := counts["FetchOptionsForBackend"]
+	return backend, backend + counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"], true
 }
