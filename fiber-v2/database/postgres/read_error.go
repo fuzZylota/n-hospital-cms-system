@@ -17,6 +17,7 @@ const (
 	readCaptchaVerificationOptions
 	readOptionMediaReferences
 	readOptionMediaMutationSnapshot
+	readContactRequestWorkflowSnapshot
 	readUserStatus
 )
 
@@ -80,6 +81,8 @@ func (e *repositoryReadError) operationText() string {
 		return "option media references"
 	case readOptionMediaMutationSnapshot:
 		return "option media mutation snapshot"
+	case readContactRequestWorkflowSnapshot:
+		return "contact request workflow snapshot"
 	case readUserStatus:
 		return "user status"
 	default:
