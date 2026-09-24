@@ -41,13 +41,14 @@ type AppState struct {
 
 // type that represents all the unchanging utilites.
 type Utilities struct {
-	NotificationHub                      notify.Hub
-	Orm                                  *orm.Neorm
-	HeaderButtonReader                   data.HeaderButtonReader
-	UploadPolicyReader                   data.UploadPolicyReader
-	PasswordPolicyReader                 data.PasswordPolicyReader
-	OptionMediaMutationSnapshotReader    data.OptionMediaMutationSnapshotReader
-	ContactRequestWorkflowSnapshotReader data.ContactRequestWorkflowSnapshotReader
+	NotificationHub                              notify.Hub
+	Orm                                          *orm.Neorm
+	HeaderButtonReader                           data.HeaderButtonReader
+	UploadPolicyReader                           data.UploadPolicyReader
+	PasswordPolicyReader                         data.PasswordPolicyReader
+	OptionMediaMutationSnapshotReader            data.OptionMediaMutationSnapshotReader
+	ContactRequestWorkflowSnapshotReader         data.ContactRequestWorkflowSnapshotReader
+	ContactRequestResponseWorkflowSnapshotReader data.ContactRequestResponseWorkflowSnapshotReader
 	// Limiter
 }
 

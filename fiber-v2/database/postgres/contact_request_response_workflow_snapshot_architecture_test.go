@@ -79,7 +79,7 @@ func TestContactRequestResponseSnapshotRepositoryCreatesNoPoolOrGlobalState(t *t
 	})
 }
 
-func TestContactRequestResponseSnapshotIsNotProductionWired(t *testing.T) {
+func TestContactRequestResponseSnapshotProductionWiringUsesNarrowBoundary(t *testing.T) {
 	root := contactRequestResponseWorkspaceRoot(t)
 	postPath := filepath.Join(root, "controllers/post/post.go")
 	contents, err := os.ReadFile(postPath)
@@ -97,12 +97,12 @@ func TestContactRequestResponseSnapshotIsNotProductionWired(t *testing.T) {
 		t.Fatal("cannot bound production caller")
 	}
 	functionSource := remainder[:next]
-	if !strings.Contains(functionSource, "FetchOptionsForBackend") {
-		t.Fatal("legacy production caller changed before the wiring atom")
+	if strings.Count(functionSource, "contactrequestresponsesnapshot.Read") != 1 {
+		t.Fatal("response snapshot production caller count changed")
 	}
-	for _, forbidden := range []string{"ContactRequestResponseWorkflowSnapshot", "ReadContactRequestResponseWorkflowSnapshot", "contactrequestresponsesnapshot"} {
+	for _, forbidden := range []string{"FetchOptionsForBackend", "database.Options", "ReadContactRequestResponseWorkflowSnapshot"} {
 		if strings.Contains(functionSource, forbidden) {
-			t.Fatal("response snapshot was production-wired in the contract/repository atom")
+			t.Fatal("production handler bypasses the narrow response snapshot boundary")
 		}
 	}
 }

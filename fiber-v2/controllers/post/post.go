@@ -10,6 +10,7 @@ import (
 	"models/notify"
 	"os"
 	"path/filepath"
+	"post/contactrequestresponsesnapshot"
 	"post/contactrequestsnapshot"
 	"post/notificationevent"
 	"post/notificationws"
@@ -2807,12 +2808,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color",
-			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
-			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
-
+		contactRequestResponseSnapshot, err := contactrequestresponsesnapshot.Read(c.UserContext(), utilities.ContactRequestResponseWorkflowSnapshotReader)
 		if err != nil {
 			log.Printf("operation=RespondToContactRequest stage=options_read")
 			return c.JSON(fiber.Map{
@@ -2821,7 +2817,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		if GetOptions.Options.SMTPHost == "" || GetOptions.Options.SMTPPort == 0 || GetOptions.Options.SMTPUsername == "" || GetOptions.Options.SMTPPassword == "" || GetOptions.Options.SiteName == "" {
+		if contactRequestResponseSnapshot.SMTPHost == "" || contactRequestResponseSnapshot.SMTPPort == 0 || contactRequestResponseSnapshot.SMTPUsername == "" || contactRequestResponseSnapshot.SMTPPassword == "" || contactRequestResponseSnapshot.SiteName == "" {
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "E-posta bilgileriniz girilmemişse e-posta gönderemezsiniz.",
@@ -2883,8 +2879,8 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		if (*GetOptions.Medias)[0].FilePath != "" {
-			GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+		if contactRequestResponseSnapshot.SiteLogoPath != "" {
+			GetLogo = filepath.Join(RootDir, "static", contactRequestResponseSnapshot.SiteLogoPath)
 		} else {
 			GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
 		}
@@ -2952,7 +2948,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		}
 							.response-box {
 			background-color: #f8f9fc;
-								border-left: 4px solid ` + GetOptions.Options.PrimaryColor + `;
+								border-left: 4px solid ` + contactRequestResponseSnapshot.PrimaryColor + `;
 			padding: 20px 25px;
 			margin: 25px 0;
 			border-radius: 6px;
@@ -3004,7 +3000,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			color: #555555;
 		}
 		.contact-info a {
-			color: ` + GetOptions.Options.PrimaryColor + `;
+			color: ` + contactRequestResponseSnapshot.PrimaryColor + `;
 			text-decoration: none;
 			font-weight: 600;
 		}
@@ -3020,7 +3016,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			margin: 5px 0;
 		}
 		.footer a {
-			color: ` + GetOptions.Options.PrimaryColor + `;
+			color: ` + contactRequestResponseSnapshot.PrimaryColor + `;
 			text-decoration: none;
 		}
 		.social-links {
@@ -3050,7 +3046,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 <body>
 	<div class="email-container">
 		<div class="header">
-			<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+			<img src="cid:` + LogoName + `" alt="` + contactRequestResponseSnapshot.SiteName + `" />
 								<h1>` + inputs.Title + `</h1>
 		</div>
 		
@@ -3060,7 +3056,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			</div>
 			
 			<div class="message">
-									<strong>` + GetOptions.Options.SiteName + `</strong> İletişim ekibimiz tarafından size aşağıdaki gibi cevap verilmiştir.
+									<strong>` + contactRequestResponseSnapshot.SiteName + `</strong> İletişim ekibimiz tarafından size aşağıdaki gibi cevap verilmiştir.
 			</div>
 			
 								<div class="response-box">
@@ -3073,48 +3069,48 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 								<div class="responder-info">
 									<h3>👤 Cevap Veren</h3>
 									<p><strong>` + inputs.ResponderName + `</strong></p>
-									<p>` + GetOptions.Options.SiteName + ` İletişim Ekibi</p>
+									<p>` + contactRequestResponseSnapshot.SiteName + ` İletişim Ekibi</p>
 			</div>
 			
 			<div class="contact-info">
 				<h3>📞 Bize Ulaşın</h3>
-				<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-				<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+				<p><strong>Telefon:</strong> <a href="tel:` + contactRequestResponseSnapshot.ContactPhone + `">` + contactRequestResponseSnapshot.ContactPhone + `</a></p>
+				<p><strong>E-posta:</strong> <a href="mailto:` + contactRequestResponseSnapshot.ContactEmail + `">` + contactRequestResponseSnapshot.ContactEmail + `</a></p>
 			</div>
 			
 			<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
-									Bu e-posta ` + GetOptions.Options.SiteName + ` İletişim ekibi tarafından gönderilmiştir. 
+									Bu e-posta ` + contactRequestResponseSnapshot.SiteName + ` İletişim ekibi tarafından gönderilmiştir.` + " " + `
 				Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
 			</div>
 		</div>
 		
 		<div class="footer">
-			<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-			<p>` + GetOptions.Options.SiteDescription + `</p>
+			<p><strong>` + contactRequestResponseSnapshot.SiteName + `</strong></p>
+			<p>` + contactRequestResponseSnapshot.SiteDescription + `</p>
 			
 			<div class="social-links">`
 
-			if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+			if contactRequestResponseSnapshot.FacebookURL != "" && contactRequestResponseSnapshot.FacebookURL != "#" {
 				Html += `
-				<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+				<a href="` + contactRequestResponseSnapshot.FacebookURL + `">Facebook</a> |`
 			}
-			if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+			if contactRequestResponseSnapshot.TwitterURL != "" && contactRequestResponseSnapshot.TwitterURL != "#" {
 				Html += `
-				<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+				<a href="` + contactRequestResponseSnapshot.TwitterURL + `">Twitter</a> |`
 			}
-			if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+			if contactRequestResponseSnapshot.InstagramURL != "" && contactRequestResponseSnapshot.InstagramURL != "#" {
 				Html += `
-				<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+				<a href="` + contactRequestResponseSnapshot.InstagramURL + `">Instagram</a> |`
 			}
-			if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+			if contactRequestResponseSnapshot.LinkedInURL != "" && contactRequestResponseSnapshot.LinkedInURL != "#" {
 				Html += `
-				<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+				<a href="` + contactRequestResponseSnapshot.LinkedInURL + `">LinkedIn</a>`
 			}
 
 			Html += `
 			</div>
 			
-								<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
+								<p style="margin-top: 20px;">&copy; 2025 ` + contactRequestResponseSnapshot.SiteName + `. Tüm hakları saklıdır.</p>
 		</div>
 	</div>
 </body>
@@ -3122,13 +3118,13 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		}
 
 		CreateEmailInfos := models.EmailInfos{
-			From:        GetOptions.Options.SiteName,
+			From:        contactRequestResponseSnapshot.SiteName,
 			To:          []string{ContactRequestData.Email},
-			Username:    GetOptions.Options.SMTPUsername,
-			Password:    GetOptions.Options.SMTPPassword,
-			Host:        GetOptions.Options.SMTPHost,
-			Port:        lib.Int64(GetOptions.Options.SMTPPort),
-			Subject:     inputs.Title + " - " + GetOptions.Options.SiteName,
+			Username:    contactRequestResponseSnapshot.SMTPUsername,
+			Password:    contactRequestResponseSnapshot.SMTPPassword,
+			Host:        contactRequestResponseSnapshot.SMTPHost,
+			Port:        lib.Int64(contactRequestResponseSnapshot.SMTPPort),
+			Subject:     inputs.Title + " - " + contactRequestResponseSnapshot.SiteName,
 			PlainText:   "Sayın " + ContactRequestData.FirstName + " " + ContactRequestData.LastName + ", " + inputs.ResponderName + " tarafından hazırlanan cevabımız: " + inputs.ResponseText,
 			Body:        Html,
 			Attachments: []string{GetLogo},

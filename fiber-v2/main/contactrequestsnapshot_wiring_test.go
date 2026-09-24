@@ -20,6 +20,7 @@ func TestContactRequestSnapshotUsesExistingOptionsRepository(t *testing.T) {
 		"utilities.PasswordPolicyReader = optionsRepository",
 		"utilities.OptionMediaMutationSnapshotReader = optionsRepository",
 		"utilities.ContactRequestWorkflowSnapshotReader = optionsRepository",
+		"utilities.ContactRequestResponseWorkflowSnapshotReader = optionsRepository",
 		"userStatusReader = postgres.NewUserStatusRepository(pool)",
 	} {
 		if strings.Count(source, required) != 1 {
