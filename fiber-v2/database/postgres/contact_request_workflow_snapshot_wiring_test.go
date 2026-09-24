@@ -23,6 +23,10 @@ const (
 )
 
 type contactRequestScannerConfig struct {
+	snapshotTypeName     string
+	snapshotReaderName   string
+	snapshotMethodName   string
+	callerName           string
 	dataImportPath       string
 	repositoryImportPath string
 	helperImportPath     string
@@ -79,6 +83,7 @@ type contactRequestImportBindings struct {
 	dataAliases       map[string]bool
 	repositoryAliases map[string]bool
 	dotData           bool
+	dotRepository     bool
 }
 
 func TestContactRequestWorkflowSnapshotHasOnlyApprovedProductionWiring(t *testing.T) {
@@ -1598,6 +1603,18 @@ func contactRequestSourceHasProductionDeclaration(path string, source []byte) bo
 }
 
 func prepareContactRequestScanContext(sources []contactRequestSource, config contactRequestScannerConfig) (contactRequestScanContext, bool) {
+	if config.snapshotTypeName == "" {
+		config.snapshotTypeName = contactRequestSnapshotType
+	}
+	if config.snapshotReaderName == "" {
+		config.snapshotReaderName = contactRequestSnapshotReader
+	}
+	if config.snapshotMethodName == "" {
+		config.snapshotMethodName = contactRequestSnapshotMethod
+	}
+	if config.callerName == "" {
+		config.callerName = "AddContactRequest"
+	}
 	context := contactRequestScanContext{
 		config:       config,
 		packageTypes: map[contactRequestPackageIdentity]map[string][]contactRequestPackageType{},
@@ -1647,13 +1664,13 @@ func prepareContactRequestScanContext(sources []contactRequestSource, config con
 						continue
 					}
 					switch {
-					case source.relativePath == config.contractPath && typeSpec.Name.Name == contactRequestSnapshotType:
+					case source.relativePath == config.contractPath && typeSpec.Name.Name == config.snapshotTypeName:
 						if context.snapshotType != nil {
 							return contactRequestScanContext{}, false
 						}
 						context.snapshotType = typeSpec
 						context.allowedNodes[typeSpec] = true
-					case source.relativePath == config.contractPath && typeSpec.Name.Name == contactRequestSnapshotReader:
+					case source.relativePath == config.contractPath && typeSpec.Name.Name == config.snapshotReaderName:
 						if context.readerType != nil {
 							return contactRequestScanContext{}, false
 						}
@@ -1667,14 +1684,14 @@ func prepareContactRequestScanContext(sources []contactRequestSource, config con
 					}
 				}
 			case *ast.FuncDecl:
-				if source.relativePath == config.repositoryPath && typed.Name.Name == contactRequestSnapshotMethod && contactRequestReceiverNamesOptionsRepository(typed) {
+				if source.relativePath == config.repositoryPath && typed.Name.Name == config.snapshotMethodName && contactRequestReceiverNamesOptionsRepository(typed) {
 					if context.repositoryImplementation != nil {
 						return contactRequestScanContext{}, false
 					}
 					context.repositoryImplementation = typed
 					context.allowedNodes[typed] = true
 				}
-				if source.relativePath == config.addContactPath && typed.Recv == nil && typed.Name.Name == "AddContactRequest" {
+				if source.relativePath == config.addContactPath && typed.Recv == nil && typed.Name.Name == config.callerName {
 					if context.addContactRequestFunction != nil {
 						return contactRequestScanContext{}, false
 					}
@@ -1714,7 +1731,7 @@ func contactRequestPackageIdentityForSource(source contactRequestParsedSource) c
 
 func contactRequestAnchorsAreComplete(context contactRequestScanContext) bool {
 	return context.snapshotType != nil &&
-		context.readerType != nil && contactRequestReaderDeclaresExpectedMethod(context.readerType) &&
+		context.readerType != nil && contactRequestReaderDeclaresExpectedMethod(context.readerType, context.config.snapshotMethodName) &&
 		context.optionsRepositoryType != nil && contactRequestRepositoryImplementationIsCanonical(context) &&
 		context.addContactRequestFunction != nil
 }
@@ -1733,7 +1750,7 @@ func contactRequestRepositoryImplementationIsCanonical(context contactRequestSca
 	return false
 }
 
-func contactRequestReaderDeclaresExpectedMethod(reader *ast.TypeSpec) bool {
+func contactRequestReaderDeclaresExpectedMethod(reader *ast.TypeSpec, methodName string) bool {
 	interfaceType, ok := reader.Type.(*ast.InterfaceType)
 	if !ok || interfaceType.Methods == nil {
 		return false
@@ -1741,7 +1758,7 @@ func contactRequestReaderDeclaresExpectedMethod(reader *ast.TypeSpec) bool {
 	count := 0
 	for _, method := range interfaceType.Methods.List {
 		for _, name := range method.Names {
-			if name.Name == contactRequestSnapshotMethod {
+			if name.Name == methodName {
 				count++
 			}
 		}
@@ -1843,7 +1860,7 @@ func countContactRequestReferencesInFile(source contactRequestParsedSource, cont
 		}
 		switch typed := node.(type) {
 		case *ast.SelectorExpr:
-			if selectorUsesCanonicalData(typed, bindings) ||
+			if selectorUsesCanonicalData(typed, bindings, context.config) ||
 				selectorUsesCanonicalContactRequestReader(typed, source, bindings, context) ||
 				selectorUsesOwnedOptionsRepository(typed, source, bindings, context) {
 				count++
@@ -1879,27 +1896,31 @@ func contactRequestImports(file *ast.File, config contactRequestScannerConfig) c
 				bindings.dataAliases[alias] = true
 			}
 		}
-		if importPath == config.repositoryImportPath && alias != "." && alias != "_" {
-			bindings.repositoryAliases[alias] = true
+		if importPath == config.repositoryImportPath {
+			if alias == "." {
+				bindings.dotRepository = true
+			} else if alias != "_" {
+				bindings.repositoryAliases[alias] = true
+			}
 		}
 	}
 	return bindings
 }
 
-func selectorUsesCanonicalData(selector *ast.SelectorExpr, bindings contactRequestImportBindings) bool {
-	if !isProtectedContactRequestType(selector.Sel.Name) {
+func selectorUsesCanonicalData(selector *ast.SelectorExpr, bindings contactRequestImportBindings, config contactRequestScannerConfig) bool {
+	if !isProtectedContactRequestType(selector.Sel.Name, config) {
 		return false
 	}
 	alias, ok := selector.X.(*ast.Ident)
 	return ok && bindings.dataAliases[alias.Name] && (alias.Obj == nil || alias.Obj.Kind == ast.Pkg)
 }
 
-func isProtectedContactRequestType(name string) bool {
-	return name == contactRequestSnapshotType || name == contactRequestSnapshotReader
+func isProtectedContactRequestType(name string, config contactRequestScannerConfig) bool {
+	return name == config.snapshotTypeName || name == config.snapshotReaderName
 }
 
 func identifierUsesCanonicalContactRequestType(identifier *ast.Ident, source contactRequestParsedSource, bindings contactRequestImportBindings, context contactRequestScanContext, selectorIdentifiers, declarationIdentifiers map[*ast.Ident]bool) bool {
-	if selectorIdentifiers[identifier] || declarationIdentifiers[identifier] || !isProtectedContactRequestType(identifier.Name) {
+	if selectorIdentifiers[identifier] || declarationIdentifiers[identifier] || !isProtectedContactRequestType(identifier.Name, context.config) {
 		return false
 	}
 	if identifier.Obj == nil && bindings.dotData {
@@ -1909,7 +1930,7 @@ func identifierUsesCanonicalContactRequestType(identifier *ast.Ident, source con
 		return false
 	}
 	wanted := context.snapshotType
-	if identifier.Name == contactRequestSnapshotReader {
+	if identifier.Name == context.config.snapshotReaderName {
 		wanted = context.readerType
 	}
 	if wanted == nil {
@@ -1923,7 +1944,7 @@ func contactRequestSourceIsPackage(source contactRequestParsedSource, directory,
 }
 
 func selectorUsesCanonicalContactRequestReader(selector *ast.SelectorExpr, source contactRequestParsedSource, bindings contactRequestImportBindings, context contactRequestScanContext) bool {
-	if selector.Sel.Name != contactRequestSnapshotMethod {
+	if selector.Sel.Name != context.config.snapshotMethodName {
 		return false
 	}
 	return expressionIsCanonicalContactRequestReader(selector.X, source, bindings, context, map[*ast.Object]bool{})
@@ -1937,9 +1958,9 @@ func expressionIsCanonicalContactRequestReader(expression ast.Expr, source conta
 		return expressionIsCanonicalContactRequestReader(typed.X, source, bindings, context, seen)
 	case *ast.SelectorExpr:
 		alias, ok := typed.X.(*ast.Ident)
-		return ok && typed.Sel.Name == contactRequestSnapshotReader && bindings.dataAliases[alias.Name] && (alias.Obj == nil || alias.Obj.Kind == ast.Pkg)
+		return ok && typed.Sel.Name == context.config.snapshotReaderName && bindings.dataAliases[alias.Name] && (alias.Obj == nil || alias.Obj.Kind == ast.Pkg)
 	case *ast.Ident:
-		if typed.Name == contactRequestSnapshotReader {
+		if typed.Name == context.config.snapshotReaderName {
 			if typed.Obj == nil && bindings.dotData {
 				return true
 			}
@@ -1991,7 +2012,7 @@ func objectDeclaresCanonicalContactRequestReader(declaration any, identifier *as
 }
 
 func selectorUsesOwnedOptionsRepository(selector *ast.SelectorExpr, source contactRequestParsedSource, bindings contactRequestImportBindings, context contactRequestScanContext) bool {
-	if selector.Sel.Name != contactRequestSnapshotMethod {
+	if selector.Sel.Name != context.config.snapshotMethodName {
 		return false
 	}
 	return expressionIsOwnedOptionsRepository(selector.X, source, bindings, context, newContactRequestOwnershipResolution())
@@ -2036,6 +2057,10 @@ func expressionIsOwnedOptionsRepository(expression ast.Expr, source contactReque
 			}
 		}
 	case *ast.Ident:
+		if typed.Name == "OptionsRepository" && typed.Obj == nil && bindings.dotRepository &&
+			len(context.packageTypes[contactRequestPackageIdentityForSource(source)][typed.Name]) == 0 {
+			return true
+		}
 		if typed.Name == "OptionsRepository" && contactRequestSourceIsPackage(source, "database/postgres", "postgres") && context.optionsRepositoryType != nil {
 			if typed.Obj == nil || typed.Obj.Decl == context.optionsRepositoryType {
 				return true
@@ -2113,7 +2138,7 @@ func isExactContactRequestRepositoryAssertion(value *ast.ValueSpec, source conta
 		return false
 	}
 	reader, ok := value.Type.(*ast.SelectorExpr)
-	if !ok || reader.Sel.Name != contactRequestSnapshotReader || !selectorUsesCanonicalData(reader, bindings) {
+	if !ok || reader.Sel.Name != context.config.snapshotReaderName || !selectorUsesCanonicalData(reader, bindings, context.config) {
 		return false
 	}
 	conversion, ok := value.Values[0].(*ast.CallExpr)

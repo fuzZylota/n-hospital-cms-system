@@ -19,6 +19,7 @@ const (
 	readOptionMediaMutationSnapshot
 	readContactRequestWorkflowSnapshot
 	readContactRequestResponseWorkflowSnapshot
+	readJobApplicationWorkflowSnapshot
 	readUserStatus
 )
 
@@ -86,6 +87,8 @@ func (e *repositoryReadError) operationText() string {
 		return "contact request workflow snapshot"
 	case readContactRequestResponseWorkflowSnapshot:
 		return "contact request response workflow snapshot"
+	case readJobApplicationWorkflowSnapshot:
+		return "job application workflow snapshot"
 	case readUserStatus:
 		return "user status"
 	default:
