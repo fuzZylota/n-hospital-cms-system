@@ -122,7 +122,6 @@ func TestAddContactRequestOwnedSnapshotWiring(t *testing.T) {
 func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 	root := workspaceRoot(t)
 	wanted := map[string]int{
-		"AddJobApplication":       1,
 		"RespondToJobApplication": 1,
 		"AddRandevuRequest":       1,
 		"AddRandevu":              1,

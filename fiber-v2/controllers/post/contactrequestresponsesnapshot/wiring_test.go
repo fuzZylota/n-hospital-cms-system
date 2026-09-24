@@ -743,7 +743,7 @@ func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 	wanted := map[string]expectation{
 		"RespondToContactRequest": {path: "controllers/post/post.go", responseCalls: 1},
 		"AddContactRequest":       {path: "controllers/post/post.go"},
-		"AddJobApplication":       {path: "controllers/post/post.go", legacyCalls: 1},
+		"AddJobApplication":       {path: "controllers/post/post.go"},
 		"RespondToJobApplication": {path: "controllers/post/post.go", legacyCalls: 1},
 		"AddRandevuRequest":       {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},
 		"AddRandevu":              {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},

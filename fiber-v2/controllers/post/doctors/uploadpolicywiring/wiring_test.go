@@ -284,7 +284,7 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 
 	otherLegacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"]
 	legacyTotal := otherLegacyTotal + counts["FetchOptionsForBackend"]
-	if legacyTotal != 111 || counts["FetchOptionsForBackend"] != 9 || otherLegacyTotal != 102 {
+	if legacyTotal != 110 || counts["FetchOptionsForBackend"] != 8 || otherLegacyTotal != 102 {
 		t.Fatal("production options caller inventory changed unexpectedly")
 	}
 	if counts["InsertMedia"] != 31 {

@@ -49,6 +49,7 @@ type Utilities struct {
 	OptionMediaMutationSnapshotReader            data.OptionMediaMutationSnapshotReader
 	ContactRequestWorkflowSnapshotReader         data.ContactRequestWorkflowSnapshotReader
 	ContactRequestResponseWorkflowSnapshotReader data.ContactRequestResponseWorkflowSnapshotReader
+	JobApplicationWorkflowSnapshotReader         data.JobApplicationWorkflowSnapshotReader
 	// Limiter
 }
 

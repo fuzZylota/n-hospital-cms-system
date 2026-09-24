@@ -1,11 +1,10 @@
 package postgres
 
 import (
+	"bytes"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -22,21 +21,27 @@ func jobApplicationScannerConfig(root string) (contactRequestScannerConfig, bool
 	config.callerName = "AddJobApplication"
 	config.contractPath = "models/data/job_application_workflow_snapshot.go"
 	config.repositoryPath = "database/postgres/job_application_workflow_snapshot.go"
+	config.helperPath = "controllers/post/jobapplicationsnapshot/decision.go"
+	config.helperImportPath, ok = canonicalContactRequestImportPath(root, "controllers/post", "jobapplicationsnapshot")
+	if !ok {
+		return contactRequestScannerConfig{}, false
+	}
 	return config, true
 }
 
 func jobApplicationFixtureScannerConfig() contactRequestScannerConfig {
 	return contactRequestScannerConfig{
 		snapshotTypeName: "JobApplicationWorkflowSnapshot", snapshotReaderName: "JobApplicationWorkflowSnapshotReader",
-		snapshotMethodName: "ReadJobApplicationWorkflowSnapshot", callerName: "AddJobApplication",
+		snapshotMethodName: "ReadJobApplicationWorkflowSnapshot", helperSymbolName: "Read", callerName: "AddJobApplication",
 		dataImportPath: "models/data", repositoryImportPath: "database/postgres",
+		helperImportPath: "post/jobapplicationsnapshot", helperPath: "controllers/post/jobapplicationsnapshot/decision.go",
 		contractPath:   "models/data/job_application_workflow_snapshot.go",
 		repositoryPath: "database/postgres/job_application_workflow_snapshot.go",
 		optionsPath:    "database/postgres/options.go", addContactPath: "controllers/post/post.go",
 	}
 }
 
-func TestJobApplicationSnapshotHasZeroProductionConsumers(t *testing.T) {
+func TestJobApplicationSnapshotHasOnlyApprovedProductionWiring(t *testing.T) {
 	root := contactRequestWorkspaceRoot(t)
 	sources, ok := contactRequestProductionSources(root)
 	if !ok {
@@ -46,15 +51,91 @@ func TestJobApplicationSnapshotHasZeroProductionConsumers(t *testing.T) {
 	if !ok {
 		t.Fatal("production import discovery failed")
 	}
+	config.helperPath = "controllers/post/jobapplicationsnapshot/decision.go"
+	config.helperImportPath, ok = canonicalContactRequestImportPath(root, "controllers/post", "jobapplicationsnapshot")
+	if !ok {
+		t.Fatal("production helper import discovery failed")
+	}
 	context, ok := prepareContactRequestScanContext(sources, config)
 	if !ok || !contactRequestAnchorsAreComplete(context) {
 		t.Fatal("production snapshot anchors are incomplete")
 	}
-	if countContactRequestReferences(context) != 0 {
+	if !jobApplicationMarkApprovedNodes(&context) || countContactRequestReferences(context) != 0 || !jobApplicationApprovedWiring(root, sources) {
 		t.Fatal("unapproved job snapshot production consumer")
 	}
-	if !addJobApplicationUsesExactLegacyOptionsCall(root) {
-		t.Fatal("job application legacy options call changed")
+}
+
+func TestJobApplicationNodeLevelAllowlistFixtures(t *testing.T) {
+	root := contactRequestWorkspaceRoot(t)
+	sources, ok := contactRequestProductionSources(root)
+	if !ok || !jobApplicationApprovedWiring(root, sources) {
+		t.Fatal("approved production references were rejected")
+	}
+	mutations := []struct{ path, old, replacement string }{
+		{"controllers/post/jobapplicationsnapshot/decision.go", "return data.JobApplicationWorkflowSnapshot{}, errSnapshotUnavailable", "return forbiddenGlobal, errSnapshotUnavailable\n"},
+		{"controllers/post/jobapplicationsnapshot/decision.go", "var errSnapshotUnavailable =", "var forbiddenGlobal data.JobApplicationWorkflowSnapshot\nvar errSnapshotUnavailable ="},
+		{"controllers/post/jobapplicationsnapshot/decision.go", "var errSnapshotUnavailable =", "func init() { _ = data.JobApplicationWorkflowSnapshot{} }\nvar errSnapshotUnavailable ="},
+		{"controllers/post/jobapplicationsnapshot/decision.go", "var errSnapshotUnavailable =", "func forbidden() { _ = data.JobApplicationWorkflowSnapshot{} }\nvar errSnapshotUnavailable ="},
+		{"database/postgres/job_application_workflow_snapshot.go", "var _ data.JobApplicationWorkflowSnapshotReader", "var extra data.JobApplicationWorkflowSnapshot\nvar _ data.JobApplicationWorkflowSnapshotReader"},
+		{"models/data/job_application_workflow_snapshot.go", "type JobApplicationWorkflowSnapshotReader interface {", "var extra JobApplicationWorkflowSnapshot\ntype JobApplicationWorkflowSnapshotReader interface {"},
+		{"models/models.go", "type Utilities struct {", "type unrelatedJobField struct { JobApplicationWorkflowSnapshotReader data.JobApplicationWorkflowSnapshotReader }\ntype Utilities struct {"},
+		{"main/main.go", "func run()", "var extra data.JobApplicationWorkflowSnapshotReader\nfunc run()"},
+		{"main/main.go", "utilities.JobApplicationWorkflowSnapshotReader = optionsRepository", "{ utilities := &models.Utilities{}; utilities.JobApplicationWorkflowSnapshotReader = optionsRepository }"},
+	}
+	for _, mutation := range mutations {
+		changed := append([]contactRequestSource(nil), sources...)
+		found := false
+		for index := range changed {
+			if changed[index].relativePath != mutation.path {
+				continue
+			}
+			if bytes.Count(changed[index].source, []byte(mutation.old)) == 0 {
+				t.Fatal("production fixture anchor missing")
+			}
+			changed[index].source = bytes.Replace(changed[index].source, []byte(mutation.old), []byte(mutation.replacement), 1)
+			if _, err := parser.ParseFile(token.NewFileSet(), "fixture.go", changed[index].source, 0); err != nil {
+				t.Fatal("production fixture is not valid Go")
+			}
+			found = true
+			break
+		}
+		if !found || jobApplicationApprovedWiring(root, changed) {
+			t.Fatal("unapproved production reference was accepted")
+		}
+	}
+	combined := append([]contactRequestSource(nil), sources...)
+	for index := range combined {
+		if combined[index].relativePath != "controllers/post/jobapplicationsnapshot/decision.go" {
+			continue
+		}
+		combined[index].source = bytes.Replace(combined[index].source, []byte("var errSnapshotUnavailable ="), []byte("var forbiddenGlobal data.JobApplicationWorkflowSnapshot\nvar errSnapshotUnavailable ="), 1)
+		combined[index].source = bytes.Replace(combined[index].source, []byte("return data.JobApplicationWorkflowSnapshot{}, errSnapshotUnavailable"), []byte("return forbiddenGlobal, errSnapshotUnavailable"), 1)
+	}
+	if jobApplicationApprovedWiring(root, combined) {
+		t.Fatal("count preserving global reference was accepted")
+	}
+}
+
+func TestJobApplicationSelectorOwnershipFixtures(t *testing.T) {
+	root := contactRequestWorkspaceRoot(t)
+	sources, ok := contactRequestProductionSources(root)
+	if !ok {
+		t.Fatal("production discovery failed")
+	}
+	positive := append([]contactRequestSource(nil), sources...)
+	negative := append([]contactRequestSource(nil), sources...)
+	for index := range sources {
+		if sources[index].relativePath != "controllers/post/jobapplicationsnapshot/decision.go" {
+			continue
+		}
+		positive[index].source = append(append([]byte(nil), sources[index].source...), []byte("\ntype unrelatedJobReader struct { ReadJobApplicationWorkflowSnapshot func() }\nfunc unrelatedSelector() { var value unrelatedJobReader; _ = value.ReadJobApplicationWorkflowSnapshot }\n")...)
+		negative[index].source = bytes.Replace(sources[index].source, []byte("snapshot, found, err := reader.ReadJobApplicationWorkflowSnapshot(ctx)"), []byte("method := reader.ReadJobApplicationWorkflowSnapshot\n snapshot, found, err := method(ctx)"), 1)
+	}
+	if !jobApplicationApprovedWiring(root, positive) {
+		t.Fatal("unrelated method selector was classified as owned")
+	}
+	if jobApplicationApprovedWiring(root, negative) {
+		t.Fatal("method value replaced owned reader call")
 	}
 }
 
@@ -233,9 +314,6 @@ func TestJobApplicationExactLegacyAssignmentFixtures(t *testing.T) {
 			t.Fatal("non-top-level legacy assignment was accepted")
 		}
 	}
-	if !addJobApplicationUsesExactLegacyOptionsCall(contactRequestWorkspaceRoot(t)) {
-		t.Fatal("production legacy assignment was rejected")
-	}
 }
 
 func TestJobApplicationParenthesizedSecondLegacyCallFixtures(t *testing.T) {
@@ -265,15 +343,6 @@ func TestJobApplicationParenthesizedSecondLegacyCallFixtures(t *testing.T) {
 			t.Fatal("unrelated call was counted as a legacy call")
 		}
 	}
-}
-
-func addJobApplicationUsesExactLegacyOptionsCall(root string) bool {
-	path := filepath.Join(root, "controllers", "post", "post.go")
-	source, err := os.ReadFile(path)
-	if err != nil {
-		return false
-	}
-	return jobApplicationSourceUsesExactLegacyOptionsCall(source)
 }
 
 func jobApplicationSourceUsesExactLegacyOptionsCall(source []byte) bool {

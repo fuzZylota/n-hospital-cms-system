@@ -26,6 +26,7 @@ type contactRequestScannerConfig struct {
 	snapshotTypeName     string
 	snapshotReaderName   string
 	snapshotMethodName   string
+	helperSymbolName     string
 	callerName           string
 	dataImportPath       string
 	repositoryImportPath string
@@ -35,6 +36,125 @@ type contactRequestScannerConfig struct {
 	optionsPath          string
 	addContactPath       string
 	helperPath           string
+}
+
+func contactRequestFixtureScannerConfig() contactRequestScannerConfig {
+	return contactRequestScannerConfig{
+		snapshotTypeName:     contactRequestSnapshotType,
+		snapshotReaderName:   contactRequestSnapshotReader,
+		snapshotMethodName:   contactRequestSnapshotMethod,
+		helperSymbolName:     "Read",
+		callerName:           "AddContactRequest",
+		dataImportPath:       "models/data",
+		repositoryImportPath: "database/postgres",
+		helperImportPath:     "post/contactrequestsnapshot",
+		contractPath:         "models/data/contact_request_workflow_snapshot.go",
+		repositoryPath:       "database/postgres/contact_request_workflow_snapshot.go",
+		optionsPath:          "database/postgres/options.go",
+		addContactPath:       "controllers/post/post.go",
+		helperPath:           "controllers/post/contactrequestsnapshot/decision.go",
+	}
+}
+
+func contactRequestScannerConfigIsComplete(config contactRequestScannerConfig) bool {
+	if config.snapshotTypeName == "" || config.snapshotReaderName == "" || config.snapshotMethodName == "" || config.helperSymbolName == "" || config.callerName == "" ||
+		config.dataImportPath == "" || config.repositoryImportPath == "" || config.helperImportPath == "" ||
+		config.contractPath == "" || config.repositoryPath == "" || config.optionsPath == "" || config.addContactPath == "" || config.helperPath == "" {
+		return false
+	}
+	if config.helperSymbolName != "Read" || config.dataImportPath != "models/data" || config.repositoryImportPath != "database/postgres" ||
+		config.optionsPath != "database/postgres/options.go" || config.addContactPath != "controllers/post/post.go" {
+		return false
+	}
+	switch config.snapshotTypeName {
+	case contactRequestSnapshotType:
+		return config.snapshotReaderName == contactRequestSnapshotReader && config.snapshotMethodName == contactRequestSnapshotMethod &&
+			config.callerName == "AddContactRequest" && config.contractPath == "models/data/contact_request_workflow_snapshot.go" &&
+			config.repositoryPath == "database/postgres/contact_request_workflow_snapshot.go" &&
+			config.helperPath == "controllers/post/contactrequestsnapshot/decision.go" && config.helperImportPath == "post/contactrequestsnapshot"
+	case "JobApplicationWorkflowSnapshot":
+		return config.snapshotReaderName == "JobApplicationWorkflowSnapshotReader" && config.snapshotMethodName == "ReadJobApplicationWorkflowSnapshot" &&
+			config.callerName == "AddJobApplication" && config.contractPath == "models/data/job_application_workflow_snapshot.go" &&
+			config.repositoryPath == "database/postgres/job_application_workflow_snapshot.go" &&
+			config.helperPath == "controllers/post/jobapplicationsnapshot/decision.go" && config.helperImportPath == "post/jobapplicationsnapshot"
+	}
+	return false
+}
+
+func TestContactRequestScannerConfigFailClosedFixtures(t *testing.T) {
+	job := contactRequestFixtureScannerConfig()
+	job.snapshotTypeName = "JobApplicationWorkflowSnapshot"
+	job.snapshotReaderName = "JobApplicationWorkflowSnapshotReader"
+	job.snapshotMethodName = "ReadJobApplicationWorkflowSnapshot"
+	job.callerName = "AddJobApplication"
+	job.contractPath = "models/data/job_application_workflow_snapshot.go"
+	job.repositoryPath = "database/postgres/job_application_workflow_snapshot.go"
+	job.helperPath = "controllers/post/jobapplicationsnapshot/decision.go"
+	job.helperImportPath = "post/jobapplicationsnapshot"
+	clearFields := []func(*contactRequestScannerConfig){
+		func(c *contactRequestScannerConfig) { c.snapshotTypeName = "" },
+		func(c *contactRequestScannerConfig) { c.snapshotReaderName = "" },
+		func(c *contactRequestScannerConfig) { c.snapshotMethodName = "" },
+		func(c *contactRequestScannerConfig) { c.helperSymbolName = "" },
+		func(c *contactRequestScannerConfig) { c.callerName = "" },
+		func(c *contactRequestScannerConfig) { c.dataImportPath = "" },
+		func(c *contactRequestScannerConfig) { c.repositoryImportPath = "" },
+		func(c *contactRequestScannerConfig) { c.helperImportPath = "" },
+		func(c *contactRequestScannerConfig) { c.contractPath = "" },
+		func(c *contactRequestScannerConfig) { c.repositoryPath = "" },
+		func(c *contactRequestScannerConfig) { c.optionsPath = "" },
+		func(c *contactRequestScannerConfig) { c.addContactPath = "" },
+		func(c *contactRequestScannerConfig) { c.helperPath = "" },
+	}
+	for _, full := range []contactRequestScannerConfig{contactRequestFixtureScannerConfig(), job} {
+		helperName := pathpkg.Base(pathpkg.Dir(full.helperPath))
+		sources := []contactRequestSource{
+			{relativePath: full.helperPath, source: []byte("package " + helperName + "\nfunc Read(any, any) (any, error) { return nil, nil }\n")},
+			{relativePath: full.addContactPath, source: []byte("package post\nimport \"" + full.helperImportPath + "\"\nfunc " + full.callerName + "() { _, _ = " + helperName + ".Read(c.UserContext(), utilities." + full.snapshotReaderName + ") }\n")},
+		}
+		_, prepared := prepareContactRequestScanContext(sources, full)
+		if !contactRequestScannerConfigIsComplete(full) || !prepared || !contactRequestHelperReferencesAreApproved(sources, full) {
+			t.Fatal("complete scanner config was rejected")
+		}
+		for _, clear := range clearFields {
+			broken := full
+			clear(&broken)
+			_, prepared = prepareContactRequestScanContext(sources, broken)
+			_, counted := countContactRequestProductionReferences(sources, broken)
+			if contactRequestScannerConfigIsComplete(broken) || prepared || counted || contactRequestHelperReferencesAreApproved(sources, broken) {
+				t.Fatal("incomplete scanner config was accepted")
+			}
+		}
+		mixed := full
+		if mixed.snapshotTypeName == contactRequestSnapshotType {
+			mixed.snapshotTypeName = "JobApplicationWorkflowSnapshot"
+		} else {
+			mixed.snapshotTypeName = contactRequestSnapshotType
+		}
+		_, prepared = prepareContactRequestScanContext(sources, mixed)
+		if prepared || contactRequestHelperReferencesAreApproved(sources, mixed) {
+			t.Fatal("mixed scanner config was accepted")
+		}
+		for _, mutate := range []func(*contactRequestScannerConfig){
+			func(c *contactRequestScannerConfig) { c.dataImportPath = "example.invalid/other/data" },
+			func(c *contactRequestScannerConfig) { c.repositoryImportPath = "example.invalid/other/postgres" },
+			func(c *contactRequestScannerConfig) { c.helperImportPath = "example.invalid/other/" + helperName },
+			func(c *contactRequestScannerConfig) { c.helperSymbolName = "Other" },
+			func(c *contactRequestScannerConfig) { c.snapshotTypeName = "UnknownWorkflowSnapshot" },
+		} {
+			wrong := full
+			mutate(&wrong)
+			_, prepared = prepareContactRequestScanContext(sources, wrong)
+			if prepared || contactRequestHelperReferencesAreApproved(sources, wrong) {
+				t.Fatal("inconsistent scanner config was accepted")
+			}
+		}
+	}
+	_, prepared := prepareContactRequestScanContext(nil, contactRequestScannerConfig{})
+	_, counted := countContactRequestProductionReferences(nil, contactRequestScannerConfig{})
+	if prepared || counted || contactRequestHelperReferencesAreApproved(nil, contactRequestScannerConfig{}) {
+		t.Fatal("zero scanner config was accepted")
+	}
 }
 
 type contactRequestSource struct {
@@ -104,16 +224,7 @@ func TestContactRequestWorkflowSnapshotHasOnlyApprovedProductionWiring(t *testin
 }
 
 func TestContactRequestProductionReferenceScannerFixtures(t *testing.T) {
-	config := contactRequestScannerConfig{
-		dataImportPath:       "models/data",
-		repositoryImportPath: "database/postgres",
-		helperImportPath:     "post/contactrequestsnapshot",
-		contractPath:         "models/data/contact_request_workflow_snapshot.go",
-		repositoryPath:       "database/postgres/contact_request_workflow_snapshot.go",
-		optionsPath:          "database/postgres/options.go",
-		addContactPath:       "controllers/post/post.go",
-		helperPath:           "controllers/post/contactrequestsnapshot/decision.go",
-	}
+	config := contactRequestFixtureScannerConfig()
 	positive := []contactRequestSource{
 		{relativePath: "consumer/default.go", source: []byte(`package consumer
 import "models/data"
@@ -794,11 +905,7 @@ func AddContactRequest() func() {
 }
 
 func TestContactRequestHelperReferenceScannerFixtures(t *testing.T) {
-	config := contactRequestScannerConfig{
-		helperImportPath: "post/contactrequestsnapshot",
-		addContactPath:   "controllers/post/post.go",
-		helperPath:       "controllers/post/contactrequestsnapshot/decision.go",
-	}
+	config := contactRequestFixtureScannerConfig()
 	approved := []contactRequestSource{
 		{relativePath: config.helperPath, source: []byte(`package contactrequestsnapshot
 func Read(any, any) (any, error) { return nil, nil }`)},
@@ -1046,6 +1153,9 @@ func hasOnlyApprovedContactRequestHelperReferences(root string) bool {
 }
 
 func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, config contactRequestScannerConfig) bool {
+	if !contactRequestScannerConfigIsComplete(config) {
+		return false
+	}
 	parsed := []contactRequestParsedSource{}
 	var helperDeclaration *ast.FuncDecl
 	for _, source := range sources {
@@ -1058,12 +1168,12 @@ func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, c
 		}
 		parsedSource := contactRequestParsedSource{relativePath: source.relativePath, file: file}
 		parsed = append(parsed, parsedSource)
-		if source.relativePath != config.helperPath || file.Name.Name != "contactrequestsnapshot" {
+		if source.relativePath != config.helperPath || file.Name.Name != pathpkg.Base(pathpkg.Dir(config.helperPath)) {
 			continue
 		}
 		for _, declaration := range file.Decls {
 			function, ok := declaration.(*ast.FuncDecl)
-			if !ok || function.Recv != nil || function.Name.Name != "Read" {
+			if !ok || function.Recv != nil || function.Name.Name != config.helperSymbolName {
 				continue
 			}
 			if helperDeclaration != nil {
@@ -1104,10 +1214,10 @@ func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, c
 			switch typed := node.(type) {
 			case *ast.SelectorExpr:
 				receiver, ok := typed.X.(*ast.Ident)
-				isReference = ok && typed.Sel.Name == "Read" && bindings.aliases[receiver.Name] && (receiver.Obj == nil || receiver.Obj.Kind == ast.Pkg)
+				isReference = ok && typed.Sel.Name == config.helperSymbolName && bindings.aliases[receiver.Name] && (receiver.Obj == nil || receiver.Obj.Kind == ast.Pkg)
 			case *ast.Ident:
-				if typed != helperDeclaration.Name && !selectorIdentifiers[typed] && !declarations[typed] && typed.Name == "Read" {
-					samePackage := contactRequestSourceIsPackage(source, pathpkg.Dir(config.helperPath), "contactrequestsnapshot")
+				if typed != helperDeclaration.Name && !selectorIdentifiers[typed] && !declarations[typed] && typed.Name == config.helperSymbolName {
+					samePackage := contactRequestSourceIsPackage(source, pathpkg.Dir(config.helperPath), pathpkg.Base(pathpkg.Dir(config.helperPath)))
 					isReference = (bindings.dot && typed.Obj == nil) || (samePackage && (typed.Obj == nil || typed.Obj.Decl == helperDeclaration))
 				}
 			}
@@ -1115,7 +1225,7 @@ func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, c
 				references++
 				call, callOK := parent.(*ast.CallExpr)
 				function := enclosingContactRequestFunction(stack)
-				if source.relativePath == config.addContactPath && callOK && call.Fun == node && function != nil && function.Name.Name == "AddContactRequest" && isExactContactRequestSnapshotCall(call) {
+				if source.relativePath == config.addContactPath && callOK && call.Fun == node && function != nil && function.Name.Name == config.callerName && contactRequestHelperCallIsExact(call, config) {
 					approved++
 				} else {
 					valid = false
@@ -1126,6 +1236,11 @@ func contactRequestHelperReferencesAreApproved(sources []contactRequestSource, c
 		})
 	}
 	return valid && references == 1 && approved == 1
+}
+
+func contactRequestHelperCallIsExact(call *ast.CallExpr, config contactRequestScannerConfig) bool {
+	helperName := pathpkg.Base(pathpkg.Dir(config.helperPath))
+	return contactRequestNodeText(call) == helperName+"."+config.helperSymbolName+"(c.UserContext(), utilities."+config.snapshotReaderName+")"
 }
 
 func contactRequestHelperImports(file *ast.File, helperImportPath string) contactRequestHelperImportBindings {
@@ -1395,12 +1510,19 @@ func contactRequestScannerConfigForWorkspace(root string) (contactRequestScanner
 		return contactRequestScannerConfig{}, false
 	}
 	return contactRequestScannerConfig{
+		snapshotTypeName:     contactRequestSnapshotType,
+		snapshotReaderName:   contactRequestSnapshotReader,
+		snapshotMethodName:   contactRequestSnapshotMethod,
+		helperSymbolName:     "Read",
+		callerName:           "AddContactRequest",
 		dataImportPath:       dataImportPath,
 		repositoryImportPath: repositoryImportPath,
+		helperImportPath:     "post/contactrequestsnapshot",
 		contractPath:         "models/data/contact_request_workflow_snapshot.go",
 		repositoryPath:       "database/postgres/contact_request_workflow_snapshot.go",
 		optionsPath:          "database/postgres/options.go",
 		addContactPath:       "controllers/post/post.go",
+		helperPath:           "controllers/post/contactrequestsnapshot/decision.go",
 	}, true
 }
 
@@ -1603,17 +1725,8 @@ func contactRequestSourceHasProductionDeclaration(path string, source []byte) bo
 }
 
 func prepareContactRequestScanContext(sources []contactRequestSource, config contactRequestScannerConfig) (contactRequestScanContext, bool) {
-	if config.snapshotTypeName == "" {
-		config.snapshotTypeName = contactRequestSnapshotType
-	}
-	if config.snapshotReaderName == "" {
-		config.snapshotReaderName = contactRequestSnapshotReader
-	}
-	if config.snapshotMethodName == "" {
-		config.snapshotMethodName = contactRequestSnapshotMethod
-	}
-	if config.callerName == "" {
-		config.callerName = "AddContactRequest"
+	if !contactRequestScannerConfigIsComplete(config) {
+		return contactRequestScanContext{}, false
 	}
 	context := contactRequestScanContext{
 		config:       config,

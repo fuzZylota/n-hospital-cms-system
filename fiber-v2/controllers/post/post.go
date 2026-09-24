@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"post/contactrequestresponsesnapshot"
 	"post/contactrequestsnapshot"
+	"post/jobapplicationsnapshot"
 	"post/notificationevent"
 	"post/notificationws"
 	"post/uploadpolicy"
@@ -3173,11 +3174,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err := GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color", "o.google_recaptcha_site_key", "o.google_recaptcha_secret_key",
-			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
-			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
+		jobApplicationSnapshot, err := jobapplicationsnapshot.Read(c.UserContext(), utilities.JobApplicationWorkflowSnapshotReader)
 
 		if err != nil {
 			log.Printf("operation=AddJobApplication stage=options_read")
@@ -3208,8 +3205,8 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		if GetOptions.Options.RecaptchaSiteKey != "" && GetOptions.Options.RecaptchaSecretKey != "" {
-			if !lib.VerifyRecaptcha(inputs.RecaptchaToken, GetOptions.Options.RecaptchaSecretKey) {
+		if jobApplicationSnapshot.RecaptchaSiteKey != "" && jobApplicationSnapshot.RecaptchaSecretKey != "" {
+			if !lib.VerifyRecaptcha(inputs.RecaptchaToken, jobApplicationSnapshot.RecaptchaSecretKey) {
 				return c.JSON(fiber.Map{
 					"status":  400,
 					"message": "reCAPTCHA doğrulama hatası. Lütfen tekrar deneyin.",
@@ -3336,7 +3333,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 
 		if hasCV {
 			// File size validation
-			if cvInput.Size > GetOptions.Options.MaxUploadSize {
+			if cvInput.Size > jobApplicationSnapshot.MaxBytes {
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")
 			}
 
@@ -3401,15 +3398,15 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
-		emailConfigured := GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.Email != ""
+		emailConfigured := jobApplicationSnapshot.SMTPHost != "" && jobApplicationSnapshot.SMTPPort != 0 && jobApplicationSnapshot.SMTPUsername != "" && jobApplicationSnapshot.SMTPPassword != "" && inputs.Email != ""
 		if emailConfigured && RootDir == "" {
 			log.Printf("operation=AddJobApplication stage=message_build")
 		}
 		if emailConfigured && RootDir != "" {
 			GetLogo := ""
 
-			if (*GetOptions.Medias)[0].FilePath != "" {
-				GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+			if jobApplicationSnapshot.SiteLogoPath != "" {
+				GetLogo = filepath.Join(RootDir, "static", jobApplicationSnapshot.SiteLogoPath)
 			} else {
 				GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
 			}
@@ -3476,7 +3473,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		}
 		.info-box {
 			background-color: #f8f9fc;
-			border-left: 4px solid ` + GetOptions.Options.AccentColor + `;
+			border-left: 4px solid ` + jobApplicationSnapshot.AccentColor + `;
 			padding: 20px 25px;
 			margin: 25px 0;
 			border-radius: 6px;
@@ -3554,7 +3551,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			color: #555555;
 		}
 		.contact-info a {
-			color: ` + GetOptions.Options.PrimaryColor + `;
+			color: ` + jobApplicationSnapshot.PrimaryColor + `;
 			text-decoration: none;
 			font-weight: 600;
 		}
@@ -3570,7 +3567,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			margin: 5px 0;
 		}
 		.footer a {
-			color: ` + GetOptions.Options.PrimaryColor + `;
+			color: ` + jobApplicationSnapshot.PrimaryColor + `;
 			text-decoration: none;
 		}
 		.social-links {
@@ -3607,7 +3604,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 <body>
 	<div class="email-container">
 		<div class="header">
-			<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+			<img src="cid:` + LogoName + `" alt="` + jobApplicationSnapshot.SiteName + `" />
 			<h1>İş Başvurunuz Alındı</h1>
 		</div>
 		
@@ -3617,7 +3614,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			</div>
 			
 			<div class="message">
-				<strong>` + GetOptions.Options.SiteName + `</strong> ailesine gösterdiğiniz ilgi için teşekkür ederiz. 
+				<strong>` + jobApplicationSnapshot.SiteName + `</strong> ailesine gösterdiğiniz ilgi için teşekkür ederiz.` + " " + `
 				İş başvurunuz başarıyla tarafımıza ulaşmıştır ve insan kaynakları departmanımız tarafından 
 				titizlikle değerlendirilecektir.
 			</div>
@@ -3689,8 +3686,8 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			
 			<div class="contact-info">
 				<h3>📞 İletişim</h3>
-				<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-				<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+				<p><strong>Telefon:</strong> <a href="tel:` + jobApplicationSnapshot.ContactPhone + `">` + jobApplicationSnapshot.ContactPhone + `</a></p>
+				<p><strong>E-posta:</strong> <a href="mailto:` + jobApplicationSnapshot.ContactEmail + `">` + jobApplicationSnapshot.ContactEmail + `</a></p>
 			</div>
 			
 			<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
@@ -3700,32 +3697,32 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		</div>
 		
 		<div class="footer">
-			<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-			<p>` + GetOptions.Options.SiteDescription + `</p>
+			<p><strong>` + jobApplicationSnapshot.SiteName + `</strong></p>
+			<p>` + jobApplicationSnapshot.SiteDescription + `</p>
 			
 			<div class="social-links">`
 
-				if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+				if jobApplicationSnapshot.FacebookURL != "" && jobApplicationSnapshot.FacebookURL != "#" {
 					Html += `
-				<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+				<a href="` + jobApplicationSnapshot.FacebookURL + `">Facebook</a> |`
 				}
-				if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+				if jobApplicationSnapshot.TwitterURL != "" && jobApplicationSnapshot.TwitterURL != "#" {
 					Html += `
-				<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+				<a href="` + jobApplicationSnapshot.TwitterURL + `">Twitter</a> |`
 				}
-				if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+				if jobApplicationSnapshot.InstagramURL != "" && jobApplicationSnapshot.InstagramURL != "#" {
 					Html += `
-				<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+				<a href="` + jobApplicationSnapshot.InstagramURL + `">Instagram</a> |`
 				}
-				if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+				if jobApplicationSnapshot.LinkedInURL != "" && jobApplicationSnapshot.LinkedInURL != "#" {
 					Html += `
-				<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+				<a href="` + jobApplicationSnapshot.LinkedInURL + `">LinkedIn</a>`
 				}
 
 				Html += `
 			</div>
 			
-									<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
+									<p style="margin-top: 20px;">&copy; 2025 ` + jobApplicationSnapshot.SiteName + `. Tüm hakları saklıdır.</p>
 		</div>
 	</div>
 </body>
@@ -3733,13 +3730,13 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			CreateEmailInfos := models.EmailInfos{
-				From:        GetOptions.Options.SiteName,
+				From:        jobApplicationSnapshot.SiteName,
 				To:          []string{inputs.Email},
-				Username:    GetOptions.Options.SMTPUsername,
-				Password:    GetOptions.Options.SMTPPassword,
-				Host:        GetOptions.Options.SMTPHost,
-				Port:        lib.Int64(GetOptions.Options.SMTPPort),
-				Subject:     "İş Başvurunuz Alındı - " + GetOptions.Options.SiteName,
+				Username:    jobApplicationSnapshot.SMTPUsername,
+				Password:    jobApplicationSnapshot.SMTPPassword,
+				Host:        jobApplicationSnapshot.SMTPHost,
+				Port:        lib.Int64(jobApplicationSnapshot.SMTPPort),
+				Subject:     "İş Başvurunuz Alındı - " + jobApplicationSnapshot.SiteName,
 				PlainText:   "Sayın " + inputs.FirstName + " " + inputs.LastName + ", iş başvurunuz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
 				Body:        Html,
 				Attachments: []string{GetLogo},
