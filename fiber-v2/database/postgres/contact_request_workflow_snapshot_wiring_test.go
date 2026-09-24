@@ -77,6 +77,11 @@ func contactRequestScannerConfigIsComplete(config contactRequestScannerConfig) b
 			config.callerName == "AddJobApplication" && config.contractPath == "models/data/job_application_workflow_snapshot.go" &&
 			config.repositoryPath == "database/postgres/job_application_workflow_snapshot.go" &&
 			config.helperPath == "controllers/post/jobapplicationsnapshot/decision.go" && config.helperImportPath == "post/jobapplicationsnapshot"
+	case "JobApplicationResponseWorkflowSnapshot":
+		return config.snapshotReaderName == "JobApplicationResponseWorkflowSnapshotReader" && config.snapshotMethodName == "ReadJobApplicationResponseWorkflowSnapshot" &&
+			config.callerName == "RespondToJobApplication" && config.contractPath == "models/data/job_application_response_workflow_snapshot.go" &&
+			config.repositoryPath == "database/postgres/job_application_response_workflow_snapshot.go" &&
+			config.helperPath == "controllers/post/jobapplicationresponsesnapshot/decision.go" && config.helperImportPath == "post/jobapplicationresponsesnapshot"
 	}
 	return false
 }
