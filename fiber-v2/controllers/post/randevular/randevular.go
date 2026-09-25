@@ -578,7 +578,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				permRows, readErr := CheckPerm.Rows()
 				return readErr == nil && len(permRows) > 0
 			})); publishErr != nil {
-				log.Print("notification: publication failed")
+				log.Printf("operation=AddRandevuRequest stage=notification_publish")
 			}
 		}(lib.String(rrid))
 		return c.JSON(fiber.Map{
