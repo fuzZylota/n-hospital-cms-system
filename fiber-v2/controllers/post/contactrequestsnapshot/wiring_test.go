@@ -122,7 +122,7 @@ func TestAddContactRequestOwnedSnapshotWiring(t *testing.T) {
 func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 	root := workspaceRoot(t)
 	wanted := map[string]int{
-		"RespondToJobApplication": 1,
+		"RespondToJobApplication": 0,
 		"AddRandevuRequest":       1,
 		"AddRandevu":              1,
 		"EditRandevu":             1,
@@ -134,7 +134,11 @@ func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 		}
 		for _, declaration := range file.Decls {
 			function, ok := declaration.(*ast.FuncDecl)
-			if !ok || wanted[function.Name.Name] == 0 {
+			if !ok {
+				continue
+			}
+			want, tracked := wanted[function.Name.Name]
+			if !tracked || want < 0 {
 				continue
 			}
 			count := 0
@@ -148,7 +152,7 @@ func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 				}
 				return true
 			})
-			if count != 1 {
+			if count != want {
 				t.Fatal("approved legacy mail or CAPTCHA caller changed")
 			}
 			wanted[function.Name.Name] = -1

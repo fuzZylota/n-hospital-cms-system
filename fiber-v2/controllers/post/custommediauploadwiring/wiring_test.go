@@ -596,23 +596,26 @@ func TestAddCustomMediaLegacyBehaviorEnvelope(t *testing.T) {
 	}
 }
 
-func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
+func TestMailAndCaptchaCallerInventory(t *testing.T) {
 	postFile := parseFile(t, sourcePath(t, "..", "post.go"))
 	randevularFile := parseFile(t, sourcePath(t, "..", "randevular", "randevular.go"))
 	tests := []struct {
-		file *ast.File
-		name string
+		file       *ast.File
+		name       string
+		wantLegacy int
+		wantOwned  int
 	}{
-		{postFile, "RespondToJobApplication"},
-		{randevularFile, "AddRandevu"},
-		{randevularFile, "AddRandevuRequest"},
-		{randevularFile, "EditRandevu"},
+		{postFile, "RespondToJobApplication", 0, 1},
+		{randevularFile, "AddRandevu", 1, 0},
+		{randevularFile, "AddRandevuRequest", 1, 0},
+		{randevularFile, "EditRandevu", 1, 0},
 	}
 
 	for _, test := range tests {
 		fn := function(t, test.file, test.name)
 		legacyCalls := 0
 		contactSnapshotCalls := 0
+		responseSnapshotCalls := 0
 		ast.Inspect(fn, func(node ast.Node) bool {
 			call, ok := node.(*ast.CallExpr)
 			if !ok {
@@ -623,10 +626,12 @@ func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
 				legacyCalls++
 			case "contactrequestsnapshot.Read":
 				contactSnapshotCalls++
+			case "jobapplicationresponsesnapshot.Read":
+				responseSnapshotCalls++
 			}
 			return true
 		})
-		if legacyCalls != 1 || contactSnapshotCalls != 0 {
+		if legacyCalls != test.wantLegacy || responseSnapshotCalls != test.wantOwned || contactSnapshotCalls != 0 {
 			t.Fatal("mail/CAPTCHA legacy caller changed")
 		}
 	}
@@ -652,7 +657,7 @@ func TestMailAndCaptchaLegacyCallersRemain(t *testing.T) {
 	}
 
 	backendCalls, legacyTotal, ok := productionLegacyOptionCallInventory(t)
-	if !ok || backendCalls != 8 || legacyTotal != 110 {
+	if !ok || backendCalls != 7 || legacyTotal != 109 {
 		t.Fatal("global legacy options caller inventory changed")
 	}
 }

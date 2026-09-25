@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"post/contactrequestresponsesnapshot"
 	"post/contactrequestsnapshot"
+	"post/jobapplicationresponsesnapshot"
 	"post/jobapplicationsnapshot"
 	"post/notificationevent"
 	"post/notificationws"
@@ -4108,12 +4109,11 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 			Email:     lib.String(row["email"]),
 		}
 
-		// 2. Fetch options for backend
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color",
-			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
-			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
+		// 2. Read the active options needed to respond.
+		jobApplicationResponseSnapshot, err := jobapplicationresponsesnapshot.Read(
+			c.UserContext(),
+			utilities.JobApplicationResponseWorkflowSnapshotReader,
+		)
 
 		if err != nil {
 			log.Printf("operation=RespondToJobApplication stage=options_read")
@@ -4123,7 +4123,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		if GetOptions.Options.SMTPHost == "" || GetOptions.Options.SMTPPort == 0 || GetOptions.Options.SMTPUsername == "" || GetOptions.Options.SMTPPassword == "" || GetOptions.Options.SiteName == "" {
+		if jobApplicationResponseSnapshot.SMTPHost == "" || jobApplicationResponseSnapshot.SMTPPort == 0 || jobApplicationResponseSnapshot.SMTPUsername == "" || jobApplicationResponseSnapshot.SMTPPassword == "" || jobApplicationResponseSnapshot.SiteName == "" {
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "E-posta bilgileriniz girilmemişse e-posta gönderemezsiniz.",
@@ -4141,8 +4141,8 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		if (*GetOptions.Medias)[0].FilePath != "" {
-			GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+		if jobApplicationResponseSnapshot.SiteLogoPath != "" {
+			GetLogo = filepath.Join(RootDir, "static", jobApplicationResponseSnapshot.SiteLogoPath)
 		} else {
 			GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
 		}
@@ -4210,7 +4210,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 							}
 							.response-box {
 								background-color: #f8f9fc;
-								border-left: 4px solid ` + GetOptions.Options.PrimaryColor + `;
+								border-left: 4px solid ` + jobApplicationResponseSnapshot.PrimaryColor + `;
 								padding: 20px 25px;
 								margin: 25px 0;
 								border-radius: 6px;
@@ -4262,7 +4262,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 								color: #555555;
 							}
 							.contact-info a {
-								color: ` + GetOptions.Options.PrimaryColor + `;
+								color: ` + jobApplicationResponseSnapshot.PrimaryColor + `;
 								text-decoration: none;
 								font-weight: 600;
 							}
@@ -4278,7 +4278,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 								margin: 5px 0;
 							}
 							.footer a {
-								color: ` + GetOptions.Options.PrimaryColor + `;
+								color: ` + jobApplicationResponseSnapshot.PrimaryColor + `;
 								text-decoration: none;
 							}
 							.social-links {
@@ -4308,7 +4308,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 					<body>
 						<div class="email-container">
 							<div class="header">
-								<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+								<img src="cid:` + LogoName + `" alt="` + jobApplicationResponseSnapshot.SiteName + `" />
 								<h1>` + inputs.Title + `</h1>
 							</div>
 							
@@ -4318,7 +4318,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 								</div>
 								
 								<div class="message">
-									<strong>` + GetOptions.Options.SiteName + `</strong> İletişim ekibimiz tarafından size aşağıdaki gibi cevap verilmiştir.
+									<strong>` + jobApplicationResponseSnapshot.SiteName + `</strong> İletişim ekibimiz tarafından size aşağıdaki gibi cevap verilmiştir.
 								</div>
 								
 								<div class="response-box">
@@ -4331,48 +4331,48 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 								<div class="responder-info">
 									<h3>👤 Cevap Veren</h3>
 									<p><strong>` + inputs.ResponderName + `</strong></p>
-									<p>` + GetOptions.Options.SiteName + ` İnsan Kaynakları Ekibi</p>
+									<p>` + jobApplicationResponseSnapshot.SiteName + ` İnsan Kaynakları Ekibi</p>
 								</div>
 								
 								<div class="contact-info">
 									<h3>📞 Bize Ulaşın</h3>
-									<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-									<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+									<p><strong>Telefon:</strong> <a href="tel:` + jobApplicationResponseSnapshot.ContactPhone + `">` + jobApplicationResponseSnapshot.ContactPhone + `</a></p>
+									<p><strong>E-posta:</strong> <a href="mailto:` + jobApplicationResponseSnapshot.ContactEmail + `">` + jobApplicationResponseSnapshot.ContactEmail + `</a></p>
 								</div>
 								
 								<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
-									Bu e-posta ` + GetOptions.Options.SiteName + ` İnsan Kaynakları ekibi tarafından gönderilmiştir. 
+									Bu e-posta ` + jobApplicationResponseSnapshot.SiteName + ` İnsan Kaynakları ekibi tarafından gönderilmiştir.` + " " + `
 									Sorularınız için yukarıdaki iletişim bilgilerini kullanabilirsiniz.
 								</div>
 							</div>
 							
 							<div class="footer">
-								<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-								<p>` + GetOptions.Options.SiteDescription + `</p>
+								<p><strong>` + jobApplicationResponseSnapshot.SiteName + `</strong></p>
+								<p>` + jobApplicationResponseSnapshot.SiteDescription + `</p>
 								
 								<div class="social-links">`
 
-			if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+			if jobApplicationResponseSnapshot.FacebookURL != "" && jobApplicationResponseSnapshot.FacebookURL != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+									<a href="` + jobApplicationResponseSnapshot.FacebookURL + `">Facebook</a> |`
 			}
-			if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+			if jobApplicationResponseSnapshot.TwitterURL != "" && jobApplicationResponseSnapshot.TwitterURL != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+									<a href="` + jobApplicationResponseSnapshot.TwitterURL + `">Twitter</a> |`
 			}
-			if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+			if jobApplicationResponseSnapshot.InstagramURL != "" && jobApplicationResponseSnapshot.InstagramURL != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+									<a href="` + jobApplicationResponseSnapshot.InstagramURL + `">Instagram</a> |`
 			}
-			if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+			if jobApplicationResponseSnapshot.LinkedInURL != "" && jobApplicationResponseSnapshot.LinkedInURL != "#" {
 				Html += `
-									<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+									<a href="` + jobApplicationResponseSnapshot.LinkedInURL + `">LinkedIn</a>`
 			}
 
 			Html += `
 								</div>
 								
-								<p style="margin-top: 20px;">&copy; 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
+								<p style="margin-top: 20px;">&copy; 2025 ` + jobApplicationResponseSnapshot.SiteName + `. Tüm hakları saklıdır.</p>
 							</div>
 						</div>
 					</body>
@@ -4380,13 +4380,13 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 		}
 
 		CreateEmailInfos := models.EmailInfos{
-			From:        GetOptions.Options.SiteName,
+			From:        jobApplicationResponseSnapshot.SiteName,
 			To:          []string{JobApplicationData.Email},
-			Username:    GetOptions.Options.SMTPUsername,
-			Password:    GetOptions.Options.SMTPPassword,
-			Host:        GetOptions.Options.SMTPHost,
-			Port:        lib.Int64(GetOptions.Options.SMTPPort),
-			Subject:     inputs.Title + " - " + GetOptions.Options.SiteName,
+			Username:    jobApplicationResponseSnapshot.SMTPUsername,
+			Password:    jobApplicationResponseSnapshot.SMTPPassword,
+			Host:        jobApplicationResponseSnapshot.SMTPHost,
+			Port:        lib.Int64(jobApplicationResponseSnapshot.SMTPPort),
+			Subject:     inputs.Title + " - " + jobApplicationResponseSnapshot.SiteName,
 			PlainText:   "Sayın " + JobApplicationData.FirstName + " " + JobApplicationData.LastName + ", " + inputs.ResponderName + " tarafından hazırlanan cevabımız: " + inputs.ResponseText,
 			Body:        Html,
 			Attachments: []string{GetLogo},
