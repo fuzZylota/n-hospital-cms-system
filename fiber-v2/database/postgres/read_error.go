@@ -22,6 +22,7 @@ const (
 	readJobApplicationWorkflowSnapshot
 	readUserStatus
 	readJobApplicationResponseWorkflowSnapshot
+	readAppointmentRequestWorkflowSnapshot
 )
 
 type readStage uint8
@@ -92,6 +93,8 @@ func (e *repositoryReadError) operationText() string {
 		return "job application workflow snapshot"
 	case readJobApplicationResponseWorkflowSnapshot:
 		return "job application response workflow snapshot"
+	case readAppointmentRequestWorkflowSnapshot:
+		return "appointment request workflow snapshot"
 	case readUserStatus:
 		return "user status"
 	default:
