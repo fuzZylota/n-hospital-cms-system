@@ -124,7 +124,7 @@ func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 	wanted := map[string]int{
 		"RespondToJobApplication": 0,
 		"AddRandevuRequest":       0,
-		"AddRandevu":              1,
+		"AddRandevu":              0,
 		"EditRandevu":             1,
 	}
 	for _, relative := range []string{"controllers/post/post.go", "controllers/post/randevular/randevular.go"} {

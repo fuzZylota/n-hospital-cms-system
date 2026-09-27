@@ -52,6 +52,7 @@ type Utilities struct {
 	JobApplicationWorkflowSnapshotReader         data.JobApplicationWorkflowSnapshotReader
 	JobApplicationResponseWorkflowSnapshotReader data.JobApplicationResponseWorkflowSnapshotReader
 	AppointmentRequestWorkflowSnapshotReader     data.AppointmentRequestWorkflowSnapshotReader
+	AppointmentWorkflowSnapshotReader            data.AppointmentWorkflowSnapshotReader
 	// Limiter
 }
 

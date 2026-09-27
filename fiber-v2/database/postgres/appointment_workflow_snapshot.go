@@ -41,8 +41,8 @@ type appointmentWorkflowSnapshotRow struct {
 	siteLogoPath   sql.NullString
 }
 
-// ReadAppointmentWorkflowSnapshot is currently unwired: no production caller
-// uses this reader. Its selected values come from one active options row.
+// ReadAppointmentWorkflowSnapshot returns the appointment workflow inputs
+// from one active options row.
 func (r *OptionsRepository) ReadAppointmentWorkflowSnapshot(ctx context.Context) (data.AppointmentWorkflowSnapshot, bool, error) {
 	var row appointmentWorkflowSnapshotRow
 	firstRow := true
