@@ -88,6 +88,7 @@ func run() error {
 			utilities.ContactRequestResponseWorkflowSnapshotReader = optionsRepository
 			utilities.JobApplicationWorkflowSnapshotReader = optionsRepository
 			utilities.JobApplicationResponseWorkflowSnapshotReader = optionsRepository
+			utilities.AppointmentRequestWorkflowSnapshotReader = optionsRepository
 			userStatusReader = postgres.NewUserStatusRepository(pool)
 			return func() {
 				if err := pool.Close(); err != nil {

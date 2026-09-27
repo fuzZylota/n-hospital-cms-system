@@ -123,7 +123,7 @@ func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 	root := workspaceRoot(t)
 	wanted := map[string]int{
 		"RespondToJobApplication": 0,
-		"AddRandevuRequest":       1,
+		"AddRandevuRequest":       0,
 		"AddRandevu":              1,
 		"EditRandevu":             1,
 	}

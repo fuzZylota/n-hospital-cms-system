@@ -1929,7 +1929,7 @@ func targetLogSignature(file *ast.File, target *ast.FuncDecl, fset *token.FileSe
 }
 
 var workflowLogSignatures = map[string]string{
-	"AddRandevuRequest":       "880c57c9185b6935e8a3a52d4f12558b8c754694613cb578b935a5c9e3b88f79",
+	"AddRandevuRequest":       "c0680d6fe00e620f6d2695a6d506a85b30057efd1cfb84a3f84210d890d523b2",
 	"AddRandevu":              "054cb39997803aef7370bdd1f3960992c2ccaf5cf9919ad63eb61087191934e7",
 	"EditRandevu":             "7b773c0fe0526dd85e8718f66ec8c1fe8485521ea909066c592aa829404b336e",
 	"AddContactRequest":       "580b63ae0ae288b1256a1db75a920d05b0a10ff53e0059057536179d8f746c31",

@@ -9,6 +9,7 @@ import (
 	"models/notify"
 	"os"
 	"path/filepath"
+	"post/appointmentrequestsnapshot"
 	"post/notificationevent"
 	"time"
 
@@ -35,11 +36,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err := GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color", "o.google_recaptcha_site_key", "o.google_recaptcha_secret_key",
-			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
-			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
+		appointmentSnapshot, err := appointmentrequestsnapshot.Read(c.UserContext(), utilities.AppointmentRequestWorkflowSnapshotReader)
 
 		if err != nil {
 			log.Printf("operation=AddRandevuRequest stage=options_read")
@@ -70,8 +67,8 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		if GetOptions.Options.RecaptchaSiteKey != "" && GetOptions.Options.RecaptchaSecretKey != "" {
-			if !lib.VerifyRecaptcha(inputs.RecaptchaToken, GetOptions.Options.RecaptchaSecretKey) {
+		if appointmentSnapshot.RecaptchaSiteKey != "" && appointmentSnapshot.RecaptchaSecretKey != "" {
+			if !lib.VerifyRecaptcha(inputs.RecaptchaToken, appointmentSnapshot.RecaptchaSecretKey) {
 				return c.JSON(fiber.Map{
 					"status":  400,
 					"message": "reCAPTCHA doğrulama hatası. Lütfen tekrar deneyin.",
@@ -122,7 +119,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		if GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.PatientEmail != "" {
+		if appointmentSnapshot.SMTPHost != "" && appointmentSnapshot.SMTPPort != 0 && appointmentSnapshot.SMTPUsername != "" && appointmentSnapshot.SMTPPassword != "" && inputs.PatientEmail != "" {
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 			if RootDir == "" {
 				log.Printf("operation=AddRandevuRequest stage=message_build")
@@ -130,8 +127,8 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 
 			GetLogo := ""
 
-			if (*GetOptions.Medias)[0].FilePath != "" {
-				GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+			if appointmentSnapshot.SiteLogoPath != "" {
+				GetLogo = filepath.Join(RootDir, "static", appointmentSnapshot.SiteLogoPath)
 			} else {
 				GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
 			}
@@ -208,7 +205,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 						}
 						.info-box {
 							background-color: #f8f9fc;
-							border-left: 4px solid ` + GetOptions.Options.AccentColor + `;
+							border-left: 4px solid ` + appointmentSnapshot.AccentColor + `;
 							padding: 20px 25px;
 							margin: 25px 0;
 							border-radius: 6px;
@@ -264,13 +261,13 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 						.appointment-date {
 							font-size: 24px;
 							font-weight: 700;
-							color: ` + GetOptions.Options.PrimaryColor + `;
+							color: ` + appointmentSnapshot.PrimaryColor + `;
 							margin: 10px 0;
 						}
 						.appointment-time {
 							font-size: 20px;
 							font-weight: 600;
-							color: ` + GetOptions.Options.SecondaryColor + `;
+							color: ` + appointmentSnapshot.SecondaryColor + `;
 							margin: 10px 0;
 						}
 						.next-steps {
@@ -327,7 +324,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 							color: #555555;
 						}
 						.contact-info a {
-							color: ` + GetOptions.Options.PrimaryColor + `;
+							color: ` + appointmentSnapshot.PrimaryColor + `;
 							text-decoration: none;
 							font-weight: 600;
 						}
@@ -343,7 +340,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 							margin: 5px 0;
 						}
 						.footer a {
-							color: ` + GetOptions.Options.PrimaryColor + `;
+							color: ` + appointmentSnapshot.PrimaryColor + `;
 							text-decoration: none;
 						}
 						.social-links {
@@ -386,7 +383,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				<body>
 					<div class="email-container">
 						<div class="header">
-							<img src="cid:` + LogoName + `" alt="` + GetOptions.Options.SiteName + `" />
+							<img src="cid:` + LogoName + `" alt="` + appointmentSnapshot.SiteName + `" />
 							<h1>Randevu Talebiniz Alındı</h1>
 							<div class="subtitle">Sağlığınız bizim önceliğimiz</div>
 						</div>
@@ -397,7 +394,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 							</div>
 							
 							<div class="message">
-								<strong>` + GetOptions.Options.SiteName + `</strong>'yi tercih ettiğiniz için teşekkür ederiz. 
+								<strong>` + appointmentSnapshot.SiteName + `</strong>'yi tercih ettiğiniz için teşekkür ederiz.
 								Randevu talebiniz başarıyla sistemimize kaydedilmiştir ve en kısa sürede değerlendirilerek 
 								size uygun bir randevu tarih ve saati belirlenecektir.
 							</div>
@@ -461,8 +458,8 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 							<div class="contact-info">
 								<h3>📞 Bize Ulaşın</h3>
 								<p>Randevunuzla ilgili sorularınız için:</p>
-								<p><strong>Telefon:</strong> <a href="tel:` + GetOptions.Options.ContactPhone + `">` + GetOptions.Options.ContactPhone + `</a></p>
-								<p><strong>E-posta:</strong> <a href="mailto:` + GetOptions.Options.ContactEmail + `">` + GetOptions.Options.ContactEmail + `</a></p>
+								<p><strong>Telefon:</strong> <a href="tel:` + appointmentSnapshot.ContactPhone + `">` + appointmentSnapshot.ContactPhone + `</a></p>
+								<p><strong>E-posta:</strong> <a href="mailto:` + appointmentSnapshot.ContactEmail + `">` + appointmentSnapshot.ContactEmail + `</a></p>
 							</div>
 							
 							<div class="message" style="margin-top: 30px; font-size: 15px; color: #666;">
@@ -472,34 +469,34 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 						</div>
 						
 						<div class="footer">
-							<p><strong>` + GetOptions.Options.SiteName + `</strong></p>
-							<p>` + GetOptions.Options.SiteDescription + `</p>
+							<p><strong>` + appointmentSnapshot.SiteName + `</strong></p>
+							<p>` + appointmentSnapshot.SiteDescription + `</p>
 							
 							<div class="social-links">`
 
-				if GetOptions.Options.FacebookUrl != "" && GetOptions.Options.FacebookUrl != "#" {
+				if appointmentSnapshot.FacebookURL != "" && appointmentSnapshot.FacebookURL != "#" {
 					Html += `
-								<a href="` + GetOptions.Options.FacebookUrl + `">Facebook</a> |`
+								<a href="` + appointmentSnapshot.FacebookURL + `">Facebook</a> |`
 				}
-				if GetOptions.Options.TwitterUrl != "" && GetOptions.Options.TwitterUrl != "#" {
+				if appointmentSnapshot.TwitterURL != "" && appointmentSnapshot.TwitterURL != "#" {
 					Html += `
-								<a href="` + GetOptions.Options.TwitterUrl + `">Twitter</a> |`
+								<a href="` + appointmentSnapshot.TwitterURL + `">Twitter</a> |`
 				}
-				if GetOptions.Options.InstagramUrl != "" && GetOptions.Options.InstagramUrl != "#" {
+				if appointmentSnapshot.InstagramURL != "" && appointmentSnapshot.InstagramURL != "#" {
 					Html += `
-								<a href="` + GetOptions.Options.InstagramUrl + `">Instagram</a> |`
+								<a href="` + appointmentSnapshot.InstagramURL + `">Instagram</a> |`
 				}
-				if GetOptions.Options.LinkedinUrl != "" && GetOptions.Options.LinkedinUrl != "#" {
+				if appointmentSnapshot.LinkedInURL != "" && appointmentSnapshot.LinkedInURL != "#" {
 					Html += `
-								<a href="` + GetOptions.Options.LinkedinUrl + `">LinkedIn</a>`
+								<a href="` + appointmentSnapshot.LinkedInURL + `">LinkedIn</a>`
 				}
 
 				Html += `
 							</div>
 							
-							<p style="margin-top: 20px;">© 2025 ` + GetOptions.Options.SiteName + `. Tüm hakları saklıdır.</p>
+							<p style="margin-top: 20px;">© 2025 ` + appointmentSnapshot.SiteName + `. Tüm hakları saklıdır.</p>
 							<p style="font-size: 11px; color: #999;">
-								Bu e-postayı almak istemiyorsanız, lütfen <a href="mailto:` + GetOptions.Options.ContactEmail + `">bizimle iletişime geçin</a>.
+								Bu e-postayı almak istemiyorsanız, lütfen <a href="mailto:` + appointmentSnapshot.ContactEmail + `">bizimle iletişime geçin</a>.
 							</p>
 						</div>
 					</div>
@@ -509,13 +506,13 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			CreateEmailInfos := models.EmailInfos{
-				From:        GetOptions.Options.SiteName,
+				From:        appointmentSnapshot.SiteName,
 				To:          []string{inputs.PatientEmail},
-				Username:    GetOptions.Options.SMTPUsername,
-				Password:    GetOptions.Options.SMTPPassword,
-				Host:        GetOptions.Options.SMTPHost,
-				Port:        lib.Int64(GetOptions.Options.SMTPPort),
-				Subject:     "Randevu Talebiniz Alındı - " + GetOptions.Options.SiteName,
+				Username:    appointmentSnapshot.SMTPUsername,
+				Password:    appointmentSnapshot.SMTPPassword,
+				Host:        appointmentSnapshot.SMTPHost,
+				Port:        lib.Int64(appointmentSnapshot.SMTPPort),
+				Subject:     "Randevu Talebiniz Alındı - " + appointmentSnapshot.SiteName,
 				PlainText:   "Sayın " + inputs.PatientFirstName + " " + inputs.PatientLastName + ", randevu talebiniz başarıyla alınmıştır. En kısa sürede sizinle iletişime geçeceğiz.",
 				Body:        Html,
 				Attachments: []string{GetLogo},

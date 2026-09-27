@@ -607,7 +607,7 @@ func TestMailAndCaptchaCallerInventory(t *testing.T) {
 	}{
 		{postFile, "RespondToJobApplication", 0, 1},
 		{randevularFile, "AddRandevu", 1, 0},
-		{randevularFile, "AddRandevuRequest", 1, 0},
+		{randevularFile, "AddRandevuRequest", 0, 0},
 		{randevularFile, "EditRandevu", 1, 0},
 	}
 
@@ -657,7 +657,7 @@ func TestMailAndCaptchaCallerInventory(t *testing.T) {
 	}
 
 	backendCalls, legacyTotal, ok := productionLegacyOptionCallInventory(t)
-	if !ok || backendCalls != 7 || legacyTotal != 109 {
+	if !ok || backendCalls != 6 || legacyTotal != 108 {
 		t.Fatal("global legacy options caller inventory changed")
 	}
 }

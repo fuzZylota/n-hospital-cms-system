@@ -68,6 +68,7 @@ func jobApplicationResponseMainInjectionIsExact(source []byte) bool {
 		"OptionMediaMutationSnapshotReader": true, "ContactRequestWorkflowSnapshotReader": true,
 		"ContactRequestResponseWorkflowSnapshotReader": true, "JobApplicationWorkflowSnapshotReader": true,
 		"JobApplicationResponseWorkflowSnapshotReader": true,
+		"AppointmentRequestWorkflowSnapshotReader":     true,
 	}
 	seen := map[string]int{}
 	valid := true
@@ -370,7 +371,7 @@ func jobApplicationResponseOwnedCallbackIsDirect(run *ast.FuncDecl, utilities, r
 			}
 		}
 	}
-	if owned == nil || len(owned.Body.List) != 13 {
+	if owned == nil || len(owned.Body.List) != 14 {
 		return false
 	}
 	if contactRequestNodeText(owned.Body.List[0]) != "pool, err := postgres.OpenPool(ctx, config.dsn)" ||
@@ -386,7 +387,7 @@ func jobApplicationResponseOwnedCallbackIsDirect(run *ast.FuncDecl, utilities, r
 	if !ok || name.Name != "optionsRepository" || name.Obj != repository {
 		return false
 	}
-	fields := []string{"UploadPolicyReader", "PasswordPolicyReader", "OptionMediaMutationSnapshotReader", "ContactRequestWorkflowSnapshotReader", "ContactRequestResponseWorkflowSnapshotReader", "JobApplicationWorkflowSnapshotReader", "JobApplicationResponseWorkflowSnapshotReader"}
+	fields := []string{"UploadPolicyReader", "PasswordPolicyReader", "OptionMediaMutationSnapshotReader", "ContactRequestWorkflowSnapshotReader", "ContactRequestResponseWorkflowSnapshotReader", "JobApplicationWorkflowSnapshotReader", "JobApplicationResponseWorkflowSnapshotReader", "AppointmentRequestWorkflowSnapshotReader"}
 	for index, field := range fields {
 		assignment, ok := owned.Body.List[index+4].(*ast.AssignStmt)
 		if !ok || assignment.Tok != token.ASSIGN || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 {
@@ -402,8 +403,8 @@ func jobApplicationResponseOwnedCallbackIsDirect(run *ast.FuncDecl, utilities, r
 			return false
 		}
 	}
-	return contactRequestNodeText(owned.Body.List[11]) == "userStatusReader = postgres.NewUserStatusRepository(pool)" &&
-		strings.HasPrefix(contactRequestNodeText(owned.Body.List[12]), "return func() {")
+	return contactRequestNodeText(owned.Body.List[12]) == "userStatusReader = postgres.NewUserStatusRepository(pool)" &&
+		strings.HasPrefix(contactRequestNodeText(owned.Body.List[13]), "return func() {")
 }
 
 func TestJobApplicationResponseMainBindingIdentity(t *testing.T) {

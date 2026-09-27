@@ -280,7 +280,7 @@ func jobApplicationResponseExpectedReferenceNodes(context contactRequestScanCont
 					continue
 				}
 				owned, ok := field.Value.(*ast.FuncLit)
-				if !ok || len(owned.Body.List) != 13 {
+				if !ok || len(owned.Body.List) != 14 {
 					return nil, false
 				}
 				assignment, ok := owned.Body.List[10].(*ast.AssignStmt)

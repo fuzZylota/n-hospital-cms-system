@@ -745,7 +745,7 @@ func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 		"AddContactRequest":       {path: "controllers/post/post.go"},
 		"AddJobApplication":       {path: "controllers/post/post.go"},
 		"RespondToJobApplication": {path: "controllers/post/post.go"},
-		"AddRandevuRequest":       {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},
+		"AddRandevuRequest":       {path: "controllers/post/randevular/randevular.go"},
 		"AddRandevu":              {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},
 		"EditRandevu":             {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},
 	}
