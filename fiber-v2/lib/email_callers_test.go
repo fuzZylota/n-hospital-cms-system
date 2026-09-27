@@ -11,6 +11,7 @@ import (
 	"go/token"
 	"go/types"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -142,6 +143,1138 @@ func TestEmailCallerLogsContainOnlySafeMetadata(t *testing.T) {
 		if !cvHelperDiagnosticSafe(libFile, name) {
 			t.Fatal("CV helper must return, not log, filesystem errors")
 		}
+	}
+}
+
+const removedDisplayInputSymbol = "DisplayInputInfosOnTerminal"
+
+func astParents(root ast.Node) map[ast.Node]ast.Node {
+	parents := map[ast.Node]ast.Node{}
+	var stack []ast.Node
+	ast.Inspect(root, func(node ast.Node) bool {
+		if node == nil {
+			stack = stack[:len(stack)-1]
+			return false
+		}
+		if len(stack) > 0 {
+			parents[node] = stack[len(stack)-1]
+		}
+		stack = append(stack, node)
+		return true
+	})
+	return parents
+}
+
+func nodeString(fset *token.FileSet, node ast.Node) string {
+	if node == nil {
+		return ""
+	}
+	var output bytes.Buffer
+	if format.Node(&output, fset, node) != nil {
+		return ""
+	}
+	return output.String()
+}
+
+func exactString(expression ast.Expr, want string) bool {
+	literal, ok := expression.(*ast.BasicLit)
+	if !ok || literal.Kind != token.STRING {
+		return false
+	}
+	value, err := strconv.Unquote(literal.Value)
+	return err == nil && value == want
+}
+
+func exactFieldName(expression ast.Expr, want string) bool {
+	identifier, ok := expression.(*ast.Ident)
+	return ok && identifier.Name == want
+}
+
+func exactInteger(expression ast.Expr, want string) bool {
+	literal, ok := expression.(*ast.BasicLit)
+	return ok && literal.Kind == token.INT && literal.Value == want
+}
+
+func boundIdentifier(expression ast.Expr, object *ast.Object, name string) bool {
+	identifier, ok := expression.(*ast.Ident)
+	return ok && identifier.Name == name && identifier.Obj == object && object != nil
+}
+
+func canonicalImportIdentifier(file *ast.File, identifier *ast.Ident, importPath string) bool {
+	if file == nil || identifier == nil {
+		return false
+	}
+	for _, specification := range file.Imports {
+		path, err := strconv.Unquote(specification.Path.Value)
+		if err != nil || path != importPath {
+			continue
+		}
+		name := filepath.Base(importPath)
+		if importPath == "github.com/gofiber/fiber/v2" {
+			name = "fiber"
+		}
+		if specification.Name != nil {
+			if specification.Name.Name == "." || specification.Name.Name == "_" {
+				continue
+			}
+			name = specification.Name.Name
+		}
+		if identifier.Name != name {
+			continue
+		}
+		return identifier.Obj == nil || identifier.Obj.Kind == ast.Pkg && identifier.Obj.Decl == specification
+	}
+	return false
+}
+
+func canonicalPackageCall(file *ast.File, expression ast.Expr, importPath, method string) (*ast.CallExpr, bool) {
+	call, ok := expression.(*ast.CallExpr)
+	if !ok {
+		return nil, false
+	}
+	selector, ok := unparen(call.Fun).(*ast.SelectorExpr)
+	if !ok || selector.Sel.Name != method {
+		return nil, false
+	}
+	receiver, ok := selector.X.(*ast.Ident)
+	return call, ok && canonicalImportIdentifier(file, receiver, importPath)
+}
+
+func boundMethodCall(expression ast.Expr, receiverObject *ast.Object, receiverName, method string) (*ast.CallExpr, bool) {
+	call, ok := expression.(*ast.CallExpr)
+	if !ok {
+		return nil, false
+	}
+	selector, ok := unparen(call.Fun).(*ast.SelectorExpr)
+	if !ok || selector.Sel.Name != method || !boundIdentifier(selector.X, receiverObject, receiverName) {
+		return nil, false
+	}
+	return call, true
+}
+
+func exactSingleAssignment(statement ast.Stmt, name string, rhs func(ast.Expr) bool) (*ast.Object, bool) {
+	assignment, ok := statement.(*ast.AssignStmt)
+	if !ok || assignment.Tok != token.DEFINE || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 {
+		return nil, false
+	}
+	identifier, ok := assignment.Lhs[0].(*ast.Ident)
+	if !ok || identifier.Name != name || identifier.Obj == nil || !rhs(assignment.Rhs[0]) {
+		return nil, false
+	}
+	return identifier.Obj, true
+}
+
+func uniqueDirectAssignment(block *ast.BlockStmt, name string, rhs func(ast.Expr) bool) (*ast.AssignStmt, *ast.Object, int, bool) {
+	var found *ast.AssignStmt
+	var object *ast.Object
+	index := -1
+	for candidateIndex, statement := range block.List {
+		candidateObject, ok := exactSingleAssignment(statement, name, rhs)
+		if !ok {
+			continue
+		}
+		if found != nil {
+			return nil, nil, -1, false
+		}
+		found = statement.(*ast.AssignStmt)
+		object = candidateObject
+		index = candidateIndex
+	}
+	return found, object, index, found != nil
+}
+
+func uniqueErrorObject(file *ast.File, handler *ast.FuncLit, cObject *ast.Object) (*ast.Object, bool) {
+	var result *ast.Object
+	for _, statement := range handler.Body.List {
+		assignment, ok := statement.(*ast.AssignStmt)
+		if !ok || assignment.Tok != token.DEFINE || len(assignment.Lhs) != 2 || len(assignment.Rhs) != 1 {
+			continue
+		}
+		first, firstOK := assignment.Lhs[0].(*ast.Ident)
+		failure, failureOK := assignment.Lhs[1].(*ast.Ident)
+		call, callOK := canonicalPackageCall(file, assignment.Rhs[0], "lib", "CheckAuth")
+		if !firstOK || first.Name != "ourUser" || !failureOK || failure.Name != "err" || failure.Obj == nil || !callOK || len(call.Args) != 1 || !boundIdentifier(call.Args[0], cObject, "c") {
+			continue
+		}
+		if result != nil {
+			return nil, false
+		}
+		result = failure.Obj
+	}
+	return result, result != nil
+}
+
+func noOtherBindingNamed(root ast.Node, name string, canonical *ast.Object) bool {
+	valid := true
+	ast.Inspect(root, func(node ast.Node) bool {
+		identifier, ok := node.(*ast.Ident)
+		if ok && identifier.Name == name && identifier.Obj != nil && identifier.Obj != canonical {
+			valid = false
+			return false
+		}
+		return valid
+	})
+	return valid
+}
+
+func boundSelectorCount(root ast.Node, object *ast.Object, receiverName, method string) int {
+	count := 0
+	ast.Inspect(root, func(node ast.Node) bool {
+		selector, ok := node.(*ast.SelectorExpr)
+		if ok && selector.Sel.Name == method && boundIdentifier(selector.X, object, receiverName) {
+			count++
+		}
+		return true
+	})
+	return count
+}
+
+func canonicalProducerUses(root ast.Node, object *ast.Object, name string, expected map[string]int) bool {
+	if object == nil {
+		return false
+	}
+	parents := astParents(root)
+	counts := map[string]int{}
+	valid := true
+	ast.Inspect(root, func(node ast.Node) bool {
+		identifier, ok := node.(*ast.Ident)
+		if !ok || identifier.Obj != object {
+			return true
+		}
+		parent := parents[identifier]
+		if parent == object.Decl {
+			return true
+		}
+		if field, ok := parent.(*ast.Field); ok && object.Decl == field {
+			return true
+		}
+		selector, ok := parent.(*ast.SelectorExpr)
+		if !ok || selector.X != identifier || identifier.Name != name || expected[selector.Sel.Name] == 0 {
+			valid = false
+			return false
+		}
+		call, ok := parents[selector].(*ast.CallExpr)
+		if !ok || unparen(call.Fun) != selector {
+			valid = false
+			return false
+		}
+		counts[selector.Sel.Name]++
+		return true
+	})
+	if !valid || len(counts) != len(expected) {
+		return false
+	}
+	for method, count := range expected {
+		if counts[method] != count {
+			return false
+		}
+	}
+	return true
+}
+
+func canonicalUtilitiesUses(root ast.Node, object *ast.Object) bool {
+	if object == nil {
+		return false
+	}
+	parents := astParents(root)
+	ormAssignments := map[string]int{}
+	var orm2Object *ast.Object
+	notificationHubs := 0
+	valid := true
+	ast.Inspect(root, func(node ast.Node) bool {
+		identifier, ok := node.(*ast.Ident)
+		if !ok || identifier.Obj != object {
+			return true
+		}
+		parent := parents[identifier]
+		if field, ok := parent.(*ast.Field); ok && object.Decl == field {
+			return true
+		}
+		selector, ok := parent.(*ast.SelectorExpr)
+		if !ok || selector.X != identifier || identifier.Name != "utilities" {
+			valid = false
+			return false
+		}
+		switch selector.Sel.Name {
+		case "Orm":
+			assignment, ok := parents[selector].(*ast.AssignStmt)
+			if !ok || assignment.Tok != token.DEFINE || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 || assignment.Rhs[0] != selector {
+				valid = false
+				return false
+			}
+			name, ok := assignment.Lhs[0].(*ast.Ident)
+			if !ok || name.Name != "Orm" && name.Name != "Orm2" {
+				valid = false
+				return false
+			}
+			ormAssignments[name.Name]++
+			if name.Name == "Orm2" {
+				orm2Object = name.Obj
+			}
+		case "NotificationHub":
+			notificationHubs++
+		default:
+			valid = false
+			return false
+		}
+		return true
+	})
+	return valid && ormAssignments["Orm"] == 1 && ormAssignments["Orm2"] == 1 && len(ormAssignments) == 2 && notificationHubs == 1 &&
+		canonicalProducerUses(root, orm2Object, "Orm2", map[string]int{"Select": 2})
+}
+
+func exactStringSlice(expression ast.Expr, values ...string) bool {
+	composite, ok := expression.(*ast.CompositeLit)
+	if !ok || len(composite.Elts) != len(values) {
+		return false
+	}
+	array, ok := composite.Type.(*ast.ArrayType)
+	if !ok || array.Len != nil {
+		return false
+	}
+	element, ok := array.Elt.(*ast.Ident)
+	if !ok || element.Name != "string" || element.Obj != nil {
+		return false
+	}
+	for index, value := range values {
+		if !exactString(composite.Elts[index].(ast.Expr), value) {
+			return false
+		}
+	}
+	return true
+}
+
+func exactQuerySetup(body *ast.BlockStmt, declarationIndex int, object *ast.Object, name string, rridObject *ast.Object) bool {
+	if declarationIndex < 0 || declarationIndex >= len(body.List) {
+		return false
+	}
+	stage := 0
+	for _, statement := range body.List[declarationIndex+1:] {
+		expression, ok := statement.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+		if call, ok := boundMethodCall(expression.X, object, name, "Table"); ok {
+			if stage != 0 || len(call.Args) != 1 || !exactString(call.Args[0], "randevu_talepleri") {
+				return false
+			}
+			stage = 1
+		}
+		if call, ok := boundMethodCall(expression.X, object, name, "Where"); ok {
+			if stage != 1 || len(call.Args) != 3 || !exactString(call.Args[0], "rrid") || !exactString(call.Args[1], "=") || !boundIdentifier(call.Args[2], rridObject, "Rrid") {
+				return false
+			}
+			stage = 2
+		}
+		if call, ok := boundMethodCall(expression.X, object, name, "Finish"); ok {
+			return stage == 2 && len(call.Args) == 0
+		}
+	}
+	return false
+}
+
+func errorBindingCondition(expression ast.Expr, object *ast.Object, name string) bool {
+	condition, ok := expression.(*ast.BinaryExpr)
+	if !ok || condition.Op != token.NEQ || !boundIdentifier(condition.X, object, name) {
+		return false
+	}
+	nilIdentifier, ok := condition.Y.(*ast.Ident)
+	return ok && nilIdentifier.Name == "nil" && nilIdentifier.Obj == nil
+}
+
+func exactDeleteLogStatement(statement ast.Stmt, stage string, canonical map[*ast.CallExpr]string) bool {
+	expression, ok := statement.(*ast.ExprStmt)
+	if !ok {
+		return false
+	}
+	call, ok := expression.X.(*ast.CallExpr)
+	return ok && canonical[call] == "Printf" && len(call.Args) == 1 && exactString(call.Args[0], "operation=DeleteRandevuRequest stage="+stage)
+}
+
+func boundCallStatement(statement ast.Stmt, object *ast.Object, receiverName, method string) bool {
+	expression, ok := statement.(*ast.ExprStmt)
+	if !ok {
+		return false
+	}
+	call, ok := boundMethodCall(expression.X, object, receiverName, method)
+	return ok && len(call.Args) == 0
+}
+
+func exactFiberMap(file *ast.File, expression ast.Expr, status int, message string) bool {
+	composite, ok := expression.(*ast.CompositeLit)
+	if !ok || len(composite.Elts) != 2 {
+		return false
+	}
+	typeSelector, ok := composite.Type.(*ast.SelectorExpr)
+	if !ok || typeSelector.Sel.Name != "Map" {
+		return false
+	}
+	packageName, ok := typeSelector.X.(*ast.Ident)
+	if !ok || !canonicalImportIdentifier(file, packageName, "github.com/gofiber/fiber/v2") {
+		return false
+	}
+	statusEntry, statusOK := composite.Elts[0].(*ast.KeyValueExpr)
+	messageEntry, messageOK := composite.Elts[1].(*ast.KeyValueExpr)
+	return statusOK && messageOK && exactString(statusEntry.Key, "status") && exactInteger(statusEntry.Value, strconv.Itoa(status)) && exactString(messageEntry.Key, "message") && exactString(messageEntry.Value, message)
+}
+
+func exactDeleteErrorReturn(file *ast.File, statement ast.Stmt, cObject *ast.Object) bool {
+	result, ok := statement.(*ast.ReturnStmt)
+	if !ok || len(result.Results) != 1 {
+		return false
+	}
+	jsonCall, ok := result.Results[0].(*ast.CallExpr)
+	if !ok || len(jsonCall.Args) != 1 {
+		return false
+	}
+	jsonSelector, ok := jsonCall.Fun.(*ast.SelectorExpr)
+	if !ok || jsonSelector.Sel.Name != "JSON" {
+		return false
+	}
+	statusCall, ok := jsonSelector.X.(*ast.CallExpr)
+	if !ok || len(statusCall.Args) != 1 || !exactInteger(statusCall.Args[0], "500") {
+		return false
+	}
+	statusSelector, ok := statusCall.Fun.(*ast.SelectorExpr)
+	return ok && statusSelector.Sel.Name == "Status" && boundIdentifier(statusSelector.X, cObject, "c") && exactFiberMap(file, jsonCall.Args[0], 500, "Server Hatası: Lütfen daha sonra tekrar deneyin.")
+}
+
+func exactDeleteSuccessReturn(file *ast.File, statement ast.Stmt, cObject *ast.Object) bool {
+	result, ok := statement.(*ast.ReturnStmt)
+	if !ok || len(result.Results) != 1 {
+		return false
+	}
+	call, ok := result.Results[0].(*ast.CallExpr)
+	if !ok || len(call.Args) != 1 {
+		return false
+	}
+	selector, ok := call.Fun.(*ast.SelectorExpr)
+	return ok && selector.Sel.Name == "JSON" && boundIdentifier(selector.X, cObject, "c") && exactFiberMap(file, call.Args[0], 201, "Randevu talebi başarıyla silindi.")
+}
+
+type deleteProducerExpectation struct {
+	stage        string
+	receiverName string
+	method       string
+	define       bool
+	firstResult  string
+	rollback     bool
+}
+
+func exactProducerAssignment(statement ast.Stmt, expectation deleteProducerExpectation, receiverObject, errorObject *ast.Object) bool {
+	assignment, ok := statement.(*ast.AssignStmt)
+	if !ok || len(assignment.Rhs) != 1 {
+		return false
+	}
+	wantToken := token.ASSIGN
+	if expectation.define {
+		wantToken = token.DEFINE
+	}
+	if assignment.Tok != wantToken {
+		return false
+	}
+	call, ok := boundMethodCall(assignment.Rhs[0], receiverObject, expectation.receiverName, expectation.method)
+	if !ok || len(call.Args) != 0 {
+		return false
+	}
+	if expectation.firstResult == "" {
+		return len(assignment.Lhs) == 1 && boundIdentifier(assignment.Lhs[0], errorObject, "err")
+	}
+	if len(assignment.Lhs) != 2 || !boundIdentifier(assignment.Lhs[1], errorObject, "err") {
+		return false
+	}
+	first, ok := assignment.Lhs[0].(*ast.Ident)
+	return ok && first.Name == expectation.firstResult && first.Obj != nil && first.Obj != errorObject
+}
+
+func exactProducerBranch(file *ast.File, body *ast.BlockStmt, producerIndex int, expectation deleteProducerExpectation, ormObject, errorObject, cObject *ast.Object, canonical map[*ast.CallExpr]string) bool {
+	if producerIndex < 0 || producerIndex+1 >= len(body.List) {
+		return false
+	}
+	branch, ok := body.List[producerIndex+1].(*ast.IfStmt)
+	if !ok || branch.Init != nil || branch.Else != nil || !errorBindingCondition(branch.Cond, errorObject, "err") {
+		return false
+	}
+	if expectation.rollback {
+		return len(branch.Body.List) == 3 && boundCallStatement(branch.Body.List[0], ormObject, "Orm", "Rollback") && exactDeleteLogStatement(branch.Body.List[1], expectation.stage, canonical) && exactDeleteErrorReturn(file, branch.Body.List[2], cObject)
+	}
+	return len(branch.Body.List) == 2 && exactDeleteLogStatement(branch.Body.List[0], expectation.stage, canonical) && exactDeleteErrorReturn(file, branch.Body.List[1], cObject)
+}
+
+func canonicalPackageSelectorCount(file *ast.File, root ast.Node, importPath, method string) int {
+	count := 0
+	ast.Inspect(root, func(node ast.Node) bool {
+		selector, ok := node.(*ast.SelectorExpr)
+		if !ok || selector.Sel.Name != method {
+			return true
+		}
+		receiver, ok := selector.X.(*ast.Ident)
+		if ok && canonicalImportIdentifier(file, receiver, importPath) {
+			count++
+		}
+		return true
+	})
+	return count
+}
+
+func exactNotificationDeleted(file *ast.File, expression ast.Expr, rridObject *ast.Object) bool {
+	composite, ok := expression.(*ast.CompositeLit)
+	if !ok || len(composite.Elts) != 2 {
+		return false
+	}
+	typeSelector, ok := composite.Type.(*ast.SelectorExpr)
+	if !ok || typeSelector.Sel.Name != "Deleted" {
+		return false
+	}
+	packageName, ok := typeSelector.X.(*ast.Ident)
+	if !ok || !canonicalImportIdentifier(file, packageName, "post/notificationevent") {
+		return false
+	}
+	typeEntry, typeOK := composite.Elts[0].(*ast.KeyValueExpr)
+	rridEntry, rridOK := composite.Elts[1].(*ast.KeyValueExpr)
+	return typeOK && rridOK && exactFieldName(typeEntry.Key, "Type") && exactString(typeEntry.Value, "randevu_talebi_silindi") && exactFieldName(rridEntry.Key, "Rrid") && boundIdentifier(rridEntry.Value, rridObject, "Rrid")
+}
+
+func exactNotificationBranch(file *ast.File, handler *ast.FuncLit, utilitiesObject, rridObject *ast.Object, canonical map[*ast.CallExpr]string) bool {
+	if len(handler.Body.List) < 2 {
+		return false
+	}
+	goStatement, ok := handler.Body.List[len(handler.Body.List)-2].(*ast.GoStmt)
+	if !ok || goStatement.Call == nil || len(goStatement.Call.Args) != 0 {
+		return false
+	}
+	closure, ok := goStatement.Call.Fun.(*ast.FuncLit)
+	if !ok || closure.Type.Params == nil && closure.Type.Results != nil || len(closure.Body.List) != 1 {
+		return false
+	}
+	if closure.Type.Params != nil && len(closure.Type.Params.List) != 0 || closure.Type.Results != nil {
+		return false
+	}
+	branch, ok := closure.Body.List[0].(*ast.IfStmt)
+	if !ok || branch.Else != nil || len(branch.Body.List) != 1 {
+		return false
+	}
+	assignment, ok := branch.Init.(*ast.AssignStmt)
+	if !ok || assignment.Tok != token.DEFINE || len(assignment.Lhs) != 1 || len(assignment.Rhs) != 1 {
+		return false
+	}
+	publishError, ok := assignment.Lhs[0].(*ast.Ident)
+	if !ok || publishError.Name != "publishErr" || publishError.Obj == nil || !errorBindingCondition(branch.Cond, publishError.Obj, "publishErr") {
+		return false
+	}
+	publish, ok := canonicalPackageCall(file, assignment.Rhs[0], "post/notificationevent", "Publish")
+	if !ok || len(publish.Args) != 3 {
+		return false
+	}
+	hub, ok := publish.Args[0].(*ast.SelectorExpr)
+	if !ok || hub.Sel.Name != "NotificationHub" || !boundIdentifier(hub.X, utilitiesObject, "utilities") || !exactNotificationDeleted(file, publish.Args[1], rridObject) {
+		return false
+	}
+	recipient, ok := publish.Args[2].(*ast.SelectorExpr)
+	if !ok || recipient.Sel.Name != "Recipient" {
+		return false
+	}
+	packageName, ok := recipient.X.(*ast.Ident)
+	return ok && canonicalImportIdentifier(file, packageName, "post/notificationevent") && exactDeleteLogStatement(branch.Body.List[0], "notification_publish", canonical) && canonicalPackageSelectorCount(file, handler, "post/notificationevent", "Publish") == 1
+}
+
+func deleteRandevuRequestDiagnosticSafe(source []byte) bool {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "randevular.go", source, 0)
+	if err != nil || file.Name.Name != "randevular" {
+		return false
+	}
+
+	var target *ast.FuncDecl
+	for _, declaration := range file.Decls {
+		switch item := declaration.(type) {
+		case *ast.FuncDecl:
+			if item.Name.Name == "DeleteRandevuRequest" {
+				if item.Recv != nil || target != nil {
+					return false
+				}
+				target = item
+			}
+		case *ast.GenDecl:
+			for _, specification := range item.Specs {
+				switch named := specification.(type) {
+				case *ast.ValueSpec:
+					for _, identifier := range named.Names {
+						if identifier.Name == "DeleteRandevuRequest" {
+							return false
+						}
+					}
+				case *ast.TypeSpec:
+					if named.Name.Name == "DeleteRandevuRequest" {
+						return false
+					}
+				}
+			}
+		}
+	}
+	if target == nil || target.Type.Params == nil || len(target.Type.Params.List) != 2 || target.Type.Results == nil || len(target.Type.Results.List) != 1 ||
+		len(target.Type.Params.List[0].Names) != 1 || target.Type.Params.List[0].Names[0].Name != "states" ||
+		len(target.Type.Params.List[1].Names) != 1 || target.Type.Params.List[1].Names[0].Name != "utilities" ||
+		nodeString(fset, target.Type.Params.List[0].Type) != "*models.AppState" ||
+		nodeString(fset, target.Type.Params.List[1].Type) != "*models.Utilities" ||
+		nodeString(fset, target.Type.Results.List[0].Type) != "fiber.Handler" || len(target.Body.List) != 1 {
+		return false
+	}
+	utilitiesObject := target.Type.Params.List[1].Names[0].Obj
+	if utilitiesObject == nil {
+		return false
+	}
+	result, ok := target.Body.List[0].(*ast.ReturnStmt)
+	if !ok || len(result.Results) != 1 {
+		return false
+	}
+	handler, ok := result.Results[0].(*ast.FuncLit)
+	if !ok || handler.Type.Params == nil || len(handler.Type.Params.List) != 1 || len(handler.Type.Params.List[0].Names) != 1 || handler.Type.Params.List[0].Names[0].Name != "c" || nodeString(fset, handler.Type.Params.List[0].Type) != "*fiber.Ctx" || handler.Type.Results == nil || len(handler.Type.Results.List) != 1 || nodeString(fset, handler.Type.Results.List[0].Type) != "error" {
+		return false
+	}
+	cObject := handler.Type.Params.List[0].Names[0].Obj
+	errorObject, ok := uniqueErrorObject(file, handler, cObject)
+	if cObject == nil || !ok {
+		return false
+	}
+	_, rridObject, _, ok := uniqueDirectAssignment(handler.Body, "Rrid", func(expression ast.Expr) bool {
+		call, ok := boundMethodCall(expression, cObject, "c", "Params")
+		return ok && len(call.Args) == 1 && exactString(call.Args[0], "rrid")
+	})
+	if !ok {
+		return false
+	}
+	_, ormObject, _, ok := uniqueDirectAssignment(handler.Body, "Orm", func(expression ast.Expr) bool {
+		selector, ok := expression.(*ast.SelectorExpr)
+		return ok && selector.Sel.Name == "Orm" && boundIdentifier(selector.X, utilitiesObject, "utilities")
+	})
+	if !ok {
+		return false
+	}
+	_, getRequestObject, getRequestIndex, ok := uniqueDirectAssignment(handler.Body, "GetRequest", func(expression ast.Expr) bool {
+		call, ok := boundMethodCall(expression, ormObject, "Orm", "Select")
+		return ok && len(call.Args) == 1 && exactStringSlice(call.Args[0], "rrid", "patient_first_name", "patient_last_name")
+	})
+	if !ok {
+		return false
+	}
+	_, deleteRequestObject, deleteRequestIndex, ok := uniqueDirectAssignment(handler.Body, "DeleteRequest", func(expression ast.Expr) bool {
+		call, ok := boundMethodCall(expression, ormObject, "Orm", "Delete")
+		return ok && len(call.Args) == 0
+	})
+	if !ok || !noOtherBindingNamed(handler, "err", errorObject) {
+		return false
+	}
+	if !exactQuerySetup(handler.Body, getRequestIndex, getRequestObject, "GetRequest", rridObject) || !exactQuerySetup(handler.Body, deleteRequestIndex, deleteRequestObject, "DeleteRequest", rridObject) {
+		return false
+	}
+	if !canonicalProducerUses(handler, getRequestObject, "GetRequest", map[string]int{"Table": 1, "Where": 1, "Finish": 1, "Execute": 1, "Rows": 1}) ||
+		!canonicalProducerUses(handler, deleteRequestObject, "DeleteRequest", map[string]int{"Table": 1, "Where": 1, "Finish": 1, "Execute": 1, "RowsAffected": 1}) ||
+		!canonicalProducerUses(handler, ormObject, "Orm", map[string]int{"Select": 1, "Begin": 1, "Delete": 1, "Rollback": 4, "Commit": 1}) ||
+		!canonicalUtilitiesUses(target, utilitiesObject) {
+		return false
+	}
+	canonical, safe := canonicalLogCalls(file, target)
+	if !safe || len(canonical) != 7 || !directDiagnosticStatements(target, canonical) {
+		return false
+	}
+	expectations := []deleteProducerExpectation{
+		{stage: "record_read", receiverName: "GetRequest", method: "Execute"},
+		{stage: "record_rows", receiverName: "GetRequest", method: "Rows", define: true, firstResult: "requestRows"},
+		{stage: "transaction_begin", receiverName: "Orm", method: "Begin"},
+		{stage: "record_delete", receiverName: "DeleteRequest", method: "Execute", rollback: true},
+		{stage: "affected_rows", receiverName: "DeleteRequest", method: "RowsAffected", define: true, firstResult: "ra", rollback: true},
+		{stage: "transaction_commit", receiverName: "Orm", method: "Commit", rollback: true},
+	}
+	objects := map[string]*ast.Object{"GetRequest": getRequestObject, "DeleteRequest": deleteRequestObject, "Orm": ormObject}
+	previousProducer := -1
+	for _, expectation := range expectations {
+		receiverObject := objects[expectation.receiverName]
+		if boundSelectorCount(handler, receiverObject, expectation.receiverName, expectation.method) != 1 {
+			return false
+		}
+		producerIndex := -1
+		for index, statement := range handler.Body.List {
+			if exactProducerAssignment(statement, expectation, receiverObject, errorObject) {
+				if producerIndex != -1 {
+					return false
+				}
+				producerIndex = index
+			}
+		}
+		if producerIndex <= previousProducer || !exactProducerBranch(file, handler.Body, producerIndex, expectation, ormObject, errorObject, cObject, canonical) {
+			return false
+		}
+		previousProducer = producerIndex
+	}
+	return exactNotificationBranch(file, handler, utilitiesObject, rridObject, canonical) && exactDeleteSuccessReturn(file, handler.Body.List[len(handler.Body.List)-1], cObject)
+}
+
+func deleteStagePair(source []byte, stage string) (int, int, bool) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "randevular.go", source, 0)
+	if err != nil {
+		return 0, 0, false
+	}
+	var target *ast.FuncDecl
+	for _, declaration := range file.Decls {
+		if function, ok := declaration.(*ast.FuncDecl); ok && function.Name.Name == "DeleteRandevuRequest" {
+			target = function
+		}
+	}
+	if target == nil {
+		return 0, 0, false
+	}
+	parents := astParents(target)
+	canonical, safe := canonicalLogCalls(file, target)
+	if !safe {
+		return 0, 0, false
+	}
+	for call := range canonical {
+		if len(call.Args) != 1 || !exactString(call.Args[0], "operation=DeleteRandevuRequest stage="+stage) {
+			continue
+		}
+		statement, ok := parents[call].(*ast.ExprStmt)
+		if !ok {
+			return 0, 0, false
+		}
+		block, ok := parents[statement].(*ast.BlockStmt)
+		if !ok {
+			return 0, 0, false
+		}
+		branch, ok := parents[block].(*ast.IfStmt)
+		if !ok {
+			return 0, 0, false
+		}
+		owner, ok := parents[branch].(*ast.BlockStmt)
+		if !ok {
+			return 0, 0, false
+		}
+		producer := precedingStatement(owner, branch)
+		if producer == nil {
+			return 0, 0, false
+		}
+		start := fset.Position(producer.Pos()).Offset
+		end := fset.Position(branch.End()).Offset
+		return start, end, start >= 0 && end > start && end <= len(source)
+	}
+	return 0, 0, false
+}
+
+func wrapDeleteStagePair(source []byte, stage, prefix, suffix string) ([]byte, bool) {
+	start, end, ok := deleteStagePair(source, stage)
+	if !ok {
+		return nil, false
+	}
+	mutated := make([]byte, 0, len(source)+len(prefix)+len(suffix))
+	mutated = append(mutated, source[:start]...)
+	mutated = append(mutated, prefix...)
+	mutated = append(mutated, source[start:end]...)
+	mutated = append(mutated, suffix...)
+	mutated = append(mutated, source[end:]...)
+	return mutated, true
+}
+
+func replaceSourceOnce(source []byte, old, replacement string) ([]byte, bool) {
+	if bytes.Count(source, []byte(old)) != 1 {
+		return nil, false
+	}
+	return bytes.Replace(source, []byte(old), []byte(replacement), 1), true
+}
+
+type sourceMutation func([]byte) ([]byte, bool)
+
+func wrapRecordRead(prefix, suffix string) sourceMutation {
+	return func(source []byte) ([]byte, bool) {
+		return wrapDeleteStagePair(source, "record_read", prefix, suffix)
+	}
+}
+
+func replaceMutation(old, replacement string) sourceMutation {
+	return func(source []byte) ([]byte, bool) {
+		return replaceSourceOnce(source, old, replacement)
+	}
+}
+
+func deleteOwnershipMutations() []sourceMutation {
+	const recordRead = `log.Printf("operation=DeleteRandevuRequest stage=record_read")`
+	const recordRows = `log.Printf("operation=DeleteRandevuRequest stage=record_rows")`
+	const notification = `log.Printf("operation=DeleteRandevuRequest stage=notification_publish")`
+	return []sourceMutation{
+		wrapRecordRead("{\n", "\n}"),
+		wrapRecordRead("func() {\n", "\n}()"),
+		wrapRecordRead("defer func() {\n", "\n}()"),
+		wrapRecordRead("go func() {\n", "\n}()"),
+		wrapRecordRead("diagnosticOwnership:\n{\n", "\n}"),
+		wrapRecordRead("if true {\n", "\n}"),
+		wrapRecordRead("switch { default:\n", "\n}"),
+		wrapRecordRead("select { default:\n", "\n}"),
+		wrapRecordRead("for {\n", "\nbreak\n}"),
+		wrapRecordRead("{ GetRequest := fake\n", "\n}"),
+		func(source []byte) ([]byte, bool) {
+			return wrapDeleteStagePair(source, "record_delete", "{ DeleteRequest := fake\n", "\n}")
+		},
+		func(source []byte) ([]byte, bool) {
+			return wrapDeleteStagePair(source, "transaction_begin", "{ Orm := fake\n", "\n}")
+		},
+		replaceMutation("go func() {\n\t\t\tif publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted", "go func() {\n\t\t\tnotificationevent := fake\n\t\t\tif publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted"),
+		wrapRecordRead("{ GetRequest := struct{ Execute func() error }{Execute: fake}\n", "\n}"),
+		replaceMutation("err = GetRequest.Execute()\n\n\t\tif err != nil", "otherErr := GetRequest.Execute()\n\n\t\tif otherErr != nil"),
+		func(source []byte) ([]byte, bool) {
+			first, ok := replaceSourceOnce(source, recordRead, "__DELETE_STAGE_SWAP__")
+			if !ok {
+				return nil, false
+			}
+			second, ok := replaceSourceOnce(first, recordRows, recordRead)
+			if !ok {
+				return nil, false
+			}
+			return replaceSourceOnce(second, "__DELETE_STAGE_SWAP__", recordRows)
+		},
+		func(source []byte) ([]byte, bool) {
+			without, ok := replaceSourceOnce(source, recordRead, "_ = err")
+			if !ok {
+				return nil, false
+			}
+			anchor := "func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {\n\treturn func(c *fiber.Ctx) error {\n\t\tourUser, err := lib.CheckAuth(c)\n\t\tif err != nil {"
+			return replaceSourceOnce(without, anchor, anchor+"\n\t\t\t"+recordRead)
+		},
+		replaceMutation(recordRead, "_ = Rrid\n\t\t\t"+recordRead),
+		replaceMutation(notification, "_ = Rrid\n\t\t\t\t"+notification),
+		replaceMutation(recordRead, recordRead+"\n\t\t\t"+recordRead),
+		func(source []byte) ([]byte, bool) {
+			without, ok := replaceSourceOnce(source, recordRead, "_ = err")
+			if !ok {
+				return nil, false
+			}
+			anchor := "return c.JSON(fiber.Map{\n\t\t\t\"status\":  201,\n\t\t\t\"message\": \"Randevu talebi başarıyla silindi.\","
+			return replaceSourceOnce(without, anchor, "if false { "+recordRead+" }\n\t\t"+anchor)
+		},
+		func(source []byte) ([]byte, bool) {
+			without, ok := replaceSourceOnce(source, "err = GetRequest.Execute()", "_ = err")
+			if !ok {
+				return nil, false
+			}
+			return append(without, []byte("\nfunc movedDeleteProducer() { err = GetRequest.Execute() }\n")...), true
+		},
+		wrapRecordRead("func(GetRequest fakeQuery) {\n", "\n}(fake)"),
+		replaceMutation("err = GetRequest.Execute()", "execute := GetRequest.Execute\n\t\terr = execute()"),
+		replaceMutation("err = GetRequest.Execute()", "err = invoke(GetRequest.Execute)"),
+		replaceMutation(recordRead, "logger := log.Print\n\t\t\tlogger(err)"),
+		replaceMutation(recordRead, "holder := struct{ f func(...any) }{f: log.Print}\n\t\t\tholder.f(err)"),
+		replaceMutation("Orm.Rollback()\n\t\t\t"+`log.Printf("operation=DeleteRandevuRequest stage=record_delete")`, `log.Printf("operation=DeleteRandevuRequest stage=record_delete")`+"\n\t\t\tOrm.Rollback()"),
+		replaceMutation(`log.Printf("operation=DeleteRandevuRequest stage=record_delete")`+"\n\t\t\treturn", "return"+"\n\t\t\t"+`log.Printf("operation=DeleteRandevuRequest stage=record_delete")`),
+	}
+}
+
+func deleteReachingWriteMutations() []sourceMutation {
+	const handlerStart = "func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {\n\treturn func(c *fiber.Ctx) error {"
+	const ormInitialization = "\t\tOrm := utilities.Orm\n\n\t\t// Check if request exists"
+	return []sourceMutation{
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tGetRequest = fake\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("\t\trequestRows, err := GetRequest.Rows()", "\t\tGetRequest = fake\n\t\trequestRows, err := GetRequest.Rows()"),
+		replaceMutation("DeleteRequest.Finish()\n\t\terr = DeleteRequest.Execute()", "DeleteRequest.Finish()\n\t\tDeleteRequest = fake\n\t\terr = DeleteRequest.Execute()"),
+		replaceMutation("\t\tra, err := DeleteRequest.RowsAffected()", "\t\tDeleteRequest = fake\n\t\tra, err := DeleteRequest.RowsAffected()"),
+		replaceMutation(ormInitialization, "\t\tOrm := utilities.Orm\n\t\tOrm = nil\n\n\t\t// Check if request exists"),
+		replaceMutation(ormInitialization, "\t\tOrm := utilities.Orm\n\t\tOrm = fake\n\n\t\t// Check if request exists"),
+		replaceMutation(handlerStart, handlerStart+"\n\t\tutilities = nil"),
+		replaceMutation(handlerStart, handlerStart+"\n\t\tutilities = fakeUtilities"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tGetRequest, Orm = fake, fakeOrm\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tif condition { GetRequest = fake }\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tfor condition { GetRequest = fake }\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tmutate := func() { GetRequest = fake }; _ = mutate\n\t\terr = GetRequest.Execute()"),
+		replaceMutation(ormInitialization, "\t\tOrm := utilities.Orm\n\t\tcallback(&Orm); callback(&utilities)\n\n\t\t// Check if request exists"),
+		replaceMutation(ormInitialization, "\t\tOrm := utilities.Orm\n\t\tpointer := &Orm; *pointer = fake\n\n\t\t// Check if request exists"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tGetRequest.State = fake\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tif condition { GetRequest := fake; _ = GetRequest }\n\t\terr = GetRequest.Execute()"),
+		replaceMutation("err = GetRequest.Execute()", "err = fake.Execute()"),
+		replaceMutation("GetRequest.Finish()\n\t\terr = GetRequest.Execute()", "GetRequest.Finish()\n\t\tGetRequest = fake\n\t\terr = GetRequest.Execute()"),
+	}
+}
+
+func deleteClosedWorldEscapeMutations() []sourceMutation {
+	const handlerStart = "func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {\n\treturn func(c *fiber.Ctx) error {"
+	const ormAnchor = "\t\tOrm := utilities.Orm\n\n\t\t// Check if request exists"
+	const getAnchor = "\t\tGetRequest.Finish()\n\t\terr = GetRequest.Execute()"
+	const deleteAnchor = "\t\tDeleteRequest.Finish()\n\t\terr = DeleteRequest.Execute()"
+	return []sourceMutation{
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tOrm2 := Orm; _ = Orm2\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tOrm2 := Orm; callback(Orm2)\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tcallback(Orm)\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tcallback(&Orm)\n\n\t\t// Check if request exists"),
+		replaceMutation(handlerStart, handlerStart+"\n\t\tutilities2 := utilities; _ = utilities2"),
+		replaceMutation(getAnchor, "\t\tGetRequest.Finish()\n\t\tGetRequest2 := GetRequest; _ = GetRequest2\n\t\terr = GetRequest.Execute()"),
+		replaceMutation(deleteAnchor, "\t\tDeleteRequest.Finish()\n\t\tDeleteRequest2 := DeleteRequest; _ = DeleteRequest2\n\t\terr = DeleteRequest.Execute()"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tcontainer := []any{Orm}; _ = container\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tholder.Value = Orm\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tcapture := func() { callback(Orm) }; _ = capture\n\n\t\t// Check if request exists"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tOrm = fake\n\n\t\t// Check if request exists"),
+		replaceMutation(getAnchor, "\t\tGetRequest.Finish()\n\t\tGetRequest, other = fake, value\n\t\terr = GetRequest.Execute()"),
+		replaceMutation(getAnchor, "\t\tGetRequest.Finish()\n\t\tif condition { GetRequest = fake }; for condition { GetRequest = fake }\n\t\terr = GetRequest.Execute()"),
+		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tpointer := &Orm; *pointer = fake\n\n\t\t// Check if request exists"),
+		replaceMutation("err = GetRequest.Execute()", "err = fake.Execute()"),
+		replaceMutation(getAnchor, "\t\tGetRequest.Finish()\n\t\tGetRequest2 := GetRequest\n\t\terr = GetRequest2.Execute()"),
+	}
+}
+
+func deleteClosedWorldSafeMutations() []sourceMutation {
+	const handler = "func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {\n\treturn func(c *fiber.Ctx) error {"
+	return []sourceMutation{
+		replaceMutation(handler, handler+"\n\t\tunrelated := fake; _ = unrelated"),
+		replaceMutation(handler, handler+"\n\t\tif condition { Orm := fake; GetRequest := fake; DeleteRequest := fake; _, _, _ = Orm, GetRequest, DeleteRequest }"),
+		replaceMutation(handler, handler+"\n\t\tunrelated := fake; callback(unrelated)"),
+	}
+}
+
+func TestDeleteRandevuRequestExactOwnershipMutations(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
+	if err != nil {
+		t.Fatal("cannot read delete request diagnostic source")
+	}
+	for _, mutate := range deleteOwnershipMutations() {
+		t.Run("mutation", func(t *testing.T) {
+			mutated, ok := mutate(source)
+			if !ok {
+				t.Fatal("delete ownership fixture mutation failed")
+			}
+			if deleteRandevuRequestDiagnosticSafe(mutated) {
+				t.Fatal("delete ownership mutation accepted")
+			}
+		})
+	}
+}
+
+func TestDeleteRandevuRequestReachingWriteMutations(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
+	if err != nil {
+		t.Fatal("cannot read delete request diagnostic source")
+	}
+	for index, mutate := range deleteReachingWriteMutations() {
+		t.Run("mutation", func(t *testing.T) {
+			mutated, ok := mutate(source)
+			if !ok {
+				t.Fatal("delete reaching-write fixture mutation failed")
+			}
+			if deleteRandevuRequestDiagnosticSafe(mutated) != (index == 15) {
+				t.Fatal("delete reaching-write fixture result mismatch")
+			}
+		})
+	}
+}
+
+func TestDeleteRandevuRequestClosedWorldUses(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
+	if err != nil {
+		t.Fatal("cannot read delete request diagnostic source")
+	}
+	for _, mutate := range deleteClosedWorldEscapeMutations() {
+		t.Run("escape", func(t *testing.T) {
+			mutated, ok := mutate(source)
+			if !ok || deleteRandevuRequestDiagnosticSafe(mutated) {
+				t.Fatal("producer closed-world escape accepted")
+			}
+		})
+	}
+	for _, mutate := range deleteClosedWorldSafeMutations() {
+		t.Run("safe", func(t *testing.T) {
+			mutated, ok := mutate(source)
+			if !ok || !deleteRandevuRequestDiagnosticSafe(mutated) {
+				t.Fatal("safe unrelated producer fixture rejected")
+			}
+		})
+	}
+}
+
+// This is the production baseline for the two deliberately narrow AST comparisons.
+// It is pinned rather than following a moving HEAD after a future commit.
+const diagnosticBaselineCommit = "c38bf3188bb526de24d7ab7bcef27e56fa40544c"
+
+func diagnosticBaselineSource(relative string) ([]byte, bool) {
+	command := exec.Command("git", "show", diagnosticBaselineCommit+":"+filepath.ToSlash(relative))
+	command.Dir = filepath.Join("..", "..")
+	source, err := command.Output()
+	return source, err == nil
+}
+
+func uniqueFunction(file *ast.File, name string) (*ast.FuncDecl, bool) {
+	var result *ast.FuncDecl
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Name.Name != name || function.Recv != nil {
+			continue
+		}
+		if result != nil {
+			return nil, false
+		}
+		result = function
+	}
+	return result, result != nil
+}
+
+func deleteHandlerWithoutDirectLogs(source []byte) (string, bool) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "randevular.go", source, 0)
+	if err != nil {
+		return "", false
+	}
+	target, ok := uniqueFunction(file, "DeleteRandevuRequest")
+	if !ok || target.Body == nil {
+		return "", false
+	}
+	logs, safe := canonicalLogCalls(file, target)
+	if !safe || len(logs) != 7 {
+		return "", false
+	}
+	removed := 0
+	ast.Inspect(target.Body, func(node ast.Node) bool {
+		block, ok := node.(*ast.BlockStmt)
+		if !ok {
+			return true
+		}
+		retained := make([]ast.Stmt, 0, len(block.List))
+		for _, statement := range block.List {
+			expression, ok := statement.(*ast.ExprStmt)
+			if ok {
+				if call, ok := expression.X.(*ast.CallExpr); ok && logs[call] != "" {
+					removed++
+					continue
+				}
+			}
+			retained = append(retained, statement)
+		}
+		block.List = retained
+		return true
+	})
+	result := nodeString(fset, target)
+	return result, removed == 7 && result != ""
+}
+
+func libWithoutRemovedDeclaration(source []byte, expectDeclaration bool) (string, bool) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "lib.go", source, 0)
+	if err != nil {
+		return "", false
+	}
+	retained := make([]ast.Decl, 0, len(file.Decls))
+	removed := 0
+	for _, declaration := range file.Decls {
+		if function, ok := declaration.(*ast.FuncDecl); ok && function.Name.Name == removedDisplayInputSymbol && function.Recv == nil {
+			removed++
+			continue
+		}
+		retained = append(retained, declaration)
+	}
+	file.Decls = retained
+	result := nodeString(fset, file)
+	return result, removed == boolInt(expectDeclaration) && result != ""
+}
+
+func TestDeleteRandevuRequestPinnedDiagnosticContract(t *testing.T) {
+	current, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
+	if err != nil || !deleteRandevuRequestDiagnosticSafe(current) {
+		t.Fatal("delete request seven-stage diagnostic contract failed")
+	}
+	baseline, ok := diagnosticBaselineSource("fiber-v2/controllers/post/randevular/randevular.go")
+	if !ok {
+		t.Fatal("pinned delete handler baseline unavailable")
+	}
+	currentAST, currentOK := deleteHandlerWithoutDirectLogs(current)
+	baselineAST, baselineOK := deleteHandlerWithoutDirectLogs(baseline)
+	if !currentOK || !baselineOK || currentAST != baselineAST {
+		t.Fatal("delete handler non-log AST differs from pinned HEAD")
+	}
+	const stageLog = `log.Printf("operation=DeleteRandevuRequest stage=record_read")`
+	for _, replacement := range []string{
+		`log.Printf("operation=DeleteRandevuRequest stage=record_read error=%v", err)`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_read id=%s", Rrid)`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_read sql=%s", "SELECT * FROM requests")`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_read payload=%v", requestRows)`,
+		`log.Printf("operation=Other stage=record_read")`,
+	} {
+		mutated, changed := replaceSourceOnce(current, stageLog, replacement)
+		if !changed || deleteRandevuRequestDiagnosticSafe(mutated) {
+			t.Fatal("sensitive or incorrect delete diagnostic mutation accepted")
+		}
+	}
+	mutated, changed := replaceSourceOnce(current, "\"message\": \"Randevu talebi başarıyla silindi.\"", "\"message\": \"Randevu talebi silinemedi.\"")
+	if !changed {
+		t.Fatal("delete handler parity fixture unavailable")
+	}
+	mutatedAST, valid := deleteHandlerWithoutDirectLogs(mutated)
+	if !valid || mutatedAST == baselineAST {
+		t.Fatal("delete handler non-log mutation escaped parity check")
+	}
+}
+
+func TestRemovedFieldDumpPinnedLibContract(t *testing.T) {
+	current, err := os.ReadFile("lib.go")
+	if err != nil {
+		t.Fatal("cannot read current lib source")
+	}
+	baseline, ok := diagnosticBaselineSource("fiber-v2/lib/lib.go")
+	if !ok {
+		t.Fatal("pinned lib baseline unavailable")
+	}
+	currentAST, currentOK := libWithoutRemovedDeclaration(current, false)
+	baselineAST, baselineOK := libWithoutRemovedDeclaration(baseline, true)
+	if !currentOK || !baselineOK || currentAST != baselineAST {
+		t.Fatal("lib AST outside removed declaration differs from pinned HEAD")
+	}
+}
+
+// Inventory scope: tracked Go files in this repository, parsed as Go syntax.
+// It counts direct call syntax, exact AST identifiers, and go:linkname directives;
+// it does not infer aliases, reflection, generated runtime code, or JS/Jet usage.
+func TestRemovedFieldDumpDirectGoInventory(t *testing.T) {
+	command := exec.Command("git", "ls-files", "-z", "--", "*.go")
+	command.Dir = filepath.Join("..", "..")
+	paths, err := command.Output()
+	if err != nil {
+		t.Fatal("tracked Go inventory unavailable")
+	}
+	files, identifiers, directCalls, linknames := 0, 0, 0, 0
+	for _, raw := range bytes.Split(paths, []byte{0}) {
+		if len(raw) == 0 {
+			continue
+		}
+		relative := filepath.FromSlash(string(raw))
+		if filepath.IsAbs(relative) || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+			t.Fatal("tracked Go inventory path escaped repository")
+		}
+		path := filepath.Join("..", "..", relative)
+		file, parseErr := parser.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
+		if parseErr != nil {
+			t.Fatal("tracked Go inventory parse failed")
+		}
+		files++
+		ast.Inspect(file, func(node ast.Node) bool {
+			if identifier, ok := node.(*ast.Ident); ok && identifier.Name == removedDisplayInputSymbol {
+				identifiers++
+			}
+			if call, ok := node.(*ast.CallExpr); ok {
+				switch callee := unparen(call.Fun).(type) {
+				case *ast.Ident:
+					if callee.Name == removedDisplayInputSymbol {
+						directCalls++
+					}
+				case *ast.SelectorExpr:
+					if callee.Sel.Name == removedDisplayInputSymbol {
+						directCalls++
+					}
+				}
+			}
+			return true
+		})
+		for _, group := range file.Comments {
+			for _, comment := range group.List {
+				if strings.HasPrefix(comment.Text, "//go:linkname") && strings.Contains(comment.Text, removedDisplayInputSymbol) {
+					linknames++
+				}
+			}
+		}
+	}
+	if files == 0 || identifiers != 0 || directCalls != 0 || linknames != 0 {
+		t.Fatal("tracked Go direct identifier, caller or linkname inventory changed")
 	}
 }
 

@@ -685,18 +685,6 @@ func DeleteFile(filePath string) error {
 	return nil
 }
 
-func DisplayInputInfosOnTerminal(inputs interface{}) {
-	v := reflect.ValueOf(inputs)
-	t := v.Type()
-
-	for i := 0; i < v.NumField(); i++ {
-		field := t.Field(i)             // alanın tipi ve ismi
-		value := v.Field(i).Interface() // alanın değeri
-		log.Printf("field: %s, value: %v, type: %T",
-			field.Name, value, value)
-	}
-}
-
 func MakeTimeHumanReadable(GivenTime time.Time, UserTimezone string) string {
 	loc, err := time.LoadLocation(UserTimezone)
 	if err != nil {

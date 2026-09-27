@@ -648,7 +648,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 		err = GetRequest.Execute()
 
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=record_read")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -657,7 +657,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 
 		requestRows, err := GetRequest.Rows()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=record_rows")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -674,7 +674,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 		// Start transaction
 		err = Orm.Begin()
 		if err != nil {
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=transaction_begin")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -690,7 +690,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 
 		if err != nil {
 			Orm.Rollback()
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=record_delete")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -700,7 +700,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 		ra, err := DeleteRequest.RowsAffected()
 		if err != nil {
 			Orm.Rollback()
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=affected_rows")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -719,7 +719,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 		err = Orm.Commit()
 		if err != nil {
 			Orm.Rollback()
-			log.Printf("%v\n", err)
+			log.Printf("operation=DeleteRandevuRequest stage=transaction_commit")
 			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -729,7 +729,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 		// WebSocket broadcast - silme
 		go func() {
 			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted{Type: "randevu_talebi_silindi", Rrid: Rrid}, notificationevent.Recipient); publishErr != nil {
-				log.Print("notification: publication failed")
+				log.Printf("operation=DeleteRandevuRequest stage=notification_publish")
 			}
 		}()
 		return c.JSON(fiber.Map{
