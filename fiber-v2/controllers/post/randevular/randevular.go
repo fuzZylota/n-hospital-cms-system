@@ -1,7 +1,6 @@
 package randevular
 
 import (
-	"database"
 	"fmt"
 	lib "lib"
 	"log"
@@ -1410,11 +1409,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 
 		Orm := utilities.Orm
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size", "o.smtp_host", "o.smtp_port",
-			"o.smtp_username", "o.smtp_password", "o.primary_color", "o.secondary_color",
-			"o.site_name", "o.site_description", "o.contact_email", "o.contact_phone", "o.facebook_url",
-			"o.twitter_url", "o.instagram_url", "o.linkedin_url", "m.file_path as logo_path"}, []string{})
+		appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)
 
 		if err != nil {
 			log.Printf("operation=EditRandevu stage=options_read")
@@ -1715,7 +1710,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		}
 		if (inputs.AppointmentDate != inputs.OldAppointmentDate || inputs.AppointmentTime != inputs.OldAppointmentTime || inputs.Duration != inputs.OldDuration || inputs.Drid != inputs.OldDrid) &&
 			inputs.Drid != "" && inputs.Drid != "0" &&
-			(GetOptions.Options.SMTPHost != "" && GetOptions.Options.SMTPPort != 0 && GetOptions.Options.SMTPUsername != "" && GetOptions.Options.SMTPPassword != "" && inputs.PatientEmail != "") {
+			(appointmentSnapshot.SMTPHost != "" && appointmentSnapshot.SMTPPort != 0 && appointmentSnapshot.SMTPUsername != "" && appointmentSnapshot.SMTPPassword != "" && inputs.PatientEmail != "") {
 			RootDir := os.Getenv("ROOT_DIRECTORY")
 
 			if RootDir == "" {
@@ -1723,8 +1718,8 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			} else {
 				GetLogo := ""
 
-				if (*GetOptions.Medias)[0].FilePath != "" {
-					GetLogo = filepath.Join(RootDir, "static", (*GetOptions.Medias)[0].FilePath)
+				if appointmentSnapshot.SiteLogoPath != "" {
+					GetLogo = filepath.Join(RootDir, "static", appointmentSnapshot.SiteLogoPath)
 				} else {
 					GetLogo = filepath.Join(RootDir, "static", "files", "defaults", "logo", "n-hospital-logo.png")
 				}
@@ -1947,24 +1942,24 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 							</div>
 						</body>
 						</html>
-						`, GetOptions.Options.PrimaryColor, GetOptions.Options.SecondaryColor,
-						GetOptions.Options.PrimaryColor,
-						LogoName, GetOptions.Options.SiteName,
+						`, appointmentSnapshot.PrimaryColor, appointmentSnapshot.SecondaryColor,
+						appointmentSnapshot.PrimaryColor,
+						LogoName, appointmentSnapshot.SiteName,
 						dateString, timeString, doctorInfo,
-						GetOptions.Options.ContactPhone, GetOptions.Options.ContactPhone,
-						GetOptions.Options.ContactEmail, GetOptions.Options.ContactEmail,
-						GetOptions.Options.SiteName, GetOptions.Options.SiteName)
+						appointmentSnapshot.ContactPhone, appointmentSnapshot.ContactPhone,
+						appointmentSnapshot.ContactEmail, appointmentSnapshot.ContactEmail,
+						appointmentSnapshot.SiteName, appointmentSnapshot.SiteName)
 
 				}
 
 				CreateEmailInfos := models.EmailInfos{
-					From:        GetOptions.Options.SiteName,
+					From:        appointmentSnapshot.SiteName,
 					To:          []string{inputs.PatientEmail},
-					Username:    GetOptions.Options.SMTPUsername,
-					Password:    GetOptions.Options.SMTPPassword,
-					Host:        GetOptions.Options.SMTPHost,
-					Port:        lib.Int64(GetOptions.Options.SMTPPort),
-					Subject:     "Randevunuz yeniden düzenlendi - " + GetOptions.Options.SiteName,
+					Username:    appointmentSnapshot.SMTPUsername,
+					Password:    appointmentSnapshot.SMTPPassword,
+					Host:        appointmentSnapshot.SMTPHost,
+					Port:        lib.Int64(appointmentSnapshot.SMTPPort),
+					Subject:     "Randevunuz yeniden düzenlendi - " + appointmentSnapshot.SiteName,
 					PlainText:   "Sayın " + inputs.PatientFirstName + " " + inputs.PatientLastName + ", randevu bilgilerinizde değişiklik yapılmıştır.",
 					Body:        Html,
 					Attachments: []string{GetLogo},

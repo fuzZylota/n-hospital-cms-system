@@ -92,3 +92,13 @@ func TestReadContextIdentityComesOnlyFromCaller(t *testing.T) {
 		})
 	}
 }
+
+func TestReadMissingKeepsCallerCancellationOpaque(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	reader := &fakeReader{snapshot: data.AppointmentWorkflowSnapshot{SMTPPassword: "test-only"}}
+	got, err := Read(ctx, reader)
+	if got != (data.AppointmentWorkflowSnapshot{}) || err == nil || err.Error() != "appointment options unavailable" || !errors.Is(err, context.Canceled) || reader.ctx != ctx || reader.calls != 1 {
+		t.Fatal("missing snapshot leaked data or lost caller cancellation")
+	}
+}
