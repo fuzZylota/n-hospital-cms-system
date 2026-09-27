@@ -3,7 +3,7 @@ package data
 import "context"
 
 // AppointmentWorkflowSnapshot contains exactly the active option-row values
-// used by AddRandevu and needed by EditRandevu (currently unwired).
+// used by AddRandevu and EditRandevu.
 // SMTPPassword is a server-internal secret; never serialize,
 // render, log, or cache it. SiteLogoPath is application data, not filesystem
 // authority. This workflow does not consume CAPTCHA options.

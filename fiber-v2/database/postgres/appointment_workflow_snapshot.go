@@ -41,8 +41,8 @@ type appointmentWorkflowSnapshotRow struct {
 	siteLogoPath   sql.NullString
 }
 
-// ReadAppointmentWorkflowSnapshot returns the AddRandevu inputs, also needed
-// by the currently unwired EditRandevu, from one active options row.
+// ReadAppointmentWorkflowSnapshot returns the inputs shared by AddRandevu
+// and EditRandevu from one active options row.
 func (r *OptionsRepository) ReadAppointmentWorkflowSnapshot(ctx context.Context) (data.AppointmentWorkflowSnapshot, bool, error) {
 	var row appointmentWorkflowSnapshotRow
 	firstRow := true
