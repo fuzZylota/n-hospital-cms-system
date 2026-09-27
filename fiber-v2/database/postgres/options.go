@@ -106,6 +106,10 @@ const readUploadPolicySQL = `SELECT oid, option_set_is_active, option_set_is_tes
 FROM options
 WHERE option_set_is_active = TRUE`
 
+// The legacy AddDoctor lookup uses the first active row if more than one exists.
+// Keep that behavior only for the transaction-bound transitional read.
+const readUploadPolicyTxSQL = readUploadPolicySQL + "\nLIMIT 1"
+
 const readPasswordPolicySQL = `SELECT oid, option_set_is_active, option_set_is_testing_now, require_strong_password
 FROM options
 WHERE option_set_is_active = TRUE`
@@ -302,11 +306,31 @@ type optionIdentityRow struct {
 }
 
 func (r *OptionsRepository) ReadUploadPolicy(ctx context.Context) (data.UploadPolicy, bool, error) {
+	return r.readUploadPolicy(ctx, nil)
+}
+
+// ReadUploadPolicyTx reads through the caller's active transaction, including
+// when that transaction was opened by the legacy doctor workflow.
+func (r *OptionsRepository) ReadUploadPolicyTx(ctx context.Context, tx *sql.Tx) (data.UploadPolicy, bool, error) {
+	if tx == nil {
+		return data.UploadPolicy{}, false, newRepositoryReadError(readUploadPolicy, readDependency, nil)
+	}
+	return r.readUploadPolicy(ctx, tx)
+}
+
+func (r *OptionsRepository) readUploadPolicy(ctx context.Context, tx *sql.Tx) (data.UploadPolicy, bool, error) {
 	var identity optionIdentityRow
 	var maxBytes sql.NullInt64
-	found, err := r.readOne(ctx, readUploadPolicy, readUploadPolicySQL, func(rows *sql.Rows) error {
+	scan := func(rows *sql.Rows) error {
 		return rows.Scan(&identity.id, &identity.active, &identity.testing, &maxBytes)
-	})
+	}
+	var found bool
+	var err error
+	if tx != nil {
+		found, err = r.readOneTx(ctx, tx, readUploadPolicy, readUploadPolicyTxSQL, scan)
+	} else {
+		found, err = r.readOne(ctx, readUploadPolicy, readUploadPolicySQL, scan)
+	}
 	if err != nil || !found {
 		return data.UploadPolicy{}, found, err
 	}
@@ -405,7 +429,22 @@ func (r *OptionsRepository) readOne(ctx context.Context, operation readOperation
 	if r == nil || r.db == nil {
 		return false, newRepositoryReadError(operation, readDependency, nil)
 	}
-	rows, queryErr := r.db.QueryContext(ctx, query)
+	return readOneWithQueryer(ctx, r.db, operation, query, scan)
+}
+
+func (r *OptionsRepository) readOneTx(ctx context.Context, tx *sql.Tx, operation readOperation, query string, scan func(*sql.Rows) error) (found bool, err error) {
+	if r == nil || r.db == nil || tx == nil {
+		return false, newRepositoryReadError(operation, readDependency, nil)
+	}
+	return readOneWithQueryer(ctx, tx, operation, query, scan)
+}
+
+type optionsQueryer interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+}
+
+func readOneWithQueryer(ctx context.Context, queryer optionsQueryer, operation readOperation, query string, scan func(*sql.Rows) error) (found bool, err error) {
+	rows, queryErr := queryer.QueryContext(ctx, query)
 	if queryErr != nil {
 		return false, newRepositoryReadError(operation, readQuery, queryErr)
 	}

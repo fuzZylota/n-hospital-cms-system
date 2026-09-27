@@ -199,8 +199,7 @@ func AddDoctor(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		}
 
 		// Get options for file size validation
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.ReadInTx(c.UserContext(), utilities.UploadPolicyReader, Orm.Tx)
 
 		if err != nil {
 			log.Printf("Cannot fetch options for backend: %v\n", err)
@@ -222,7 +221,7 @@ func AddDoctor(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 
 			// File size validation
-			if photoInput.Size > GetOptions.Options.MaxUploadSize {
+			if photoInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.Status(400).JSON(fiber.Map{
 					"status":  400,
@@ -322,7 +321,7 @@ func AddDoctor(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 
 			// File size validation
-			if cvInput.Size > GetOptions.Options.MaxUploadSize {
+			if cvInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")
 			}

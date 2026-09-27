@@ -573,6 +573,72 @@ func TestOptionsRepositoryNilDependencyAndPoolReuse(t *testing.T) {
 	assertRowsClosed(t, second)
 }
 
+func TestOptionsRepositoryUploadPolicyReadsOnSuppliedTransaction(t *testing.T) {
+	columns := []string{"oid", "option_set_is_active", "option_set_is_testing_now", "max_upload_size"}
+	wantSQL := `SELECT oid, option_set_is_active, option_set_is_testing_now, max_upload_size
+FROM options
+WHERE option_set_is_active = TRUE
+LIMIT 1`
+	backendErr := &repositoryBackendError{}
+	for _, test := range []struct {
+		name      string
+		query     dbtest.Step
+		wantFound bool
+		wantBytes int64
+		wantStage string
+	}{
+		{"positive", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(5242880)})), true, 5242880, ""},
+		{"zero", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(0)})), true, 0, ""},
+		{"negative", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(-1)})), true, -1, ""},
+		{"missing", dbtest.Query(dbtest.NewRows(columns)), false, 0, ""},
+		{"query error", dbtest.QueryError(backendErr), false, 0, "query"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			poolConnector, repository := openOptionsRepository(t)
+			txConnector := dbtest.NewConnector(dbtest.Begin(), test.query, dbtest.Rollback())
+			db := sql.OpenDB(txConnector)
+			t.Cleanup(func() { _ = db.Close() })
+			tx, err := db.BeginTx(context.Background(), nil)
+			if err != nil {
+				t.Fatal("cannot begin synthetic transaction")
+			}
+			got, found, err := repository.ReadUploadPolicyTx(context.Background(), tx)
+			if test.wantStage != "" {
+				if got != (data.UploadPolicy{}) || found {
+					t.Fatal("failed transaction read returned partial data")
+				}
+				assertSafeRepositoryError(t, err, "upload policy could not be read: "+test.wantStage, nil)
+			} else if err != nil || found != test.wantFound || got.MaxBytes != test.wantBytes {
+				t.Fatal("transaction policy mapping changed")
+			} else if found && (got.Set.ID != "31" || !got.Set.IsActive || got.Set.IsTesting) {
+				t.Fatal("transaction policy selected the wrong active set")
+			} else if !found && got != (data.UploadPolicy{}) {
+				t.Fatal("missing transaction policy returned partial data")
+			}
+			if err := tx.Rollback(); err != nil {
+				t.Fatal("cannot roll back synthetic transaction")
+			}
+			if len(poolConnector.Events()) != 0 {
+				t.Fatal("transaction read used the repository pool")
+			}
+			events := txConnector.Events()
+			if len(events) != 3 || events[0].Kind != dbtest.BeginKind || events[1].Kind != dbtest.QueryKind || events[1].SQL != wantSQL || events[2].Kind != dbtest.RollbackKind || txConnector.Remaining() != 0 {
+				t.Fatal("transaction query or rollback order changed")
+			}
+		})
+	}
+
+	poolConnector, repository := openOptionsRepository(t)
+	got, found, err := repository.ReadUploadPolicyTx(context.Background(), nil)
+	if got != (data.UploadPolicy{}) || found {
+		t.Fatal("nil transaction returned policy data")
+	}
+	assertSafeRepositoryError(t, err, "upload policy could not be read: dependency", nil)
+	if len(poolConnector.Events()) != 0 {
+		t.Fatal("nil transaction fell back to the pool")
+	}
+}
+
 func siteOptionsColumns() []string {
 	return []string{
 		"oid", "option_set_is_active", "option_set_is_testing_now", "site_name", "site_description",

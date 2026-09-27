@@ -195,12 +195,13 @@ func TestDoctorsUploadPolicyProductionCallers(t *testing.T) {
 	}
 }
 
-func TestAddDoctorKeepsTransactionBoundLegacyRead(t *testing.T) {
+func TestAddDoctorReadsOwnedPolicyInsideExistingTransaction(t *testing.T) {
 	file := parseFile(t, sourcePath(t, "..", "doctors.go"))
 	fn := function(t, file, "AddDoctor")
 	counts := map[string]int{}
 	positions := map[string]token.Pos{}
-	var legacyComparisons int
+	comparisons := map[string]*ast.IfStmt{}
+	var policyError *ast.IfStmt
 	ast.Inspect(fn, func(node ast.Node) bool {
 		switch typed := node.(type) {
 		case *ast.CallExpr:
@@ -209,29 +210,61 @@ func TestAddDoctorKeepsTransactionBoundLegacyRead(t *testing.T) {
 			if positions[name] == token.NoPos {
 				positions[name] = typed.Pos()
 			}
+			if name == "uploadpolicy.ReadInTx" {
+				if len(typed.Args) != 3 || sourceNode(typed.Args[0]) != "c.UserContext()" || sourceNode(typed.Args[1]) != "utilities.UploadPolicyReader" || sourceNode(typed.Args[2]) != "Orm.Tx" {
+					t.Error("owned policy read must receive the request context, existing reader, and active ORM transaction")
+				}
+			}
 		case *ast.IfStmt:
 			condition := sourceNode(typed.Cond)
-			if condition == "photoInput.Size > GetOptions.Options.MaxUploadSize" || condition == "cvInput.Size > GetOptions.Options.MaxUploadSize" {
-				legacyComparisons++
+			if condition == "photoInput.Size > uploadPolicy.MaxBytes" || condition == "cvInput.Size > uploadPolicy.MaxBytes" {
+				comparisons[condition] = typed
+			}
+			if condition == "err != nil" && positions["uploadpolicy.ReadInTx"] != token.NoPos && typed.Pos() > positions["uploadpolicy.ReadInTx"] && policyError == nil {
+				policyError = typed
 			}
 		}
 		return true
 	})
 
-	if counts["uploadpolicy.Read"] != 0 || strings.Contains(sourceNode(fn), "UploadPolicyReader") {
-		t.Fatal("transaction-bound AddDoctor was migrated")
+	if counts["uploadpolicy.ReadInTx"] != 1 || counts["uploadpolicy.Read"] != 0 || counts["GetOptions.FetchOptionsForBackend"] != 0 {
+		t.Fatal("AddDoctor must use exactly one transaction-bound owned policy read")
 	}
-	if counts["GetOptions.FetchOptionsForBackend"] != 1 {
-		t.Fatal("AddDoctor legacy options read changed")
+	for _, operation := range []string{"Orm.Begin", "Orm.Insert", "insertDoctor.Execute", "insertDoctor.LastInsertId", "uploadpolicy.ReadInTx", "c.FormFile", "OurOptions.InsertMedia", "lib.SaveFileWithBuffering", "Orm.Commit"} {
+		if positions[operation] == token.NoPos {
+			t.Fatal("AddDoctor transaction and file sequence cannot be established")
+		}
 	}
-	if positions["Orm.Begin"] == token.NoPos || positions["Orm.Insert"] == token.NoPos || positions["GetOptions.FetchOptionsForBackend"] == token.NoPos {
-		t.Fatal("AddDoctor transaction boundary cannot be established")
+	if !(positions["Orm.Begin"] < positions["Orm.Insert"] && positions["Orm.Insert"] < positions["insertDoctor.Execute"] && positions["insertDoctor.Execute"] < positions["insertDoctor.LastInsertId"] && positions["insertDoctor.LastInsertId"] < positions["uploadpolicy.ReadInTx"] && positions["uploadpolicy.ReadInTx"] < positions["c.FormFile"] && positions["c.FormFile"] < positions["OurOptions.InsertMedia"] && positions["OurOptions.InsertMedia"] < positions["lib.SaveFileWithBuffering"] && positions["lib.SaveFileWithBuffering"] < positions["Orm.Commit"]) {
+		t.Fatal("AddDoctor options read moved across the existing transaction or file side effects")
 	}
-	if positions["Orm.Begin"] >= positions["GetOptions.FetchOptionsForBackend"] || positions["Orm.Insert"] >= positions["GetOptions.FetchOptionsForBackend"] {
-		t.Fatal("AddDoctor options read is no longer inside its existing transaction")
+	if policyError == nil {
+		t.Fatal("AddDoctor options error path is missing")
 	}
-	if legacyComparisons != 2 {
-		t.Fatal("AddDoctor legacy upload comparisons changed")
+	for _, required := range []string{"Orm.Rollback()", `log.Printf("Cannot fetch options for backend: %v\n", err)`, `return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")`} {
+		if !strings.Contains(sourceNode(policyError.Body), required) {
+			t.Fatal("AddDoctor options error rollback or response changed")
+		}
+	}
+	if len(comparisons) != 2 {
+		t.Fatal("AddDoctor photo or CV byte comparison changed")
+	}
+	photoSize := comparisons["photoInput.Size > uploadPolicy.MaxBytes"]
+	cvSize := comparisons["cvInput.Size > uploadPolicy.MaxBytes"]
+	if photoSize == nil || cvSize == nil {
+		t.Fatal("AddDoctor photo or CV byte comparison is missing")
+	}
+	if photoBody := sourceNode(photoSize.Body); !strings.Contains(photoBody, "Orm.Rollback()") || !strings.Contains(photoBody, "c.Status(400).JSON") || !strings.Contains(photoBody, `"message": "Dosya boyutu çok büyük."`) {
+		t.Fatal("AddDoctor photo size error response changed")
+	}
+	if cvBody := sourceNode(cvSize.Body); !strings.Contains(cvBody, "Orm.Rollback()") || !strings.Contains(cvBody, `c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")`) {
+		t.Fatal("AddDoctor CV size error response changed")
+	}
+	if counts["OurOptions.InsertMedia"] != 2 || counts["lib.SaveFileWithBuffering"] != 2 || counts["Orm.Commit"] != 1 || !strings.Contains(sourceNode(fn), `return c.Redirect("/panel/doktorlar/" + drid)`) {
+		t.Fatal("AddDoctor media or success flow changed")
+	}
+	if strings.Contains(sourceNode(fn), "FetchOptionsForBackend") || strings.Contains(sourceNode(fn), "MaxUploadSize") {
+		t.Fatal("AddDoctor retains the legacy options lookup")
 	}
 }
 
@@ -284,7 +317,7 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 
 	otherLegacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"]
 	legacyTotal := otherLegacyTotal + counts["FetchOptionsForBackend"]
-	if legacyTotal != 106 || counts["FetchOptionsForBackend"] != 4 || otherLegacyTotal != 102 {
+	if legacyTotal != 105 || counts["FetchOptionsForBackend"] != 3 || otherLegacyTotal != 102 {
 		t.Fatal("production options caller inventory changed unexpectedly")
 	}
 	if counts["InsertMedia"] != 31 {

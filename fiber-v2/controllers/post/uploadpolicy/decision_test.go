@@ -2,6 +2,7 @@ package uploadpolicy
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"models/data"
 	"strings"
@@ -18,6 +19,84 @@ type fakeReader struct {
 	useContextError bool
 	calls           int
 	ctx             context.Context
+}
+
+type fakeTransactionReader struct {
+	policy    data.UploadPolicy
+	found     bool
+	err       error
+	poolCalls int
+	txCalls   int
+	ctx       context.Context
+	tx        *sql.Tx
+}
+
+func (r *fakeTransactionReader) ReadUploadPolicy(context.Context) (data.UploadPolicy, bool, error) {
+	r.poolCalls++
+	return data.UploadPolicy{}, false, errors.New("pool read must not run")
+}
+
+func (r *fakeTransactionReader) ReadUploadPolicyTx(ctx context.Context, tx *sql.Tx) (data.UploadPolicy, bool, error) {
+	r.txCalls++
+	r.ctx = ctx
+	r.tx = tx
+	return r.policy, r.found, r.err
+}
+
+func TestReadInTxDecisionMatrix(t *testing.T) {
+	backendErr := errors.New("private-backend credential")
+	tx := new(sql.Tx)
+	for _, test := range []struct {
+		name      string
+		reader    data.UploadPolicyReader
+		tx        *sql.Tx
+		wantBytes int64
+		wantOK    bool
+		wantCalls int
+		wantError error
+	}{
+		{"positive", &fakeTransactionReader{policy: data.UploadPolicy{MaxBytes: 5242880}, found: true}, tx, 5242880, true, 1, nil},
+		{"zero", &fakeTransactionReader{policy: data.UploadPolicy{MaxBytes: 0}, found: true}, tx, 0, true, 1, nil},
+		{"negative", &fakeTransactionReader{policy: data.UploadPolicy{MaxBytes: -1}, found: true}, tx, -1, true, 1, nil},
+		{"missing", &fakeTransactionReader{}, tx, 0, false, 1, nil},
+		{"backend error", &fakeTransactionReader{err: backendErr}, tx, 0, false, 1, nil},
+		{"canceled", &fakeTransactionReader{err: context.Canceled}, tx, 0, false, 1, context.Canceled},
+		{"deadline", &fakeTransactionReader{err: context.DeadlineExceeded}, tx, 0, false, 1, context.DeadlineExceeded},
+		{"nil reader", nil, tx, 0, false, 0, nil},
+		{"typed nil reader", (*fakeTransactionReader)(nil), tx, 0, false, 0, nil},
+		{"unsupported reader", &fakeReader{}, tx, 0, false, 0, nil},
+		{"nil transaction", &fakeTransactionReader{found: true}, nil, 0, false, 0, nil},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.WithValue(context.Background(), contextKey("transaction"), test.name)
+			got, err := ReadInTx(ctx, test.reader, test.tx)
+			if (err == nil) != test.wantOK || (test.wantOK && got.MaxBytes != test.wantBytes) {
+				t.Fatal("transaction decision or byte count changed")
+			}
+			if !test.wantOK && got != (Decision{}) {
+				t.Fatal("failed transaction read returned a decision")
+			}
+			if test.wantError != nil && !errors.Is(err, test.wantError) {
+				t.Fatal("context identity was lost")
+			}
+			if tracked, ok := test.reader.(*fakeTransactionReader); ok && tracked != nil {
+				if tracked.poolCalls != 0 || tracked.txCalls != test.wantCalls {
+					t.Fatal("transaction read fell back to the pool or ran the wrong number of times")
+				}
+				if test.wantCalls == 1 && (tracked.ctx != ctx || tracked.tx != tx) {
+					t.Fatal("request context or transaction identity changed")
+				}
+			}
+			if unsupported, ok := test.reader.(*fakeReader); ok && unsupported.calls != 0 {
+				t.Fatal("unsupported transaction reader fell back to a pool read")
+			}
+			if err != nil {
+				if strings.Contains(err.Error(), "private-backend") || strings.Contains(err.Error(), "credential") || errors.Is(err, backendErr) {
+					t.Fatal("backend diagnostic escaped")
+				}
+			}
+		})
+	}
 }
 
 func (r *fakeReader) ReadUploadPolicy(ctx context.Context) (data.UploadPolicy, bool, error) {

@@ -657,7 +657,7 @@ func TestMailAndCaptchaCallerInventory(t *testing.T) {
 	}
 
 	backendCalls, legacyTotal, ok := productionLegacyOptionCallInventory(t)
-	if !ok || backendCalls != 4 || legacyTotal != 106 {
+	if !ok || backendCalls != 3 || legacyTotal != 105 {
 		t.Fatal("global legacy options caller inventory changed")
 	}
 }

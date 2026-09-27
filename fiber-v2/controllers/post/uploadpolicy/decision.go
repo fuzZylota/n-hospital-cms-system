@@ -4,6 +4,7 @@ package uploadpolicy
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"models/data"
 	"reflect"
@@ -27,6 +28,28 @@ func Read(ctx context.Context, reader data.UploadPolicyReader) (Decision, error)
 	}
 
 	policy, found, err := reader.ReadUploadPolicy(ctx)
+	return decision(policy, found, err)
+}
+
+type transactionReader interface {
+	ReadUploadPolicyTx(context.Context, *sql.Tx) (data.UploadPolicy, bool, error)
+}
+
+// ReadInTx requires the existing reader to query the supplied transaction. It
+// never falls back to a pool read when the transaction capability is absent.
+func ReadInTx(ctx context.Context, reader data.UploadPolicyReader, tx *sql.Tx) (Decision, error) {
+	if isNilReader(reader) || tx == nil {
+		return Decision{}, errPolicyUnavailable
+	}
+	txReader, ok := reader.(transactionReader)
+	if !ok {
+		return Decision{}, errPolicyUnavailable
+	}
+	policy, found, err := txReader.ReadUploadPolicyTx(ctx, tx)
+	return decision(policy, found, err)
+}
+
+func decision(policy data.UploadPolicy, found bool, err error) (Decision, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, context.Canceled):
