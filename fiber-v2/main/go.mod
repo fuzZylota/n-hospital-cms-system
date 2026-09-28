@@ -1,4 +1,4 @@
-module main
+module github.com/fuzZylota/n-hospital-cms-system/fiber-v2/main
 
 go 1.25.1
 
