@@ -19,13 +19,21 @@ class RandevuEditManager {
      * Initialize the manager
      */
     init() {
+        this.clearLegacyAutoSave();
         this.setupEventListeners();
         this.setupFormValidation();
         this.storeOriginalData();
         this.setupDropdowns();
         this.setupTimeInput();
-        this.setupAutoSave();
         this.setupKeyboardShortcuts();
+    }
+
+    clearLegacyAutoSave() {
+        try {
+            localStorage.removeItem('randevuEditAutoSave');
+        } catch (error) {
+            // Storage can be unavailable; editing must still work in memory.
+        }
     }
 
     /**
@@ -430,42 +438,6 @@ class RandevuEditManager {
     }
 
     /**
-     * Setup auto-save functionality
-     */
-    setupAutoSave() {
-        let autoSaveTimeout;
-        if (this.form) {
-            this.form.addEventListener('input', () => {
-                clearTimeout(autoSaveTimeout);
-                autoSaveTimeout = setTimeout(() => {
-                    this.autoSave();
-                }, 2000);
-            });
-        }
-    }
-
-    /**
-     * Auto-save form data
-     */
-    autoSave() {
-        if (this.isSubmitting) return;
-
-        const allData = {};
-        if (this.form) {
-            const formData = new FormData(this.form);
-            for (const [key, value] of formData.entries()) {
-                allData[key] = value;
-            }
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('randevuEditAutoSave', JSON.stringify({
-            data: allData,
-            timestamp: Date.now()
-        }));
-    }
-
-    /**
      * Setup keyboard shortcuts
      */
     setupKeyboardShortcuts() {
@@ -738,7 +710,6 @@ class RandevuEditManager {
             if (result.status === 201) {
                 this.showAlert('Randevu başarıyla güncellendi.', 'success');
                 this.storeOriginalData();
-                localStorage.removeItem('randevuEditAutoSave');
                 
                 // Redirect after success
                 setTimeout(() => {
