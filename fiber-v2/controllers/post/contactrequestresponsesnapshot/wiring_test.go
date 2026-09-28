@@ -184,6 +184,35 @@ func TestResponseSnapshotProductionCallerAndLegacyInventory(t *testing.T) {
 	}
 }
 
+func TestResponseSnapshotAppointmentCallerInventoryMutationFixtures(t *testing.T) {
+	baseline := responseProductionSources(t)
+	path := "controllers/post/randevular/randevular.go"
+	read := "appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)"
+	for _, fixture := range []struct {
+		name        string
+		replacement string
+	}{
+		{"wrong snapshot reader", "appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.ContactRequestResponseWorkflowSnapshotReader)"},
+		{"legacy read returns", "GetOptions.FetchOptionsForBackend(Orm, []string{}, []string{}); " + read},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			sources := responseCloneSources(baseline)
+			anchor := "func EditRandevu("
+			parts := strings.SplitN(string(sources[path]), anchor, 2)
+			if len(parts) != 2 || strings.Count(parts[1], read) != 1 {
+				t.Fatal("appointment snapshot fixture anchor changed")
+			}
+			sources[path] = []byte(parts[0] + anchor + strings.Replace(parts[1], read, fixture.replacement, 1))
+			if _, err := parser.ParseFile(token.NewFileSet(), path, sources[path], parser.AllErrors); err != nil {
+				t.Fatalf("appointment fixture produced invalid Go source: %v", err)
+			}
+			if responseLegacyWorkflowInventoryIsExact(sources) {
+				t.Fatal("wrong appointment snapshot binding or restored legacy read was accepted")
+			}
+		})
+	}
+}
+
 func TestResponseSnapshotProductionCallerInventoryMutationFixtures(t *testing.T) {
 	baseline := responseProductionSources(t)
 	postPath := "controllers/post/post.go"
@@ -736,9 +765,10 @@ func responseInsertProductionFixture(t *testing.T, sources map[string][]byte, pa
 
 func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 	type expectation struct {
-		path          string
-		legacyCalls   int
-		responseCalls int
+		path             string
+		legacyCalls      int
+		responseCalls    int
+		appointmentCalls int
 	}
 	wanted := map[string]expectation{
 		"RespondToContactRequest": {path: "controllers/post/post.go", responseCalls: 1},
@@ -746,8 +776,8 @@ func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 		"AddJobApplication":       {path: "controllers/post/post.go"},
 		"RespondToJobApplication": {path: "controllers/post/post.go"},
 		"AddRandevuRequest":       {path: "controllers/post/randevular/randevular.go"},
-		"AddRandevu":              {path: "controllers/post/randevular/randevular.go"},
-		"EditRandevu":             {path: "controllers/post/randevular/randevular.go", legacyCalls: 1},
+		"AddRandevu":              {path: "controllers/post/randevular/randevular.go", appointmentCalls: 1},
+		"EditRandevu":             {path: "controllers/post/randevular/randevular.go", appointmentCalls: 1},
 	}
 	seen := map[string]int{}
 	for name, expected := range wanted {
@@ -771,6 +801,8 @@ func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 			seen[name]++
 			legacyCalls := 0
 			responseCalls := 0
+			appointmentCalls := 0
+			appointmentBindingValid := true
 			ast.Inspect(function, func(node ast.Node) bool {
 				call, ok := node.(*ast.CallExpr)
 				if !ok {
@@ -782,9 +814,16 @@ func responseLegacyWorkflowInventoryIsExact(sources map[string][]byte) bool {
 				if responseSnapshotReadCall(call, aliases, dotImport) {
 					responseCalls++
 				}
+				if responseNodeSource(call.Fun) == "appointmentworkflowsnapshot.Read" {
+					appointmentCalls++
+					if len(call.Args) != 2 || responseNodeSource(call.Args[0]) != "c.UserContext()" ||
+						responseNodeSource(call.Args[1]) != "utilities.AppointmentWorkflowSnapshotReader" {
+						appointmentBindingValid = false
+					}
+				}
 				return true
 			})
-			if legacyCalls != expected.legacyCalls || responseCalls != expected.responseCalls {
+			if legacyCalls != expected.legacyCalls || responseCalls != expected.responseCalls || appointmentCalls != expected.appointmentCalls || !appointmentBindingValid {
 				return false
 			}
 		}
