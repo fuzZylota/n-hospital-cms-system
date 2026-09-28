@@ -1,14 +1,19 @@
 <link rel="stylesheet" href="/css/panel/dokumantasyon.css">
 <script src="/js/panel/dokumantasyon.js" defer></script>
 <div class="doc-page">
+    <h1 class="doc-page-title">Dokümantasyon</h1>
     <div class="doc-intro">
         Bu sayfa; Nivgöz Yönetim Paneli'nin tüm modülleri hakkında detaylı dokümantasyon içerir. Her modülün amacı, kullanımı ve önemli notları aşağıda açıklanmıştır.
     </div>
 
     <!-- Seçenekler -->
     <div class="doc-accordion open">
-        <div class="doc-acc-header"><div class="doc-acc-title">Seçenekler</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-1" aria-expanded="true" aria-controls="doc-acc-panel-1">
+                <span class="doc-acc-title">Seçenekler</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-1" role="group" aria-labelledby="doc-acc-trigger-1">
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Site geneli yapılandırma ve tema ayarları. Logo, favicon, iletişim bilgileri, sosyal medya bağlantıları, SMTP e-posta ayarları ve SEO meta bilgilerini kapsar.</div></div>
             <div class="doc-section-title">Önemli Alanlar</div>
@@ -23,8 +28,12 @@
 
     <!-- Kullanıcılar -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Kullanıcılar</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-2" aria-expanded="false" aria-controls="doc-acc-panel-2">
+                <span class="doc-acc-title">Kullanıcılar</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-2" role="group" aria-labelledby="doc-acc-trigger-2" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Panel yönetim kullanıcıları. Admin ve moderator olmak üzere iki rol bulunur. Her kullanıcının benzersiz e-posta ve telefon numarası olmalıdır.</div></div>
             <div class="doc-section-title">Roller</div>
@@ -37,8 +46,12 @@
 
     <!-- Menü Öğeleri -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Menü Öğeleri</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-3" aria-expanded="false" aria-controls="doc-acc-panel-3">
+                <span class="doc-acc-title">Menü Öğeleri</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-3" role="group" aria-labelledby="doc-acc-trigger-3" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Site üst menüsündeki navigasyon butonlarını yönetir. Her butonun başlığı, URL'si, hedefi (yeni sekme / aynı sekme) ve türü ayarlanabilir. Kurumsal menü altındaki alt sayfalar bu sistem üzerinden yönetilir.</div></div>
             <div class="doc-section-title">Önemli Notlar</div>
@@ -51,8 +64,12 @@
 
     <!-- Şubeler -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Şubeler</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-4" aria-expanded="false" aria-controls="doc-acc-panel-4">
+                <span class="doc-acc-title">Şubeler</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-4" role="group" aria-labelledby="doc-acc-trigger-4" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Nivgöz merkezlerini (Adana, Mersin vb.) yönetir. Her şubeye doktor atanabilir. Merkezlerimiz sayfasında listelenir.</div></div>
             <div class="doc-section-title">Önemli Alanlar</div>
@@ -65,8 +82,12 @@
 
     <!-- Anlaşmalı Kurumlar -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Anlaşmalı Kurumlar</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-5" aria-expanded="false" aria-controls="doc-acc-panel-5">
+                <span class="doc-acc-title">Anlaşmalı Kurumlar</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-5" role="group" aria-labelledby="doc-acc-trigger-5" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Nivgöz'ün anlaşmalı olduğu sigorta şirketleri ve kurumları yönetir. Kurumsal > Anlaşmalı Kurumlar sayfasında görüntülenir.</div></div>
         </div>
@@ -74,8 +95,12 @@
 
     <!-- Branşlar -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Bölümler (Branşlar)</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-6" aria-expanded="false" aria-controls="doc-acc-panel-6">
+                <span class="doc-acc-title">Bölümler (Branşlar)</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-6" role="group" aria-labelledby="doc-acc-trigger-6" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Tıbbi branşları yönetir. Doktorların hangi bölümde çalıştığı bu modül üzerinden belirlenir.</div></div>
         </div>
@@ -83,8 +108,12 @@
 
     <!-- Doktorlar -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Doktorlar</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-7" aria-expanded="false" aria-controls="doc-acc-panel-7">
+                <span class="doc-acc-title">Doktorlar</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-7" role="group" aria-labelledby="doc-acc-trigger-7" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Doktor profilleri, kişisel bilgiler, eğitim geçmişi, uzmanlık alanları ve şube bilgilerini yönetir. Doktorlarımız sayfasında ve ilgili şube sayfalarında listelenir.</div></div>
             <div class="doc-section-title">Önemli Alanlar</div>
@@ -98,8 +127,12 @@
 
     <!-- Uzmanlıklar -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Uzmanlıklar</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-8" aria-expanded="false" aria-controls="doc-acc-panel-8">
+                <span class="doc-acc-title">Uzmanlıklar</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-8" role="group" aria-labelledby="doc-acc-trigger-8" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Doktorlara atanabilecek uzmanlık alanlarını yönetir. Örnek: Katarakt Cerrahisi, Refraktif Cerrahi, Glokom.</div></div>
         </div>
@@ -107,8 +140,12 @@
 
     <!-- Tıbbi Birimler -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Tıbbi Birimler</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-9" aria-expanded="false" aria-controls="doc-acc-panel-9">
+                <span class="doc-acc-title">Tıbbi Birimler</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-9" role="group" aria-labelledby="doc-acc-trigger-9" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Sunulan tıbbi hizmetleri ve tedavi birimlerini yönetir. Tıbbi Birimler sayfasında listelenir. Slider'daki "İncele" butonu ilgili tıbbi birimin sayfasına yönlendirir.</div></div>
             <div class="doc-section-title">Önemli Alanlar</div>
@@ -122,8 +159,12 @@
 
     <!-- Tetkikler -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Tetkikler</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-10" aria-expanded="false" aria-controls="doc-acc-panel-10">
+                <span class="doc-acc-title">Tetkikler</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-10" role="group" aria-labelledby="doc-acc-trigger-10" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Sunulan tanı ve tetkik hizmetlerini yönetir. Tetkikler sayfasında listelenir.</div></div>
         </div>
@@ -131,8 +172,12 @@
 
     <!-- Anasayfa İçerikleri -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Anasayfa İçerikleri</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-11" aria-expanded="false" aria-controls="doc-acc-panel-11">
+                <span class="doc-acc-title">Anasayfa İçerikleri</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-11" role="group" aria-labelledby="doc-acc-trigger-11" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Ana sayfadaki slider (banner) görsellerini ve içeriklerini yönetir. Her slider öğesi için masaüstü ve mobil görsel ayrı ayrı ayarlanabilir. Slider öğesine tıbbi birim atandığında, masaüstünde "İncele" butonu görünür, mobilde ise slider'a tıklanınca ilgili tıbbi birimin sayfasına yönlendirilir.</div></div>
             <div class="doc-section-title">Önemli Notlar</div>
@@ -146,8 +191,12 @@
 
     <!-- Diğer Sayfa İçerikleri -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Diğer Sayfa İçerikleri</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-12" aria-expanded="false" aria-controls="doc-acc-panel-12">
+                <span class="doc-acc-title">Diğer Sayfa İçerikleri</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-12" role="group" aria-labelledby="doc-acc-trigger-12" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Hakkımızda, Misyon-Vizyon, KVKK, Çerez Politikası, İnsan Kaynakları gibi kurumsal sayfaların HTML içeriklerini yönetir. Zengin metin editörü ile düzenlenebilir.</div></div>
             <div class="doc-section-title">Sayfa Tipleri</div>
@@ -163,8 +212,12 @@
 
     <!-- Haberler -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Haberler</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-13" aria-expanded="false" aria-controls="doc-acc-panel-13">
+                <span class="doc-acc-title">Haberler</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-13" role="group" aria-labelledby="doc-acc-trigger-13" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Blog yazıları ve haberleri yönetir. Haberler sayfasında listelenir. Yayınlanma durumu "is_published" alanı ile kontrol edilir.</div></div>
             <div class="doc-section-title">Önemli Alanlar</div>
@@ -178,8 +231,12 @@
 
     <!-- Medya -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Medya</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-14" aria-expanded="false" aria-controls="doc-acc-panel-14">
+                <span class="doc-acc-title">Medya</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-14" role="group" aria-labelledby="doc-acc-trigger-14" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Site genelinde kullanılan görselleri yönetir. Yüklenen görseller doktorlar, tıbbi birimler, haberler ve slider gibi modüllerde kullanılabilir.</div></div>
             <div class="doc-section-title">Önemli Notlar</div>
@@ -192,8 +249,12 @@
 
     <!-- Randevu Talepleri -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Randevu Talepleri</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-15" aria-expanded="false" aria-controls="doc-acc-panel-15">
+                <span class="doc-acc-title">Randevu Talepleri</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-15" role="group" aria-labelledby="doc-acc-trigger-15" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Web sitesi üzerinden gelen randevu taleplerini yönetir. Hastanın adı, soyadı, telefonu, tercih ettiği merkez ve ek notlar burada görüntülenir. Talepler değerlendirilerek hasta ile iletişime geçilir.</div></div>
             <div class="doc-section-title">Önemli Notlar</div>
@@ -206,8 +267,12 @@
 
     <!-- İletişim Talepleri -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">İletişim Talepleri</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-16" aria-expanded="false" aria-controls="doc-acc-panel-16">
+                <span class="doc-acc-title">İletişim Talepleri</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-16" role="group" aria-labelledby="doc-acc-trigger-16" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">İletişim sayfasından gönderilen mesajları yönetir. Gönderici bilgileri, mesaj içeriği ve yanıt durumu burada takip edilir.</div></div>
         </div>
@@ -215,8 +280,12 @@
 
     <!-- İş Başvuruları -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">İş Başvuruları</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-17" aria-expanded="false" aria-controls="doc-acc-panel-17">
+                <span class="doc-acc-title">İş Başvuruları</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-17" role="group" aria-labelledby="doc-acc-trigger-17" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">İnsan Kaynakları sayfasından yapılan iş başvurularını yönetir. Başvuru sahibinin bilgileri ve yüklenen CV buradan incelenebilir.</div></div>
         </div>
@@ -224,8 +293,12 @@
 
     <!-- Site Arama -->
     <div class="doc-accordion">
-        <div class="doc-acc-header"><div class="doc-acc-title">Site İçi Arama</div><div class="doc-acc-icon">▶</div></div>
-        <div class="doc-acc-content">
+        <h2 class="doc-acc-heading">
+            <button type="button" class="doc-acc-header" id="doc-acc-trigger-18" aria-expanded="false" aria-controls="doc-acc-panel-18">
+                <span class="doc-acc-title">Site İçi Arama</span><span class="doc-acc-icon" aria-hidden="true">▶</span>
+            </button>
+        </h2>
+        <div class="doc-acc-content" id="doc-acc-panel-18" role="group" aria-labelledby="doc-acc-trigger-18" hidden>
             <div class="doc-section-title">Amaç</div>
             <div class="doc-kv"><div class="k">Açıklama</div><div class="v">Ziyaretçilerin site içinde arama yapmasını sağlar. Topbar'daki büyüteç ikonuna tıklanarak erişilir. Masaüstünde topbar'da genişleyen bir input, mobilde ise header altında açılan bir arama çubuğu görünür.</div></div>
             <div class="doc-section-title">Aranabilen İçerikler</div>

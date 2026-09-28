@@ -5,37 +5,44 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(selector));
   }
 
-  function onClick(el, handler) {
-    el.addEventListener('click', handler, false);
+  function setOpen(acc, open) {
+    var button = acc.querySelector('.doc-acc-header');
+    var panel = acc.querySelector('.doc-acc-content');
+    if (!button || !panel) return;
+    acc.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
   }
 
   function closeAllAccordions(except) {
-    selectAll('.doc-accordion').forEach(function (acc) {
-      if (acc !== except) acc.classList.remove('open');
+    selectAll('.doc-page .doc-accordion').forEach(function (acc) {
+      if (acc !== except) setOpen(acc, false);
     });
   }
 
   function initAccordions() {
-    selectAll('.doc-accordion').forEach(function (acc) {
-      var header = acc.querySelector('.doc-acc-header');
-      if (!header) return;
-      onClick(header, function () {
+    var accordions = selectAll('.doc-page .doc-accordion');
+    var initial = document.querySelector('.doc-page .doc-accordion.open') || accordions[0];
+    accordions.forEach(function (acc) {
+      var button = acc.querySelector('.doc-acc-header');
+      if (!button) return;
+      setOpen(acc, acc === initial);
+      button.addEventListener('click', function () {
         var isOpen = acc.classList.contains('open');
         if (isOpen) {
-          // If the clicked accordion is already open, close it (toggle off)
-          acc.classList.remove('open');
+          setOpen(acc, false);
         } else {
-          // Otherwise, close others and open this one (single-open behavior)
           closeAllAccordions(acc);
-          acc.classList.add('open');
+          setOpen(acc, true);
+        }
+      });
+      button.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && acc.classList.contains('open')) {
+          setOpen(acc, false);
+          event.preventDefault();
         }
       });
     });
-    // ensure one open by default (first)
-    var first = document.querySelector('.doc-accordion');
-    if (first && !document.querySelector('.doc-accordion.open')) {
-      first.classList.add('open');
-    }
   }
 
   document.addEventListener('DOMContentLoaded', initAccordions);

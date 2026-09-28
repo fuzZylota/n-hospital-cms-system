@@ -7464,7 +7464,7 @@ func DocumentationPage(states *models.AppState, utilities *models.Utilities) fib
 
 		return c.Render("views/panel/dokumantasyon", fiber.Map{
 			"PathOnStart": "../",
-			"PageTitle":   "Dosya Ekle",
+			"PageTitle":   "Dokümantasyon",
 			"User":        ourUser,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
