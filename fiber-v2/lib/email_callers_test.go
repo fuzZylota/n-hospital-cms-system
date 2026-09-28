@@ -249,6 +249,45 @@ func TestEmailCallerLogsContainOnlySafeMetadata(t *testing.T) {
 	}
 }
 
+func TestJobApplicationCVDiagnosticPinRejectsUnsafeBranches(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "post.go"))
+	if err != nil {
+		t.Fatal("cannot read job application source")
+	}
+	check := func(content []byte) bool {
+		fset := token.NewFileSet()
+		file, err := parser.ParseFile(fset, "post.go", content, 0)
+		if err != nil {
+			return false
+		}
+		for _, declaration := range file.Decls {
+			if function, ok := declaration.(*ast.FuncDecl); ok && function.Recv == nil && function.Name.Name == "AddJobApplication" {
+				return targetWorkflowDiagnosticsSafe(file, function, fset, "AddJobApplication")
+			}
+		}
+		return false
+	}
+	if !check(source) {
+		t.Fatal("production CV diagnostics were rejected")
+	}
+	for _, tc := range []struct{ name, old, replacement string }{
+		{"raw upload error", `log.Printf("operation=AddJobApplication stage=cv_path")`, `log.Print(err)`},
+		{"reversed unsupported-type guard", `err == lib.ErrUnsupportedJobApplicationDocument`, `err != lib.ErrUnsupportedJobApplicationDocument`},
+		{"wrong error binding", `err == lib.ErrUnsupportedJobApplicationDocument`, `cvErr == lib.ErrUnsupportedJobApplicationDocument`},
+		{"sentinel method value", `if err == lib.ErrUnsupportedJobApplicationDocument {`, `_ = lib.ErrUnsupportedJobApplicationDocument; if err == lib.ErrUnsupportedJobApplicationDocument {`},
+	} {
+		t.Run("unsafe CV fixture", func(t *testing.T) {
+			if strings.Count(string(source), tc.old) != 1 {
+				t.Fatal("fixture anchor changed")
+			}
+			mutated := strings.Replace(string(source), tc.old, tc.replacement, 1)
+			if check([]byte(mutated)) {
+				t.Fatal("unsafe CV diagnostic change was accepted")
+			}
+		})
+	}
+}
+
 const removedDisplayInputSymbol = "DisplayInputInfosOnTerminal"
 
 func astParents(root ast.Node) map[ast.Node]ast.Node {
@@ -1785,6 +1824,10 @@ func canonicalPackageCalls(file *ast.File, target ast.Node, importPath string) (
 		}
 		if selector, ok := node.(*ast.SelectorExpr); ok {
 			if receiver, ok := selector.X.(*ast.Ident); ok && names[receiver.Name] && (receiver.Obj == nil || receiver.Obj.Kind == ast.Pkg) && !loggerNameShadowed(ancestors, receiver.Name, selector.Pos()) {
+				if importPath == "lib" && selector.Sel.Name == "ErrUnsupportedJobApplicationDocument" && jobUploadSentinelComparison(ancestors, selector) {
+					ancestors = append(ancestors, node)
+					return true
+				}
 				var direct *ast.CallExpr
 				for index := len(ancestors) - 1; index >= 0; index-- {
 					if _, ok := ancestors[index].(*ast.ParenExpr); ok {
@@ -1835,6 +1878,18 @@ func canonicalPackageCalls(file *ast.File, target ast.Node, importPath string) (
 		return true
 	})
 	return calls, safe
+}
+
+func jobUploadSentinelComparison(ancestors []ast.Node, sentinel ast.Expr) bool {
+	if len(ancestors) == 0 {
+		return false
+	}
+	comparison, ok := ancestors[len(ancestors)-1].(*ast.BinaryExpr)
+	if !ok || comparison.Op != token.EQL || comparison.Y != sentinel {
+		return false
+	}
+	errName, ok := comparison.X.(*ast.Ident)
+	return ok && errName.Name == "err"
 }
 
 func canonicalLogCalls(file *ast.File, target ast.Node) (map[*ast.CallExpr]string, bool) {
@@ -2085,7 +2140,7 @@ var workflowLogSignatures = map[string]string{
 	"AddRandevu":              "40923db15c33b87f07f9c1b2800ed44f8e762dec62cea0c7e07396f9a95c9d8c",
 	"EditRandevu":             "52a8a9b80b54e77d40a9968ec559af07cc66c0a61ba40d07983a0e7db6264bc9",
 	"AddContactRequest":       "c51edf1ba5d7d2ba634be04eb5f22e38c969443465c392002dc707062d478f9a",
-	"AddJobApplication":       "57cb2dee731bf7f639e0d0d14f14c61c2f1c949f13111b3d6f354d5991244112",
+	"AddJobApplication":       "f113f07874fe76e0a472a0aa97b42fd97ea54b4a71dda81df662102e59ac5217",
 	"RespondToContactRequest": "f589bd90a1e32a3e325fb7fbff3e910c253ad8899204452598ab4ea54fdfd0d0",
 	"RespondToJobApplication": "b888d278a7243f4b2adda01b671f995938efdb3737622dc20bd776b71adb7bfc",
 }
