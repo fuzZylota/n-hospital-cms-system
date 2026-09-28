@@ -280,10 +280,10 @@ func jobApplicationResponseExpectedReferenceNodes(context contactRequestScanCont
 					continue
 				}
 				owned, ok := field.Value.(*ast.FuncLit)
-				if !ok || len(owned.Body.List) != 15 {
+				if !ok || len(owned.Body.List) != 16 {
 					return nil, false
 				}
-				assignment, ok := owned.Body.List[10].(*ast.AssignStmt)
+				assignment, ok := owned.Body.List[11].(*ast.AssignStmt)
 				if !ok || len(assignment.Lhs) != 1 || !mark(assignment.Lhs[0], "utilities.JobApplicationResponseWorkflowSnapshotReader") {
 					return nil, false
 				}
