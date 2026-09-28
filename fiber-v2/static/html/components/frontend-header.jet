@@ -25,9 +25,9 @@
                 </a>
             </div>
             <div class="main-header__right">
-                <div class="nv-mobile-search-btn d-block d-lg-none" id="nvMobileSearchBtn" style="cursor:pointer;margin-right:16px;display:flex;align-items:center;">
-                    <i class="icon-search" style="font-size:20px;"></i>
-                </div>
+                <button type="button" class="nv-mobile-search-btn d-block d-lg-none" id="nvMobileSearchBtn" aria-label="Ara" aria-expanded="false" aria-controls="nvMobileSearchBar">
+                    <i class="icon-search" aria-hidden="true"></i>
+                </button>
                 <div class="main-header__sidebar-btn sidebar-btn__toggler">
                     <span></span>
                     <span></span>
@@ -129,11 +129,11 @@
 
 
 </header>
-<div class="mobile-nav__wrapper" id="nvMobileNav">
+<div class="mobile-nav__wrapper" id="nvMobileNav" hidden>
     <div class="mobile-nav__overlay mobile-nav__toggler"></div>
     
     <div class="mobile-nav__content">
-        <span class="mobile-nav__close mobile-nav__toggler"><i class="icon-close"></i></span>
+        <button type="button" class="mobile-nav__close mobile-nav__toggler" aria-label="Menüyü kapat"><i class="icon-close" aria-hidden="true"></i></button>
 
         <div class="logo-box logo-retina">
             <a href="/" aria-label="logo image">
@@ -186,11 +186,11 @@
 
 
 <!-- Mobil Arama Bar -->
-<div id="nvMobileSearchBar" style="position:fixed;left:0;width:100%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9998;padding:12px 16px;visibility:hidden;opacity:0;transition:opacity 0.3s ease,visibility 0.3s ease;">
+<div id="nvMobileSearchBar" hidden>
     <form action="/arama" method="get">
         <div style="display:flex;align-items:center;border:2px solid #0a2241;border-radius:8px;overflow:hidden;">
             <input id="nvMobileSearchInput" type="text" name="q" aria-label="Sitede ara" placeholder="Aramak istediğiniz kelimeyi yazın..." style="flex:1;padding:10px 14px;border:none;font-size:16px;font-family:inherit;color:#0a2241;">
-            <button type="submit" style="padding:10px 14px;background:#0a2241;border:none;cursor:pointer;color:#fff;font-size:16px;"><i class="icon-search"></i></button>
+            <button type="submit" aria-label="Ara" style="padding:10px 14px;background:#0a2241;border:none;cursor:pointer;color:#fff;font-size:16px;"><i class="icon-search" aria-hidden="true"></i></button>
         </div>
     </form>
 </div>
