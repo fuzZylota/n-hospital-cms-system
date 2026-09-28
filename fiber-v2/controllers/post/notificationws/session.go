@@ -59,6 +59,12 @@ func connectionID(random io.Reader) (notify.ConnectionID, error) {
 // serve owns read/close and waits for the hub writer and watcher before the
 // Fiber wrapper is returned to its pool. Even panic/Goexit runs this cleanup.
 func serve(hub notify.Hub, socket Socket, local any, event Event, onText func(Event, []byte), random io.Reader) (err error) {
+	return serveWithAuthorization(hub, socket, local, event, nil, onText, random)
+}
+
+// authorize is evaluated after the upgrade, immediately before a text event.
+// Production supplies a fresh, fail-closed account and event authorization.
+func serveWithAuthorization(hub notify.Hub, socket Socket, local any, event Event, authorize func(notify.UserID, Event, []byte) bool, onText func(Event, []byte), random io.Reader) (err error) {
 	t := newTransport(socket)
 	defer t.close()
 	defer func() {
@@ -98,6 +104,9 @@ func serve(hub notify.Hub, socket Socket, local any, event Event, onText func(Ev
 			return nil
 		}
 		if kind == textMessage {
+			if authorize != nil && !authorize(metadata.UserID, event, payload) {
+				return errAuthorization
+			}
 			if onText != nil {
 				onText(event, payload)
 			}
@@ -108,4 +117,8 @@ func serve(hub notify.Hub, socket Socket, local any, event Event, onText func(Ev
 
 func serveAuthenticated(hub notify.Hub, socket Socket, local any, event Event, onText func(Event, []byte)) error {
 	return serve(hub, socket, local, event, onText, rand.Reader)
+}
+
+func serveAuthenticatedAuthorized(hub notify.Hub, socket Socket, local any, event Event, authorize func(notify.UserID, Event, []byte) bool, onText func(Event, []byte)) error {
+	return serveWithAuthorization(hub, socket, local, event, authorize, onText, rand.Reader)
 }

@@ -42,10 +42,15 @@ type client struct {
 	ctx     context.Context
 	cancel  context.CancelFunc
 	send    notify.Send
-	queue   chan []byte
+	queue   chan delivery
 	done    chan struct{}
 	stopped bool
 	err     error
+}
+
+type delivery struct {
+	payload   []byte
+	predicate notify.Predicate
 }
 
 var _ notify.Hub = (*hub)(nil)
@@ -80,7 +85,7 @@ func (h *hub) Register(ctx context.Context, room notify.RoomID, info notify.Clie
 	}
 	c := &client{
 		hub: h, room: room, info: info, ctx: clientCtx, cancel: cancel,
-		send: send, queue: make(chan []byte, h.capacity), done: make(chan struct{}),
+		send: send, queue: make(chan delivery, h.capacity), done: make(chan struct{}),
 	}
 	h.clients[info.ID] = c
 	if h.rooms[room] == nil {
@@ -137,7 +142,7 @@ func (h *hub) Broadcast(room notify.RoomID, payload []byte, predicate notify.Pre
 			continue
 		}
 		select {
-		case c.queue <- messages[i]:
+		case c.queue <- delivery{payload: messages[i], predicate: predicate}:
 			result.Enqueued++
 		default:
 			h.stopLocked(c, notify.ErrSlowClient)
@@ -208,7 +213,7 @@ func (c *client) write() {
 		case <-c.ctx.Done():
 			c.stop(c.ctx.Err())
 			return
-		case payload := <-c.queue:
+		case item := <-c.queue:
 			c.hub.mu.Lock()
 			if err := c.ctx.Err(); err != nil {
 				c.hub.stopLocked(c, err)
@@ -218,8 +223,18 @@ func (c *client) write() {
 			if stopped {
 				return
 			}
+			// A queued notification may outlive the recipient's current role,
+			// branch or active status. Recheck outside the hub lock just before I/O.
+			allowed, predicateErr := matches(item.predicate, c.info)
+			if predicateErr != nil {
+				c.stop(predicateErr)
+				return
+			}
+			if !allowed {
+				continue
+			}
 			// Dispatch occurs above; unregister may race with this in-flight call.
-			if err := deliver(c.send, c.ctx, payload); err != nil {
+			if err := deliver(c.send, c.ctx, item.payload); err != nil {
 				if contextErr := c.ctx.Err(); contextErr != nil {
 					err = contextErr
 				}

@@ -13,6 +13,11 @@ var _ Socket = (*websocket.Conn)(nil)
 // Handler authenticates while the HTTP context is valid. The upgrader copies
 // the immutable typed UID into its own locals map; no Fiber context is retained.
 func Handler(hub notify.Hub, authenticate func(*fiber.Ctx) (notify.UserID, error), onText func(Event, []byte), config websocket.Config) fiber.Handler {
+	return HandlerAuthorized(hub, authenticate, nil, onText, config)
+}
+
+// HandlerAuthorized rechecks an open producer session before handling its text.
+func HandlerAuthorized(hub notify.Hub, authenticate func(*fiber.Ctx) (notify.UserID, error), authorize func(notify.UserID, Event, []byte) bool, onText func(Event, []byte), config websocket.Config) fiber.Handler {
 	// The library's default recovery logs the panic and calls WriteJSON. Neither
 	// is safe for this handler. serve owns cleanup; this is a final safe boundary.
 	config.RecoverHandler = func(c *websocket.Conn) {
@@ -26,7 +31,7 @@ func Handler(hub notify.Hub, authenticate func(*fiber.Ctx) (notify.UserID, error
 		if !ok {
 			event = Unknown
 		}
-		if err := serveAuthenticated(hub, c, c.Locals(identityKey), event, onText); err != nil {
+		if err := serveAuthenticatedAuthorized(hub, c, c.Locals(identityKey), event, authorize, onText); err != nil {
 			log.Print("notification websocket: session failed")
 		}
 	}, config)

@@ -58,7 +58,7 @@ func TestProductionWiringAndIdentityBoundaries(t *testing.T) {
 	}{
 		{"main/main.go", []string{"notificationhub.New(notificationQueueCapacity)", "utilities.NotificationHub = hub", "return hub.Shutdown, nil"}},
 		{"models/models.go", []string{"NotificationHub", "notify.Hub"}},
-		{"controllers/post/post.go", []string{"notificationws.Handler(utilities.NotificationHub", "lib.CheckAuth(c)", "notificationevent.AppointmentRecipients", "notificationevent.ApplicationRecipients"}},
+		{"controllers/post/post.go", []string{"notificationws.HandlerAuthorized(utilities.NotificationHub", "lib.CheckAuth(c)", "authorizeNotificationText(utilities, uid, event, msg)", "notificationevent.ApplicationRecipients"}},
 		{"controllers/post/randevular/randevular.go", []string{"notificationevent.RequestRecipients", "CheckPerm.Where(\"uid\", \"=\", string(uid))", "CheckPerm.And(\"sid\", \"=\", string(sid))", "CheckPerm.And(\"can_view\", \"=\", true)"}},
 		{"controllers/post/notificationws/fiber.go", []string{"err := authenticatedUpgrade(", "return authenticate(c)", "c.Locals(identityKey, uid)", "return upgrade(c)", "c.Locals(identityKey)", "if err == errIdentity", "return fiber.ErrUnauthorized"}},
 		{"controllers/post/notificationws/session.go", []string{"uid, err := authenticatedUserID(value)", "metadata, err := identity(local)"}},
@@ -75,7 +75,7 @@ func TestProductionWiringAndIdentityBoundaries(t *testing.T) {
 	if strings.Contains(post, "WebsocketMessage.Uid") || strings.Contains(post, "strings.Split") || strings.Contains(post, "c.Id") {
 		t.Fatal("client/connection identity used as authority")
 	}
-	if strings.Count(post, "notificationevent.Publish(") != 3 {
+	if !strings.Contains(post, "event == notificationws.Appointment") || strings.Count(post, "notificationevent.Publish(") != 3 {
 		t.Fatal("socket event missing")
 	}
 	requests := readSource(t, filepath.Join(root, "controllers/post/randevular/randevular.go"))
@@ -107,7 +107,7 @@ func TestSessionIdentityGuardPrecedesRegistrationAndWatcher(t *testing.T) {
 	}
 	for _, decl := range file.Decls {
 		fn, ok := decl.(*ast.FuncDecl)
-		if !ok || fn.Name.Name != "serve" {
+		if !ok || fn.Name.Name != "serveWithAuthorization" {
 			continue
 		}
 		stages := []string{}

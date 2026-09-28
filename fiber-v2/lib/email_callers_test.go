@@ -483,6 +483,7 @@ func canonicalUtilitiesUses(root ast.Node, object *ast.Object) bool {
 	ormAssignments := map[string]int{}
 	var orm2Object *ast.Object
 	notificationHubs := 0
+	statusReaders := 0
 	valid := true
 	ast.Inspect(root, func(node ast.Node) bool {
 		identifier, ok := node.(*ast.Ident)
@@ -516,13 +517,15 @@ func canonicalUtilitiesUses(root ast.Node, object *ast.Object) bool {
 			}
 		case "NotificationHub":
 			notificationHubs++
+		case "UserStatusReader":
+			statusReaders++
 		default:
 			valid = false
 			return false
 		}
 		return true
 	})
-	return valid && ormAssignments["Orm"] == 1 && ormAssignments["Orm2"] == 1 && len(ormAssignments) == 2 && notificationHubs == 1 &&
+	return valid && ormAssignments["Orm"] == 1 && ormAssignments["Orm2"] == 1 && len(ormAssignments) == 2 && notificationHubs == 1 && statusReaders == 1 &&
 		canonicalProducerUses(root, orm2Object, "Orm2", map[string]int{"Select": 2})
 }
 
@@ -773,12 +776,20 @@ func exactNotificationBranch(file *ast.File, handler *ast.FuncLit, utilitiesObje
 	if !ok || hub.Sel.Name != "NotificationHub" || !boundIdentifier(hub.X, utilitiesObject, "utilities") || !exactNotificationDeleted(file, publish.Args[1], rridObject) {
 		return false
 	}
-	recipient, ok := publish.Args[2].(*ast.SelectorExpr)
+	currentRecipients, ok := canonicalPackageCall(file, publish.Args[2], "post/notificationevent", "CurrentRecipients")
+	if !ok || len(currentRecipients.Args) != 2 {
+		return false
+	}
+	statusReader, ok := currentRecipients.Args[0].(*ast.SelectorExpr)
+	if !ok || statusReader.Sel.Name != "UserStatusReader" || !boundIdentifier(statusReader.X, utilitiesObject, "utilities") {
+		return false
+	}
+	recipient, ok := currentRecipients.Args[1].(*ast.SelectorExpr)
 	if !ok || recipient.Sel.Name != "Recipient" {
 		return false
 	}
 	packageName, ok := recipient.X.(*ast.Ident)
-	return ok && canonicalImportIdentifier(file, packageName, "post/notificationevent") && exactDeleteLogStatement(branch.Body.List[0], "notification_publish", canonical) && canonicalPackageSelectorCount(file, handler, "post/notificationevent", "Publish") == 1
+	return ok && canonicalImportIdentifier(file, packageName, "post/notificationevent") && exactDeleteLogStatement(branch.Body.List[0], "notification_publish", canonical) && canonicalPackageSelectorCount(file, handler, "post/notificationevent", "Publish") == 1 && canonicalPackageSelectorCount(file, handler, "post/notificationevent", "CurrentRecipients") == 1
 }
 
 func deleteRandevuRequestDiagnosticSafe(source []byte) bool {
@@ -1100,7 +1111,12 @@ func deleteClosedWorldEscapeMutations() []sourceMutation {
 	const ormAnchor = "\t\tOrm := utilities.Orm\n\n\t\t// Check if request exists"
 	const getAnchor = "\t\tGetRequest.Finish()\n\t\terr = GetRequest.Execute()"
 	const deleteAnchor = "\t\tDeleteRequest.Finish()\n\t\terr = DeleteRequest.Execute()"
+	const payload = `notificationevent.Deleted{Type: "randevu_talebi_silindi", Rrid: Rrid}, `
+	const recipient = payload + "notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)"
 	return []sourceMutation{
+		replaceMutation(recipient, payload+"notificationevent.Recipient"),
+		replaceMutation(recipient, payload+"notificationevent.CurrentRecipients(fakeReader, notificationevent.Recipient)"),
+		replaceMutation(recipient, payload+"notificationevent.CurrentRecipients(utilities.UserStatusReader, fakeRecipient)"),
 		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tOrm2 := Orm; _ = Orm2\n\n\t\t// Check if request exists"),
 		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tOrm2 := Orm; callback(Orm2)\n\n\t\t// Check if request exists"),
 		replaceMutation(ormAnchor, "\t\tOrm := utilities.Orm\n\t\tcallback(Orm)\n\n\t\t// Check if request exists"),
@@ -1214,7 +1230,7 @@ func uniqueFunction(file *ast.File, name string) (*ast.FuncDecl, bool) {
 	return result, result != nil
 }
 
-func deleteHandlerWithoutDirectLogs(source []byte) (string, bool) {
+func deleteHandlerWithoutDirectLogs(source []byte, wrappedRecipient bool) (string, bool) {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "randevular.go", source, 0)
 	if err != nil {
@@ -1222,6 +1238,27 @@ func deleteHandlerWithoutDirectLogs(source []byte) (string, bool) {
 	}
 	target, ok := uniqueFunction(file, "DeleteRandevuRequest")
 	if !ok || target.Body == nil {
+		return "", false
+	}
+	// Normalize only the separately checked SEC-003C recipient wrapper when
+	// comparing the delete handler against its pre-SEC-003C diagnostic pin.
+	wrappers := 0
+	ast.Inspect(target.Body, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok || len(call.Args) != 3 {
+			return true
+		}
+		if _, ok := canonicalPackageCall(file, call, "post/notificationevent", "Publish"); !ok {
+			return true
+		}
+		wrapper, ok := canonicalPackageCall(file, call.Args[2], "post/notificationevent", "CurrentRecipients")
+		if ok && len(wrapper.Args) == 2 {
+			call.Args[2] = wrapper.Args[1]
+			wrappers++
+		}
+		return true
+	})
+	if wrappedRecipient && wrappers != 1 || !wrappedRecipient && wrappers != 0 {
 		return "", false
 	}
 	logs, safe := canonicalLogCalls(file, target)
@@ -1281,8 +1318,8 @@ func TestDeleteRandevuRequestPinnedDiagnosticContract(t *testing.T) {
 	if !ok {
 		t.Fatal("pinned delete handler baseline unavailable")
 	}
-	currentAST, currentOK := deleteHandlerWithoutDirectLogs(current)
-	baselineAST, baselineOK := deleteHandlerWithoutDirectLogs(baseline)
+	currentAST, currentOK := deleteHandlerWithoutDirectLogs(current, true)
+	baselineAST, baselineOK := deleteHandlerWithoutDirectLogs(baseline, false)
 	if !currentOK || !baselineOK || currentAST != baselineAST {
 		t.Fatal("delete handler non-log AST differs from pinned HEAD")
 	}
@@ -1303,7 +1340,7 @@ func TestDeleteRandevuRequestPinnedDiagnosticContract(t *testing.T) {
 	if !changed {
 		t.Fatal("delete handler parity fixture unavailable")
 	}
-	mutatedAST, valid := deleteHandlerWithoutDirectLogs(mutated)
+	mutatedAST, valid := deleteHandlerWithoutDirectLogs(mutated, true)
 	if !valid || mutatedAST == baselineAST {
 		t.Fatal("delete handler non-log mutation escaped parity check")
 	}
@@ -2044,7 +2081,7 @@ func targetLogSignature(file *ast.File, target *ast.FuncDecl, fset *token.FileSe
 }
 
 var workflowLogSignatures = map[string]string{
-	"AddRandevuRequest":       "5319527085de5f6cd9609e6eabf9e15865b26f1cefd4e8557484842f51cb7402",
+	"AddRandevuRequest":       "2ce0a50268c4a6fc4935540bfda72752f2ac6e5b9995281325151c7cfebcb2dd",
 	"AddRandevu":              "40923db15c33b87f07f9c1b2800ed44f8e762dec62cea0c7e07396f9a95c9d8c",
 	"EditRandevu":             "52a8a9b80b54e77d40a9968ec559af07cc66c0a61ba40d07983a0e7db6264bc9",
 	"AddContactRequest":       "c51edf1ba5d7d2ba634be04eb5f22e38c969443465c392002dc707062d478f9a",

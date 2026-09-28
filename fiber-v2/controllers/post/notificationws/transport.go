@@ -28,6 +28,7 @@ const (
 	errRandom
 	errRegistration
 	errHandler
+	errAuthorization
 )
 
 func (e failure) Error() string {
@@ -40,6 +41,8 @@ func (e failure) Error() string {
 		return "notification websocket: registration failed"
 	case errHandler:
 		return "notification websocket: handler failed"
+	case errAuthorization:
+		return "notification websocket: authorization failed"
 	default:
 		return "notification websocket: transport failed"
 	}

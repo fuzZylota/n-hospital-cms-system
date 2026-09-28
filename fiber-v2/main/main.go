@@ -121,6 +121,7 @@ type appConfig struct {
 }
 
 func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusReader data.UserStatusReader) (httpLifecycle, error) {
+	utilities.UserStatusReader = userStatusReader
 	htmlFiles := jet.New("./static/html", ".jet")
 
 	if config.environment == "dev" || config.environment == "development" {

@@ -42,6 +42,8 @@ type Client struct {
 }
 
 // Predicate selects recipients from a value snapshot, outside all hub locks.
+// It is called again immediately before queued delivery, so it must tolerate
+// repeated and concurrent calls and must read current authorization state.
 // Nil selects all. It must terminate promptly and be safe for concurrent calls
 // from different broadcasts. A panic aborts that broadcast before any enqueue,
 // returning ErrPredicatePanic without exposing the panic value. Side effects in
@@ -93,6 +95,7 @@ type Hub interface {
 	// entire broadcast under a short lock. Sequential calls preserve client FIFO;
 	// concurrent calls are ordered by admission, not invocation/predicate start.
 	// Clients added after the snapshot do not receive it; removed clients are skipped.
+	// A recipient that fails the second predicate check is skipped before Send.
 	// Missing rooms are successful no-ops; empty room IDs are invalid.
 	// A full queue disconnects only that client and never waits for transport I/O.
 	// The input is copied before predicates and per recipient; caller must not

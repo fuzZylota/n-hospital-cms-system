@@ -4420,9 +4420,11 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 		Domain = "http://localhost:" + Port
 	}
 
-	return notificationws.Handler(utilities.NotificationHub, func(c *fiber.Ctx) (notify.UserID, error) {
+	return notificationws.HandlerAuthorized(utilities.NotificationHub, func(c *fiber.Ctx) (notify.UserID, error) {
 		user, err := lib.CheckAuth(c)
 		return notify.UserID(user.Uid), err
+	}, func(uid notify.UserID, event notificationws.Event, msg []byte) bool {
+		return authorizeNotificationText(utilities, uid, event, msg)
 	}, func(event notificationws.Event, msg []byte) {
 		Orm := utilities.Orm
 		var err error
@@ -4499,7 +4501,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 				log.Print("notification: insert result unavailable")
 			}
 
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.AppointmentRecipients(notify.BranchID(RandevuTalebi.Sid), func(uid notify.UserID) (notificationevent.User, bool) {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.AppointmentRecipients(notify.BranchID(RandevuTalebi.Sid), func(uid notify.UserID) (notificationevent.User, bool) {
 				GetUserRole := Orm.Select([]string{"role", "sid"})
 				GetUserRole.Table("users")
 				GetUserRole.Where("uid", "=", string(uid))
@@ -4512,7 +4514,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					return notificationevent.User{}, false
 				}
 				return notificationevent.User{Role: notify.Role(lib.String(rows[0]["role"])), Branch: notify.BranchID(lib.String(rows[0]["sid"]))}, true
-			})); publishErr != nil {
+			}))); publishErr != nil {
 				log.Print("notification: publication failed")
 			}
 		}
@@ -4558,7 +4560,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 				log.Print("notification: insert result unavailable")
 			}
 
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.ApplicationRecipients(func(uid notify.UserID) (notificationevent.User, bool) {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.ApplicationRecipients(func(uid notify.UserID) (notificationevent.User, bool) {
 				GetUserRole := Orm.Select([]string{"role"})
 				GetUserRole.Table("users")
 				GetUserRole.Where("uid", "=", string(uid))
@@ -4571,7 +4573,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 					return notificationevent.User{}, false
 				}
 				return notificationevent.User{Role: notify.Role(lib.String(rows[0]["role"]))}, true
-			})); publishErr != nil {
+			}))); publishErr != nil {
 				log.Print("notification: publication failed")
 			}
 		}
@@ -4617,7 +4619,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 				log.Print("notification: insert result unavailable")
 			}
 
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.Recipient); publishErr != nil {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)); publishErr != nil {
 				log.Print("notification: publication failed")
 			}
 		}

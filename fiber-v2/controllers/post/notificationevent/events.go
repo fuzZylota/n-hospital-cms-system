@@ -3,7 +3,12 @@
 package notificationevent
 
 import (
+	"context"
 	"encoding/json"
+	"time"
+
+	"lib/userstatus"
+	"models/data"
 	"models/notify"
 )
 
@@ -59,6 +64,20 @@ func Publish(hub notify.Hub, message any, predicate notify.Predicate) error {
 
 func Recipient(client notify.Client) bool {
 	return client.Metadata.UserID != "" && client.Metadata.Protocol == "kullanici"
+}
+
+// CurrentRecipients adds the current account decision to each existing event rule.
+// Admission and queued delivery call it outside the hub registry lock.
+func CurrentRecipients(reader data.UserStatusReader, rule notify.Predicate) notify.Predicate {
+	return func(client notify.Client) bool {
+		if !Recipient(client) || rule == nil {
+			return false
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		expire, _, err := userstatus.ShouldExpireAuthCookies(ctx, reader, string(client.Metadata.UserID))
+		return err == nil && !expire && rule(client)
+	}
 }
 
 func Appointment(role notify.Role, branch, target notify.BranchID) bool {

@@ -551,7 +551,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				createdAt = t.Format("2006-01-02T15:04:05Z07:00")
 			}
 			msg := notificationevent.NewRequest{Type: "new_randevu_talebi", Rrid: lib.String(row["rrid"]), PatientFirstName: lib.String(row["patient_first_name"]), PatientLastName: lib.String(row["patient_last_name"]), PatientPhone: lib.String(row["patient_phone"]), Message: lib.String(row["message"]), CreatedAt: createdAt, Status: lib.String(row["status"]), SubeName: lib.String(row["sube_name"]), Sid: lib.String(row["sid"])}
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, msg, notificationevent.RequestRecipients(notify.BranchID(lib.String(row["sid"])), func(uid notify.UserID) (notificationevent.User, bool) {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, msg, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.RequestRecipients(notify.BranchID(lib.String(row["sid"])), func(uid notify.UserID) (notificationevent.User, bool) {
 				GetRole := Orm2.Select([]string{"role"})
 				GetRole.Table("users")
 				GetRole.Where("uid", "=", string(uid))
@@ -576,7 +576,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				}
 				permRows, readErr := CheckPerm.Rows()
 				return readErr == nil && len(permRows) > 0
-			})); publishErr != nil {
+			}))); publishErr != nil {
 				log.Printf("operation=AddRandevuRequest stage=notification_publish")
 			}
 		}(lib.String(rrid))
@@ -727,7 +727,7 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 
 		// WebSocket broadcast - silme
 		go func() {
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted{Type: "randevu_talebi_silindi", Rrid: Rrid}, notificationevent.Recipient); publishErr != nil {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted{Type: "randevu_talebi_silindi", Rrid: Rrid}, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)); publishErr != nil {
 				log.Printf("operation=DeleteRandevuRequest stage=notification_publish")
 			}
 		}()
@@ -907,7 +907,7 @@ func ToggleRandevuRequestStatus(states *models.AppState, utilities *models.Utili
 		Orm.Commit()
 		// WebSocket broadcast - status değişimi
 		go func() {
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Status{Type: "randevu_talebi_status", Rrid: Rrid, NewStatus: NewStatus}, notificationevent.Recipient); publishErr != nil {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Status{Type: "randevu_talebi_status", Rrid: Rrid, NewStatus: NewStatus}, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)); publishErr != nil {
 				log.Print("notification: publication failed")
 			}
 		}()

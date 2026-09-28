@@ -15,6 +15,7 @@ func TestOwnedUserStatusComposition(t *testing.T) {
 		"utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)",
 		"userStatusReader = postgres.NewUserStatusRepository(pool)",
 		"newHTTPServer(config, utilities, userStatusReader)",
+		"utilities.UserStatusReader = userStatusReader",
 		"func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusReader data.UserStatusReader)",
 		"server.Use(lib.JWTMiddleware())",
 		"server.Use(lib.HandleUserBanning(userStatusReader))",
