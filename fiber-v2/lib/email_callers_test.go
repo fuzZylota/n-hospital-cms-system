@@ -1149,23 +1149,23 @@ func deleteHandlerWithoutDirectLogs(source []byte) (string, bool) {
 	return result, removed == 7 && result != ""
 }
 
-func libWithoutRemovedDeclaration(source []byte, expectDeclaration bool) (string, bool) {
+func libPinnedSendEmailWithoutFieldDump(source []byte, expectDeclaration bool) (string, bool) {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "lib.go", source, 0)
 	if err != nil {
 		return "", false
 	}
-	retained := make([]ast.Decl, 0, len(file.Decls))
 	removed := 0
 	for _, declaration := range file.Decls {
 		if function, ok := declaration.(*ast.FuncDecl); ok && function.Name.Name == removedDisplayInputSymbol && function.Recv == nil {
 			removed++
-			continue
 		}
-		retained = append(retained, declaration)
 	}
-	file.Decls = retained
-	result := nodeString(fset, file)
+	sendEmail, ok := uniqueFunction(file, "SendEmail")
+	if !ok {
+		return "", false
+	}
+	result := nodeString(fset, sendEmail)
 	return result, removed == boolInt(expectDeclaration) && result != ""
 }
 
@@ -1215,10 +1215,22 @@ func TestRemovedFieldDumpPinnedLibContract(t *testing.T) {
 	if !ok {
 		t.Fatal("pinned lib baseline unavailable")
 	}
-	currentAST, currentOK := libWithoutRemovedDeclaration(current, false)
-	baselineAST, baselineOK := libWithoutRemovedDeclaration(baseline, true)
+	currentAST, currentOK := libPinnedSendEmailWithoutFieldDump(current, false)
+	baselineAST, baselineOK := libPinnedSendEmailWithoutFieldDump(baseline, true)
 	if !currentOK || !baselineOK || currentAST != baselineAST {
-		t.Fatal("lib AST outside removed declaration differs from pinned HEAD")
+		t.Fatal("removed field dump or pinned SendEmail boundary changed")
+	}
+	restored := append(append([]byte(nil), current...), []byte("\nfunc DisplayInputInfosOnTerminal(inputs interface{}) {}\n")...)
+	if _, ok := libPinnedSendEmailWithoutFieldDump(restored, false); ok {
+		t.Fatal("reintroduced field dump escaped declaration check")
+	}
+	mutated, changed := replaceSourceOnce(current, "return sendEmail(emailMessage{", "return fakeEmail(emailMessage{")
+	if !changed {
+		t.Fatal("SendEmail parity fixture unavailable")
+	}
+	mutatedAST, valid := libPinnedSendEmailWithoutFieldDump(mutated, false)
+	if !valid || mutatedAST == baselineAST {
+		t.Fatal("SendEmail mutation escaped pinned comparison")
 	}
 }
 
@@ -1931,7 +1943,7 @@ func targetLogSignature(file *ast.File, target *ast.FuncDecl, fset *token.FileSe
 var workflowLogSignatures = map[string]string{
 	"AddRandevuRequest":       "c0680d6fe00e620f6d2695a6d506a85b30057efd1cfb84a3f84210d890d523b2",
 	"AddRandevu":              "1fa19338b156055b87f95b6fb4fb1f856421869ad01e8b903391ef53c03924b8",
-	"EditRandevu":             "7b773c0fe0526dd85e8718f66ec8c1fe8485521ea909066c592aa829404b336e",
+	"EditRandevu":             "455e940745b5578465218635312b7acdaa47aec3a8be13460925a4917a19c8f3",
 	"AddContactRequest":       "580b63ae0ae288b1256a1db75a920d05b0a10ff53e0059057536179d8f746c31",
 	"AddJobApplication":       "447962e23ed4a73a43ce552b253f60f2d69137acf60446a7abe37ef7345ebfdc",
 	"RespondToContactRequest": "f589bd90a1e32a3e325fb7fbff3e910c253ad8899204452598ab4ea54fdfd0d0",
