@@ -19,6 +19,11 @@ func (f headerButtonReaderFunc) ListHeaderParents(ctx context.Context) ([]data.H
 var _ data.HeaderButtonReader = headerButtonReaderFunc(nil)
 
 func TestHeaderParentContract(t *testing.T) {
+	topLevel := data.HeaderParent{ID: "1", Title: "Ana Sayfa"}
+	if topLevel.ParentID != nil {
+		t.Fatal("SQL NULL parent must remain nil at the data boundary")
+	}
+
 	parentID := "7"
 	parent := data.HeaderParent{
 		ID:       "12",
@@ -31,6 +36,9 @@ func TestHeaderParentContract(t *testing.T) {
 	var nullableParentID *string = parent.ParentID
 	if id != "12" || title != "Kurumsal" || nullableParentID == nil || *nullableParentID != "7" {
 		t.Fatalf("unexpected header parent: %#v", parent)
+	}
+	if topLevel.ParentID == parent.ParentID {
+		t.Fatal("SQL NULL and a present parent identifier collapsed")
 	}
 
 	typeOfParent := reflect.TypeOf(parent)

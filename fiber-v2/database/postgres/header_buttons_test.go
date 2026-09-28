@@ -58,6 +58,21 @@ func TestHeaderButtonRepositoryEmptyResultIsNonNil(t *testing.T) {
 	}
 }
 
+func TestHeaderButtonRepositoryKeepsUnorderedParentRows(t *testing.T) {
+	rowsPlan := dbtest.NewRows(
+		[]string{"hbid", "title", "parent_id"},
+		[]any{int64(12), "Later", nil},
+		[]any{int64(7), "Earlier", nil},
+	)
+	connector, repository := openHeaderButtonRepository(t, dbtest.Query(rowsPlan))
+	got, err := repository.ListHeaderParents(context.Background())
+	if err != nil || !reflect.DeepEqual(got, []data.HeaderParent{{ID: "12", Title: "Later"}, {ID: "7", Title: "Earlier"}}) {
+		t.Fatal("repository changed the driver's row order")
+	}
+	// The exact SQL contract has neither an active-only predicate nor ORDER BY.
+	assertHeaderButtonQuery(t, connector)
+}
+
 func TestHeaderButtonRepositoryQueryErrorIsSafe(t *testing.T) {
 	for _, test := range []struct {
 		name        string

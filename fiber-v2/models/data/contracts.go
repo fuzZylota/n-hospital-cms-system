@@ -20,7 +20,7 @@ import "context"
 // consumer. No parents is a successful result represented by a non-nil empty
 // slice; implementations do not return a not-found error for the list.
 //
-// On failure the result is nil and the infrastructure error is returned without
+// On failure the result is nil and a safe application error is returned without
 // exposing SQL, credentials, connection details, or backend-specific types.
 // Context cancellation and deadline errors remain identifiable with errors.Is.
 type HeaderButtonReader interface {
