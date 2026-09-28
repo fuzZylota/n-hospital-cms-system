@@ -928,7 +928,7 @@ func WebsocketHandshake(c *fiber.Ctx) error {
 
 		c.Locals("protocol", proto)
 
-		log.Printf("Websocket protocol: %s", proto)
+		log.Print("Websocket upgrade requested")
 
 		c.Locals("allowed", true)
 
