@@ -25,6 +25,34 @@ func TestAddJobApplicationOwnedWiring(t *testing.T) {
 	}
 }
 
+func TestPrivateCVMediaWiringMutations(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "post.go"))
+	if err != nil || !jobApplicationWiringIsSafe(source) {
+		t.Fatal("cannot verify production private-CV wiring")
+	}
+	mutations := []struct{ name, old, replacement string }{
+		{"public path", `FilePath: "private/job-applications/" + privateFileName`, `FilePath: "files/job-applications/" + lid + "/" + privateFileName`},
+		{"client filename", `FileName: privateFileName`, `FileName: cvInput.Filename`},
+		{"wrong media target", `TargetId: lid`, `TargetId: inputs.Jaid`},
+		{"wrong application FK", `updateDoctor.Set("cv_file_mid", CvMediaMid)`, `updateDoctor.Set("diploma_file_mid", CvMediaMid)`},
+		{"wrong application ID", `updateDoctor.Where("jaid", "=", lid)`, `updateDoctor.Where("jaid", "=", inputs.Jaid)`},
+		{"public save root", `lib.SaveJobApplicationPrivateFile(RootDir, privateFileName, cvInput)`, `lib.SaveJobApplicationPrivateFile(filepath.Join(RootDir, "static"), privateFileName, cvInput)`},
+		{"wrong file type", `FileType: "cv"`, `FileType: "diploma"`},
+		{"incorrect invalid-type response", `error=invalid_file_type"`, `error=internal_server_error"`},
+	}
+	for _, mutation := range mutations {
+		t.Run(mutation.name, func(t *testing.T) {
+			changed, ok := replaceJobHandlerOnce(source, mutation.old, mutation.replacement)
+			if !ok {
+				t.Fatal("fixture anchor missing")
+			}
+			if jobApplicationWiringIsSafe(changed) {
+				t.Fatal("unsafe private-CV mutation was accepted")
+			}
+		})
+	}
+}
+
 func TestAddJobApplicationWiringMutations(t *testing.T) {
 	source, err := os.ReadFile(filepath.Join("..", "post.go"))
 	if err != nil {
@@ -56,7 +84,7 @@ func TestAddJobApplicationWiringMutations(t *testing.T) {
 		{"cvInput.Size > jobApplicationSnapshot.MaxBytes", "cvInput.Size > jobApplicationSnapshot.SMTPPort"},
 		{"cvInput.Size > jobApplicationSnapshot.MaxBytes", "cvInput.Size > jobApplicationSnapshot.MaxBytes*1024"},
 		{"cvInput.Size > jobApplicationSnapshot.MaxBytes", "cvInput.Size > max(0, jobApplicationSnapshot.MaxBytes)"},
-		{"err = lib.SendEmail(&CreateEmailInfos)", "return c.JSON(fiber.Map{\"status\": 500}); err = lib.SendEmail(&CreateEmailInfos)"},
+		{"err = lib.DeliverEmailAfterPersistence(", "return c.JSON(fiber.Map{\"status\": 500}); err = lib.DeliverEmailAfterPersistence("},
 		{"log.Printf(\"operation=AddJobApplication stage=%s\", lib.EmailFailureStage(err))", "return c.JSON(fiber.Map{\"status\": 500})"},
 		{"log.Printf(\"operation=AddJobApplication stage=options_read\")", "log.Printf(\"operation=AddJobApplication stage=options_read\", err)"},
 		{"log.Printf(\"operation=AddJobApplication stage=options_read\")\n\t\t\treturn c.JSON(", "log.Printf(\"operation=AddJobApplication stage=options_read\")\n\t\t\t_ = c.JSON("},
@@ -74,7 +102,7 @@ func TestAddJobApplicationWiringMutations(t *testing.T) {
 		`if jobApplicationSnapshot.RecaptchaSiteKey != "" && jobApplicationSnapshot.RecaptchaSecretKey != "" {`,
 		`cvInput, cvErr := c.FormFile("cv_file")`,
 		`insertReq := Orm.Insert(columns, values)`,
-		`err = lib.SendEmail(&CreateEmailInfos)`,
+		`err = lib.DeliverEmailAfterPersistence(`,
 	} {
 		mutated, ok := moveJobReadAfter(source, stage)
 		if !ok || jobApplicationWiringIsSafe(mutated) {
@@ -93,7 +121,7 @@ func TestAddJobApplicationWiringMutations(t *testing.T) {
 			t.Fatal("swapped snapshot fields were accepted")
 		}
 	}
-	lateMail, ok := replaceJobHandlerOnce(source, "err = lib.SendEmail(&CreateEmailInfos)", "_ = lib.SendEmail(&CreateEmailInfos); err = nil")
+	lateMail, ok := replaceJobHandlerOnce(source, "err = lib.DeliverEmailAfterPersistence(", "_ = lib.DeliverEmailAfterPersistence(")
 	if !ok || jobApplicationWiringIsSafe(lateMail) {
 		t.Fatal("changed mail result path was accepted")
 	}
@@ -149,9 +177,9 @@ func TestJobApplicationNestedEarlyReturnFixtures(t *testing.T) {
 	}
 	anchors := []string{
 		`if hasCV {`,
-		`estimatedPath := filepath.Join(RootDir, "static", "files", "job-applications", lid)`,
+		`privateFileName, err := lib.NewJobApplicationPrivateFileName(cvInput.Filename)`,
 		`emailConfigured := jobApplicationSnapshot.SMTPHost`,
-		`err = lib.SendEmail(&CreateEmailInfos)`,
+		`err = lib.DeliverEmailAfterPersistence(`,
 	}
 	mutations := []string{
 		`if inputs.Email != "" { return nil }; `,
@@ -292,7 +320,7 @@ func TestJobApplicationSecretDataFlowFixtures(t *testing.T) {
 	}
 	mutations := [][2]string{
 		{`jobApplicationSnapshot.SMTPPassword != ""`, `func(s string) string { log.Print(s); return s }(jobApplicationSnapshot.SMTPPassword) != ""`},
-		{`err = lib.SendEmail(&CreateEmailInfos)`, `c.Write([]byte(CreateEmailInfos.Password)); err = lib.SendEmail(&CreateEmailInfos)`},
+		{`err = lib.DeliverEmailAfterPersistence(`, `c.Write([]byte(CreateEmailInfos.Password)); err = lib.DeliverEmailAfterPersistence(`},
 		{`CheckIfItsRepeating := Orm.Count("job_applications")`, `payload := struct{ Data any }{Data: jobApplicationSnapshot}; return c.JSON(payload.Data); CheckIfItsRepeating := Orm.Count("job_applications")`},
 		{`CheckIfItsRepeating := Orm.Count("job_applications")`, `unknown(jobApplicationSnapshot); CheckIfItsRepeating := Orm.Count("job_applications")`},
 		{`CheckIfItsRepeating := Orm.Count("job_applications")`, `unknown(jobApplicationSnapshot.SMTPPassword); CheckIfItsRepeating := Orm.Count("job_applications")`},
@@ -555,8 +583,8 @@ func jobApplicationWiringIsSafe(source []byte) bool {
 		`jobApplicationSnapshot.InstagramURL != "" && jobApplicationSnapshot.InstagramURL != "#"`,
 		`jobApplicationSnapshot.LinkedInURL != "" && jobApplicationSnapshot.LinkedInURL != "#"`,
 		`insertReq.Returning("jaid")`, `insertReq.LastInsertId()`, `OurOptions := database.Options{}`, `OurOptions.InsertMedia(Orm, media, optionals)`,
-		`updateDoctor.Set("cv_file_mid", CvMediaMid)`, `lib.SaveFileWithBuffering(estimatedPath, *cvInput)`,
-		`err = lib.SendEmail(&CreateEmailInfos)`, `log.Printf("operation=AddJobApplication stage=%s", lib.EmailFailureStage(err))`,
+		`updateDoctor.Set("cv_file_mid", CvMediaMid)`, `lib.SaveJobApplicationPrivateFile(RootDir, privateFileName, cvInput)`,
+		`lib.DeliverEmailAfterPersistence(`, `return lib.SendEmail(&CreateEmailInfos)`, `log.Printf("operation=AddJobApplication stage=%s", lib.EmailFailureStage(err))`,
 	} {
 		if !strings.Contains(text, required) {
 			return false
@@ -638,7 +666,7 @@ func jobApplicationWiringIsSafe(source []byte) bool {
 			return false
 		}
 	}
-	ordered := []string{"c.BodyParser", "jobapplicationsnapshot.Read", "Orm.Count", "lib.VerifyRecaptcha", "c.FormFile", "Orm.Insert", "insertReq.LastInsertId", "OurOptions.InsertMedia", "lib.SaveFileWithBuffering", "lib.SendEmail"}
+	ordered := []string{"c.BodyParser", "jobapplicationsnapshot.Read", "Orm.Count", "lib.VerifyRecaptcha", "c.FormFile", "Orm.Insert", "insertReq.LastInsertId", "OurOptions.InsertMedia", "lib.SaveJobApplicationPrivateFile", "lib.DeliverEmailAfterPersistence", "lib.SendEmail"}
 	for index, name := range ordered {
 		if counts[name] != 1 || (index != 0 && positions[ordered[index-1]] >= positions[name]) {
 			return false
@@ -659,7 +687,7 @@ func jobApplicationWiringIsSafe(source []byte) bool {
 	}
 	sendIndex := -1
 	for index, statement := range mail.Body.List {
-		if jobNode(statement) == `err = lib.SendEmail(&CreateEmailInfos)` {
+		if jobApplicationMailDeliveryIsExact(statement) {
 			sendIndex = index
 		}
 	}
@@ -737,7 +765,7 @@ func jobApplicationControlFlowIsSafe(body *ast.BlockStmt, snapshot *ast.Object) 
 	}
 	sendIndex := -1
 	for index, statement := range mail.Body.List {
-		if jobNode(statement) == `err = lib.SendEmail(&CreateEmailInfos)` {
+		if jobApplicationMailDeliveryIsExact(statement) {
 			sendIndex = index
 			break
 		}
@@ -913,10 +941,9 @@ func jobApplicationReturnsAreExact(body *ast.BlockStmt) bool {
 		condition, previous, first, response string
 	}{
 		{`cvInput.Size > jobApplicationSnapshot.MaxBytes`, "", "", `return c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")`},
-		{`err != nil`, `UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + cvInput.Filename)`, `log.Printf("operation=AddJobApplication stage=cv_path")`, internalRedirect},
 		{`err != nil`, `CvMediaMid, err := OurOptions.InsertMedia(Orm, media, optionals)`, `log.Printf("operation=AddJobApplication stage=cv_media_insert")`, internalRedirect},
 		{`err != nil`, `err = updateDoctor.Execute()`, `log.Printf("operation=AddJobApplication stage=cv_media_link")`, internalRedirect},
-		{`err != nil`, `err = lib.SaveFileWithBuffering(estimatedPath, *cvInput)`, `log.Printf("operation=AddJobApplication stage=cv_file_save")`, internalRedirect},
+		{`err != nil`, `err = lib.SaveJobApplicationPrivateFile(RootDir, privateFileName, cvInput)`, `log.Printf("operation=AddJobApplication stage=cv_file_save")`, internalRedirect},
 	}
 	previousIndex = -1
 	cvIndices := make([]int, 0, len(cvRoles))
@@ -935,35 +962,54 @@ func jobApplicationReturnsAreExact(body *ast.BlockStmt) bool {
 	if !ok || jobNode(size.Cond) != cvRoles[0].condition {
 		return false
 	}
-	var extension *ast.SwitchStmt
+	pathIndex := -1
 	for index, statement := range cv.Body.List {
-		candidate, ok := statement.(*ast.SwitchStmt)
-		if ok && jobNode(candidate.Tag) == "UniqueFilePath.Extension" {
-			if extension != nil || index <= cvIndices[1] || index >= cvIndices[2] {
+		branch, ok := statement.(*ast.IfStmt)
+		if !ok || branch.Else != nil || branch.Init != nil || jobNode(branch.Cond) != "err != nil" ||
+			index == 0 || jobNode(cv.Body.List[index-1]) != `privateFileName, err := lib.NewJobApplicationPrivateFileName(cvInput.Filename)` {
+			continue
+		}
+		if pathIndex >= 0 || len(branch.Body.List) != 3 ||
+			jobNode(branch.Body.List[1]) != `log.Printf("operation=AddJobApplication stage=cv_path")` ||
+			jobNode(branch.Body.List[2]) != internalRedirect {
+			return false
+		}
+		invalid, ok := branch.Body.List[0].(*ast.IfStmt)
+		if !ok || invalid.Init != nil || invalid.Else != nil ||
+			jobNode(invalid.Cond) != "err == lib.ErrUnsupportedJobApplicationDocument" ||
+			len(invalid.Body.List) != 1 ||
+			jobNode(invalid.Body.List[0]) != `return c.Redirect("/panel/doktorlar/doktor-ekle?error=invalid_file_type")` {
+			return false
+		}
+		for _, statement := range []ast.Stmt{invalid.Body.List[0], branch.Body.List[2]} {
+			result, ok := statement.(*ast.ReturnStmt)
+			if !ok || allowed[result] {
 				return false
 			}
-			extension = candidate
+			allowed[result] = true
+		}
+		pathIndex = index
+	}
+	if pathIndex <= cvIndices[0] || pathIndex >= cvIndices[1] {
+		return false
+	}
+	// Extension validation and opaque naming now live in the private-file helper.
+	// The production handler must store only the generated private path and
+	// bind the media row and subsequent FK update to the inserted application.
+	cvSource := jobNode(cv)
+	for _, required := range []string{
+		`FileName: privateFileName`, `FilePath: "private/job-applications/" + privateFileName`,
+		`FileType: "cv"`, `TargetId: lid`,
+		`updateDoctor.Table("job_applications")`, `updateDoctor.Set("cv_file_mid", CvMediaMid)`,
+		`updateDoctor.Where("jaid", "=", lid)`,
+	} {
+		if !strings.Contains(cvSource, required) {
+			return false
 		}
 	}
-	if extension == nil || extension.Init != nil || len(extension.Body.List) != 2 {
+	if strings.Contains(cvSource, `FilePath: "files/job-applications/"`) {
 		return false
 	}
-	validCase, ok := extension.Body.List[0].(*ast.CaseClause)
-	if !ok || len(validCase.List) != 3 || jobNode(validCase.List[0]) != `".pdf"` ||
-		jobNode(validCase.List[1]) != `".doc"` || jobNode(validCase.List[2]) != `".docx"` ||
-		len(validCase.Body) != 1 || jobNode(validCase.Body[0]) != "break" {
-		return false
-	}
-	defaultCase, ok := extension.Body.List[1].(*ast.CaseClause)
-	if !ok || defaultCase.List != nil || len(defaultCase.Body) != 1 ||
-		jobNode(defaultCase.Body[0]) != `return c.Redirect("/panel/doktorlar/doktor-ekle?error=invalid_file_type")` {
-		return false
-	}
-	invalidType, ok := defaultCase.Body[0].(*ast.ReturnStmt)
-	if !ok || allowed[invalidType] {
-		return false
-	}
-	allowed[invalidType] = true
 	if len(body.List) == 0 || jobNode(body.List[len(body.List)-1]) != `return c.JSON(fiber.Map{"status": 201, "message": "İş başvurusu başarıyla gönderildi", "jaid": lid})` {
 		return false
 	}
@@ -1072,6 +1118,26 @@ func jobNode(node ast.Node) string {
 		return ""
 	}
 	return output.String()
+}
+
+func jobApplicationMailDeliveryIsExact(statement ast.Stmt) bool {
+	assignment, ok := statement.(*ast.AssignStmt)
+	if !ok || assignment.Tok != token.ASSIGN || len(assignment.Lhs) != 1 ||
+		jobNode(assignment.Lhs[0]) != "err" || len(assignment.Rhs) != 1 {
+		return false
+	}
+	call, ok := assignment.Rhs[0].(*ast.CallExpr)
+	if !ok || jobNode(call.Fun) != "lib.DeliverEmailAfterPersistence" || len(call.Args) != 2 ||
+		jobNode(call.Args[1]) != "nil" {
+		return false
+	}
+	callback, ok := call.Args[0].(*ast.FuncLit)
+	if !ok || jobNode(callback.Type) != "func() error" || len(callback.Body.List) != 1 {
+		return false
+	}
+	returnValue, ok := callback.Body.List[0].(*ast.ReturnStmt)
+	return ok && len(returnValue.Results) == 1 &&
+		jobNode(returnValue.Results[0]) == "lib.SendEmail(&CreateEmailInfos)"
 }
 
 // Every secret-bearing source is confined to its existing decision or send

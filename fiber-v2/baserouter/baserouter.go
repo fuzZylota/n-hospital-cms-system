@@ -60,6 +60,8 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 }
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
+	server.Get("/panel/is-basvurulari/:jaid/media/:mid", panel.JobApplicationMedia(utilities))
+	server.Head("/panel/is-basvurulari/:jaid/media/:mid", panel.JobApplicationMedia(utilities))
 	routes := server.Group("/panel", lib.PanelAuthMiddleware())
 	adminOptions := optionAdminOnly(utilities)
 

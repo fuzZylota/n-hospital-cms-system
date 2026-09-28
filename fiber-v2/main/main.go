@@ -158,6 +158,7 @@ func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusRead
 		uploadsRoot = filepath.Join(root, "static", "uploads")
 	}
 	server.Static("/uploads", uploadsRoot)
+	server.Use(lib.BlockJobApplicationStaticFiles)
 	server.Static("/files", "./static/files")
 
 	log.Printf("Static files loaded")

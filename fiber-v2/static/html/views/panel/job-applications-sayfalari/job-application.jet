@@ -285,7 +285,7 @@
         {{end}}
 
         <!-- Files Section -->
-        {{if JobApplication.CvFilePath || JobApplication.DiplomaFilePath}}
+        {{if JobApplication.CvFileMid || JobApplication.DiplomaFileMid}}
         <div class="content-card">
             <div class="card-header">
                 <div class="card-icon">
@@ -295,18 +295,18 @@
             </div>
             <div class="card-content">
                 <div class="file-list">
-                    {{if JobApplication.CvFilePath}}
+                    {{if JobApplication.CvFileMid}}
                     <div class="file-item">
                         <div class="file-info">
                             <i class="fas fa-file-pdf file-icon"></i>
                             <div class="file-details">
                                 <div class="file-name">CV Dosyası</div>
                                 <div class="file-actions">
-                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" data-filename="CV Dosyası">
+                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="/panel/is-basvurulari/{{ JobApplication.Jaid }}/media/{{ JobApplication.CvFileMid }}?preview=1" data-filetype="{{ CvFileExtension }}" data-filename="CV Dosyası">
                                         <i class="fas fa-eye"></i>
                                         Görüntüle
                                     </button>
-                                    <a href="{{ PathOnStart }}{{ JobApplication.CvFilePath }}" download class="btn btn-sm btn-secondary">
+                                    <a href="/panel/is-basvurulari/{{ JobApplication.Jaid }}/media/{{ JobApplication.CvFileMid }}" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-download"></i>
                                         İndir
                                     </a>
@@ -315,18 +315,18 @@
                         </div>
                     </div>
                     {{end}}
-                    {{if JobApplication.DiplomaFilePath}}
+                    {{if JobApplication.DiplomaFileMid}}
                     <div class="file-item">
                         <div class="file-info">
                             <i class="fas fa-file-pdf file-icon"></i>
                             <div class="file-details">
                                 <div class="file-name">Diploma Dosyası</div>
                                 <div class="file-actions">
-                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" data-filename="Diploma Dosyası">
+                                    <button type="button" class="btn btn-sm btn-primary btn-preview-cv" data-filepath="/panel/is-basvurulari/{{ JobApplication.Jaid }}/media/{{ JobApplication.DiplomaFileMid }}?preview=1" data-filetype="{{ DiplomaFileExtension }}" data-filename="Diploma Dosyası">
                                         <i class="fas fa-eye"></i>
                                         Görüntüle
                                     </button>
-                                    <a href="{{ PathOnStart }}{{ JobApplication.DiplomaFilePath }}" download class="btn btn-sm btn-secondary">
+                                    <a href="/panel/is-basvurulari/{{ JobApplication.Jaid }}/media/{{ JobApplication.DiplomaFileMid }}" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-download"></i>
                                         İndir
                                     </a>

@@ -127,7 +127,8 @@ class JobApplicationViewManager {
                 e.preventDefault();
                 const filePath = button.getAttribute('data-filepath');
                 const fileName = button.getAttribute('data-filename') || 'Doküman';
-                this.openDocumentPreview(filePath, fileName);
+                const fileType = button.getAttribute('data-filetype') || '';
+                this.openDocumentPreview(filePath, fileName, fileType);
             });
         });
     }
@@ -135,7 +136,7 @@ class JobApplicationViewManager {
     /**
      * Open document preview modal
      */
-    openDocumentPreview(filePath, fileName) {
+    openDocumentPreview(filePath, fileName, fileType) {
         const modal = document.getElementById('documentPreviewModal');
         const container = document.getElementById('documentPreviewContainer');
         const title = document.getElementById('documentPreviewTitle');
@@ -148,13 +149,13 @@ class JobApplicationViewManager {
 
         // Set title and info
         if (title) title.textContent = fileName;
-        if (info) info.textContent = `Dosya: ${filePath.split('/').pop()}`;
+        if (info) info.textContent = fileName;
 
         // Clear previous content
         container.innerHTML = '';
 
         // Determine file type from extension
-        const fileExtension = filePath.split('.').pop().toLowerCase();
+        const fileExtension = fileType.replace(/^\./, '').toLowerCase();
         
         // Handle different file types
         if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileExtension)) {
@@ -252,11 +253,8 @@ class JobApplicationViewManager {
      * Preview PDF files
      */
     previewPDF(container, filePath) {
-        // Properly encode the file path, especially for filenames with spaces
-        const encodedPath = this.encodeFilePath(filePath);
-        
         const iframe = document.createElement('iframe');
-        iframe.src = encodedPath;
+        iframe.src = filePath;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
@@ -313,10 +311,9 @@ class JobApplicationViewManager {
      */
     downloadDocument() {
         if (this.currentDocumentPath) {
-            const encodedPath = this.encodeFilePath(this.currentDocumentPath);
+            const encodedPath = this.currentDocumentPath.replace(/\?preview=1$/, '');
             const link = document.createElement('a');
             link.href = encodedPath;
-            link.download = this.currentDocumentPath.split('/').pop();
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

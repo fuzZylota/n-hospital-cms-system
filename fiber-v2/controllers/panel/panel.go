@@ -7363,11 +7363,19 @@ func JobApplicationPage(states *models.AppState, utilities *models.Utilities) fi
 			CvFilePath:         lib.String(row["cv_file_path"]),
 			DiplomaFilePath:    lib.String(row["diploma_file_path"]),
 		}
+		if ourUser.Role != "admin" {
+			JobApplicationData.CvFileMid = 0
+			JobApplicationData.DiplomaFileMid = 0
+			JobApplicationData.CvFilePath = ""
+			JobApplicationData.DiplomaFilePath = ""
+		}
 
 		return c.Render("views/panel/job-applications-sayfalari/job-application", fiber.Map{
 			"PathOnStart":    "../../",
 			"PageTitle":      "İş Başvurusu",
 			"JobApplication": JobApplicationData,
+			"CvFileExtension":      lib.JobApplicationMediaExtension(JobApplicationData.CvFilePath),
+			"DiplomaFileExtension": lib.JobApplicationMediaExtension(JobApplicationData.DiplomaFilePath),
 			"User":           ourUser,
 			"Options":        GetOptions,
 		}, "layouts/panel/panel")

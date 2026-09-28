@@ -3333,25 +3333,20 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=file_size_is_too_large")
 			}
 
-			estimatedPath := filepath.Join(RootDir, "static", "files", "job-applications", lid)
-			UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + cvInput.Filename)
+			privateFileName, err := lib.NewJobApplicationPrivateFileName(cvInput.Filename)
 
 			if err != nil {
+				if err == lib.ErrUnsupportedJobApplicationDocument {
+					return c.Redirect("/panel/doktorlar/doktor-ekle?error=invalid_file_type")
+				}
 				log.Printf("operation=AddJobApplication stage=cv_path")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
 			}
 
-			switch UniqueFilePath.Extension {
-			case ".pdf", ".doc", ".docx":
-				break
-			default:
-				return c.Redirect("/panel/doktorlar/doktor-ekle?error=invalid_file_type")
-			}
-
 			// Insert media record
 			media := models.Medias{
-				FileName: UniqueFilePath.BaseName,
-				FilePath: "files/job-applications/" + lid + "/" + UniqueFilePath.BaseName,
+				FileName: privateFileName,
+				FilePath: "private/job-applications/" + privateFileName,
 				FileSize: cvInput.Size,
 				MimeType: cvInput.Header.Get("Content-Type"),
 				FileType: "cv",
@@ -3387,7 +3382,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			}
 
 			// Save CV file
-			err = lib.SaveFileWithBuffering(estimatedPath, *cvInput)
+			err = lib.SaveJobApplicationPrivateFile(RootDir, privateFileName, cvInput)
 			if err != nil {
 				log.Printf("operation=AddJobApplication stage=cv_file_save")
 				return c.Redirect("/panel/doktorlar/doktor-ekle?error=internal_server_error")
