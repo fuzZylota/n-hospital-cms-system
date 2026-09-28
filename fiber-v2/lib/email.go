@@ -86,6 +86,25 @@ func sendEmail(message emailMessage, build emailBuilder, send emailSender) error
 	return nil
 }
 
+// DeliverEmailAfterPersistence handles a best-effort delivery after the
+// caller's durable database operation has completed. Delivery failure is
+// reported to the caller-owned observer and returned for diagnostics, but it
+// cannot rewrite the already-completed record outcome.
+func DeliverEmailAfterPersistence(send func() error, onFailure func(error)) error {
+	if send == nil {
+		err := &EmailError{stage: EmailMessageBuild, cause: errors.New("email sender unavailable")}
+		if onFailure != nil {
+			onFailure(err)
+		}
+		return err
+	}
+	err := send()
+	if err != nil && onFailure != nil {
+		onFailure(err)
+	}
+	return err
+}
+
 func sendEmailSMTP(message emailMessage, content []byte) error {
 	auth := smtp.PlainAuth("", message.Username, message.Password, message.Host)
 	address := message.Host + ":" + strconv.FormatInt(message.Port, 10)

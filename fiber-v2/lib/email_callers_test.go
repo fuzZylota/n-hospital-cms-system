@@ -98,6 +98,109 @@ func TestBothReplyHandlersUseTestedResponseDecision(t *testing.T) {
 	}
 }
 
+func TestPersistedEmailCallersUsePostDatabaseDeliverySeam(t *testing.T) {
+	cases := []struct {
+		name, file, persistReceiver, persistMethod, message, idKey string
+	}{
+		{"AddRandevuRequest", filepath.Join("..", "controllers", "post", "randevular", "randevular.go"), "insertReq", "Execute", "Randevu talebi başarıyla oluşturuldu.", "rrid"},
+		{"AddRandevu", filepath.Join("..", "controllers", "post", "randevular", "randevular.go"), "Orm", "Commit", "Randevu başarıyla oluşturuldu.", ""},
+		{"EditRandevu", filepath.Join("..", "controllers", "post", "randevular", "randevular.go"), "Orm", "Commit", "Randevu updated successfully", ""},
+		{"AddContactRequest", filepath.Join("..", "controllers", "post", "post.go"), "InsertContactRequest", "Execute", "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.", "crid"},
+		{"AddJobApplication", filepath.Join("..", "controllers", "post", "post.go"), "insertReq", "Execute", "İş başvurusu başarıyla gönderildi", "jaid"},
+	}
+	for _, test := range cases {
+		t.Run("caller", func(t *testing.T) {
+			fset := token.NewFileSet()
+			file, err := parser.ParseFile(fset, test.file, nil, 0)
+			if err != nil {
+				t.Fatal("cannot parse caller source")
+			}
+			var function *ast.FuncDecl
+			for _, declaration := range file.Decls {
+				if candidate, ok := declaration.(*ast.FuncDecl); ok && candidate.Recv == nil && candidate.Name.Name == test.name {
+					function = candidate
+				}
+			}
+			if function == nil {
+				t.Fatal("missing persisted-email caller")
+			}
+
+			var persist, deliver, response token.Pos
+			badDeliveryContract := false
+			deliveries, sends := 0, 0
+			ast.Inspect(function, func(node ast.Node) bool {
+				call, ok := node.(*ast.CallExpr)
+				if !ok {
+					return true
+				}
+				if isCall(call, test.persistReceiver, test.persistMethod) && persist == token.NoPos {
+					persist = call.Pos()
+				}
+				if isCall(call, "lib", "DeliverEmailAfterPersistence") {
+					deliveries++
+					deliver = call.Pos()
+					if len(call.Args) != 2 {
+						badDeliveryContract = true
+						return true
+					}
+					ast.Inspect(call.Args[0], func(child ast.Node) bool {
+						if sendCall, ok := child.(*ast.CallExpr); ok && isCall(sendCall, "lib", "SendEmail") {
+							sends++
+						}
+						return true
+					})
+				}
+				if isCall(call, "c", "JSON") && len(call.Args) == 1 && persistedSuccessResponse(call.Args[0], test.message, test.idKey) {
+					response = call.Pos()
+				}
+				return true
+			})
+			if badDeliveryContract {
+				t.Fatal("delivery seam callback contract changed")
+			}
+			if persist == token.NoPos || deliver == token.NoPos || response == token.NoPos || !(persist < deliver && deliver < response) {
+				t.Fatal("persistence, delivery, and success response order changed")
+			}
+			if deliveries != 1 || sends != 1 {
+				t.Fatal("caller bypasses or duplicates the persisted-email seam")
+			}
+		})
+	}
+}
+
+func persistedSuccessResponse(expression ast.Expr, message, idKey string) bool {
+	literal, ok := expression.(*ast.CompositeLit)
+	if !ok {
+		return false
+	}
+	status, messageOK, idOK := false, false, idKey == ""
+	for _, element := range literal.Elts {
+		field, ok := element.(*ast.KeyValueExpr)
+		if !ok {
+			continue
+		}
+		key, ok := field.Key.(*ast.BasicLit)
+		if !ok || key.Kind != token.STRING {
+			continue
+		}
+		name, err := strconv.Unquote(key.Value)
+		if err != nil {
+			continue
+		}
+		switch name {
+		case "status":
+			status = exactInteger(field.Value, "201")
+		case "message":
+			messageOK = exactString(field.Value, message)
+		default:
+			if name == idKey {
+				idOK = true
+			}
+		}
+	}
+	return status && messageOK && idOK
+}
+
 func emailWorkflowDiagnosticSafe(name string) bool {
 	path := filepath.Join("..", "controllers", "post", "post.go")
 	if name == "AddRandevuRequest" || name == "AddRandevu" || name == "EditRandevu" {
@@ -1670,7 +1773,7 @@ func canonicalPackageCalls(file *ast.File, target ast.Node, importPath string) (
 				ancestors = append(ancestors, node)
 				return true
 			}
-			if importPath == "log" && canonicalStdlibLogFunctions[ident.Name] || importPath == "lib" && (ident.Name == "EmailFailureStage" || ident.Name == "SendEmail" || ident.Name == "SendEmailThenMarkReplied") {
+			if importPath == "log" && canonicalStdlibLogFunctions[ident.Name] || importPath == "lib" && (ident.Name == "EmailFailureStage" || ident.Name == "SendEmail" || ident.Name == "DeliverEmailAfterPersistence" || ident.Name == "SendEmailThenMarkReplied") {
 				var direct *ast.CallExpr
 				for index := len(ancestors) - 1; index >= 0; index-- {
 					if _, ok := ancestors[index].(*ast.ParenExpr); ok {
@@ -1863,7 +1966,7 @@ func diagnosticNodeText(fset *token.FileSet, node ast.Node, file *ast.File) stri
 		if dot {
 			methods := []string{"Print", "Printf", "Println"}
 			if path == "lib" {
-				methods = []string{"SendEmail", "SendEmailThenMarkReplied", "EmailFailureStage", "String"}
+				methods = []string{"SendEmail", "DeliverEmailAfterPersistence", "SendEmailThenMarkReplied", "EmailFailureStage", "String"}
 			}
 			for _, method := range methods {
 				text = regexp.MustCompile(`\b`+method+`\(`).ReplaceAllString(text, path+"."+method+"(")
@@ -1941,11 +2044,11 @@ func targetLogSignature(file *ast.File, target *ast.FuncDecl, fset *token.FileSe
 }
 
 var workflowLogSignatures = map[string]string{
-	"AddRandevuRequest":       "c0680d6fe00e620f6d2695a6d506a85b30057efd1cfb84a3f84210d890d523b2",
-	"AddRandevu":              "1fa19338b156055b87f95b6fb4fb1f856421869ad01e8b903391ef53c03924b8",
-	"EditRandevu":             "455e940745b5578465218635312b7acdaa47aec3a8be13460925a4917a19c8f3",
-	"AddContactRequest":       "580b63ae0ae288b1256a1db75a920d05b0a10ff53e0059057536179d8f746c31",
-	"AddJobApplication":       "447962e23ed4a73a43ce552b253f60f2d69137acf60446a7abe37ef7345ebfdc",
+	"AddRandevuRequest":       "5319527085de5f6cd9609e6eabf9e15865b26f1cefd4e8557484842f51cb7402",
+	"AddRandevu":              "40923db15c33b87f07f9c1b2800ed44f8e762dec62cea0c7e07396f9a95c9d8c",
+	"EditRandevu":             "52a8a9b80b54e77d40a9968ec559af07cc66c0a61ba40d07983a0e7db6264bc9",
+	"AddContactRequest":       "c51edf1ba5d7d2ba634be04eb5f22e38c969443465c392002dc707062d478f9a",
+	"AddJobApplication":       "57cb2dee731bf7f639e0d0d14f14c61c2f1c949f13111b3d6f354d5991244112",
 	"RespondToContactRequest": "f589bd90a1e32a3e325fb7fbff3e910c253ad8899204452598ab4ea54fdfd0d0",
 	"RespondToJobApplication": "b888d278a7243f4b2adda01b671f995938efdb3737622dc20bd776b71adb7bfc",
 }
@@ -1968,7 +2071,7 @@ func targetWorkflowDiagnosticsSafe(file *ast.File, target *ast.FuncDecl, fset *t
 	if !logSafe || !libSafe || !directDiagnosticStatements(target, canonical) {
 		return false
 	}
-	sendMethod := "SendEmail"
+	sendMethod := "DeliverEmailAfterPersistence"
 	if strings.HasPrefix(name, "RespondTo") {
 		sendMethod = "SendEmailThenMarkReplied"
 	}
@@ -2114,7 +2217,7 @@ func TestAddRandevuDiagnosticContextAndAliasFixtures(t *testing.T) {
 		{name: "notification_as_mail_stage", old: notification, replacement: `log.Printf("operation=AddRandevuRequest stage=%s", lib.EmailFailureStage(publishErr))`},
 		{name: "notification_logger_shadow", old: `if publishErr := notificationevent.Publish(`, replacement: "log := struct{ Printf func(string, ...any) }{}\n\t\t\tif publishErr := notificationevent.Publish(", extra: "\nfunc unrelated() { log.Print(payload) }\n", first: true},
 		{name: "mail_as_notification", old: mail, replacement: notification},
-		{name: "mail_logger_shadow", old: `err = lib.SendEmail(&CreateEmailInfos)`, replacement: "log := struct{ Printf func(string, ...any) }{}\n\t\t\terr = lib.SendEmail(&CreateEmailInfos)", extra: "\nfunc unrelated() { log.Print(payload) }\n", first: true},
+		{name: "mail_logger_shadow", old: `err = lib.DeliverEmailAfterPersistence(`, replacement: "log := struct{ Printf func(string, ...any) }{}\n\t\t\terr = lib.DeliverEmailAfterPersistence(", extra: "\nfunc unrelated() { log.Print(payload) }\n", first: true},
 		{name: "relocated_same_literal", old: notification, replacement: `_ = publishErr`, old2: `log.Printf("operation=AddRandevuRequest stage=message_build")`, replacement2: notification},
 		{name: "extra_raw_other_function", extra: "\nfunc unrelated() { log.Print(inputs.Message) }\n", allowed: true},
 		{name: "other_function_payload", extra: "\nfunc unrelated() { log.Print(payload) }\n", allowed: true},

@@ -518,7 +518,9 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 				Attachments: []string{GetLogo},
 			}
 
-			err = lib.SendEmail(&CreateEmailInfos)
+			err = lib.DeliverEmailAfterPersistence(
+				func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+			)
 
 			if err != nil {
 				log.Printf("operation=AddRandevuRequest stage=%s", lib.EmailFailureStage(err))
@@ -1355,7 +1357,9 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 					Attachments: []string{GetLogo},
 				}
 
-				err = lib.SendEmail(&CreateEmailInfos)
+				err = lib.DeliverEmailAfterPersistence(
+					func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+				)
 
 				if err != nil {
 					log.Printf("operation=AddRandevu stage=%s", lib.EmailFailureStage(err))
@@ -1965,7 +1969,9 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 					Attachments: []string{GetLogo},
 				}
 
-				err = lib.SendEmail(&CreateEmailInfos)
+				err = lib.DeliverEmailAfterPersistence(
+					func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+				)
 
 				if err != nil {
 					log.Printf("operation=EditRandevu stage=%s", lib.EmailFailureStage(err))

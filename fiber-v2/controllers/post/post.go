@@ -2570,7 +2570,9 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 				Attachments: []string{GetLogo},
 			}
 
-			err = lib.SendEmail(&CreateEmailInfos)
+			err = lib.DeliverEmailAfterPersistence(
+				func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+			)
 
 			if err != nil {
 				log.Printf("operation=AddContactRequest stage=%s", lib.EmailFailureStage(err))
@@ -3736,7 +3738,9 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 				Attachments: []string{GetLogo},
 			}
 
-			err = lib.SendEmail(&CreateEmailInfos)
+			err = lib.DeliverEmailAfterPersistence(
+				func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+			)
 
 			if err != nil {
 				log.Printf("operation=AddJobApplication stage=%s", lib.EmailFailureStage(err))

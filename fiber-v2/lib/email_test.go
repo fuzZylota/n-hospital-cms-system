@@ -9,13 +9,18 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
 	"net/mail"
 	"net/textproto"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func TestSendEmailReturnsMIMEBuildErrorWithoutStoppingProcess(t *testing.T) {
@@ -56,6 +61,107 @@ func TestSendEmailReturnsSMTPErrorWithoutStoppingProcess(t *testing.T) {
 
 	if !errors.Is(err, smtpErr) {
 		t.Fatalf("expected wrapped SMTP error, got %v", err)
+	}
+}
+
+func TestSendEmailFailureSubprocessSurvives(t *testing.T) {
+	for _, stage := range []string{"mime", "smtp"} {
+		t.Run(stage, func(t *testing.T) {
+			command := exec.Command(os.Args[0], "-test.run=^TestSendEmailFailureSubprocessHelper$")
+			command.Env = append(os.Environ(), "NIVGOZ_EMAIL_FAILURE_SUBPROCESS="+stage)
+			output, err := command.CombinedOutput()
+			if err != nil {
+				t.Fatalf("email failure terminated subprocess: %v: %s", err, output)
+			}
+			if !bytes.Contains(output, []byte("subprocess-survived:"+stage)) {
+				t.Fatalf("subprocess did not reach the post-error marker: %s", output)
+			}
+		})
+	}
+}
+
+func TestSendEmailFailureSubprocessHelper(t *testing.T) {
+	stage := os.Getenv("NIVGOZ_EMAIL_FAILURE_SUBPROCESS")
+	if stage == "" {
+		return
+	}
+	failure := errors.New("controlled " + stage + " failure")
+	build := emailBuilder(func(emailMessage) ([]byte, error) { return []byte("message"), nil })
+	send := emailSender(func(emailMessage, []byte) error { return nil })
+	if stage == "mime" {
+		build = func(emailMessage) ([]byte, error) { return nil, failure }
+	} else if stage == "smtp" {
+		send = func(emailMessage, []byte) error { return failure }
+	} else {
+		t.Fatal("unknown subprocess stage")
+	}
+	if err := sendEmail(emailMessage{}, build, send); !errors.Is(err, failure) {
+		t.Fatal("controlled failure was not returned")
+	}
+	fmt.Print("subprocess-survived:" + stage)
+}
+
+func TestPersistedEmailCallersKeepSuccessResponseOnDeliveryFailure(t *testing.T) {
+	cases := []struct {
+		name, message, idKey string
+	}{
+		{"AddRandevuRequest", "Randevu talebi başarıyla oluşturuldu.", "rrid"},
+		{"AddRandevu", "Randevu başarıyla oluşturuldu.", ""},
+		{"EditRandevu", "Randevu updated successfully", ""},
+		{"AddContactRequest", "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.", "crid"},
+		{"AddJobApplication", "İş başvurusu başarıyla gönderildi", "jaid"},
+	}
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			events := []string{}
+			var observedDeliveryErr error
+			deliveryErr := errors.New("controlled delivery failure")
+			app := fiber.New()
+			app.Post("/", func(c *fiber.Ctx) error {
+				events = append(events, "persist")
+				err := DeliverEmailAfterPersistence(func() error {
+					events = append(events, "send")
+					return deliveryErr
+				}, func(err error) {
+					observedDeliveryErr = err
+					events = append(events, "failure")
+				})
+				if !errors.Is(err, deliveryErr) {
+					return errors.New("delivery error was not preserved")
+				}
+				response := fiber.Map{"status": 201, "message": test.message}
+				if test.idKey != "" {
+					response[test.idKey] = "fixture-id"
+				}
+				events = append(events, "response")
+				return c.JSON(response)
+			})
+
+			response, err := app.Test(httptest.NewRequest(http.MethodPost, "/", nil), -1)
+			if err != nil {
+				t.Fatal("fake caller request failed")
+			}
+			defer response.Body.Close()
+			if response.StatusCode != http.StatusOK {
+				t.Fatal("delivery failure changed the HTTP transport status")
+			}
+			var payload map[string]any
+			if err := json.NewDecoder(response.Body).Decode(&payload); err != nil {
+				t.Fatal("fake caller returned invalid JSON")
+			}
+			if !errors.Is(observedDeliveryErr, deliveryErr) {
+				t.Fatal("failure observer received the wrong error")
+			}
+			if !reflect.DeepEqual(events, []string{"persist", "send", "failure", "response"}) {
+				t.Fatalf("database, delivery, and response order changed: %v", events)
+			}
+			if payload["status"] != float64(201) || payload["message"] != test.message {
+				t.Fatal("delivery failure changed the persisted-record success response")
+			}
+			if test.idKey != "" && payload[test.idKey] != "fixture-id" {
+				t.Fatal("delivery failure removed the persisted record identifier")
+			}
+		})
 	}
 }
 

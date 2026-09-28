@@ -150,8 +150,11 @@ func TestAddRandevuRequestSnapshotWiring(t *testing.T) {
 		sendIndex := -1
 		for nestedIndex, nested := range branch.Body.List {
 			assignment, ok := nested.(*ast.AssignStmt)
-			if ok && len(assignment.Rhs) == 1 && appointmentNode(assignment.Rhs[0]) == "lib.SendEmail(&CreateEmailInfos)" {
-				sendIndex = nestedIndex
+			if ok && len(assignment.Rhs) == 1 {
+				delivery := appointmentNode(assignment.Rhs[0])
+				if strings.HasPrefix(delivery, "lib.DeliverEmailAfterPersistence(") && strings.Contains(delivery, "return lib.SendEmail(&CreateEmailInfos)") && strings.HasSuffix(delivery, ", nil)") {
+					sendIndex = nestedIndex
+				}
 			}
 		}
 		if sendIndex < 0 || sendIndex+1 >= len(branch.Body.List) {
