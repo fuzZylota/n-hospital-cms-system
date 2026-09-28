@@ -29,20 +29,24 @@ func (r *readerStub) LookupUserStatus(ctx context.Context, userID string) (data.
 func TestShouldExpireAuthCookiesOutcomes(t *testing.T) {
 	backend := errors.New("private backend credential uid=41 role=admin")
 	for _, test := range []struct {
-		name   string
-		status data.UserStatus
-		err    error
-		want   bool
+		name    string
+		status  data.UserStatus
+		err     error
+		want    bool
+		role    string
+		wantErr bool
 	}{
-		{name: "active", status: data.UserStatus{Found: true, Active: true, Role: "admin"}},
+		{name: "active", status: data.UserStatus{Found: true, Active: true, Role: "admin"}, role: "admin"},
 		{name: "inactive", status: data.UserStatus{Found: true, Active: false, Role: "moderator"}, want: true},
 		{name: "missing", status: data.UserStatus{Found: false}, want: true},
-		{name: "reader error", err: backend},
+		{name: "reader error", err: backend, wantErr: true},
+		{name: "missing role", status: data.UserStatus{Found: true, Active: true}, wantErr: true},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			ctx := context.WithValue(context.Background(), struct{}{}, "request-bound")
 			reader := &readerStub{status: test.status, err: test.err}
-			if got := ShouldExpireAuthCookies(ctx, reader, "41"); got != test.want {
+			got, role, err := ShouldExpireAuthCookies(ctx, reader, "41")
+			if got != test.want || role != test.role || (err != nil) != test.wantErr {
 				t.Fatal("unexpected expiration decision")
 			}
 			if reader.calls != 1 || reader.ctx != ctx || reader.userID != "41" {
@@ -52,13 +56,13 @@ func TestShouldExpireAuthCookiesOutcomes(t *testing.T) {
 	}
 }
 
-func TestShouldExpireAuthCookiesUnavailableInputIsFailOpen(t *testing.T) {
-	if ShouldExpireAuthCookies(context.Background(), nil, "41") {
-		t.Fatal("nil reader expired cookies")
+func TestShouldExpireAuthCookiesUnavailableInputFailsClosed(t *testing.T) {
+	if expire, role, err := ShouldExpireAuthCookies(context.Background(), nil, "41"); expire || role != "" || err == nil {
+		t.Fatal("nil reader was treated as a valid status")
 	}
 	reader := &readerStub{status: data.UserStatus{Found: false}}
-	if ShouldExpireAuthCookies(context.Background(), reader, "") || reader.calls != 0 {
-		t.Fatal("empty user ID reached the reader")
+	if expire, role, err := ShouldExpireAuthCookies(context.Background(), reader, ""); expire || role != "" || err == nil || reader.calls != 0 {
+		t.Fatal("empty user ID was treated as a valid status")
 	}
 }
 
@@ -77,7 +81,7 @@ func TestShouldExpireAuthCookiesDoesNotLogReaderData(t *testing.T) {
 	})
 
 	reader := &readerStub{err: errors.New("private backend credential uid=41 role=admin")}
-	if ShouldExpireAuthCookies(context.Background(), reader, "41") {
+	if expire, role, err := ShouldExpireAuthCookies(context.Background(), reader, "41"); expire || role != "" || err == nil {
 		t.Fatal("reader error expired cookies")
 	}
 	if output.Len() != 0 {
@@ -85,7 +89,7 @@ func TestShouldExpireAuthCookiesDoesNotLogReaderData(t *testing.T) {
 	}
 }
 
-func TestShouldExpireAuthCookiesContextFailuresAreFailOpen(t *testing.T) {
+func TestShouldExpireAuthCookiesContextFailuresDoNotExpire(t *testing.T) {
 	for _, test := range []struct {
 		name    string
 		makeCtx func() (context.Context, context.CancelFunc)
@@ -112,7 +116,7 @@ func TestShouldExpireAuthCookiesContextFailuresAreFailOpen(t *testing.T) {
 			ctx, cancel := test.makeCtx()
 			defer cancel()
 			reader := &contextReaderStub{}
-			if ShouldExpireAuthCookies(ctx, reader, "41") {
+			if expire, role, err := ShouldExpireAuthCookies(ctx, reader, "41"); expire || role != "" || !errors.Is(err, test.wantErr) {
 				t.Fatal("context failure expired cookies")
 			}
 			if reader.calls != 1 || reader.ctx != ctx || reader.userID != "41" || !errors.Is(reader.err, test.wantErr) {

@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
@@ -34,6 +35,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
+
+var requestPrincipalKey = new(byte)
 
 func GenerateRandomString(length int) []byte {
 	b := make([]byte, length)
@@ -249,6 +252,9 @@ func GetJWT(c any) (models.AuthenticatedUser, error) {
 	ourAuthCookie := ""
 	switch conn := c.(type) {
 	case *fiber.Ctx:
+		if principal, ok := conn.Locals(requestPrincipalKey).(models.AuthenticatedUser); ok {
+			return principal, nil
+		}
 		cookieName := os.Getenv("AUTH_COOKIE_NAME")
 
 		if cookieName == "" {
@@ -349,10 +355,33 @@ func JWTMiddleware() fiber.Handler {
 			return c.Next()
 		}
 
+		// Let current account status decide before a refreshed token is written.
+		if err := c.Next(); err != nil {
+			return err
+		}
+		if c.Response().StatusCode() >= fiber.StatusBadRequest {
+			return nil
+		}
+		// Login/logout handlers own any auth cookie they set downstream.
+		authCookieSet := false
+		c.Response().Header.VisitAllCookie(func(key, _ []byte) {
+			if bytes.Equal(key, []byte(cookieName)) {
+				authCookieSet = true
+			}
+		})
+		if authCookieSet {
+			return nil
+		}
+		// Refresh only the principal verified against the current DB record.
+		ourUser, ok := c.Locals(requestPrincipalKey).(models.AuthenticatedUser)
+		if !ok {
+			return nil
+		}
+
 		tokenString, err := CreateJWT(ourUser)
 		if err != nil {
 			log.Printf("Error is: %s \n", err)
-			return c.Next()
+			return nil
 		}
 
 		// Yeni çerez oluşturup tarayıcıya ekleyin
@@ -372,14 +401,24 @@ func JWTMiddleware() fiber.Handler {
 
 		c.Cookie(&cookie)
 
-		return c.Next()
+		return nil
 	}
 }
 
 func HandleUserBanning(reader data.UserStatusReader) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := GetJWT(c)
-		if err == nil && ourUser.Uid != "" && userstatus.ShouldExpireAuthCookies(c.UserContext(), reader, ourUser.Uid) {
+		if err != nil || ourUser.Uid == "" {
+			return c.Next()
+		}
+		expire, currentRole, err := userstatus.ShouldExpireAuthCookies(c.UserContext(), reader, ourUser.Uid)
+		if err != nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+				"status":  fiber.StatusServiceUnavailable,
+				"message": "İşlem şu anda gerçekleştirilemiyor. Lütfen daha sonra tekrar deneyin.",
+			})
+		}
+		if expire {
 			cookieName := os.Getenv("AUTH_COOKIE_NAME")
 
 			if cookieName == "" {
@@ -391,11 +430,19 @@ func HandleUserBanning(reader data.UserStatusReader) fiber.Handler {
 				Value:    "",
 				Expires:  time.Now().Add(-time.Hour * 24),
 				HTTPOnly: true,
+				Secure:   true,
+				SameSite: "Lax",
 				MaxAge:   0,
 			}
 
 			c.Cookie(&cookie)
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":  fiber.StatusUnauthorized,
+				"message": "Bu işlemi gerçekleştirmek için giriş yapmanız gerekiyor.",
+			})
 		}
+		ourUser.Role = currentRole
+		c.Locals(requestPrincipalKey, ourUser)
 
 		return c.Next()
 	}

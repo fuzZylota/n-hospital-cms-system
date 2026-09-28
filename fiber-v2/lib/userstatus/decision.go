@@ -2,21 +2,29 @@ package userstatus
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"models/data"
 )
 
-// ShouldExpireAuthCookies reduces the current account lookup to the only
-// decision needed by the existing ban middleware. Lookup failures remain
-// fail-open and are deliberately not returned or logged here.
-func ShouldExpireAuthCookies(ctx context.Context, reader data.UserStatusReader, userID string) bool {
+// ShouldExpireAuthCookies returns the current role only for an active account.
+// Callers must stop on errors; only a definitively inactive or missing account
+// should lose its cookie.
+func ShouldExpireAuthCookies(ctx context.Context, reader data.UserStatusReader, userID string) (bool, string, error) {
 	if reader == nil || userID == "" {
-		return false
+		return false, "", errors.New("user status lookup unavailable")
 	}
 
 	status, err := reader.LookupUserStatus(ctx, userID)
 	if err != nil {
-		return false
+		return false, "", err
 	}
-	return !status.Found || !status.Active
+	if !status.Found || !status.Active {
+		return true, "", nil
+	}
+	if strings.TrimSpace(status.Role) == "" {
+		return false, "", errors.New("current user role unavailable")
+	}
+	return false, status.Role, nil
 }

@@ -44,7 +44,9 @@ func TestHandleUserBanningAdapterContract(t *testing.T) {
 	for _, required := range []string{
 		"func HandleUserBanning(reader data.UserStatusReader) fiber.Handler",
 		"ourUser, err := GetJWT(c)",
-		`err == nil && ourUser.Uid != "" && userstatus.ShouldExpireAuthCookies(c.UserContext(), reader, ourUser.Uid)`,
+		`expire, currentRole, err := userstatus.ShouldExpireAuthCookies(c.UserContext(), reader, ourUser.Uid)`,
+		`if err != nil`,
+		`if expire`,
 		`cookieName := os.Getenv("AUTH_COOKIE_NAME")`,
 		`cookieName = "n-hospital-auth"`,
 		`Value: ""`,
@@ -56,7 +58,7 @@ func TestHandleUserBanningAdapterContract(t *testing.T) {
 			t.Fatal("ban middleware contract is incomplete")
 		}
 	}
-	for _, forbidden := range []string{"neorm", ".Count(", ".Select(", ".Where(", ".Execute(", "log.", "Secure:", "SameSite:", "Path:", "Domain:"} {
+	for _, forbidden := range []string{"neorm", ".Count(", ".Select(", ".Where(", ".Execute(", "log.", "Path:", "Domain:"} {
 		if strings.Contains(text, forbidden) {
 			t.Fatal("ban middleware contains forbidden legacy or cookie behavior")
 		}
@@ -79,7 +81,7 @@ func TestHandleUserBanningAdapterContract(t *testing.T) {
 		}
 		return true
 	})
-	if nextCalls != 1 || decisionCalls != 1 {
+	if nextCalls != 2 || decisionCalls != 1 {
 		t.Fatal("ban middleware call counts changed")
 	}
 }
