@@ -25,7 +25,7 @@ func TestAddJobApplicationOwnedWiring(t *testing.T) {
 	}
 }
 
-func TestPrivateCVMediaWiringMutations(t *testing.T) {
+func TestPrivateCVMediaAndDeliveryWiringMutations(t *testing.T) {
 	source, err := os.ReadFile(filepath.Join("..", "post.go"))
 	if err != nil || !jobApplicationWiringIsSafe(source) {
 		t.Fatal("cannot verify production private-CV wiring")
@@ -39,6 +39,9 @@ func TestPrivateCVMediaWiringMutations(t *testing.T) {
 		{"public save root", `lib.SaveJobApplicationPrivateFile(RootDir, privateFileName, cvInput)`, `lib.SaveJobApplicationPrivateFile(filepath.Join(RootDir, "static"), privateFileName, cvInput)`},
 		{"wrong file type", `FileType: "cv"`, `FileType: "diploma"`},
 		{"incorrect invalid-type response", `error=invalid_file_type"`, `error=internal_server_error"`},
+		{"dropped post-persistence seam", `err = lib.DeliverEmailAfterPersistence(
+				func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+			)`, `err = lib.SendEmail(&CreateEmailInfos)`},
 	}
 	for _, mutation := range mutations {
 		t.Run(mutation.name, func(t *testing.T) {
@@ -46,8 +49,11 @@ func TestPrivateCVMediaWiringMutations(t *testing.T) {
 			if !ok {
 				t.Fatal("fixture anchor missing")
 			}
+			if _, err := parser.ParseFile(token.NewFileSet(), "post.go", changed, 0); err != nil {
+				t.Fatal("mutation fixture is not valid Go")
+			}
 			if jobApplicationWiringIsSafe(changed) {
-				t.Fatal("unsafe private-CV mutation was accepted")
+				t.Fatal("unsafe private-CV or mail mutation was accepted")
 			}
 		})
 	}
