@@ -24,7 +24,8 @@
                         <div class="sidebar__form sidebar__single">
                             <h2 class="sidebar__title sidebar__form__title">Arama Yap</h2><!-- /.sidebar__title -->
                             <form action="/haberler" class="sidebar__search">
-                                <input type="text" placeholder="Arama Yap" />
+                                <input type="hidden" name="category" value="{{ Category }}">
+                                <input type="text" name="text" value="{{ Text }}" placeholder="Arama Yap" aria-label="Haberlerde ara" />
                                 <button type="submit" aria-label="search submit" class="sidebar__search__icon">
                                     <i class="icon-search"></i>
                                 </button>
@@ -133,20 +134,18 @@
                         </div><!-- /.col-xl-6 col-lg-12 col-md-6 -->
                     {{ end }}
                     <div class="col-12">
-                        {{ if len(Haberler) > Options.Options.ItemsPerPage }}
-                            <ul class="post-pagination">
-                                <li><a href="#"><span class="post-pagination__icon"><i class="icon-arrow-left-2"></i></span></a>
-                                </li>
-                                <li><a href="#">01</a>
-                                </li>
-                                <li><a href="#">02</a>
-                                </li>
-                                <li><a href="#">03</a>
-                                </li>
-                                <li class="active">
-                                    <a href="#"><span class="post-pagination__icon"><i class="icon-arrow-right-2"></i></span></a>
-                                </li>
-                            </ul><!-- /.post-pagination -->
+                        {{ if TotalPages > 1 }}
+                            <nav aria-label="Haber sayfaları">
+                                <ul class="post-pagination">
+                                    {{ if Page > 1 }}
+                                        <li><a href="{{ PaginationBase }}{{ PreviousPage }}" aria-label="Önceki haber sayfası"><span class="post-pagination__icon"><i class="icon-arrow-left-2"></i></span></a></li>
+                                    {{ end }}
+                                    <li class="active"><span aria-current="page">{{ Page }} / {{ TotalPages }}</span></li>
+                                    {{ if Page < TotalPages }}
+                                        <li><a href="{{ PaginationBase }}{{ NextPage }}" aria-label="Sonraki haber sayfası"><span class="post-pagination__icon"><i class="icon-arrow-right-2"></i></span></a></li>
+                                    {{ end }}
+                                </ul>
+                            </nav>
                         {{ end }}
                     </div><!-- /.col-12 -->
                 </div><!-- /.row -->

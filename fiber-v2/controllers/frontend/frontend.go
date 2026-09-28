@@ -4,6 +4,7 @@ import (
 	"database"
 	"log"
 	"models"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -695,7 +696,11 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("news options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		Page := 1
 		if c.Query("page") != "" {
@@ -706,6 +711,9 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			} else {
 				Page = ConvertQuery
 			}
+		}
+		if Page < 1 {
+			Page = 1
 		}
 
 		Category := "genel"
@@ -719,41 +727,71 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			Text = c.Query("text")
 		}
 
-		Offset := (Page - 1) * int(Options.Options.ItemsPerPage)
+		PageSize := int(Options.Options.ItemsPerPage)
+		if PageSize < 1 {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		GetTotal := Orm.Select([]string{"COUNT(*) as count"})
+		GetTotal.Table("haberler h")
+		GetTotal.Where("h.is_published", "=", true)
+		GetTotal.And("h.category", "=", Category)
+		if Text != "" {
+			GetTotal.OpenParenthesis("AND")
+			GetTotal.Like("AND", "h.title", Text, "contains")
+			GetTotal.Like("OR", "h.summary", Text, "contains")
+			GetTotal.Like("OR", "h.content", Text, "contains")
+			GetTotal.CloseParenthesis()
+		}
+		GetTotal.Finish()
+		if err := GetTotal.Execute(); err != nil {
+			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		TotalRows, err := GetTotal.Rows()
+		if err != nil || len(TotalRows) != 1 {
+			log.Printf("news count rows: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		Total := lib.Int64(TotalRows[0]["count"])
+		TotalPages := int((Total + int64(PageSize) - 1) / int64(PageSize))
+		if TotalPages > 0 && Page > TotalPages {
+			Page = TotalPages
+		}
+		Offset := (Page - 1) * PageSize
 
 		GetHaberler := Orm.Select([]string{"h.hid", "h.title", "h.publish_date", "h.url_name", "h.author", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		GetHaberler.Table("haberler h")
 		GetHaberler.LeftJoin("medias m", "h.cover_mid", "=", "m.mid")
 
+		GetHaberler.Where("h.is_published", "=", true)
+		GetHaberler.And("h.category", "=", Category)
 		if Text != "" {
-			GetHaberler.Like("WHERE", "h.title", Text, "contains")
+			GetHaberler.OpenParenthesis("AND")
+			GetHaberler.Like("AND", "h.title", Text, "contains")
 			GetHaberler.Like("OR", "h.summary", Text, "contains")
 			GetHaberler.Like("OR", "h.content", Text, "contains")
-			GetHaberler.OpenParenthesis("AND")
-			GetHaberler.And("h.category", "=", Category)
 			GetHaberler.CloseParenthesis()
-		} else {
-			GetHaberler.Where("h.category", "=", Category)
 		}
 
 		GetHaberler.OrderBy("h.publish_date", "DESC")
-		GetHaberler.Limit(int(Options.Options.ItemsPerPage))
+		GetHaberler.Limit(PageSize)
 		GetHaberler.Offset(Offset)
 		GetHaberler.Finish()
 
 		log.Printf("GetHaberler Query: %v", GetHaberler.Query)
 
-		err := GetHaberler.Execute()
+		err = GetHaberler.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetHaberler.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		//fmt.Printf("Rows: %v\n", rows)
@@ -775,6 +813,7 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		GetCategoryCounts := Orm.Select([]string{"category", "COUNT(*) as count"})
 		GetCategoryCounts.Table("haberler")
+		GetCategoryCounts.Where("is_published", "=", true)
 		GetCategoryCounts.GroupBy("category")
 		GetCategoryCounts.Finish()
 
@@ -782,14 +821,14 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err = GetCategoryCounts.Rows()
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		CategoryCounts := []models.HaberlerPageCategoryNameAndCounts{}
@@ -800,6 +839,7 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			})
 		}
 
+		PaginationBase := "/haberler?category=" + url.QueryEscape(Category) + "&text=" + url.QueryEscape(Text) + "&page="
 		return c.Render("views/frontend/haberler", fiber.Map{
 			"PathOnStart":    "../",
 			"Route":          "/haberler",
@@ -807,6 +847,14 @@ func HaberlerPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 			"User":           OurUser,
 			"Haberler":       Haberler,
 			"CategoryCounts": CategoryCounts,
+			"Category":       Category,
+			"Text":           Text,
+			"Total":          Total,
+			"Page":           Page,
+			"PreviousPage":   Page - 1,
+			"NextPage":       Page + 1,
+			"TotalPages":     TotalPages,
+			"PaginationBase": PaginationBase,
 			"Title":          "Haberler | " + Options.Options.SiteName,
 			"Description":    "Bu sayfa, " + Options.Options.SiteName + " sitesinin haberler sayfası olup, bu sayfada hastanemiz hakkında yayınlanan haberleri bulabilirsiniz.",
 		}, "layouts/main/main")
@@ -826,17 +874,22 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("news detail options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		HaberUrlName := c.Params("haber")
 
 		GetHaber := Orm.Select([]string{"h.*", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		GetHaber.Table("haberler h")
 		GetHaber.LeftJoin("medias m", "h.cover_mid", "=", "m.mid")
-		GetHaber.Where("url_name", "=", HaberUrlName)
+		GetHaber.Where("h.url_name", "=", HaberUrlName)
+		GetHaber.And("h.is_published", "=", true)
 		GetHaber.Finish()
 
-		err := GetHaber.Execute()
+		err = GetHaber.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
@@ -865,12 +918,13 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 		err = UpdateViewsCount.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		ra, err := UpdateViewsCount.RowsAffected()
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		if ra == 0 {

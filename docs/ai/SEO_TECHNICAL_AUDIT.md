@@ -65,9 +65,9 @@ Bu satırlar **tıbbi doğruluk hükmü değildir**. SEO/şablon düzeltmesiyle 
 | Anlaşmalı kurum, indirim ve geçerlilik | Sözleşme sahibi/hukuk: taraf, şube, kapsam ve tarih; kurumsal custom content ile merkez tablosunun çelişmemesi. |
 | KVKK/çerez metni, randevu vaadi, özel dosya erişimi | Hukuk/ürün/güvenlik sahipleri: metin geçerliliği ve “talep” dilinin onayı; CV ve özel belgelerin public dizinden ayrı tutulması. |
 
-## Küçük uygulama paketleri (öneri; uygulanmadı)
+## Küçük uygulama paketleri (ilk envanter; güncel P0 durumu aşağıda)
 
-Öncelikler **yerel kaynak riskine** göre; production olayı, indeks kaybı veya klinik hata kanıtı değildir. İş kuralı/klinik metin kararı ilgili sahipte kalır. Paketler birbirinden bağımsız küçük PR'lara ayrılabilir; hiçbirini bu raporda uygulamadık.
+Öncelikler **yerel kaynak riskine** göre; production olayı, indeks kaybı veya klinik hata kanıtı değildir. İş kuralı/klinik metin kararı ilgili sahipte kalır. Aşağıdaki tablo ilk envanterin önerilerini korur; güncel uygulama durumu tablonun altında kayıtlıdır.
 
 | Öncelik / paket | Dar kapsam ve karar sahibi | Kabul testi |
 | --- | --- | --- |
@@ -78,6 +78,13 @@ Bu satırlar **tıbbi doğruluk hükmü değildir**. SEO/şablon düzeltmesiyle 
 | **P1 / 5 — Hekim/breadcrumb yapılandırılmış verisi** | `Physician.url` gerçek global profil slug'ı; merkeze özgü ve ortak kurum nesneleri yalnız onaylı görünen bilgilerle, breadcrumb gerçek rota ile; genel liste boş durum ve merkez hekim listesi hata yönlendirmeleri kayıtlı rotaya. **Sahip:** SEO/frontend + backend + tıbbi/merkez sahibi. | İki hekim yolu ve üç merkez örneğinde JSON parse, gerçek 200 URL eşliği, görünür bilgiyle alan karşılaştırması; boş durum CTA ve hata yönlendirme hedefleri kayıtlı yola ulaşır; Rich Results Test/URL Inspection sonucu kaydedilir, görünürlük vaadi yok. |
 | **P2 / 6 — Başlık/meta ve medya** | Birim/tetkik `raw` dalına tek sayfa `h1` sözleşmesi; haber boş SEO alanı fallback'i, açıklama/başlıkları amaca uygun yazma; galeri yolları, alt metni, kırık görseller. **Sahip:** frontend + editör + klinik inceleyen. | Masaüstü/390 px/klavyede başlık ağacı; CMS ham içerikli/boş varyantlarda bir anlamlı `h1`; img/video URL GET sonucu ve anlamlı/dekoratif alt ayrımı, kırık medya fallback'i. C'deki tek `naturalWidth=0` görsel ayrıca teşhis edilir. |
 | **P2 / 7 — Arama ve sayfalama URL politikası** | `/arama?q=`, haber `page/category/text`, doktor/merkez `page` için indeks niyeti, sınır/boş sayfa ve gerçek bağlantılar. **Sahip:** SEO/ürün + backend/frontend. | `page=0`, sonu aşan, filtre sıfır, `q` boş/çoklu ve 1→2 sayfa: gerçek HTTP, noindex/canonical/robots kararı, mobil bağlantı eşliği; hiçbir aktif kayıt yalnız JS veya limit yüzünden keşfedilemez kalmaz. |
+
+### 2026-09-29 P0 haber yayın görünürlüğü durum kaydı
+
+- **Karar ve kapsam:** Bu turda P0/1 ve P0/2'nin yalnız haber liste, kategori sayacı, metin/kategori filtresi, toplam/sayfalama ve doğrudan detay URL'si kısmı `is_published=true` koşuluna eşlendi. Arama ve sitemapte bu koşul zaten vardı; değiştirilmedi. Diğer P0/2 aileleri açık kalır. `publish_date` gelecekte olsa da `is_published=true` kaydı görünür kalır; tarih temelli yayın politikası **editör kararı bekliyor**.
+- **Önceki kanıt:** [Haber HTTP testi](../../fiber-v2/controllers/frontend/haber_public_http_test.go) yapay sürücüyle eski handler üzerinde kırmızıydı: ilk listede taslak slug göründü, `genel` sayaç değeri 3 yerine yayınlı 2 değildi, liste okuma hatası `/giris` için 302 üretti. Eski metin SQL'sinde `OR` koşulları kategori dışına taşıyordu. Bu kaynak/yapay HTTP kanıtıdır; canlı site gözlemi değildir.
+- **Yeni kanıt ve güven düzeyi:** [Handler](../../fiber-v2/controllers/frontend/frontend.go), [Jet liste](../../fiber-v2/static/html/views/frontend/haberler.jet) ve yapay Fiber HTTP testi birlikte yayınlı, taslak, gelecek tarihli yayınlı, bilinmeyen slug, 0/1/çok sonuç, filtre, toplam, kategori sayacı, sayfa 2, GET/HEAD, 404 `X-Robots-Tag` ve 500 hata yollarını doğrular. Gerçek [Jet view testi](../../fiber-v2/main/haber_jet_test.go), tam `controllers/frontend` ve tam `main` paketleri, Git metadata'lı geçici HEAD üzerine yalnız beş P0 dosyası uygulanarak doğrulanmış modül önbelleğinde ağsız **PASS** verdi. Kaynak ve izole handler/Jet view davranışı için güven **yüksek**; canlı HTTP ve üretim eşliği **UNKNOWN**.
+- **Sınırlama:** Yapay SQL sürücüsü gerçek PostgreSQL sorgu planını, Jet'in bütün layout'unu ve production verisini ölçmez. Canlı GET/HEAD, Search Console, üretim sürümü ve editörün gelecek tarih kararı **UNKNOWN/açık** kalır. Bu kayıt klinik veya içerik onayı değildir.
 
 ## Ayrı doğrulama kuyrukları
 
@@ -96,4 +103,4 @@ Bu satırlar **tıbbi doğruluk hükmü değildir**. SEO/şablon düzeltmesiyle 
 
 ## Bu araştırmanın açık sonucu
 
-Kaynakta **yayın filtresi tutarsızlığı, eksik canonical aktarımı, sitemap aile boşlukları ve slug'sız hekim JSON-LD'si** doğrulandı. Canlıda yalnız seçili DOM çıktıları doğrulandı; **gerçek HTTP kodları, bütün medya yanıtları, tüm mobil içerik, Search Console ve performans UNKNOWN**. İlk küçük teknik iş P0/1'dir; uygulanması yayın tarihi ve taslak kuralı içerik sahibiyle kararlaştırıldıktan sonra test edilebilir. Bu raporun yazılması bulguları çözülmüş yapmaz.
+İlk envanterde kaynakta **yayın filtresi tutarsızlığı, eksik canonical aktarımı, sitemap aile boşlukları ve slug'sız hekim JSON-LD'si** doğrulandı. Haber yayın filtresinin yerel P0 ilerlemesi yukarıdaki durum kaydındadır. Canlıda yalnız seçili DOM çıktıları doğrulandı; **gerçek HTTP kodları, bütün medya yanıtları, tüm mobil içerik, Search Console ve performans UNKNOWN**. Bu rapor ve yerel testler üretim doğrulaması yerine geçmez.
