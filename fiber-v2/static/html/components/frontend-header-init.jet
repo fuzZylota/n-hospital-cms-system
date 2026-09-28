@@ -86,10 +86,8 @@
 })();
 
 (function(){
-    // mediox.js'in "current" (aktif menü) tespiti, URL'nin son parçası boşsa
-    // (anasayfa gibi trailing-slash bağlantılarda) hatalı şekilde menüdeki
-    // İLK öğeyi (Kurumsal) her zaman aktif gösteriyor. Bu düzeltme, gerçek
-    // bir eşleşme olmayan bu durumda "current" sınıfını temizler.
+    // Tam URL '/' ile bitince tema ilk menü öğesine "current" ekler;
+    // bu durumda masaüstü ve mobil menülerin ilk öğesinden sınıfı kaldırır.
     window.addEventListener('load', function(){
         var fileName = window.location.href.split('/').reverse()[0];
         if (fileName === '') {

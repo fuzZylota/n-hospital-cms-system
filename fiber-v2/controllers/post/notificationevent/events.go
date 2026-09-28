@@ -69,8 +69,9 @@ func Recipient(client notify.Client) bool {
 	return client.Metadata.UserID != "" && client.Metadata.Protocol == "kullanici"
 }
 
-// CurrentRecipients adds the current account decision to each existing event rule.
-// Admission and queued delivery call it outside the hub registry lock.
+// CurrentRecipients adds the current account decision to the supplied
+// recipient rule. Hub admission and its pre-send recheck call this
+// outside the registry lock. A missing reader or lookup failure denies.
 func CurrentRecipients(reader data.UserStatusReader, rule notify.Predicate) notify.Predicate {
 	return func(client notify.Client) bool {
 		if !Recipient(client) || rule == nil {

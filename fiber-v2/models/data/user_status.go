@@ -3,11 +3,12 @@ package data
 import "context"
 
 // UserStatus is the current account state used by the ban/status seam. Found
-// distinguishes a missing user from an inactive user. Role is meaningful only
-// when Found is true; inactive users still retain their current role.
+// distinguishes a missing user from an inactive user. An active account must
+// have a nonblank current Role for authorization; inactive users may retain it.
 //
-// This DTO prepares a current-state lookup for N05B/N05C. It does not define an
-// authorization policy and does not by itself resolve SEC-003.
+// This DTO carries the current-state lookup for N05B/N05C. Callers make the
+// authorization decision at their own boundary, including HTTP requests and
+// notification delivery; the DTO itself grants no access.
 type UserStatus struct {
 	Found  bool
 	Active bool
