@@ -12,6 +12,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -152,7 +153,11 @@ func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusRead
 	server.Static("/css", "./static/css")
 	server.Static("/js", "./static/js")
 	server.Static("/assets", "./static/assets")
-	server.Static("/uploads", "./static/uploads")
+	uploadsRoot := filepath.Join(".", "static", "uploads")
+	if root := os.Getenv("ROOT_DIRECTORY"); root != "" {
+		uploadsRoot = filepath.Join(root, "static", "uploads")
+	}
+	server.Static("/uploads", uploadsRoot)
 	server.Static("/files", "./static/files")
 
 	log.Printf("Static files loaded")

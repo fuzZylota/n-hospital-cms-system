@@ -8,6 +8,7 @@ import (
 	"log"
 	"models"
 	"models/notify"
+	"net/url"
 	"os"
 	"path/filepath"
 	"post/contactrequestresponsesnapshot"
@@ -199,6 +200,14 @@ func LogoutController(states *models.AppState, utilities *models.Utilities) fibe
 	}
 }
 
+func customMediaWebURL(uploadDir string, file lib.UniqueFilePathResponse) (string, bool) {
+	name := file.BaseName
+	if name == "" || !filepath.IsLocal(name) || strings.ContainsAny(name, `/\`) || filepath.Base(name) != name || filepath.Clean(file.FilePath) != filepath.Join(uploadDir, name) {
+		return "", false
+	}
+	return "/uploads/" + url.PathEscape(name), true
+}
+
 func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		_, err := lib.CheckAuth(c)
@@ -245,19 +254,25 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 				})
 			}
 
-			uniquePathResponse, err := lib.UniqueFilePath(uploadDir + "/" + file.Filename)
+			// Windows cannot store '?' in a filename; keep the saved name flat and usable.
+			storedName := strings.ReplaceAll(file.Filename, "?", "_")
+			uniquePathResponse, err := lib.UniqueFilePath(uploadDir + "/" + storedName)
 			if err != nil {
-				log.Printf("Cannot generate unique file path: %v\n", err)
+				log.Print("Cannot generate unique file path")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 				})
 			}
+			webURL, ok := customMediaWebURL(uploadDir, uniquePathResponse)
+			if !ok {
+				return c.JSON(fiber.Map{"status": 400, "message": "Geçersiz dosya adı."})
+			}
 
 			// Save file to uploads directory
 			err = lib.SaveFileWithBufferingWithRenaming(uploadDir, uniquePathResponse.BaseName, *file)
 			if err != nil {
-				log.Printf("Cannot save file: %v\n", err)
+				log.Print("Cannot save file")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -267,7 +282,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			// Get file info
 			fileInfo, err := os.Stat(uniquePathResponse.FilePath)
 			if err != nil {
-				log.Printf("Cannot get file info: %v\n", err)
+				log.Print("Cannot get file info")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -275,8 +290,8 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 			}
 
 			FileInfos = append(FileInfos, models.File{
-				Name: file.Filename,
-				Url:  uniquePathResponse.FilePath,
+				Name: uniquePathResponse.BaseName,
+				Url:  webURL,
 				Size: fileInfo.Size(),
 			})
 		} else {
@@ -292,23 +307,24 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 					continue
 				}
 
-				filePath := filepath.Join(RootDir, uploadDir, file.Filename)
-
-				uniquePathResponse, err := lib.UniqueFilePath(filePath + "/" + file.Filename)
+				storedName := strings.ReplaceAll(file.Filename, "?", "_")
+				uniquePathResponse, err := lib.UniqueFilePath(uploadDir + "/" + storedName)
 				if err != nil {
-					log.Printf("Cannot generate unique file path: %v\n", err)
+					log.Print("Cannot generate unique file path")
 					return c.JSON(fiber.Map{
 						"status":  500,
 						"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 					})
 				}
-
-				OurUploadDir := filepath.Join(RootDir, "static", "uploads")
+				webURL, ok := customMediaWebURL(uploadDir, uniquePathResponse)
+				if !ok {
+					return c.JSON(fiber.Map{"status": 400, "message": "Geçersiz dosya adı."})
+				}
 
 				// Save file to uploads directory
-				err = lib.SaveFileWithBufferingWithRenaming(OurUploadDir, uniquePathResponse.BaseName, *file)
+				err = lib.SaveFileWithBufferingWithRenaming(uploadDir, uniquePathResponse.BaseName, *file)
 				if err != nil {
-					log.Printf("Cannot save file: %v\n", err)
+					log.Print("Cannot save file")
 					return c.JSON(fiber.Map{
 						"status":  500,
 						"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -318,7 +334,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 				// Get file info
 				fileInfo, err := os.Stat(uniquePathResponse.FilePath)
 				if err != nil {
-					log.Printf("Cannot get file info: %v\n", err)
+					log.Print("Cannot get file info")
 					return c.JSON(fiber.Map{
 						"status":  500,
 						"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -326,8 +342,8 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 				}
 
 				FileInfos = append(FileInfos, models.File{
-					Name: file.Filename,
-					Url:  uniquePathResponse.FilePath,
+					Name: uniquePathResponse.BaseName,
+					Url:  webURL,
 					Size: fileInfo.Size(),
 				})
 			}
