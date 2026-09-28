@@ -3389,6 +3389,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
+		defer scheduleSavedJobApplicationNotification(utilities, lid)
 		emailConfigured := jobApplicationSnapshot.SMTPHost != "" && jobApplicationSnapshot.SMTPPort != 0 && jobApplicationSnapshot.SMTPUsername != "" && jobApplicationSnapshot.SMTPPassword != "" && inputs.Email != ""
 		if emailConfigured && RootDir == "" {
 			log.Printf("operation=AddJobApplication stage=message_build")
@@ -4433,65 +4434,6 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 			return
 		}
 		// Compatibility UID is deliberately ignored, including nonempty mismatch.
-
-		if event == notificationws.Application {
-			JobApplication := models.JobApplications{}
-			if json.Unmarshal([]byte(WebsocketMessage.Message), &JobApplication) != nil {
-				return
-			}
-
-			bildirimLink := "/panel/is-basvurulari/" + JobApplication.Jaid + "?notification=true"
-			bildirimMetni := JobApplication.FirstName + " " + JobApplication.LastName + " tarafından bir iş başvurusu gönderildi."
-
-			NewWebsocketMessage := notificationevent.Message{
-				Uid: "",
-				//InsertForm:  "is-basvurusu",
-				Message:     bildirimMetni,
-				RequestLink: bildirimLink,
-			}
-
-			InsertNotification := Orm.Insert(
-				[]string{"message", "notification_type", "notification_level", "link"},
-				[]interface{}{bildirimMetni, "info", "ik", bildirimLink},
-			)
-
-			InsertNotification.Table("notifications")
-			InsertNotification.Returning("nid")
-			InsertNotification.Finish()
-
-			err = InsertNotification.Execute()
-
-			if err != nil {
-				log.Print("notification: insert failed")
-			}
-
-			lid, err := InsertNotification.LastInsertId()
-
-			if err != nil {
-				log.Print("notification: insert result unavailable")
-			}
-
-			if lid == "" {
-				log.Print("notification: insert result unavailable")
-			}
-
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.ApplicationRecipients(func(uid notify.UserID) (notificationevent.User, bool) {
-				GetUserRole := Orm.Select([]string{"role"})
-				GetUserRole.Table("users")
-				GetUserRole.Where("uid", "=", string(uid))
-				GetUserRole.Finish()
-				if GetUserRole.Execute() != nil {
-					return notificationevent.User{}, false
-				}
-				rows, lookupErr := GetUserRole.Rows()
-				if lookupErr != nil || len(rows) == 0 {
-					return notificationevent.User{}, false
-				}
-				return notificationevent.User{Role: notify.Role(lib.String(rows[0]["role"]))}, true
-			}))); publishErr != nil {
-				log.Print("notification: publication failed")
-			}
-		}
 
 		if event == notificationws.Contact {
 			ContactRequest := models.ContactRequests{}

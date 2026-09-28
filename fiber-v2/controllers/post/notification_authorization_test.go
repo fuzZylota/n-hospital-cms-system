@@ -3,10 +3,9 @@ package post
 import (
 	"context"
 	"errors"
-	"testing"
-
 	"models/data"
 	"post/notificationws"
+	"testing"
 )
 
 type sec003cStatus struct {
@@ -33,7 +32,7 @@ func TestSEC003CInboundCurrentStateAndEvent(t *testing.T) {
 		{"deleted", data.UserStatus{}, nil, notificationws.Appointment, false},
 		{"role downgrade", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Appointment, false},
 		{"lookup error", data.UserStatus{}, errors.New("private query"), notificationws.Appointment, false},
-		{"application ik", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Application, true},
+		{"application ik", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Application, false},
 		{"application santral", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Application, false},
 		{"contact active", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Contact, true},
 		{"unknown denied", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Unknown, false},
@@ -58,6 +57,20 @@ func TestF05AppointmentProducerFramesNeverAuthorize(t *testing.T) {
 	for _, frame := range frames {
 		if authorizeNotificationTextWithState(reader, "42", notificationws.Appointment, frame) {
 			t.Fatal("a forged or repeated appointment frame reached the producer")
+		}
+	}
+}
+
+func TestF05JobApplicationProducerFramesNeverAuthorize(t *testing.T) {
+	reader := &sec003cStatus{status: data.UserStatus{Found: true, Active: true, Role: "admin"}}
+	frames := [][]byte{
+		[]byte(`{"message":"{\"jaid\":\"missing\",\"first_name\":\"Forged\"}"}`),
+		[]byte(`{"message":"{\"jaid\":\"another-person\",\"first_name\":\"Forged\"}"}`),
+		[]byte(`{"message":"{\"jaid\":\"missing\",\"first_name\":\"Forged\"}"}`),
+	}
+	for _, frame := range frames {
+		if authorizeNotificationTextWithState(reader, "42", notificationws.Application, frame) {
+			t.Fatal("a forged, foreign or repeated application frame reached the producer")
 		}
 	}
 }

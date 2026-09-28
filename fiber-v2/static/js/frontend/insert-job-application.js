@@ -196,36 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data && (data.status === 200 || data.status === 201)) {
                 updateModalStatus('success', 'Başvurunuz başarıyla gönderildi. En kısa sürede sizinle iletişime geçeceğiz.');
                 
-                // WebSocket bildirimini gönder
-                try {
-                    const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-                    const url = `${scheme}://${window.location.host}/backend/notifications`;
-                    const ws = new WebSocket(url, 'is-basvurusu');
-                    
-                    ws.addEventListener('open', () => {
-                        // Create message with all form data except cv_file and cover_letter
-                        const messageData = {
-                            first_name: formData.get('first_name'),
-                            last_name: formData.get('last_name'),
-                            email: formData.get('email'),
-                            city: formData.get('city'),
-                            languages: formData.get('languages'),
-                            work_references: formData.get('work_references'),
-                            jaid: data.jaid
-                        };
-
-                        const message = {
-                            uid: null,
-                            message: JSON.stringify(messageData),
-                        };
-                        ws.send(JSON.stringify(message));
-                        // Close connection after sending
-                        setTimeout(() => { try { ws.close(); } catch (_) {} }, 500);
-                    });
-                } catch (_) {
-                    // Silently handle WebSocket errors
-                }
-                
                 form.reset();
                 // Reset reCAPTCHA only if it exists
                 const recaptchaWidget = form.querySelector('.g-recaptcha');

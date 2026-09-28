@@ -8,11 +8,11 @@ import (
 	"models"
 	"models/data"
 	"models/notify"
-	"post/notificationevent"
 	"post/notificationws"
 )
 
-// authorizeNotificationText checks current account state after WebSocket upgrade.
+// authorizeNotificationText is called after upgrade for each inbound text.
+// It does not trust the upgrade's role or a UID supplied in the frame.
 func authorizeNotificationText(utilities *models.Utilities, uid notify.UserID, event notificationws.Event, payload []byte) bool {
 	if utilities == nil {
 		return false
@@ -26,16 +26,15 @@ func authorizeNotificationTextWithState(reader data.UserStatusReader, uid notify
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	expire, currentRole, err := userstatus.ShouldExpireAuthCookies(ctx, reader, string(uid))
+	expire, _, err := userstatus.ShouldExpireAuthCookies(ctx, reader, string(uid))
 	if err != nil || expire {
 		return false
 	}
-	role := notify.Role(currentRole)
 	switch event {
 	case notificationws.Subscriber, notificationws.Contact:
-		return true
+		return true // Existing contact recipient policy admits every active account.
 	case notificationws.Application:
-		return notificationevent.Application(role)
+		return false // Only AddJobApplication may produce application notifications.
 	case notificationws.Appointment:
 		return false // Only AddRandevuRequest may produce request notifications.
 	default:
