@@ -840,18 +840,18 @@ func HaberPage(states *models.AppState, utilities *models.Utilities) fiber.Handl
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetHaber.Rows()
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/haberler")
+			return FallbackPage(states, utilities)(c)
 		}
 
 		UpdateViewsCount := Orm.Update()
@@ -1428,15 +1428,17 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		err := GetSube.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetSube.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/merkezlerimiz")
+			return FallbackPage(states, utilities)(c)
 		}
 
 		Sube := models.Subeler{
@@ -1856,15 +1858,17 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetDoktor.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/subelerimiz/" + subeName + "/doktorlar")
+			return FallbackPage(states, utilities)(c)
 		}
 
 		Doktor := models.Doktorlar{}
@@ -1998,15 +2002,17 @@ func DoktorPageForDoktorlarimiz(states *models.AppState, utilities *models.Utili
 
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetDoktor.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/doktorlarimiz")
+			return FallbackPage(states, utilities)(c)
 		}
 
 		Doktor := models.Doktorlar{}
@@ -2244,11 +2250,16 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		err := GetTibbiBirim.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetTibbiBirim.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		if len(rows) == 0 {
+			return FallbackPage(states, utilities)(c)
 		}
 
 		TibbiBirim := models.TibbiBirimler{}
@@ -2364,11 +2375,16 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		err := GetTedkik.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetTedkik.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		if len(rows) == 0 {
+			return FallbackPage(states, utilities)(c)
 		}
 
 		Tedkik := models.Tedkikler{}
@@ -2415,10 +2431,16 @@ func FallbackPage(states *models.AppState, utilities *models.Utilities) fiber.Ha
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("fallback options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
+		c.Set("X-Robots-Tag", "noindex, nofollow")
+		c.Status(fiber.StatusNotFound)
 		return c.Render("views/frontend/fallback", fiber.Map{
-			"PathOnStart": "../",
+			"PathOnStart": "/",
 			"Route":       "*",
 			"Options":     Options,
 			"User":        OurUser,

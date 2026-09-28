@@ -8,15 +8,14 @@
                 <img src="{{ PathOnStart }}files/defaults/logo/n-hospital-logo.png" alt="Nivgöz Logo" title="Nivgöz">
             {{ end }}
         </div>
-        <p class="fallback__eyebrow">Üzgünüz, bir şeyler ters gitti</p>
-        <h1 class="fallback__title">Aradığınız sayfayı bulamadık</h1>
+        <p class="fallback__eyebrow">404</p>
+        <h1 class="fallback__title">Sayfa bulunamadı</h1>
         <p class="fallback__text">
-            Bağlantı değişmiş olabilir ya da kısa süreli bir kesinti yaşıyor olabiliriz.
-            Ana sayfaya dönebilir ya da bir önceki sayfaya gidebilirsiniz.
+            Aradığınız adres geçersiz veya sayfa kaldırılmış olabilir.
+            Ana sayfadan aradığınız içeriğe yeniden ulaşabilirsiniz.
         </p>
         <div class="fallback__actions">
             <a class="btn btn-primary" href="/">Ana sayfaya dön</a>
-            <button class="btn btn-secondary" type="button" onclick="window.history.back()">Önceki sayfa</button>
         </div>
     </div>
 </section>
