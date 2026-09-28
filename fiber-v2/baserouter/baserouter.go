@@ -61,12 +61,13 @@ func FrontendRouter(server *fiber.App, states *models.AppState, utilities *model
 
 func PanelRouter(server *fiber.App, states *models.AppState, utilities *models.Utilities) {
 	routes := server.Group("/panel", lib.PanelAuthMiddleware())
+	adminOptions := optionAdminOnly(utilities)
 
 	routes.Get("/", panel.PanelPage(states, utilities))
-	routes.Get("/secenekler", panel.SeceneklerPage(states, utilities))
-	routes.Get("/secenek-ekle", panel.SecenekEklePage(states, utilities))
-	routes.Get("/secenekler/:secenek", panel.SecenekPage(states, utilities))
-	routes.Get("/secenekler/:secenek/duzenle", panel.SecenekDuzenlePage(states, utilities))
+	routes.Get("/secenekler", adminOptions, panel.SeceneklerPage(states, utilities))
+	routes.Get("/secenek-ekle", adminOptions, panel.SecenekEklePage(states, utilities))
+	routes.Get("/secenekler/:secenek", adminOptions, panel.SecenekPage(states, utilities))
+	routes.Get("/secenekler/:secenek/duzenle", adminOptions, panel.SecenekDuzenlePage(states, utilities))
 
 	routes.Get("/kullanicilar", panel.KullanicilarPage(states, utilities))
 	routes.Get("/kullanici-ekle", panel.KullaniciEklePage(states, utilities))
@@ -167,11 +168,12 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 
 	// Korumalı backend route'ları (auth gerektirir)
 	routes := server.Group("/backend", lib.PanelAuthMiddleware())
-	routes.Post("/add-option", options.AddOption(states, utilities))
-	routes.Post("/option/:oid/edit", options.EditOption(states, utilities))
-	routes.Post("/option/:oid/delete", options.DeleteOption(states, utilities))
-	routes.Post("/option/:oid/delete-picture", options.DeleteOptionMedia(states, utilities))
-	routes.Post("/option/:oid/update-picture", options.UpdateOptionMedia(states, utilities))
+	adminOptions := optionAdminOnly(utilities)
+	routes.Post("/add-option", adminOptions, options.AddOption(states, utilities))
+	routes.Post("/option/:oid/edit", adminOptions, options.EditOption(states, utilities))
+	routes.Post("/option/:oid/delete", adminOptions, options.DeleteOption(states, utilities))
+	routes.Post("/option/:oid/delete-picture", adminOptions, options.DeleteOptionMedia(states, utilities))
+	routes.Post("/option/:oid/update-picture", adminOptions, options.UpdateOptionMedia(states, utilities))
 	routes.Post("/add-user", users.AddUser(states, utilities))
 	routes.Post("/user/:uid/edit", users.EditUser(states, utilities))
 	routes.Post("/user/:uid/change-password", users.ChangeUserPassword(states, utilities))

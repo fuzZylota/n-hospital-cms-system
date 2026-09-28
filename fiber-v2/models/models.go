@@ -267,7 +267,6 @@ type OptionsEdit struct {
 	SMTPUsername                     string    `form:"smtp_username" json:"smtp_username"`
 	OldSMTPUsername                  string    `form:"old_smtp_username" json:"old_smtp_username"`
 	SMTPPassword                     string    `form:"smtp_password" json:"smtp_password"`
-	OldSMTPPassword                  string    `form:"old_smtp_password" json:"old_smtp_password"`
 	SMTPEncryption                   string    `form:"smtp_encryption" json:"smtp_encryption"`
 	OldSMTPEncryption                string    `form:"old_smtp_encryption" json:"old_smtp_encryption"`
 	FacebookUrl                      string    `form:"facebook_url" json:"facebook_url"`
@@ -346,7 +345,6 @@ type OptionsEdit struct {
 	RecaptchaSiteKey                 string    `form:"recaptcha_site_key" json:"recaptcha_site_key"`
 	OldRecaptchaSiteKey              string    `form:"old_recaptcha_site_key" json:"old_recaptcha_site_key"`
 	RecaptchaSecretKey               string    `form:"recaptcha_secret_key" json:"recaptcha_secret_key"`
-	OldRecaptchaSecretKey            string    `form:"old_recaptcha_secret_key" json:"old_recaptcha_secret_key"`
 }
 
 type Medias struct {

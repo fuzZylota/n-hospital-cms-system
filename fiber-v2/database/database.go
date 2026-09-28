@@ -856,6 +856,11 @@ func (options *Options) FetchOptionsForBackend(db *orm.Neorm, otherColumns any, 
 	return Options, nil
 }
 
+func redactPanelOptionSecrets(option *models.Options) {
+	option.SMTPPassword = ""
+	option.RecaptchaSecretKey = ""
+}
+
 func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, unwantedColumns any, User models.AuthenticatedUser) (Options, error) {
 	var columns []string
 
@@ -948,6 +953,9 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 			},
 		},
 	}
+
+	// Panel layout data must never carry credentials, even if callers extend columns.
+	redactPanelOptionSecrets(Options.Options)
 
 	GetNotifications := db.Select([]string{"n.nid", "n.message", "n.notification_type", "n.notification_level", "n.link", "n.is_read", "n.created_at", "n.sid"})
 	GetNotifications.Table("notifications n")

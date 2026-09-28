@@ -659,7 +659,7 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			return c.Redirect("/giris")
 		}
 
-		Option := models.Options{
+		Option := models.OptionsRead{
 			Oid:                           lib.String(rows[0]["oid"]),
 			OptionSetName:                 lib.String(rows[0]["option_set_name"]),
 			OptionSetDescription:          lib.String(rows[0]["option_set_description"]),
@@ -677,7 +677,6 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			SMTPHost:                      lib.String(rows[0]["smtp_host"]),
 			SMTPPort:                      lib.Int64(rows[0]["smtp_port"]),
 			SMTPUsername:                  lib.String(rows[0]["smtp_username"]),
-			SMTPPassword:                  lib.String(rows[0]["smtp_password"]),
 			SMTPEncryption:                lib.String(rows[0]["smtp_encryption"]),
 			FacebookUrl:                   lib.String(rows[0]["facebook_url"]),
 			TwitterUrl:                    lib.String(rows[0]["twitter_url"]),
@@ -716,7 +715,6 @@ func SecenekPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 			SiteLightLogoAltText:          lib.String(rows[0]["light_logo_alt_text"]),
 			SiteLightLogoTitle:            lib.String(rows[0]["light_logo_title"]),
 			RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
-			RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
 			ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 		}
 
@@ -798,7 +796,7 @@ func SecenekDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 			return c.Redirect("/giris")
 		}
 
-		Option := models.Options{
+		Option := models.OptionsRead{
 			Oid:                           lib.String(rows[0]["oid"]),
 			OptionSetName:                 lib.String(rows[0]["option_set_name"]),
 			OptionSetDescription:          lib.String(rows[0]["option_set_description"]),
@@ -817,7 +815,6 @@ func SecenekDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 			SMTPHost:                      lib.String(rows[0]["smtp_host"]),
 			SMTPPort:                      lib.Int64(rows[0]["smtp_port"]),
 			SMTPUsername:                  lib.String(rows[0]["smtp_username"]),
-			SMTPPassword:                  lib.String(rows[0]["smtp_password"]),
 			SMTPEncryption:                lib.String(rows[0]["smtp_encryption"]),
 			FacebookUrl:                   lib.String(rows[0]["facebook_url"]),
 			TwitterUrl:                    lib.String(rows[0]["twitter_url"]),
@@ -858,7 +855,6 @@ func SecenekDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 			SiteLightLogoAltText:          lib.String(rows[0]["light_logo_alt_text"]),
 			SiteLightLogoTitle:            lib.String(rows[0]["light_logo_title"]),
 			RecaptchaSiteKey:              lib.String(rows[0]["google_recaptcha_site_key"]),
-			RecaptchaSecretKey:            lib.String(rows[0]["google_recaptcha_secret_key"]),
 			ShowAnlasmaliKurumPictures:    lib.Bool(rows[0]["show_anlasmali_kurum_pictures"]),
 		}
 

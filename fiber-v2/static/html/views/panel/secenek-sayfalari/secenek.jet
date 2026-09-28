@@ -335,18 +335,10 @@
                         <div class="info-value">{{ Option.SMTPUsername }}</div>
                     </div>
                     {{end}}
-                    {{if Option.SMTPPassword}}
                     <div class="info-item">
                         <label class="info-label">SMTP Şifre</label>
-                        <div class="info-value">
-                            <span class="password-hidden">••••••••</span>
-                            <button class="btn-icon" onclick="togglePassword(this)">
-                                <i class="icon-eye"></i>
-                            </button>
-                            <span class="password-revealed" style="display: none;">{{ Option.SMTPPassword }}</span>
-                        </div>
+                        <div class="info-value">Güvenlik nedeniyle gösterilmiyor</div>
                     </div>
-                    {{end}}
                     <div class="info-item">
                         <label class="info-label">SMTP Şifreleme</label>
                         <div class="info-value">
@@ -514,7 +506,7 @@
                     </div>
                     <div class="info-item">
                         <label class="info-label">reCAPTCHA Secret Key</label>
-                        <div class="info-value">{{ Option.RecaptchaSecretKey }}</div>
+                        <div class="info-value">Güvenlik nedeniyle gösterilmiyor</div>
                     </div>
                 </div>
             </div>

@@ -614,7 +614,12 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		inputs := models.OptionsEdit{}
-		c.BodyParser(&inputs)
+		if err := c.BodyParser(&inputs); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"status":  fiber.StatusBadRequest,
+				"message": "Invalid option input",
+			})
+		}
 		inputs.Oid = lib.String(Oid)
 
 		var OptionsAmount int64 = 0
@@ -657,7 +662,12 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			}
 		}
 
-		Orm.Begin()
+		if err := Orm.Begin(); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  fiber.StatusInternalServerError,
+				"message": "Internal server error",
+			})
+		}
 
 		updateOption := Orm.Update()
 		updateOption.Table("options")
@@ -715,7 +725,7 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				SomethingSet = true
 			}
 
-			if inputs.SMTPPassword != inputs.OldSMTPPassword {
+			if shouldRotateOptionSecret(inputs.SMTPPassword) {
 				updateOption.Set("smtp_password", inputs.SMTPPassword)
 				SomethingSet = true
 			}
@@ -873,7 +883,7 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				updateOption.Set("google_recaptcha_site_key", inputs.RecaptchaSiteKey)
 				SomethingSet = true
 			}
-			if inputs.RecaptchaSecretKey != inputs.OldRecaptchaSecretKey {
+			if shouldRotateOptionSecret(inputs.RecaptchaSecretKey) {
 				updateOption.Set("google_recaptcha_secret_key", inputs.RecaptchaSecretKey)
 				SomethingSet = true
 			}
@@ -883,11 +893,10 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			updateOption.Where("oid", "=", Oid)
 			updateOption.Finish()
 
-			fmt.Printf("işte updateOption.Query: %s\n", updateOption.Query)
 			err = updateOption.Execute()
 			if err != nil {
 				Orm.Rollback()
-				log.Printf("Cannot update option: %v\n", err)
+				log.Printf("Cannot update option")
 				return c.JSON(fiber.Map{
 					"status":  500,
 					"message": "Internal server error",
@@ -994,7 +1003,12 @@ func EditOption(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		states.TestingOptions = models.Options{}
 		states.Medias = []models.Medias{}
 
-		Orm.Commit()
+		if err := Orm.Commit(); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"status":  fiber.StatusInternalServerError,
+				"message": "Internal server error",
+			})
+		}
 
 		return c.JSON(fiber.Map{
 			"status":  201,
