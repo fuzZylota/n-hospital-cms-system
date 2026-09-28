@@ -407,6 +407,7 @@ func TestOptionsRepositoryInternalReaderRejectsBadActiveIdentity(t *testing.T) {
 		stage  string
 	}{
 		{name: "inactive selected row", values: []any{int64(3), false, true, int64(10)}, stage: "selected row"},
+		{name: "zero option id", values: []any{int64(0), true, false, int64(10)}, stage: "invalid identifier"},
 		{name: "non-positive option id", values: []any{int64(-3), true, false, int64(10)}, stage: "invalid identifier"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
@@ -584,14 +585,18 @@ LIMIT 1`
 		name      string
 		query     dbtest.Step
 		wantFound bool
+		wantID    string
 		wantBytes int64
 		wantStage string
 	}{
-		{"positive", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(5242880)})), true, 5242880, ""},
-		{"zero", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(0)})), true, 0, ""},
-		{"negative", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(-1)})), true, -1, ""},
-		{"missing", dbtest.Query(dbtest.NewRows(columns)), false, 0, ""},
-		{"query error", dbtest.QueryError(backendErr), false, 0, "query"},
+		{"positive", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(5242880)})), true, "31", 5242880, ""},
+		{"zero identifier", dbtest.Query(dbtest.NewRows(columns, []any{int64(0), true, false, int64(5242880)})), true, "0", 5242880, ""},
+		{"zero byte limit", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(0)})), true, "31", 0, ""},
+		{"negative byte limit", dbtest.Query(dbtest.NewRows(columns, []any{int64(31), true, false, int64(-1)})), true, "31", -1, ""},
+		{"inactive zero identifier", dbtest.Query(dbtest.NewRows(columns, []any{int64(0), false, false, int64(5242880)})), false, "", 0, "invalid identifier"},
+		{"negative identifier", dbtest.Query(dbtest.NewRows(columns, []any{int64(-1), true, false, int64(5242880)})), false, "", 0, "invalid identifier"},
+		{"missing", dbtest.Query(dbtest.NewRows(columns)), false, "", 0, ""},
+		{"query error", dbtest.QueryError(backendErr), false, "", 0, "query"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			poolConnector, repository := openOptionsRepository(t)
@@ -610,7 +615,7 @@ LIMIT 1`
 				assertSafeRepositoryError(t, err, "upload policy could not be read: "+test.wantStage, nil)
 			} else if err != nil || found != test.wantFound || got.MaxBytes != test.wantBytes {
 				t.Fatal("transaction policy mapping changed")
-			} else if found && (got.Set.ID != "31" || !got.Set.IsActive || got.Set.IsTesting) {
+			} else if found && (got.Set.ID != test.wantID || !got.Set.IsActive || got.Set.IsTesting) {
 				t.Fatal("transaction policy selected the wrong active set")
 			} else if !found && got != (data.UploadPolicy{}) {
 				t.Fatal("missing transaction policy returned partial data")

@@ -907,7 +907,7 @@ func TestProductionOptionsCallerInventoryAfterSnapshotMigration(t *testing.T) {
 
 	otherLegacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"]
 	legacyTotal := otherLegacyTotal + counts["FetchOptionsForBackend"]
-	if legacyTotal != 105 || counts["FetchOptionsForBackend"] != 3 || otherLegacyTotal != 102 {
+	if legacyTotal != 104 || counts["FetchOptionsForBackend"] != 2 || otherLegacyTotal != 102 {
 		t.Fatal("production options caller inventory mismatch")
 	}
 	if counts["InsertMedia"] != 31 || passwordPolicyCallers != 2 || uploadPolicyCallers != 20 || optionsCacheImports != 0 {

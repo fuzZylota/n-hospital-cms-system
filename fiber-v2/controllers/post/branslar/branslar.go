@@ -3,9 +3,12 @@ package branslar
 import (
 	"database"
 	"encoding/json"
+	"fmt"
+	"io"
 
 	lib "lib"
 	"log"
+	"mime/multipart"
 	"models"
 	"os"
 	"path/filepath"
@@ -114,11 +117,21 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			log.Printf("Cannot get last insert id: %v\n", err)
 			return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
 		}
+		var newUploadPath string
+		var newUploadInfo os.FileInfo
+		committed := false
+		defer func() {
+			if !committed && newUploadInfo != nil {
+				if err := removeOwnedBranchUpload(newUploadPath, newUploadInfo); err != nil {
+					log.Printf("Cannot remove failed branch upload: %v\n", err)
+				}
+			}
+		}()
 
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForBackend(Orm, []string{"o.max_upload_size"}, []string{})
+		uploadPolicy, err := uploadpolicy.ReadInTx(c.UserContext(), utilities.UploadPolicyReader, Orm.Tx)
 
 		if err != nil {
+			Orm.Rollback()
 			log.Printf("Cannot fetch options for backend: %v\n", err)
 			return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
 		}
@@ -164,7 +177,7 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 
 			// File size validation (5MB max)
-			if bransMediaInput.Size > GetOptions.Options.MaxUploadSize {
+			if bransMediaInput.Size > uploadPolicy.MaxBytes {
 				Orm.Rollback()
 				log.Printf("File size is too large: %v\n", bransMediaInput.Size)
 				return c.Redirect("/panel/branslar/brans-ekle?error=file_size_is_too_large")
@@ -173,9 +186,9 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			estimatedPath := filepath.Join(RootDir, "static", "files", "branslar", brid)
 			UniqueFilePath, err := lib.UniqueFilePath(estimatedPath + "/" + bransMediaInput.Filename)
 
-			if err != nil {
+			if err != nil || UniqueFilePath.Error != nil || UniqueFilePath.BaseName == "" || !filepath.IsLocal(UniqueFilePath.BaseName) || filepath.Base(UniqueFilePath.BaseName) != UniqueFilePath.BaseName || filepath.Clean(UniqueFilePath.FilePath) != filepath.Join(estimatedPath, UniqueFilePath.BaseName) {
 				Orm.Rollback()
-				log.Printf("Cannot get unique file path: %v\n", err)
+				log.Print("Cannot get safe unique branch upload path")
 				return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
 			}
 
@@ -215,12 +228,13 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 				return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
 			}
 
-			err = lib.SaveFileWithBuffering(estimatedPath, *bransMediaInput)
+			newUploadInfo, err = saveNewBranchUpload(UniqueFilePath.FilePath, *bransMediaInput)
 			if err != nil {
 				Orm.Rollback()
-				log.Printf("Cannot save file with buffering: %v\n", err)
+				log.Printf("Cannot save branch upload: %v\n", err)
 				return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
 			}
+			newUploadPath = UniqueFilePath.FilePath
 
 			// Update branch with media ID
 			if BransMediaMid != "" {
@@ -238,10 +252,66 @@ func AddBranch(states *models.AppState, utilities *models.Utilities) fiber.Handl
 			}
 		}
 
-		Orm.Commit()
+		if err := Orm.Commit(); err != nil {
+			log.Printf("Cannot commit branch transaction: %v\n", err)
+			return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")
+		}
+		committed = true
 
 		return c.Redirect("/panel/branslar/" + brid)
 	}
+}
+
+func saveNewBranchUpload(path string, header multipart.FileHeader) (os.FileInfo, error) {
+	if err := lib.ValidateUploadedFile(header.Filename); err != nil {
+		return nil, err
+	}
+	source, err := header.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer source.Close()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return nil, err
+	}
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if err != nil {
+		return nil, err
+	}
+	info, err := file.Stat()
+	if err != nil {
+		_ = file.Close()
+		return nil, err
+	}
+	_, writeErr := io.Copy(file, source)
+	if writeErr == nil {
+		writeErr = file.Sync()
+	}
+	closeErr := file.Close()
+	if writeErr == nil {
+		writeErr = closeErr
+	}
+	if writeErr != nil {
+		if removeErr := removeOwnedBranchUpload(path, info); removeErr != nil {
+			return nil, fmt.Errorf("branch upload write failed: %w; cleanup failed: %v", writeErr, removeErr)
+		}
+		return nil, writeErr
+	}
+	return info, nil
+}
+
+func removeOwnedBranchUpload(path string, written os.FileInfo) error {
+	current, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !os.SameFile(written, current) {
+		return nil
+	}
+	return os.Remove(path)
 }
 
 func EditBranch(states *models.AppState, utilities *models.Utilities) fiber.Handler {

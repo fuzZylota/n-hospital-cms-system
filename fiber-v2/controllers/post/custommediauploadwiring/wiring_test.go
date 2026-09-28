@@ -207,8 +207,8 @@ func isFileInfoAppend(statement ast.Stmt) bool {
 		return false
 	}
 	want := map[string]string{
-		"Name": "file.Filename",
-		"Url":  "uniquePathResponse.FilePath",
+		"Name": "uniquePathResponse.BaseName",
+		"Url":  "webURL",
 		"Size": "fileInfo.Size()",
 	}
 	for _, element := range entry.Elts {
@@ -236,6 +236,20 @@ func isEmptyFileInfosInitialization(statement ast.Stmt) bool {
 	}
 	slice, ok := literal.Type.(*ast.ArrayType)
 	return ok && slice.Len == nil && isSelector(slice.Elt, "models", "File")
+}
+
+func isInvalidWebURLGuard(statement ast.Stmt) bool {
+	guard, ok := statement.(*ast.IfStmt)
+	if !ok || guard.Else != nil || sourceNode(guard.Cond) != "!ok" || len(guard.Body.List) != 1 {
+		return false
+	}
+	response, ok := jsonMapFromReturn(guard.Body.List[0])
+	if !ok {
+		return false
+	}
+	status, statusOK := mapValue(response, "status")
+	message, messageOK := mapValue(response, "message")
+	return statusOK && messageOK && sourceNode(status) == "400" && sourceNode(message) == `"Geçersiz dosya adı."`
 }
 
 func singleAndMultipleBranches(t *testing.T, body *ast.BlockStmt) (*ast.BlockStmt, *ast.ForStmt) {
@@ -282,17 +296,24 @@ func TestAddCustomMediaSingleAndMultipleScopes(t *testing.T) {
 	}
 
 	singleGuard := directStatementIndex(single, -1, isSingleSizeErrorGuard)
-	singleUnique := directStatementIndex(single, singleGuard, func(statement ast.Stmt) bool {
-		return isCallAssignment(statement, token.DEFINE, []string{"uniquePathResponse", "err"}, "lib.UniqueFilePath", `uploadDir + "/" + file.Filename`)
+	singleStoredName := directStatementIndex(single, singleGuard, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"storedName"}, "strings.ReplaceAll", "file.Filename", `"?"`, `"_"`)
 	})
-	singleWrite := directStatementIndex(single, singleUnique, func(statement ast.Stmt) bool {
+	singleUnique := directStatementIndex(single, singleStoredName, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"uniquePathResponse", "err"}, "lib.UniqueFilePath", `uploadDir + "/" + storedName`)
+	})
+	singleWebURL := directStatementIndex(single, singleUnique, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"webURL", "ok"}, "customMediaWebURL", "uploadDir", "uniquePathResponse")
+	})
+	singleWebURLGuard := directStatementIndex(single, singleWebURL, isInvalidWebURLGuard)
+	singleWrite := directStatementIndex(single, singleWebURLGuard, func(statement ast.Stmt) bool {
 		return isCallAssignment(statement, token.ASSIGN, []string{"err"}, "lib.SaveFileWithBufferingWithRenaming", "uploadDir", "uniquePathResponse.BaseName", "*file")
 	})
 	singleStat := directStatementIndex(single, singleWrite, func(statement ast.Stmt) bool {
 		return isCallAssignment(statement, token.DEFINE, []string{"fileInfo", "err"}, "os.Stat", "uniquePathResponse.FilePath")
 	})
 	singleAppend := directStatementIndex(single, singleStat, isFileInfoAppend)
-	if singleGuard < 0 || singleUnique < 0 || singleWrite < 0 || singleStat < 0 || singleAppend < 0 {
+	if singleGuard < 0 || singleStoredName < 0 || singleUnique < 0 || singleWebURL < 0 || singleWebURLGuard < 0 || singleWrite < 0 || singleStat < 0 || singleAppend < 0 {
 		t.Fatal("single upload branch sequence changed")
 	}
 
@@ -308,17 +329,24 @@ func TestAddCustomMediaSingleAndMultipleScopes(t *testing.T) {
 		guard, ok := isSizeGuard(statement)
 		return ok && hasOnlyDirectContinue(guard.Body)
 	})
-	multipleUnique := directStatementIndex(loop, multipleGuard, func(statement ast.Stmt) bool {
-		return isCallAssignment(statement, token.DEFINE, []string{"uniquePathResponse", "err"}, "lib.UniqueFilePath", `filePath + "/" + file.Filename`)
+	multipleStoredName := directStatementIndex(loop, multipleGuard, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"storedName"}, "strings.ReplaceAll", "file.Filename", `"?"`, `"_"`)
 	})
-	multipleWrite := directStatementIndex(loop, multipleUnique, func(statement ast.Stmt) bool {
-		return isCallAssignment(statement, token.ASSIGN, []string{"err"}, "lib.SaveFileWithBufferingWithRenaming", "OurUploadDir", "uniquePathResponse.BaseName", "*file")
+	multipleUnique := directStatementIndex(loop, multipleStoredName, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"uniquePathResponse", "err"}, "lib.UniqueFilePath", `uploadDir + "/" + storedName`)
+	})
+	multipleWebURL := directStatementIndex(loop, multipleUnique, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.DEFINE, []string{"webURL", "ok"}, "customMediaWebURL", "uploadDir", "uniquePathResponse")
+	})
+	multipleWebURLGuard := directStatementIndex(loop, multipleWebURL, isInvalidWebURLGuard)
+	multipleWrite := directStatementIndex(loop, multipleWebURLGuard, func(statement ast.Stmt) bool {
+		return isCallAssignment(statement, token.ASSIGN, []string{"err"}, "lib.SaveFileWithBufferingWithRenaming", "uploadDir", "uniquePathResponse.BaseName", "*file")
 	})
 	multipleStat := directStatementIndex(loop, multipleWrite, func(statement ast.Stmt) bool {
 		return isCallAssignment(statement, token.DEFINE, []string{"fileInfo", "err"}, "os.Stat", "uniquePathResponse.FilePath")
 	})
 	multipleAppend := directStatementIndex(loop, multipleStat, isFileInfoAppend)
-	if multipleForm < 0 || missingContinue < 0 || multipleGuard < 0 || multipleUnique < 0 || multipleWrite < 0 || multipleStat < 0 || multipleAppend < 0 {
+	if multipleForm < 0 || missingContinue < 0 || multipleGuard < 0 || multipleStoredName < 0 || multipleUnique < 0 || multipleWebURL < 0 || multipleWebURLGuard < 0 || multipleWrite < 0 || multipleStat < 0 || multipleAppend < 0 {
 		t.Fatal("multiple upload loop sequence changed")
 	}
 }
@@ -372,6 +400,49 @@ func TestAddCustomMediaEmptyResultIsNonNilSlice(t *testing.T) {
 	data, dataOK := mapValue(response, "data")
 	if !statusOK || sourceNode(status) != "201" || !messageOK || sourceNode(message) != `"Dosya başarıyla yüklendi."` || !dataOK || !isIdent(data, "FileInfos") {
 		t.Fatal("final empty-result success contract changed")
+	}
+}
+
+func TestCustomMediaSourceGuardsRejectUnsafeMutations(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		statement string
+		valid     bool
+	}{
+		{"public URL", `FileInfos = append(FileInfos, models.File{Name: uniquePathResponse.BaseName, Url: webURL, Size: fileInfo.Size()})`, true},
+		{"raw filename", `FileInfos = append(FileInfos, models.File{Name: file.Filename, Url: webURL, Size: fileInfo.Size()})`, false},
+		{"physical path URL", `FileInfos = append(FileInfos, models.File{Name: uniquePathResponse.BaseName, Url: uniquePathResponse.FilePath, Size: fileInfo.Size()})`, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			file, err := parser.ParseFile(token.NewFileSet(), "mutation.go", "package p\nfunc f() {"+test.statement+"}", 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			statement := file.Decls[0].(*ast.FuncDecl).Body.List[0]
+			if isFileInfoAppend(statement) != test.valid {
+				t.Fatal("file response guard accepted an unsafe mutation")
+			}
+		})
+	}
+	for _, test := range []struct {
+		name      string
+		statement string
+		valid     bool
+	}{
+		{"reject invalid URL", `if !ok { return c.JSON(fiber.Map{"status": 400, "message": "Geçersiz dosya adı."}) }`, true},
+		{"allow invalid URL", `if !ok { return c.JSON(fiber.Map{"status": 201, "message": "Geçersiz dosya adı."}) }`, false},
+		{"ignore invalid URL", `if !ok { log.Print("invalid") }`, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			file, err := parser.ParseFile(token.NewFileSet(), "mutation.go", "package p\nfunc f() {"+test.statement+"}", 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			statement := file.Decls[0].(*ast.FuncDecl).Body.List[0]
+			if isInvalidWebURLGuard(statement) != test.valid {
+				t.Fatal("invalid URL guard accepted an unsafe mutation")
+			}
+		})
 	}
 }
 
@@ -533,13 +604,15 @@ func TestAddCustomMediaLegacyBehaviorEnvelope(t *testing.T) {
 	for name, expected := range map[string]int{
 		"lib.CheckAuth":                         1,
 		"os.Getenv":                             1,
-		"filepath.Join":                         3,
+		"filepath.Join":                         1,
 		"c.FormFile":                            2,
 		"strconv.Itoa":                          1,
+		"strings.ReplaceAll":                    2,
+		"customMediaWebURL":                     2,
 		"lib.UniqueFilePath":                    2,
 		"lib.SaveFileWithBufferingWithRenaming": 2,
 		"os.Stat":                               2,
-		"c.JSON":                                11,
+		"c.JSON":                                13,
 	} {
 		if counts[name] != expected {
 			t.Fatalf("legacy call count changed for %s", name)
@@ -567,7 +640,7 @@ func TestAddCustomMediaLegacyBehaviorEnvelope(t *testing.T) {
 		}
 	}
 
-	for value, expected := range map[int]int{401: 1, 500: 8, 400: 1, 201: 1} {
+	for value, expected := range map[int]int{401: 1, 500: 8, 400: 3, 201: 1} {
 		needle := `"status": ` + strconv.Itoa(value)
 		if strings.Count(source, needle) != expected {
 			t.Fatalf("response body status count changed for %d", value)
@@ -581,8 +654,9 @@ func TestAddCustomMediaLegacyBehaviorEnvelope(t *testing.T) {
 		`"data": FileInfos`,
 		`filepath.Join(RootDir, "static", "uploads")`,
 		`for i := 1; i <= 10; i++`,
-		`Name: file.Filename`,
-		`Url: uniquePathResponse.FilePath`,
+		`Name: uniquePathResponse.BaseName`,
+		`Url: webURL`,
+		`"message": "Geçersiz dosya adı."`,
 		`Size: fileInfo.Size()`,
 	} {
 		if !strings.Contains(source, required) {
@@ -657,7 +731,7 @@ func TestMailAndCaptchaCallerInventory(t *testing.T) {
 	}
 
 	backendCalls, legacyTotal, ok := productionLegacyOptionCallInventory(t)
-	if !ok || backendCalls != 3 || legacyTotal != 105 {
+	if !ok || backendCalls != 2 || legacyTotal != 104 {
 		t.Fatal("global legacy options caller inventory changed")
 	}
 }

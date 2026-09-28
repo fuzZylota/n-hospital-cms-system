@@ -5,15 +5,32 @@ package uploadpolicywiring
 
 import (
 	"bytes"
+	"context"
+	"crypto/rand"
+	"database/sql"
+	"database/sql/driver"
+	"encoding/hex"
+	"errors"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
+
+	"database/postgres"
+	"doctors"
+	"lib"
+	"models"
+
+	orm "github.com/Necoo33/neormgo/v2"
+	"github.com/gofiber/fiber/v2"
 )
 
 func sourceNode(node ast.Node) string {
@@ -317,7 +334,7 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 
 	otherLegacyTotal := counts["FetchOptionsForFrontendWithCache"] + counts["FetchOptionsForFrontend"] + counts["FetchOptionsForPanel"]
 	legacyTotal := otherLegacyTotal + counts["FetchOptionsForBackend"]
-	if legacyTotal != 105 || counts["FetchOptionsForBackend"] != 3 || otherLegacyTotal != 102 {
+	if legacyTotal != 104 || counts["FetchOptionsForBackend"] != 2 || otherLegacyTotal != 102 {
 		t.Fatal("production options caller inventory changed unexpectedly")
 	}
 	if counts["InsertMedia"] != 31 {
@@ -332,4 +349,169 @@ func TestProductionOptionsCallerInventory(t *testing.T) {
 	if optionsCacheImports != 0 {
 		t.Fatal("site options cache became production-wired")
 	}
+}
+
+func TestAddDoctorAcceptsSharedActiveZeroOptionSetInTransaction(t *testing.T) {
+	secret := make([]byte, 32)
+	if _, err := rand.Read(secret); err != nil {
+		t.Fatal("cannot prepare test authentication")
+	}
+	t.Setenv("JWT_SECRET", hex.EncodeToString(secret))
+	t.Setenv("AUTH_COOKIE_NAME", "n-hospital-auth")
+	token, err := lib.CreateJWT(models.AuthenticatedUser{Uid: "test-admin", Role: "admin"})
+	if err != nil {
+		t.Fatal("cannot prepare test authentication")
+	}
+	connector := &doctorZeroConnector{}
+	db := sql.OpenDB(connector)
+	db.SetMaxOpenConns(1)
+	t.Cleanup(func() { _ = db.Close() })
+	legacyORM := &orm.Neorm{Pool: db}
+	utilities := &models.Utilities{Orm: legacyORM, UploadPolicyReader: postgres.NewOptionsRepository(db)}
+	app := fiber.New(fiber.Config{DisableStartupMessage: true})
+	app.Post("/panel/doktorlar/doktor-ekle", doctors.AddDoctor(nil, utilities))
+	request := httptest.NewRequest(http.MethodPost, "/panel/doktorlar/doktor-ekle", strings.NewReader("first_name=Test&last_name=Doctor&url_name=test-doctor&is_active=true"))
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	request.AddCookie(&http.Cookie{Name: "n-hospital-auth", Value: token})
+	response, err := app.Test(request, -1)
+	if err != nil {
+		t.Fatal("AddDoctor request failed")
+	}
+	t.Cleanup(func() { _ = response.Body.Close() })
+	if response.StatusCode != http.StatusFound || response.Header.Get("Location") != "/panel/doktorlar/1" {
+		t.Fatalf("AddDoctor rejected the shared active oid=0 policy: status %d, location %q", response.StatusCode, response.Header.Get("Location"))
+	}
+	if legacyORM.Tx != nil || connector.conn.active || !connector.conn.committed {
+		t.Fatal("AddDoctor did not commit after its transaction policy read")
+	}
+	want := []string{"count", "begin", "insert", "policy", "commit"}
+	if len(connector.conn.events) != len(want) {
+		t.Fatalf("AddDoctor transaction sequence changed: %v", connector.conn.events)
+	}
+	for index := range want {
+		if connector.conn.events[index] != want[index] {
+			t.Fatalf("AddDoctor transaction sequence changed: %v", connector.conn.events)
+		}
+	}
+}
+
+type doctorZeroConnector struct{ conn *doctorZeroConn }
+
+func (c *doctorZeroConnector) Connect(context.Context) (driver.Conn, error) {
+	c.conn = &doctorZeroConn{}
+	return c.conn, nil
+}
+
+func (*doctorZeroConnector) Driver() driver.Driver { return doctorZeroDriver{} }
+
+type doctorZeroDriver struct{}
+
+func (doctorZeroDriver) Open(string) (driver.Conn, error) {
+	return nil, errors.New("use isolated connector")
+}
+
+type doctorZeroConn struct {
+	events    []string
+	active    bool
+	committed bool
+}
+
+func (c *doctorZeroConn) Prepare(query string) (driver.Stmt, error) {
+	switch {
+	case !c.active && strings.HasPrefix(query, "SELECT COUNT(*) AS length FROM doktorlar"):
+		return &doctorZeroStmt{conn: c, count: true}, nil
+	case c.active && strings.HasPrefix(query, "INSERT INTO doktorlar "):
+		return &doctorZeroStmt{conn: c}, nil
+	default:
+		return nil, errors.New("unexpected doctor statement")
+	}
+}
+
+func (*doctorZeroConn) Close() error { return nil }
+
+func (c *doctorZeroConn) Begin() (driver.Tx, error) {
+	if c.active {
+		return nil, errors.New("transaction already active")
+	}
+	c.active = true
+	c.events = append(c.events, "begin")
+	return &doctorZeroTx{conn: c}, nil
+}
+
+func (c *doctorZeroConn) QueryContext(ctx context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if !c.active || !strings.Contains(query, "WHERE option_set_is_active = TRUE") || !strings.HasSuffix(query, "LIMIT 1") {
+		return nil, errors.New("policy read left the doctor transaction")
+	}
+	c.events = append(c.events, "policy")
+	return &doctorZeroRows{columns: []string{"oid", "option_set_is_active", "option_set_is_testing_now", "max_upload_size"}, values: []driver.Value{int64(0), true, false, int64(5242880)}}, nil
+}
+
+type doctorZeroStmt struct {
+	conn  *doctorZeroConn
+	count bool
+}
+
+func (*doctorZeroStmt) Close() error  { return nil }
+func (*doctorZeroStmt) NumInput() int { return -1 }
+
+func (s *doctorZeroStmt) Exec([]driver.Value) (driver.Result, error) {
+	if s.count || !s.conn.active {
+		return nil, errors.New("unexpected doctor insert")
+	}
+	s.conn.events = append(s.conn.events, "insert")
+	return doctorZeroResult{}, nil
+}
+
+func (s *doctorZeroStmt) Query([]driver.Value) (driver.Rows, error) {
+	if !s.count || s.conn.active {
+		return nil, errors.New("unexpected doctor count")
+	}
+	s.conn.events = append(s.conn.events, "count")
+	return &doctorZeroRows{columns: []string{"length"}, values: []driver.Value{int64(0)}}, nil
+}
+
+type doctorZeroRows struct {
+	columns []string
+	values  []driver.Value
+	done    bool
+}
+
+func (r *doctorZeroRows) Columns() []string { return r.columns }
+func (*doctorZeroRows) Close() error        { return nil }
+func (r *doctorZeroRows) Next(dest []driver.Value) error {
+	if r.done {
+		return io.EOF
+	}
+	copy(dest, r.values)
+	r.done = true
+	return nil
+}
+
+type doctorZeroResult struct{}
+
+func (doctorZeroResult) LastInsertId() (int64, error) { return 1, nil }
+func (doctorZeroResult) RowsAffected() (int64, error) { return 1, nil }
+
+type doctorZeroTx struct{ conn *doctorZeroConn }
+
+func (tx *doctorZeroTx) Commit() error {
+	if !tx.conn.active {
+		return errors.New("transaction already closed")
+	}
+	tx.conn.active = false
+	tx.conn.committed = true
+	tx.conn.events = append(tx.conn.events, "commit")
+	return nil
+}
+
+func (tx *doctorZeroTx) Rollback() error {
+	if !tx.conn.active {
+		return errors.New("transaction already closed")
+	}
+	tx.conn.active = false
+	tx.conn.events = append(tx.conn.events, "rollback")
+	return nil
 }

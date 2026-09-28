@@ -334,6 +334,14 @@ func (r *OptionsRepository) readUploadPolicy(ctx context.Context, tx *sql.Tx) (d
 	if err != nil || !found {
 		return data.UploadPolicy{}, found, err
 	}
+	// Both legacy AddDoctor and AddBranch transaction-bound upload checks accept
+	// an active options row with oid=0. Keep that exception local to this read.
+	if tx != nil && identity.id == 0 && identity.active.Bool {
+		return data.UploadPolicy{
+			Set:      data.OptionSetIdentity{ID: "0", IsActive: true, IsTesting: identity.testing.Bool},
+			MaxBytes: maxBytes.Int64,
+		}, true, nil
+	}
 	set, err := activeOptionIdentity(identity, readUploadPolicy)
 	if err != nil {
 		return data.UploadPolicy{}, false, err

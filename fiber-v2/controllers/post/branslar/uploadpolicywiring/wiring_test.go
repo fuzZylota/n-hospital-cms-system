@@ -135,33 +135,67 @@ func TestUpdateBranchPictureUsesOwnedUploadPolicy(t *testing.T) {
 	}
 }
 
-func TestAddBranchKeepsTransactionBoundLegacyRead(t *testing.T) {
+func TestAddBranchReadsOwnedUploadPolicyInExistingTransaction(t *testing.T) {
 	fn := function(t, productionFile(t), "AddBranch")
 	counts, positions := inspectCalls(fn)
-	legacyComparison := false
+	var comparison *ast.IfStmt
+	var policyError *ast.IfStmt
 	ast.Inspect(fn, func(node ast.Node) bool {
-		statement, ok := node.(*ast.IfStmt)
-		if ok && sourceNode(statement.Cond) == "bransMediaInput.Size > GetOptions.Options.MaxUploadSize" {
-			legacyComparison = true
+		switch typed := node.(type) {
+		case *ast.CallExpr:
+			if callName(typed) == "uploadpolicy.ReadInTx" {
+				if len(typed.Args) != 3 || sourceNode(typed.Args[0]) != "c.UserContext()" || sourceNode(typed.Args[1]) != "utilities.UploadPolicyReader" || sourceNode(typed.Args[2]) != "Orm.Tx" {
+					t.Error("owned policy read must receive the request context, existing reader, and active ORM transaction")
+				}
+			}
+		case *ast.IfStmt:
+			condition := sourceNode(typed.Cond)
+			if condition == "bransMediaInput.Size > uploadPolicy.MaxBytes" {
+				comparison = typed
+			}
+			if condition == "err != nil" && positions["uploadpolicy.ReadInTx"] != token.NoPos && typed.Pos() > positions["uploadpolicy.ReadInTx"] && policyError == nil {
+				policyError = typed
+			}
 		}
 		return true
 	})
 
-	if counts["uploadpolicy.Read"] != 0 || strings.Contains(sourceNode(fn), "UploadPolicyReader") {
-		t.Fatal("transaction-bound AddBranch was migrated")
+	if counts["uploadpolicy.ReadInTx"] != 1 || counts["uploadpolicy.Read"] != 0 || counts["GetOptions.FetchOptionsForBackend"] != 0 {
+		t.Fatal("AddBranch must use exactly one transaction-bound owned policy read")
 	}
-	if counts["GetOptions.FetchOptionsForBackend"] != 1 {
-		t.Fatal("AddBranch legacy options read changed")
-	}
-	for _, operation := range []string{"Orm.Begin", "Orm.Insert", "insertBrans.Execute", "GetOptions.FetchOptionsForBackend"} {
+	for _, operation := range []string{"Orm.Begin", "Orm.Insert", "insertBrans.Execute", "insertBrans.LastInsertId", "uploadpolicy.ReadInTx", "UpdateHeadDrid.Execute", "c.FormFile", "OurOptions.InsertMedia", "saveNewBranchUpload", "Orm.Commit"} {
 		if positions[operation] == token.NoPos {
-			t.Fatal("AddBranch transaction boundary cannot be established")
+			t.Fatal("AddBranch transaction and file sequence cannot be established")
 		}
 	}
-	if positions["Orm.Begin"] >= positions["Orm.Insert"] || positions["Orm.Insert"] >= positions["insertBrans.Execute"] || positions["insertBrans.Execute"] >= positions["GetOptions.FetchOptionsForBackend"] {
-		t.Fatal("AddBranch transaction-bound options order changed")
+	if !(positions["Orm.Begin"] < positions["Orm.Insert"] && positions["Orm.Insert"] < positions["insertBrans.Execute"] && positions["insertBrans.Execute"] < positions["insertBrans.LastInsertId"] && positions["insertBrans.LastInsertId"] < positions["uploadpolicy.ReadInTx"] && positions["uploadpolicy.ReadInTx"] < positions["UpdateHeadDrid.Execute"] && positions["UpdateHeadDrid.Execute"] < positions["c.FormFile"] && positions["c.FormFile"] < positions["OurOptions.InsertMedia"] && positions["OurOptions.InsertMedia"] < positions["saveNewBranchUpload"] && positions["saveNewBranchUpload"] < positions["Orm.Commit"]) {
+		t.Fatal("AddBranch options read moved across the existing transaction or file side effects")
 	}
-	if !legacyComparison {
-		t.Fatal("AddBranch legacy upload comparison changed")
+	if policyError == nil {
+		t.Fatal("AddBranch options error path is missing")
+	}
+	errorPath := sourceNode(policyError.Body)
+	for _, required := range []string{"Orm.Rollback()", `log.Printf("Cannot fetch options for backend: %v\n", err)`, `return c.Redirect("/panel/branslar/brans-ekle?error=internal_server_error")`} {
+		if !strings.Contains(errorPath, required) {
+			t.Fatal("AddBranch options error rollback or response changed")
+		}
+	}
+	if comparison == nil {
+		t.Fatal("AddBranch upload byte comparison changed")
+	}
+	comparisonPath := sourceNode(comparison.Body)
+	for _, required := range []string{"Orm.Rollback()", `log.Printf("File size is too large: %v\n", bransMediaInput.Size)`, `return c.Redirect("/panel/branslar/brans-ekle?error=file_size_is_too_large")`} {
+		if !strings.Contains(comparisonPath, required) {
+			t.Fatal("AddBranch upload size error path changed")
+		}
+	}
+	if counts["OurOptions.InsertMedia"] != 1 || counts["saveNewBranchUpload"] != 1 || counts["lib.SaveFileWithBuffering"] != 0 || counts["Orm.Commit"] != 1 || !strings.Contains(sourceNode(fn), `return c.Redirect("/panel/branslar/" + brid)`) {
+		t.Fatal("AddBranch media or success flow changed")
+	}
+	if !strings.Contains(sourceNode(fn), "if err := Orm.Commit(); err != nil") || !strings.Contains(sourceNode(fn), "removeOwnedBranchUpload(newUploadPath, newUploadInfo)") {
+		t.Fatal("AddBranch no longer checks commit and cleans up only its new upload")
+	}
+	if strings.Contains(sourceNode(fn), "FetchOptionsForBackend") || strings.Contains(sourceNode(fn), "MaxUploadSize") {
+		t.Fatal("AddBranch retains the legacy options lookup")
 	}
 }
