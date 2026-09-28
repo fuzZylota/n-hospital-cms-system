@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"post/contactrequestresponsesnapshot"
 	"post/contactrequestsnapshot"
+	"post/custommediadelete"
 	"post/jobapplicationresponsesnapshot"
 	"post/jobapplicationsnapshot"
 	"post/notificationevent"
@@ -342,7 +343,7 @@ func AddCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.
 
 func DeleteCustomMedia(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		_, err := lib.CheckAuth(c)
+		user, err := lib.CheckAuth(c)
 
 		if err != nil {
 			return c.JSON(fiber.Map{
@@ -351,50 +352,26 @@ func DeleteCustomMedia(states *models.AppState, utilities *models.Utilities) fib
 			})
 		}
 
-		inputs := models.DeleteFileInputs{}
-		c.BodyParser(&inputs)
-
-		if inputs.FileName == "" {
+		if !custommediadelete.Allowed(user.Role) {
+			return c.JSON(fiber.Map{"status": 403, "message": "Bu işlem için yetkiniz yok."})
+		}
+		inputs := struct {
+			FileName string `json:"file_name" form:"file_name"`
+			MediaID  int64  `json:"media_id" form:"media_id"`
+		}{}
+		if err := c.BodyParser(&inputs); err != nil || inputs.FileName == "" {
 			return c.JSON(fiber.Map{
 				"status":  400,
-				"message": "Dosya adı zorunludur.",
+				"message": "Geçersiz dosya isteği.",
 			})
 		}
-
-		RootDir := os.Getenv("ROOT_DIRECTORY")
-		if RootDir == "" {
-			// Try to get current working directory as fallback
-			wd, err := os.Getwd()
-			if err != nil {
-				log.Printf("Cannot get current working directory: %v", err)
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
-			}
-			RootDir = wd
-			log.Printf("Using current working directory as ROOT_DIRECTORY: %s", RootDir)
-		}
-
-		// Construct full file path
-		filePath := filepath.Join(RootDir, "static/uploads", inputs.FileName)
-
-		// Check if file exists
-		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			return c.JSON(fiber.Map{
-				"status":  404,
-				"message": "Dosya bulunamadı.",
-			})
-		}
-
-		// Delete the file
-		err = lib.DeleteFile(filePath)
+		err = custommediadelete.Delete(os.Getenv("ROOT_DIRECTORY"), inputs.FileName, inputs.MediaID)
 		if err != nil {
-			log.Printf("Cannot delete file: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			if err == custommediadelete.ErrStorage {
+				log.Printf("DeleteCustomMedia failed: %v", err)
+			}
+			status, message := custommediadelete.Failure(err)
+			return c.JSON(fiber.Map{"status": status, "message": message})
 		}
 
 		return c.JSON(fiber.Map{
