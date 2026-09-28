@@ -288,50 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data && (data.status === 200 || data.status === 201)) {
                 setFastRandevuFeedback('success', 'Talebiniz alınmıştır. En kısa sürede tarafınıza dönüş yapılacaktır.');
 
-                try {
-                    const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-                    const url = `${scheme}://${window.location.host}/backend/notifications`;
-                    const ws = new WebSocket(url, 'randevu');
-                    payload.rrid = data.rrid;
-                    
-                    let messageSent = false;
-                    const sendMessage = () => {
-                        if (messageSent) return;
-                        messageSent = true;
-                        try {
-                            ws.send(JSON.stringify({
-                                uid: null,
-                                message: JSON.stringify(payload)
-                            }));
-                            setTimeout(() => {
-                                try {
-                                    if (ws.readyState === WebSocket.OPEN) {
-                                        ws.close();
-                                    }
-                                } catch (e) {
-                                    // Ignore close errors
-                                }
-                            }, 500);
-                        } catch (e) {
-                            console.error('WebSocket send error:', e);
-                        }
-                    };
-                    
-                    ws.addEventListener('open', sendMessage);
-                    ws.addEventListener('error', (error) => {
-                        console.error('WebSocket error:', error);
-                    });
-                    
-                    // Timeout fallback
-                    setTimeout(() => {
-                        if (!messageSent && ws.readyState === WebSocket.OPEN) {
-                            sendMessage();
-                        }
-                    }, 1000);
-                } catch (error) {
-                    console.error('WebSocket connection error:', error);
-                }
-
                 form.reset();
                 updateFastRandevuSubmitState();
                 // 3 saniye sonra formu kapat

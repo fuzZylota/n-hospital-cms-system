@@ -62,6 +62,15 @@ class NotificationHandler {
             if (message.type === 'new_randevu_talebi') {
                 if (typeof window._addNewRandevuRow === 'function') window._addNewRandevuRow(message);
                 if (typeof _updateStatCounts === "function") _updateStatCounts(1);
+                if (typeof message.notification_message === 'string' && message.notification_message) {
+                    this.addNotificationToDropdown({
+                        message: message.notification_message,
+                        notification_type: message.notification_type,
+                        request_link: message.request_link
+                    });
+                    this.updateNotificationCount();
+                    this.addNotificationBadge();
+                }
                 if (typeof window._pollNewRequests === 'function') {
                     window._pollNewRequests();
                 }
@@ -69,8 +78,8 @@ class NotificationHandler {
             }
 
             if (message.type === 'randevu_talebi_status') {
-                const row = document.querySelector(`tr[data-id="${message.rrid}"]`);
-                const card = document.querySelector(`.randevu-talebi-card[data-id="${message.rrid}"]`);
+                const row = this.findRequestElement('tr[data-id]', message.rrid);
+                const card = this.findRequestElement('.randevu-talebi-card[data-id]', message.rrid);
                 const statusLabels = {
                     'yeni': 'Yeni', 'randevu-verildi': 'Randevu Verildi',
                     'randevu-verilemedi': 'Randevu Verilemedi', 'ulasilamadi': 'Ulaşılamadı',
@@ -90,8 +99,8 @@ class NotificationHandler {
             }
 
             if (message.type === 'randevu_talebi_silindi') {
-                const row = document.querySelector(`tr[data-id="${message.rrid}"]`);
-                const card = document.querySelector(`.randevu-talebi-card[data-id="${message.rrid}"]`);
+                const row = this.findRequestElement('tr[data-id]', message.rrid);
+                const card = this.findRequestElement('.randevu-talebi-card[data-id]', message.rrid);
                 if (row) { row.style.opacity = '0'; setTimeout(() => row.remove(), 300); }
                 if (typeof _updateStatCounts === "function") _updateStatCounts(-1);
                 if (card) { card.style.opacity = '0'; setTimeout(() => card.remove(), 300); }
@@ -108,6 +117,12 @@ class NotificationHandler {
         }
     }
 
+    findRequestElement(selector, rrid) {
+        if (typeof rrid !== 'string' && typeof rrid !== 'number') return null;
+        return Array.from(document.querySelectorAll(selector))
+            .find(element => element.getAttribute('data-id') === String(rrid)) || null;
+    }
+
     addNotificationToDropdown(message) {
         if (!this.notificationList) return;
 
@@ -115,24 +130,43 @@ class NotificationHandler {
         const notificationItem = document.createElement('div');
         notificationItem.className = 'notification-item unread';
         
-        const iconClass = this.getIconClass(message.notification_type || 'info');
+        const notificationType = this.getNotificationType(message.notification_type);
+        const iconClass = this.getIconClass(notificationType);
         const timeText = this.formatTime(new Date());
-        
-        notificationItem.innerHTML = `
-            <div class="notification-icon ${message.notification_type || 'info'}">
-                <i class="fas ${iconClass}"></i>
-            </div>
-            <div class="notification-content">
-                <div class="notification-text">${message.message}</div>
-                <div class="notification-time">${timeText}</div>
-            </div>
-        `;
+
+        const icon = document.createElement('div');
+        icon.className = `notification-icon ${notificationType}`;
+        const iconImage = document.createElement('i');
+        iconImage.className = `fas ${iconClass}`;
+        icon.appendChild(iconImage);
+
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        const notificationText = document.createElement('div');
+        notificationText.className = 'notification-text';
+        notificationText.textContent = message.message;
+        const notificationTime = document.createElement('div');
+        notificationTime.className = 'notification-time';
+        notificationTime.textContent = timeText;
+        content.appendChild(notificationText);
+        content.appendChild(notificationTime);
+        notificationItem.appendChild(icon);
+        notificationItem.appendChild(content);
 
         // Add click handler for notification link
-        if (message.request_link) {
+        const requestLink = this.getPanelLink(message.request_link);
+        if (requestLink) {
             notificationItem.style.cursor = 'pointer';
+            notificationItem.tabIndex = 0;
+            notificationItem.setAttribute('role', 'link');
             notificationItem.addEventListener('click', () => {
-                window.location.href = message.request_link;
+                window.location.href = requestLink;
+            });
+            notificationItem.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    window.location.href = requestLink;
+                }
             });
         }
 
@@ -148,6 +182,33 @@ class NotificationHandler {
         const emptyMessage = this.notificationList.querySelector('.notification-item:not(.unread):not([class*="notification-icon"])');
         if (emptyMessage && emptyMessage.textContent.includes('Henüz bildirim yok')) {
             emptyMessage.remove();
+        }
+    }
+
+    getNotificationType(notificationType) {
+        switch (notificationType) {
+            case 'success':
+            case 'info':
+            case 'warning':
+            case 'danger':
+            case 'error':
+                return notificationType;
+            default:
+                return 'info';
+        }
+    }
+
+    getPanelLink(link) {
+        if (typeof link !== 'string' || !/^\/panel(?:\/|\?|#|$)/.test(link) ||
+            /[\u0000-\u001f\u007f\\]/.test(link) || link !== link.trim()) return null;
+        try {
+            decodeURI(link);
+            const url = new URL(link, window.location.origin);
+            if (url.origin !== window.location.origin ||
+                (url.pathname !== '/panel' && !url.pathname.startsWith('/panel/'))) return null;
+            return url.pathname + url.search + url.hash;
+        } catch (_) {
+            return null;
         }
     }
 

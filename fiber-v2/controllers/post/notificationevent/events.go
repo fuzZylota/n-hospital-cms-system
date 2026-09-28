@@ -19,16 +19,19 @@ type Message struct {
 }
 
 type NewRequest struct {
-	Type             string `json:"type"`
-	Rrid             string `json:"rrid"`
-	PatientFirstName string `json:"patient_first_name"`
-	PatientLastName  string `json:"patient_last_name"`
-	PatientPhone     string `json:"patient_phone"`
-	Message          string `json:"message"`
-	CreatedAt        string `json:"created_at"`
-	Status           string `json:"status"`
-	SubeName         string `json:"sube_name"`
-	Sid              string `json:"sid"`
+	Type                string `json:"type"`
+	Rrid                string `json:"rrid"`
+	PatientFirstName    string `json:"patient_first_name"`
+	PatientLastName     string `json:"patient_last_name"`
+	PatientPhone        string `json:"patient_phone"`
+	Message             string `json:"message"`
+	CreatedAt           string `json:"created_at"`
+	Status              string `json:"status"`
+	SubeName            string `json:"sube_name"`
+	Sid                 string `json:"sid"`
+	NotificationMessage string `json:"notification_message,omitempty"`
+	NotificationType    string `json:"notification_type,omitempty"`
+	RequestLink         string `json:"request_link,omitempty"`
 }
 
 type Deleted struct {

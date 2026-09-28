@@ -527,31 +527,52 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 			}
 		}
 
-		// WebSocket broadcast - tam veriyle
+		// Bildirimin tek kaynagi, basariyla kaydedilen talebin yeniden okunan halidir.
 		go func(rridVal string) {
 			Orm2 := utilities.Orm
-			GetTalep := Orm2.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name", "rt.sid"})
-			GetTalep.Table("randevu_talepleri rt")
-			GetTalep.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
-			GetTalep.Where("rt.rrid", "=", rridVal)
-			GetTalep.Finish()
-			if GetTalep.Execute() != nil {
+			msg, prepareErr := prepareSavedRequestNotification(rridVal, func(id string) (savedRequestNotification, error) {
+				GetTalep := Orm2.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name", "rt.sid"})
+				GetTalep.Table("randevu_talepleri rt")
+				GetTalep.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
+				GetTalep.Where("rt.rrid", "=", id)
+				GetTalep.Finish()
+				if err := GetTalep.Execute(); err != nil {
+					return savedRequestNotification{}, err
+				}
+				rows, readErr := GetTalep.Rows()
+				if readErr != nil {
+					return savedRequestNotification{}, readErr
+				}
+				if len(rows) != 1 {
+					return savedRequestNotification{}, errInvalidSavedRequest
+				}
+				row := rows[0]
+				record := savedRequestNotification{
+					Rrid: lib.String(row["rrid"]), Sid: lib.String(row["sid"]),
+					PatientFirstName: lib.String(row["patient_first_name"]), PatientLastName: lib.String(row["patient_last_name"]),
+					PatientPhone: lib.String(row["patient_phone"]), PatientEmail: lib.String(row["patient_email"]),
+					Message: lib.String(row["message"]), Status: lib.String(row["status"]), SubeName: lib.String(row["sube_name"]),
+				}
+				record.PreferredDate, _ = row["preferred_date"].(time.Time)
+				record.PreferredTime, _ = row["preferred_time"].(time.Time)
+				record.CreatedAt, _ = row["created_at"].(time.Time)
+				return record, nil
+			}, func(event notificationevent.NewRequest) error {
+				columns := []string{"message", "notification_type", "notification_level", "link"}
+				values := []interface{}{event.NotificationMessage, event.NotificationType, "santral", event.RequestLink}
+				if event.Sid != "" {
+					columns = append(columns, "sid")
+					values = append(values, event.Sid)
+				}
+				insertNotification := Orm2.Insert(columns, values)
+				insertNotification.Table("notifications")
+				insertNotification.Finish()
+				return insertNotification.Execute()
+			})
+			if prepareErr != nil {
 				return
 			}
-			talepRows, readErr := GetTalep.Rows()
-			if readErr != nil {
-				return
-			}
-			if len(talepRows) == 0 {
-				return
-			}
-			row := talepRows[0]
-			createdAt := ""
-			if t, ok := row["created_at"].(time.Time); ok {
-				createdAt = t.Format("2006-01-02T15:04:05Z07:00")
-			}
-			msg := notificationevent.NewRequest{Type: "new_randevu_talebi", Rrid: lib.String(row["rrid"]), PatientFirstName: lib.String(row["patient_first_name"]), PatientLastName: lib.String(row["patient_last_name"]), PatientPhone: lib.String(row["patient_phone"]), Message: lib.String(row["message"]), CreatedAt: createdAt, Status: lib.String(row["status"]), SubeName: lib.String(row["sube_name"]), Sid: lib.String(row["sid"])}
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, msg, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.RequestRecipients(notify.BranchID(lib.String(row["sid"])), func(uid notify.UserID) (notificationevent.User, bool) {
+			if publishErr := notificationevent.Publish(utilities.NotificationHub, msg, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.RequestRecipients(notify.BranchID(msg.Sid), func(uid notify.UserID) (notificationevent.User, bool) {
 				GetRole := Orm2.Select([]string{"role"})
 				GetRole.Table("users")
 				GetRole.Where("uid", "=", string(uid))

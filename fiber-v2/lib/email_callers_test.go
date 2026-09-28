@@ -2136,7 +2136,7 @@ func targetLogSignature(file *ast.File, target *ast.FuncDecl, fset *token.FileSe
 }
 
 var workflowLogSignatures = map[string]string{
-	"AddRandevuRequest":       "2ce0a50268c4a6fc4935540bfda72752f2ac6e5b9995281325151c7cfebcb2dd",
+	"AddRandevuRequest":       "e90d600e503eca194d079d64c8fe9465637929af39610814299e637781077be7",
 	"AddRandevu":              "40923db15c33b87f07f9c1b2800ed44f8e762dec62cea0c7e07396f9a95c9d8c",
 	"EditRandevu":             "52a8a9b80b54e77d40a9968ec559af07cc66c0a61ba40d07983a0e7db6264bc9",
 	"AddContactRequest":       "c51edf1ba5d7d2ba634be04eb5f22e38c969443465c392002dc707062d478f9a",
@@ -2304,7 +2304,7 @@ func TestAddRandevuDiagnosticContextAndAliasFixtures(t *testing.T) {
 		{name: "nested_closure", old: notification, replacement: `func() { ` + notification + ` }()`},
 		{name: "deferred", old: notification, replacement: `defer ` + notification},
 		{name: "go_statement", old: notification, replacement: `go ` + notification},
-		{name: "other_error_branch", old: notification, replacement: `_ = publishErr`, old2: "if readErr != nil {\n\t\t\t\treturn", replacement2: "if readErr != nil {\n\t\t\t\t" + notification + "\n\t\t\t\treturn"},
+		{name: "other_error_branch", old: notification, replacement: `_ = publishErr`, old2: "if readErr != nil {\n\t\t\t\t\treturn", replacement2: "if readErr != nil {\n\t\t\t\t\t" + notification + "\n\t\t\t\t\treturn"},
 		{name: "mail_branch_notification", old: notification, replacement: `_ = publishErr`, old2: mail, replacement2: mail + "\n\t\t\t\t" + notification},
 		{name: "notification_as_mail_stage", old: notification, replacement: `log.Printf("operation=AddRandevuRequest stage=%s", lib.EmailFailureStage(publishErr))`},
 		{name: "notification_logger_shadow", old: `if publishErr := notificationevent.Publish(`, replacement: "log := struct{ Printf func(string, ...any) }{}\n\t\t\tif publishErr := notificationevent.Publish(", extra: "\nfunc unrelated() { log.Print(payload) }\n", first: true},

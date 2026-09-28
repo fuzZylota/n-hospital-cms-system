@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"models/data"
-	"models/notify"
 	"post/notificationws"
 )
 
@@ -22,36 +21,43 @@ func (s *sec003cStatus) LookupUserStatus(context.Context, string) (data.UserStat
 func TestSEC003CInboundCurrentStateAndEvent(t *testing.T) {
 	frame := []byte(`{"message":"{\"sid\":\"branch-a\"}"}`)
 	for _, tc := range []struct {
-		name     string
-		status   data.UserStatus
-		err      error
-		event    notificationws.Event
-		branch   notify.BranchID
-		branchOK bool
-		payload  []byte
-		want     bool
+		name   string
+		status data.UserStatus
+		err    error
+		event  notificationws.Event
+		want   bool
 	}{
-		{"admin appointment", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Appointment, "", false, frame, true},
-		{"moderator appointment", data.UserStatus{Found: true, Active: true, Role: "moderator"}, nil, notificationws.Appointment, "", false, frame, true},
-		{"santral own branch", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Appointment, "branch-a", true, frame, true},
-		{"santral other branch", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Appointment, "branch-b", true, frame, false},
-		{"santral branch lookup failed", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Appointment, "", false, frame, false},
-		{"inactive", data.UserStatus{Found: true, Active: false, Role: "admin"}, nil, notificationws.Appointment, "", false, frame, false},
-		{"missing", data.UserStatus{}, nil, notificationws.Appointment, "", false, frame, false},
-		{"blank role", data.UserStatus{Found: true, Active: true}, nil, notificationws.Appointment, "", false, frame, false},
-		{"status lookup failed", data.UserStatus{}, errors.New("private query"), notificationws.Appointment, "", false, frame, false},
-		{"malformed appointment", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Appointment, "", false, []byte(`{"message":"not-json"}`), false},
-		{"application ik", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Application, "", false, frame, true},
-		{"application santral", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Application, "", false, frame, false},
-		{"contact active", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Contact, "", false, frame, true},
-		{"unknown", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Unknown, "", false, frame, false},
+		{"active appointment frame denied", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Appointment, false},
+		{"admin repeat appointment frame denied", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Appointment, false},
+		{"inactive", data.UserStatus{Found: true, Active: false, Role: "santral"}, nil, notificationws.Appointment, false},
+		{"deleted", data.UserStatus{}, nil, notificationws.Appointment, false},
+		{"role downgrade", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Appointment, false},
+		{"lookup error", data.UserStatus{}, errors.New("private query"), notificationws.Appointment, false},
+		{"application ik", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Application, true},
+		{"application santral", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Application, false},
+		{"contact active", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Contact, true},
+		{"unknown denied", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Unknown, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			reader := &sec003cStatus{status: tc.status, err: tc.err}
-			got := authorizeNotificationTextWithState(reader, func(notify.UserID) (notify.BranchID, bool) { return tc.branch, tc.branchOK }, "42", tc.event, tc.payload)
+			got := authorizeNotificationTextWithState(reader, "42", tc.event, frame)
 			if got != tc.want {
 				t.Fatal("current account or event permission ignored")
 			}
 		})
+	}
+}
+
+func TestF05AppointmentProducerFramesNeverAuthorize(t *testing.T) {
+	reader := &sec003cStatus{status: data.UserStatus{Found: true, Active: true, Role: "admin"}}
+	frames := [][]byte{
+		[]byte(`{"message":"{\"rrid\":\"missing\",\"sid\":\"branch-a\"}"}`),
+		[]byte(`{"message":"{\"rrid\":\"other-branch\",\"sid\":\"branch-b\"}"}`),
+		[]byte(`{"message":"{\"rrid\":\"missing\",\"sid\":\"branch-a\"}"}`),
+	}
+	for _, frame := range frames {
+		if authorizeNotificationTextWithState(reader, "42", notificationws.Appointment, frame) {
+			t.Fatal("a forged or repeated appointment frame reached the producer")
+		}
 	}
 }

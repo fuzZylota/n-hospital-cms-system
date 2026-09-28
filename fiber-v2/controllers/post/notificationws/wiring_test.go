@@ -75,7 +75,7 @@ func TestProductionWiringAndIdentityBoundaries(t *testing.T) {
 	if strings.Contains(post, "WebsocketMessage.Uid") || strings.Contains(post, "strings.Split") || strings.Contains(post, "c.Id") {
 		t.Fatal("client/connection identity used as authority")
 	}
-	if !strings.Contains(post, "event == notificationws.Appointment") || strings.Count(post, "notificationevent.Publish(") != 3 {
+	if strings.Contains(post, "event == notificationws.Appointment") || strings.Count(post, "notificationevent.Publish(") != 2 {
 		t.Fatal("socket event missing")
 	}
 	requests := readSource(t, filepath.Join(root, "controllers/post/randevular/randevular.go"))
