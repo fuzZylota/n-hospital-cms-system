@@ -28,9 +28,11 @@ type WebsocketMessage struct {
 // type that represents all the changeable app states
 type AppState struct {
 	Connections        []WebsocketConnection
+	SiteOptionsReader  data.SiteOptionsReader
 	ActiveOptions      Options
 	TestingOptions     Options
-	Medias             []Medias
+	Medias             []Medias // Active option set only; retained for existing callers.
+	TestingMedias      []Medias
 	HeaderButtons      []HeaderButton
 	SubelerLinks       []SubeLink
 	TibbiBirimlerLinks []TibbiBirimLink
@@ -42,6 +44,7 @@ type AppState struct {
 // type that represents all the unchanging utilites.
 type Utilities struct {
 	NotificationHub                              notify.Hub
+	SiteOptionsReader                            data.SiteOptionsReader
 	UserStatusReader                             data.UserStatusReader
 	Orm                                          *orm.Neorm
 	HeaderButtonReader                           data.HeaderButtonReader

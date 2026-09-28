@@ -82,6 +82,7 @@ func run() error {
 			}
 			utilities.HeaderButtonReader = postgres.NewHeaderButtonRepository(pool)
 			optionsRepository := postgres.NewOptionsRepository(pool)
+			utilities.SiteOptionsReader = optionsRepository
 			utilities.UploadPolicyReader = optionsRepository
 			utilities.PasswordPolicyReader = optionsRepository
 			utilities.OptionMediaMutationSnapshotReader = optionsRepository
@@ -191,7 +192,8 @@ func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusRead
 	log.Printf("JWT middleware loaded")
 
 	AppState := models.AppState{
-		Connections: []models.WebsocketConnection{},
+		Connections:       []models.WebsocketConnection{},
+		SiteOptionsReader: utilities.SiteOptionsReader,
 	}
 
 	log.Printf("AppState loaded")

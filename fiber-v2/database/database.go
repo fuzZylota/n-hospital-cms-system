@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	lib "lib"
@@ -8,6 +9,7 @@ import (
 	"strings"
 
 	"models"
+	"models/data"
 
 	orm "github.com/Necoo33/neormgo/v2"
 )
@@ -124,73 +126,105 @@ type Options struct {
 	Notifications      *[]models.Notification
 }
 
-func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models.FrontendOptions) (Options, error) {
-	var ActiveOptions models.Options
-	var ActiveMedias []models.Medias
-	var TestingOptions models.Options
-	var TestingMedias []models.Medias
-
-	// check if active option set or testing option set is empty
-	ActiveOptionSetOrTestingOptionSetIsEmpty := CurrentOptions.States.ActiveOptions.Oid == "" || CurrentOptions.States.TestingOptions.Oid == ""
-	// check if there is no authentication and we have active option set
-	NoNeedToFetchOptions := CurrentOptions.States.ActiveOptions.Oid != "" && CurrentOptions.User.Uid == ""
-
-	if ActiveOptionSetOrTestingOptionSetIsEmpty {
-		if NoNeedToFetchOptions {
-			ActiveOptions = CurrentOptions.States.ActiveOptions
-			TestingOptions = CurrentOptions.States.TestingOptions
-			ActiveMedias = CurrentOptions.States.Medias
-			TestingMedias = CurrentOptions.States.Medias
-		} else {
-			Columns := []string{
-				"o.*",
-				"m.file_path as logo_path", "m.alt_text as logo_alt_text", "m.title as logo_title", "m2.file_path as favicon_path",
-				"m3.file_path as default_page_media_path", "m4.file_path as light_logo_path", "m4.alt_text as light_logo_alt_text",
-				"m4.title as light_logo_title", "m3.alt_text as default_page_media_alt_text", "m3.title as default_page_media_title",
-			}
-
-			opts := CurrentOptions.Database.Select(Columns)
-			opts.Table("options o")
-			opts.LeftJoin("medias m", "o.site_logo_mid", "=", "m.mid")
-			opts.LeftJoin("medias m2", "o.site_favicon_mid", "=", "m2.mid")
-			opts.LeftJoin("medias m3", "o.default_page_mid", "=", "m3.mid")
-			opts.LeftJoin("medias m4", "o.site_light_logo_mid", "=", "m4.mid")
-			opts.Where("o.option_set_is_active", "=", true)
-
-			if CurrentOptions.States.TestingOptions == (models.Options{}) && CurrentOptions.User.Uid != "" {
-				opts.Or("o.option_set_is_testing_now", "=", true)
-			}
-
-			opts.Finish()
-			err := opts.Execute()
-
-			if err != nil {
-				return Options{}, err
-			}
-
-			rows, err := opts.Rows()
-
-			if err != nil {
-				return Options{}, err
-			}
-
-			for i, _ := range rows {
-				if lib.Bool(rows[i]["option_set_is_testing_now"]) {
-					TestingOptions = mapRowToOptions(rows[i])
-					TestingMedias = mapRowToFrontendMedias(rows[i])
-				}
-
-				if lib.Bool(rows[i]["option_set_is_active"]) {
-					ActiveOptions = mapRowToOptions(rows[i])
-					ActiveMedias = mapRowToFrontendMedias(rows[i])
-				}
-			}
+func readFrontendSiteOptions(reader data.SiteOptionsReader, selection data.OptionSetSelection) (data.SiteOptions, bool, error) {
+	setName := "active"
+	if selection == data.TestingOptionSet {
+		setName = "testing"
+	}
+	if reader == nil {
+		return data.SiteOptions{}, false, fmt.Errorf("%s site options reader is unavailable", setName)
+	}
+	option, found, err := reader.ReadSiteOptions(context.Background(), selection)
+	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			return data.SiteOptions{}, false, fmt.Errorf("%s site options read canceled: %w", setName, context.Canceled)
 		}
-	} else {
-		ActiveOptions = CurrentOptions.States.ActiveOptions
-		ActiveMedias = CurrentOptions.States.Medias
-		TestingOptions = CurrentOptions.States.TestingOptions
-		TestingMedias = CurrentOptions.States.Medias
+		if errors.Is(err, context.DeadlineExceeded) {
+			return data.SiteOptions{}, false, fmt.Errorf("%s site options read timed out: %w", setName, context.DeadlineExceeded)
+		}
+		return data.SiteOptions{}, false, fmt.Errorf("%s site options read failed", setName)
+	}
+	if found && (option.Set.ID == "" || (selection == data.ActiveOptionSet && !option.Set.IsActive) || (selection == data.TestingOptionSet && !option.Set.IsTesting)) {
+		return data.SiteOptions{}, false, fmt.Errorf("%s site options reader returned an invalid selected set", setName)
+	}
+	return option, found, nil
+}
+
+// mapSiteOptionsForFrontend copies only the public values consumed by this
+// helper's frontend callers and Jet views. Server-side policy and credentials
+// remain outside the legacy render model.
+func mapSiteOptionsForFrontend(option data.SiteOptions) models.Options {
+	return models.Options{
+		Oid:                        option.Set.ID,
+		OptionSetIsActive:          option.Set.IsActive,
+		OptionSetIsTestingNow:      option.Set.IsTesting,
+		SiteName:                   option.SiteName,
+		SiteDescription:            option.SiteDescription,
+		MaintenanceMode:            option.MaintenanceMode,
+		Preloader:                  option.Preloader,
+		FacebookUrl:                option.FacebookURL,
+		TwitterUrl:                 option.TwitterURL,
+		InstagramUrl:               option.InstagramURL,
+		LinkedinUrl:                option.LinkedInURL,
+		ContactEmail:               option.ContactEmail,
+		ContactPhone:               option.ContactPhone,
+		MainPageMetaTitle:          option.MainPageMetaTitle,
+		MainPageMetaDescription:    option.MainPageMetaDescription,
+		GoogleAnalytics:            option.GoogleAnalytics,
+		PrimaryColor:               option.PrimaryColor,
+		SecondaryColor:             option.SecondaryColor,
+		AccentColor:                option.AccentColor,
+		BackgroundColor:            option.BackgroundColor,
+		FontColor:                  option.FontColor,
+		FontFamily:                 option.FontFamily,
+		ItemsPerPage:               option.ItemsPerPage,
+		EnableTestimonials:         option.EnableTestimonials,
+		MaximumSublinksOnAMenuItem: option.MaximumSublinksOnMenuItem,
+		ShowDoctorSocialMedia:      option.ShowDoctorSocialMedia,
+		ShowDoctorAppointmentFee:   option.ShowDoctorAppointmentFee,
+		ShowAnlasmaliKurumPictures: option.ShowPartnerPictures,
+		RecaptchaSiteKey:           option.RecaptchaSiteKey,
+		DefaultPageMediaPath:       option.DefaultPageMedia.Path,
+		DefaultPageMediaAltText:    option.DefaultPageMedia.AltText,
+		DefaultPageMediaTitle:      option.DefaultPageMedia.Title,
+	}
+}
+
+func mapSiteOptionsMedias(option data.SiteOptions) []models.Medias {
+	media := func(value data.PublicMedia) models.Medias {
+		return models.Medias{FilePath: value.Path, AltText: value.AltText, Title: value.Title}
+	}
+	return []models.Medias{
+		media(option.SiteLogo), media(option.SiteLightLogo),
+		media(option.Favicon), media(option.DefaultPageMedia),
+	}
+}
+
+func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models.FrontendOptions) (Options, error) {
+	states := CurrentOptions.States
+	if states.ActiveOptions.Oid == "" {
+		active, found, err := readFrontendSiteOptions(states.SiteOptionsReader, data.ActiveOptionSet)
+		if err != nil {
+			return Options{}, err
+		}
+		if !found {
+			return Options{}, errors.New("active site options are unavailable")
+		}
+		states.ActiveOptions = mapSiteOptionsForFrontend(active)
+		states.Medias = mapSiteOptionsMedias(active)
+	}
+
+	// A missing testing set is retried for authenticated requests. Its absence
+	// falls back to the already validated active set, without caching a miss.
+	if CurrentOptions.User.Uid != "" && states.TestingOptions.Oid == "" {
+		testing, found, err := readFrontendSiteOptions(states.SiteOptionsReader, data.TestingOptionSet)
+		if err != nil {
+			return Options{}, err
+		}
+		if found {
+			states.TestingOptions = mapSiteOptionsForFrontend(testing)
+			states.TestingMedias = mapSiteOptionsMedias(testing)
+		}
 	}
 
 	Options := Options{
@@ -198,17 +232,14 @@ func (Optionss *Options) FetchOptionsForFrontendWithCache(CurrentOptions *models
 		NewsLinks:     &[]models.NewsLink{},
 	}
 
-	if CurrentOptions.User.Uid != "" && TestingOptions != (models.Options{}) {
-		Options.Options = &TestingOptions
-		CurrentOptions.States.TestingOptions = TestingOptions
-		Options.Medias = &TestingMedias
-		CurrentOptions.States.Medias = TestingMedias
-	} else {
-		Options.Options = &ActiveOptions
-		CurrentOptions.States.ActiveOptions = ActiveOptions
-		Options.Medias = &ActiveMedias
-		CurrentOptions.States.Medias = ActiveMedias
+	selectedOptions := states.ActiveOptions
+	selectedMedias := states.Medias
+	if CurrentOptions.User.Uid != "" && states.TestingOptions.Oid != "" {
+		selectedOptions = states.TestingOptions
+		selectedMedias = states.TestingMedias
 	}
+	Options.Options = &selectedOptions
+	Options.Medias = &selectedMedias
 
 	HeaderButtons := &[]models.HeaderButton{}
 
