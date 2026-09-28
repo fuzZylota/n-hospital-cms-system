@@ -52,7 +52,7 @@
                     <option value="patient_first_name"{{if SortBy == "patient_first_name" || SortBy == ""}} selected{{end}}>Hasta Adı</option>
                     <option value="patient_last_name"{{if SortBy == "patient_last_name"}} selected{{end}}>Hasta Soy Adı</option>
                     <option value="patient_phone"{{if SortBy == "patient_phone"}} selected{{end}}>Hasta Telefon Numarası</option>
-                    <option value="patient_email"{{if SortBy == "patient_email"}} selected{{end}}>Hasta Soy Adı</option>
+                    <option value="patient_email"{{if SortBy == "patient_email"}} selected{{end}}>Hasta E-Posta Adresi</option>
                     <option value="message"{{if SortBy == "message"}} selected{{end}}>Açıklama</option>
                 </select>
                 <select id="sortOrder" class="filter-select">
@@ -230,7 +230,7 @@
                             {{end}}
                         {{else}}
                             <tr class="empty-row">
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="empty-state">
                                         <div class="empty-icon">
                                             <i class="fas fa-calendar-check"></i>
