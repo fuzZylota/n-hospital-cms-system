@@ -2139,7 +2139,7 @@ var workflowLogSignatures = map[string]string{
 	"AddRandevuRequest":       "e90d600e503eca194d079d64c8fe9465637929af39610814299e637781077be7",
 	"AddRandevu":              "40923db15c33b87f07f9c1b2800ed44f8e762dec62cea0c7e07396f9a95c9d8c",
 	"EditRandevu":             "52a8a9b80b54e77d40a9968ec559af07cc66c0a61ba40d07983a0e7db6264bc9",
-	"AddContactRequest":       "c51edf1ba5d7d2ba634be04eb5f22e38c969443465c392002dc707062d478f9a",
+	"AddContactRequest":       "e540bd38619fc1bab0ccfef590c24dcd685dc97b7b0067ef3e71ff07ca331a49",
 	"AddJobApplication":       "f113f07874fe76e0a472a0aa97b42fd97ea54b4a71dda81df662102e59ac5217",
 	"RespondToContactRequest": "f589bd90a1e32a3e325fb7fbff3e910c253ad8899204452598ab4ea54fdfd0d0",
 	"RespondToJobApplication": "b888d278a7243f4b2adda01b671f995938efdb3737622dc20bd776b71adb7bfc",

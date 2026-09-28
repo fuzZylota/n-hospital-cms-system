@@ -125,7 +125,7 @@ func TestOtherMailAndCaptchaCallersRemainLegacy(t *testing.T) {
 		"RespondToJobApplication": 0,
 		"AddRandevuRequest":       0,
 		"AddRandevu":              0,
-		"EditRandevu":             1,
+		"EditRandevu":             0,
 	}
 	for _, relative := range []string{"controllers/post/post.go", "controllers/post/randevular/randevular.go"} {
 		file, err := parser.ParseFile(token.NewFileSet(), filepath.Join(root, filepath.FromSlash(relative)), nil, 0)
@@ -316,7 +316,7 @@ func TestAddContactRequestSideEffectAndPartialSuccessFixtures(t *testing.T) {
 	}
 
 	earlyMail := addContactRequestReplacements(t, [][2]string{
-		{"err = lib.SendEmail(&CreateEmailInfos)", "err = nil"},
+		{"func() error { return lib.SendEmail(&CreateEmailInfos) }", "func() error { return nil }"},
 		{"InsertContactRequest := Orm.Insert(columns, values)", "err = lib.SendEmail(&CreateEmailInfos)\n\t\tInsertContactRequest := Orm.Insert(columns, values)"},
 	})
 	if contactRequestSideEffectsAreSafe(earlyMail) {
@@ -324,11 +324,22 @@ func TestAddContactRequestSideEffectAndPartialSuccessFixtures(t *testing.T) {
 	}
 
 	retryMail := addContactRequestReplacement(t, [2]string{
-		"err = lib.SendEmail(&CreateEmailInfos)",
-		"for attempt := 0; attempt < 2; attempt++ {\n\t\t\t\terr = lib.SendEmail(&CreateEmailInfos)\n\t\t\t}",
+		"func() error { return lib.SendEmail(&CreateEmailInfos) }",
+		"func() error { for attempt := 0; attempt < 2; attempt++ { _ = lib.SendEmail(&CreateEmailInfos) }; return nil }",
 	})
 	if contactRequestSideEffectsAreSafe(retryMail) {
 		t.Fatal("retry-mail mutation fixture was accepted")
+	}
+	for _, replacement := range [][2]string{
+		{"defer scheduleSavedContactRequestNotification(utilities, crid)", "scheduleSavedContactRequestNotification(utilities, crid)"},
+		{"defer scheduleSavedContactRequestNotification(utilities, crid)", "defer scheduleSavedContactRequestNotification(utilities, inputs.Email)"},
+		{"defer scheduleSavedContactRequestNotification(utilities, crid)", "defer scheduleSavedContactRequestNotification(utilities, crid); defer scheduleSavedContactRequestNotification(utilities, crid)"},
+		{"defer scheduleSavedContactRequestNotification(utilities, crid)", "defer scheduleSavedContactRequestNotification(utilities, crid); if true { defer scheduleSavedContactRequestNotification(utilities, crid) }"},
+		{"defer scheduleSavedContactRequestNotification(utilities, crid)", "defer scheduleSavedContactRequestNotification(utilities, crid); scheduleSavedContactRequestNotification(utilities, crid)"},
+	} {
+		if contactRequestSideEffectsAreSafe(addContactRequestReplacement(t, replacement)) {
+			t.Fatal("unsafe contact notification schedule was accepted")
+		}
 	}
 
 	mailFailureReturn := addContactRequestReplacement(t, [2]string{
@@ -697,11 +708,21 @@ func contactRequestSideEffectsAreSafe(function *ast.FuncDecl) bool {
 	positions := map[string]token.Pos{}
 	counts := map[string]int{}
 	var sendCall *ast.CallExpr
+	var mailClosure *ast.FuncLit
+	deferCount := 0
 	valid := true
 	ast.Inspect(body, func(node ast.Node) bool {
 		switch typed := node.(type) {
-		case *ast.GoStmt, *ast.FuncLit:
+		case *ast.GoStmt:
 			valid = false
+		case *ast.DeferStmt:
+			deferCount++
+		case *ast.FuncLit:
+			if !isContactMailClosure(typed) {
+				valid = false
+			} else {
+				mailClosure = typed
+			}
 		case *ast.AssignStmt:
 			for _, left := range typed.Lhs {
 				root := contactRequestRootIdentifier(left)
@@ -733,14 +754,22 @@ func contactRequestSideEffectsAreSafe(function *ast.FuncDecl) bool {
 			valid = false
 		}
 	}
-	if counts["c.JSON"] != 10 {
+	if counts["c.JSON"] != 10 || deferCount != 1 || counts["scheduleSavedContactRequestNotification"] != 1 {
 		valid = false
 	}
-	if sendCall == nil || contactRequestHasLoopAncestor(sendCall, parents) {
+	if sendCall == nil || mailClosure == nil || contactRequestHasLoopAncestor(sendCall, parents) {
 		return false
 	}
-	assignment, ok := parents[sendCall].(*ast.AssignStmt)
-	if !ok {
+	mailReturn, ok := parents[sendCall].(*ast.ReturnStmt)
+	if !ok || len(mailReturn.Results) != 1 || mailReturn.Results[0] != sendCall || parents[mailReturn] != mailClosure.Body {
+		return false
+	}
+	mailCall, ok := parents[mailClosure].(*ast.CallExpr)
+	if !ok || nodeSource(mailCall.Fun) != "lib.DeliverEmailAfterPersistence" || len(mailCall.Args) != 2 || mailCall.Args[0] != mailClosure || nodeSource(mailCall.Args[1]) != "nil" {
+		return false
+	}
+	assignment, ok := parents[mailCall].(*ast.AssignStmt)
+	if !ok || assignment.Tok != token.ASSIGN || len(assignment.Lhs) != 1 || nodeSource(assignment.Lhs[0]) != "err" || len(assignment.Rhs) != 1 || assignment.Rhs[0] != mailCall {
 		return false
 	}
 	block, ok := parents[assignment].(*ast.BlockStmt)
@@ -779,10 +808,37 @@ func contactRequestSideEffectsAreSafe(function *ast.FuncDecl) bool {
 			mailIndex = candidate
 		}
 	}
-	if mailIndex < 0 || mailIndex+1 != len(body.List)-1 || !isExactContactRequestSuccessReturn(body.List[len(body.List)-1]) {
+	if mailIndex < 0 || mailIndex+1 != len(body.List)-1 || !isExactContactRequestSuccessReturn(body.List[len(body.List)-1]) || !contactRequestNotificationScheduleIsSafe(body, mailIndex, positions["InsertContactRequest.LastInsertId"]) {
 		return false
 	}
 	return valid
+}
+
+func isContactMailClosure(closure *ast.FuncLit) bool {
+	if closure == nil || closure.Type.Params == nil || len(closure.Type.Params.List) != 0 || closure.Type.Results == nil || len(closure.Type.Results.List) != 1 || nodeSource(closure.Type.Results.List[0].Type) != "error" || len(closure.Body.List) != 1 {
+		return false
+	}
+	result, ok := closure.Body.List[0].(*ast.ReturnStmt)
+	return ok && len(result.Results) == 1 && nodeSource(result.Results[0]) == "lib.SendEmail(&CreateEmailInfos)"
+}
+
+func contactRequestNotificationScheduleIsSafe(body *ast.BlockStmt, mailIndex int, insertID token.Pos) bool {
+	count := 0
+	for index, statement := range body.List {
+		deferred, ok := statement.(*ast.DeferStmt)
+		if !ok {
+			continue
+		}
+		count++
+		if index < 1 || index >= mailIndex || nodeSource(deferred.Call) != "scheduleSavedContactRequestNotification(utilities, crid)" || deferred.Pos() <= insertID {
+			return false
+		}
+		guard, ok := body.List[index-1].(*ast.IfStmt)
+		if !ok || nodeSource(guard.Cond) != `crid == ""` || len(guard.Body.List) != 1 || !isTerminalServerErrorJSON(guard.Body.List[0]) {
+			return false
+		}
+	}
+	return count == 1
 }
 
 func isFixedMailFailureLog(statement ast.Stmt) bool {

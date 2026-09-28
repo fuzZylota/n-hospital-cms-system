@@ -31,8 +31,10 @@ func authorizeNotificationTextWithState(reader data.UserStatusReader, uid notify
 		return false
 	}
 	switch event {
-	case notificationws.Subscriber, notificationws.Contact:
-		return true // Existing contact recipient policy admits every active account.
+	case notificationws.Subscriber:
+		return true
+	case notificationws.Contact:
+		return false // Only AddContactRequest may produce contact notifications.
 	case notificationws.Application:
 		return false // Only AddJobApplication may produce application notifications.
 	case notificationws.Appointment:

@@ -962,6 +962,9 @@ func (options *Options) FetchOptionsForPanel(db *orm.Neorm, otherColumns any, un
 	GetNotifications.LeftJoin("users u", "u.uid", "=", lib.String(User.Uid))
 	//GetNotifications.LeftJoin("subeler s", "s.sid", "=", "n.sid")
 	GetNotifications.Where("n.created_at", ">", User.CreatedAt)
+	if User.Role != "admin" {
+		GetNotifications.AndExpr("(n.notification_level = 'admin' AND n.link LIKE '/panel/iletisim-istekleri/%')", "IS NOT", "TRUE")
+	}
 
 	if User.Role == "santral" {
 		GetNotifications.OpenParenthesis("AND")

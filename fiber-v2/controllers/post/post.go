@@ -2,7 +2,6 @@ package post
 
 import (
 	"database"
-	"encoding/json"
 	"fmt"
 	lib "lib"
 	"log"
@@ -16,7 +15,6 @@ import (
 	"post/custommediadelete"
 	"post/jobapplicationresponsesnapshot"
 	"post/jobapplicationsnapshot"
-	"post/notificationevent"
 	"post/notificationws"
 	"post/uploadpolicy"
 	"regexp"
@@ -2260,6 +2258,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
 		}
+		defer scheduleSavedContactRequestNotification(utilities, crid)
 
 		if contactRequestSnapshot.SMTPHost != "" && contactRequestSnapshot.SMTPPort != 0 && contactRequestSnapshot.SMTPUsername != "" && contactRequestSnapshot.SMTPPassword != "" && inputs.Email != "" {
 			GetLogo := ""
@@ -4426,62 +4425,7 @@ func NotificationWebsocket(states *models.AppState, utilities *models.Utilities)
 		return notify.UserID(user.Uid), err
 	}, func(uid notify.UserID, event notificationws.Event, msg []byte) bool {
 		return authorizeNotificationText(utilities, uid, event, msg)
-	}, func(event notificationws.Event, msg []byte) {
-		Orm := utilities.Orm
-		var err error
-		WebsocketMessage := models.WebsocketMessage{}
-		if json.Unmarshal(msg, &WebsocketMessage) != nil {
-			return
-		}
-		// Compatibility UID is deliberately ignored, including nonempty mismatch.
-
-		if event == notificationws.Contact {
-			ContactRequest := models.ContactRequests{}
-			if json.Unmarshal([]byte(WebsocketMessage.Message), &ContactRequest) != nil {
-				return
-			}
-
-			bildirimLink := "/panel/iletisim-istekleri/" + ContactRequest.Crid + "?notification=true"
-			bildirimMetni := ContactRequest.FirstName + " " + ContactRequest.LastName + " tarafından bir iletişim talebi gönderildi."
-
-			NewWebsocketMessage := notificationevent.Message{
-				Uid: "",
-				//InsertForm:  "is-basvurusu",
-				Message:     bildirimMetni,
-				RequestLink: bildirimLink,
-			}
-
-			InsertNotification := Orm.Insert(
-				[]string{"message", "notification_type", "notification_level", "link"},
-				[]interface{}{bildirimMetni, "info", "all", bildirimLink},
-			)
-
-			InsertNotification.Table("notifications")
-			InsertNotification.Returning("nid")
-			InsertNotification.Finish()
-
-			err = InsertNotification.Execute()
-
-			if err != nil {
-				log.Print("notification: insert failed")
-			}
-
-			lid, err := InsertNotification.LastInsertId()
-
-			if err != nil {
-				log.Print("notification: insert result unavailable")
-			}
-
-			if lid == "" {
-				log.Print("notification: insert result unavailable")
-			}
-
-			if publishErr := notificationevent.Publish(utilities.NotificationHub, NewWebsocketMessage, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)); publishErr != nil {
-				log.Print("notification: publication failed")
-			}
-		}
-
-	}, websocket.Config{
+	}, nil, websocket.Config{
 		Subprotocols: []string{"kullanici", "randevu", "is-basvurusu", "iletisim"},
 		Origins:      []string{Domain},
 	})

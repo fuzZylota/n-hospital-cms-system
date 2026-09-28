@@ -34,7 +34,7 @@ func TestSEC003CInboundCurrentStateAndEvent(t *testing.T) {
 		{"lookup error", data.UserStatus{}, errors.New("private query"), notificationws.Appointment, false},
 		{"application ik", data.UserStatus{Found: true, Active: true, Role: "ik"}, nil, notificationws.Application, false},
 		{"application santral", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Application, false},
-		{"contact active", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Contact, true},
+		{"contact active", data.UserStatus{Found: true, Active: true, Role: "santral"}, nil, notificationws.Contact, false},
 		{"unknown denied", data.UserStatus{Found: true, Active: true, Role: "admin"}, nil, notificationws.Unknown, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -71,6 +71,20 @@ func TestF05JobApplicationProducerFramesNeverAuthorize(t *testing.T) {
 	for _, frame := range frames {
 		if authorizeNotificationTextWithState(reader, "42", notificationws.Application, frame) {
 			t.Fatal("a forged, foreign or repeated application frame reached the producer")
+		}
+	}
+}
+
+func TestF05ContactProducerFramesNeverAuthorize(t *testing.T) {
+	reader := &sec003cStatus{status: data.UserStatus{Found: true, Active: true, Role: "admin"}}
+	frames := [][]byte{
+		[]byte(`{"message":"{\"crid\":\"999999\",\"first_name\":\"Forged\"}"}`),
+		[]byte(`{"message":"{\"crid\":\"42\",\"first_name\":\"Other\"}"}`),
+		[]byte(`{"message":"{\"crid\":\"42\",\"first_name\":\"Other\"}"}`),
+	}
+	for _, frame := range frames {
+		if authorizeNotificationTextWithState(reader, "42", notificationws.Contact, frame) {
+			t.Fatal("a forged, foreign or repeated contact frame reached the producer")
 		}
 	}
 }

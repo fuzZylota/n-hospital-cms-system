@@ -217,36 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data && (data.status === 200 || data.status === 201)) {
                 updateModalStatus('success', 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.');
                 
-                // WebSocket bildirimini gönder
-                try {
-                    const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-                    const url = `${scheme}://${window.location.host}/backend/notifications`;
-                    const ws = new WebSocket(url, 'iletisim');
-                    
-                    ws.addEventListener('open', () => {
-                        // Create message with all form data
-                        const messageData = {
-                            first_name: formData.get('first_name'),
-                            last_name: formData.get('last_name'),
-                            email: formData.get('email'),
-                            subject: formData.get('subject'),
-                            phone: formData.get('phone'),
-                            message: formData.get('message'),
-                            crid: data.crid
-                        };
-
-                        const message = {
-                            uid: null,
-                            message: JSON.stringify(messageData),
-                        };
-                        ws.send(JSON.stringify(message));
-                        // Close connection after sending
-                        setTimeout(() => { try { ws.close(); } catch (_) {} }, 500);
-                    });
-                } catch (_) {
-                    // Silently handle WebSocket errors
-                }
-                
                 form.reset();
                 // Reset reCAPTCHA only if it exists
                 const recaptchaWidget = form.querySelector('.g-recaptcha');
