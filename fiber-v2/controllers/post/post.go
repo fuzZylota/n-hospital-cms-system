@@ -2685,78 +2685,40 @@ func DeleteContactRequest(states *models.AppState, utilities *models.Utilities) 
 
 func SetAsReadAContactRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		_, err := lib.CheckAuth(c)
+		actor, err := lib.CheckAuth(c)
 		if err != nil {
-			return c.Status(401).JSON(fiber.Map{
-				"status":  401,
-				"message": "Unauthorized",
-			})
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
 		}
-
-		ContactRequestId := c.Params("crid")
-		if ContactRequestId == "" {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Contact request ID is required",
-			})
+		crid, validID := contactReadStateID(c.Params("crid"))
+		if !validID {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Invalid contact request ID"})
 		}
-
-		// Parse request body to get is_read value
-		var requestData struct {
-			IsRead bool `json:"is_read"`
+		desired, validState := contactReadStateInput(c.Body())
+		if !validState {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Invalid request body"})
 		}
-
-		if err := c.BodyParser(&requestData); err != nil {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Invalid request body",
-			})
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.Status(503).JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
 		}
-
-		Orm := utilities.Orm
-
-		// Update the is_read status
-		UpdateContactRequest := Orm.Update()
-		UpdateContactRequest.Table("contact_requests")
-		UpdateContactRequest.SetExpr("is_read", "NOT is_read")
-		UpdateContactRequest.Set("updated_at", "NOW()")
-		UpdateContactRequest.Where("crid", "=", ContactRequestId)
-		UpdateContactRequest.Finish()
-		err = UpdateContactRequest.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+		status := setContactRequestReadState(c.UserContext(), utilities.Orm.Pool, actor.Uid, crid, desired)
+		if status != 201 {
+			message := "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			if status == 403 {
+				message = "Bu işlem için yetkiniz yok."
+			}
+			if status == 404 {
+				message = "İletişim talebi bulunamadı."
+			}
+			if status >= 500 {
+				log.Printf("operation=SetAsReadAContactRequest stage=state_transaction")
+			}
+			return c.Status(status).JSON(fiber.Map{"status": status, "message": message})
 		}
-
-		ra, err := UpdateContactRequest.RowsAffected()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if ra == 0 {
-			return c.Status(404).JSON(fiber.Map{
-				"status":  404,
-				"message": "İletişim talebi bulunamadı.",
-			})
-		}
-
 		statusMessage := "okunmamış olarak işaretlendi"
-		if requestData.IsRead {
+		if desired {
 			statusMessage = "okundu olarak işaretlendi"
 		}
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": fmt.Sprintf("İletişim talebi %s.", statusMessage),
-		})
+		return c.JSON(fiber.Map{"status": 201, "message": fmt.Sprintf("İletişim talebi %s.", statusMessage)})
 	}
 }
 
