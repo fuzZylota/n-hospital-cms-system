@@ -80,7 +80,8 @@ func TestProductionWiringAndIdentityBoundaries(t *testing.T) {
 		t.Fatal("WebSocket notification producer was restored")
 	}
 	requests := readSource(t, filepath.Join(root, "controllers/post/randevular/randevular.go"))
-	if strings.Count(requests, "notificationevent.Publish(") != 3 {
+	status := readSource(t, filepath.Join(root, "controllers/post/randevular/appointment_request_status_access.go"))
+	if strings.Count(requests, "notificationevent.Publish(") != 2 || strings.Count(status, "notificationevent.Publish(") != 1 {
 		t.Fatal("request event missing")
 	}
 	for _, name := range []string{"transport.go", "session.go", "fiber.go"} {
