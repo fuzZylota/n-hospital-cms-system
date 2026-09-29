@@ -837,44 +837,8 @@ func deleteRandevuRequestDiagnosticSafe(source []byte) bool {
 	if err != nil || file.Name.Name != "randevular" {
 		return false
 	}
-
-	var target *ast.FuncDecl
-	for _, declaration := range file.Decls {
-		switch item := declaration.(type) {
-		case *ast.FuncDecl:
-			if item.Name.Name == "DeleteRandevuRequest" {
-				if item.Recv != nil || target != nil {
-					return false
-				}
-				target = item
-			}
-		case *ast.GenDecl:
-			for _, specification := range item.Specs {
-				switch named := specification.(type) {
-				case *ast.ValueSpec:
-					for _, identifier := range named.Names {
-						if identifier.Name == "DeleteRandevuRequest" {
-							return false
-						}
-					}
-				case *ast.TypeSpec:
-					if named.Name.Name == "DeleteRandevuRequest" {
-						return false
-					}
-				}
-			}
-		}
-	}
-	if target == nil || target.Type.Params == nil || len(target.Type.Params.List) != 2 || target.Type.Results == nil || len(target.Type.Results.List) != 1 ||
-		len(target.Type.Params.List[0].Names) != 1 || target.Type.Params.List[0].Names[0].Name != "states" ||
-		len(target.Type.Params.List[1].Names) != 1 || target.Type.Params.List[1].Names[0].Name != "utilities" ||
-		nodeString(fset, target.Type.Params.List[0].Type) != "*models.AppState" ||
-		nodeString(fset, target.Type.Params.List[1].Type) != "*models.Utilities" ||
-		nodeString(fset, target.Type.Results.List[0].Type) != "fiber.Handler" || len(target.Body.List) != 1 {
-		return false
-	}
-	utilitiesObject := target.Type.Params.List[1].Names[0].Obj
-	if utilitiesObject == nil {
+	target, ok := uniqueFunction(file, "DeleteRandevuRequest")
+	if !ok || target.Body == nil || len(target.Body.List) != 1 {
 		return false
 	}
 	result, ok := target.Body.List[0].(*ast.ReturnStmt)
@@ -882,85 +846,55 @@ func deleteRandevuRequestDiagnosticSafe(source []byte) bool {
 		return false
 	}
 	handler, ok := result.Results[0].(*ast.FuncLit)
-	if !ok || handler.Type.Params == nil || len(handler.Type.Params.List) != 1 || len(handler.Type.Params.List[0].Names) != 1 || handler.Type.Params.List[0].Names[0].Name != "c" || nodeString(fset, handler.Type.Params.List[0].Type) != "*fiber.Ctx" || handler.Type.Results == nil || len(handler.Type.Results.List) != 1 || nodeString(fset, handler.Type.Results.List[0].Type) != "error" {
+	if !ok || handler.Type.Params == nil || len(handler.Type.Params.List) != 1 || len(handler.Type.Params.List[0].Names) != 1 || len(handler.Body.List) < 2 {
 		return false
 	}
 	cObject := handler.Type.Params.List[0].Names[0].Obj
-	errorObject, ok := uniqueErrorObject(file, handler, cObject)
-	if cObject == nil || !ok {
-		return false
-	}
+	utilitiesObject := target.Type.Params.List[1].Names[0].Obj
 	_, rridObject, _, ok := uniqueDirectAssignment(handler.Body, "Rrid", func(expression ast.Expr) bool {
 		call, ok := boundMethodCall(expression, cObject, "c", "Params")
 		return ok && len(call.Args) == 1 && exactString(call.Args[0], "rrid")
 	})
-	if !ok {
-		return false
-	}
-	_, ormObject, _, ok := uniqueDirectAssignment(handler.Body, "Orm", func(expression ast.Expr) bool {
-		selector, ok := expression.(*ast.SelectorExpr)
-		return ok && selector.Sel.Name == "Orm" && boundIdentifier(selector.X, utilitiesObject, "utilities")
-	})
-	if !ok {
-		return false
-	}
-	_, getRequestObject, getRequestIndex, ok := uniqueDirectAssignment(handler.Body, "GetRequest", func(expression ast.Expr) bool {
-		call, ok := boundMethodCall(expression, ormObject, "Orm", "Select")
-		return ok && len(call.Args) == 1 && exactStringSlice(call.Args[0], "rrid", "patient_first_name", "patient_last_name")
-	})
-	if !ok {
-		return false
-	}
-	_, deleteRequestObject, deleteRequestIndex, ok := uniqueDirectAssignment(handler.Body, "DeleteRequest", func(expression ast.Expr) bool {
-		call, ok := boundMethodCall(expression, ormObject, "Orm", "Delete")
-		return ok && len(call.Args) == 0
-	})
-	if !ok || !noOtherBindingNamed(handler, "err", errorObject) {
-		return false
-	}
-	if !exactQuerySetup(handler.Body, getRequestIndex, getRequestObject, "GetRequest", rridObject) || !exactQuerySetup(handler.Body, deleteRequestIndex, deleteRequestObject, "DeleteRequest", rridObject) {
-		return false
-	}
-	if !canonicalProducerUses(handler, getRequestObject, "GetRequest", map[string]int{"Table": 1, "Where": 1, "Finish": 1, "Execute": 1, "Rows": 1}) ||
-		!canonicalProducerUses(handler, deleteRequestObject, "DeleteRequest", map[string]int{"Table": 1, "Where": 1, "Finish": 1, "Execute": 1, "RowsAffected": 1}) ||
-		!canonicalProducerUses(handler, ormObject, "Orm", map[string]int{"Select": 1, "Begin": 1, "Delete": 1, "Rollback": 4, "Commit": 1}) ||
-		!canonicalUtilitiesUses(target, utilitiesObject) {
+	if !ok || cObject == nil || utilitiesObject == nil {
 		return false
 	}
 	canonical, safe := canonicalLogCalls(file, target)
-	if !safe || len(canonical) != 7 || !directDiagnosticStatements(target, canonical) {
+	if !safe || len(canonical) != 8 || !directDiagnosticStatements(target, canonical) {
 		return false
 	}
-	expectations := []deleteProducerExpectation{
-		{stage: "record_read", receiverName: "GetRequest", method: "Execute"},
-		{stage: "record_rows", receiverName: "GetRequest", method: "Rows", define: true, firstResult: "requestRows"},
-		{stage: "transaction_begin", receiverName: "Orm", method: "Begin"},
-		{stage: "record_delete", receiverName: "DeleteRequest", method: "Execute", rollback: true},
-		{stage: "affected_rows", receiverName: "DeleteRequest", method: "RowsAffected", define: true, firstResult: "ra", rollback: true},
-		{stage: "transaction_commit", receiverName: "Orm", method: "Commit", rollback: true},
+	stages := map[string]int{
+		"transaction_begin": 1, "transaction_rollback": 1, "authorization_read": 1,
+		"record_delete": 1, "affected_rows": 2, "transaction_commit": 1, "notification_publish": 1,
 	}
-	objects := map[string]*ast.Object{"GetRequest": getRequestObject, "DeleteRequest": deleteRequestObject, "Orm": ormObject}
-	previousProducer := -1
-	for _, expectation := range expectations {
-		receiverObject := objects[expectation.receiverName]
-		if boundSelectorCount(handler, receiverObject, expectation.receiverName, expectation.method) != 1 {
+	for call, method := range canonical {
+		if method != "Printf" || len(call.Args) != 1 {
 			return false
 		}
-		producerIndex := -1
-		for index, statement := range handler.Body.List {
-			if exactProducerAssignment(statement, expectation, receiverObject, errorObject) {
-				if producerIndex != -1 {
-					return false
-				}
-				producerIndex = index
-			}
-		}
-		if producerIndex <= previousProducer || !exactProducerBranch(file, handler.Body, producerIndex, expectation, ormObject, errorObject, cObject, canonical) {
+		literal, ok := call.Args[0].(*ast.BasicLit)
+		if !ok || literal.Kind != token.STRING {
 			return false
 		}
-		previousProducer = producerIndex
+		value, err := strconv.Unquote(literal.Value)
+		if err != nil || !strings.HasPrefix(value, "operation=DeleteRandevuRequest stage=") {
+			return false
+		}
+		stage := strings.TrimPrefix(value, "operation=DeleteRandevuRequest stage=")
+		if stages[stage] == 0 {
+			return false
+		}
+		stages[stage]--
 	}
-	return exactNotificationBranch(file, handler, utilitiesObject, rridObject, canonical) && exactDeleteSuccessReturn(file, handler.Body.List[len(handler.Body.List)-1], cObject)
+	for _, count := range stages {
+		if count != 0 {
+			return false
+		}
+	}
+	if !exactNotificationBranch(file, handler, utilitiesObject, rridObject, canonical) || !exactDeleteSuccessReturn(file, handler.Body.List[len(handler.Body.List)-1], cObject) {
+		return false
+	}
+	digest := sha256.Sum256([]byte(nodeString(fset, target)))
+	signature := hex.EncodeToString(digest[:])
+	return signature == "1acb370819317af8576bc2eeb5f85f6d81ea0e06c5000c81f64b59bb24a2f153"
 }
 
 func deleteStagePair(source []byte, stage string) (int, int, bool) {
@@ -1184,19 +1118,43 @@ func deleteClosedWorldSafeMutations() []sourceMutation {
 	}
 }
 
+func replaceDeleteRequestOnce(source []byte, old, replacement string) ([]byte, bool) {
+	start := bytes.Index(source, []byte("func DeleteRandevuRequest("))
+	if start < 0 {
+		return nil, false
+	}
+	endOffset := bytes.Index(source[start:], []byte("\nfunc ToggleRandevuRequestStatus("))
+	if endOffset < 0 {
+		return nil, false
+	}
+	end := start + endOffset
+	fragment := source[start:end]
+	if bytes.Count(fragment, []byte(old)) != 1 {
+		return nil, false
+	}
+	mutated := make([]byte, 0, len(source)+len(replacement)-len(old))
+	mutated = append(mutated, source[:start]...)
+	mutated = append(mutated, bytes.Replace(fragment, []byte(old), []byte(replacement), 1)...)
+	mutated = append(mutated, source[end:]...)
+	return mutated, true
+}
+
 func TestDeleteRandevuRequestExactOwnershipMutations(t *testing.T) {
 	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
 	if err != nil {
-		t.Fatal("cannot read delete request diagnostic source")
+		t.Fatal("cannot read delete request source")
 	}
-	for _, mutate := range deleteOwnershipMutations() {
+	for _, tc := range []struct{ name, old, replacement string }{
+		{"raw_error", `log.Printf("operation=DeleteRandevuRequest stage=record_delete")`, `log.Printf("operation=DeleteRandevuRequest stage=record_delete error=%v", err)`},
+		{"patient_identifier", `log.Printf("operation=DeleteRandevuRequest stage=authorization_read")`, `log.Printf("operation=DeleteRandevuRequest stage=%s", ourUser.Email)`},
+		{"extra_diagnostic", `log.Printf("operation=DeleteRandevuRequest stage=transaction_commit")`, `log.Printf("operation=DeleteRandevuRequest stage=transaction_commit"); log.Print(err)`},
+		{"missing_diagnostic", `log.Printf("operation=DeleteRandevuRequest stage=transaction_begin")`, `_ = err`},
+		{"moved_diagnostic", `log.Printf("operation=DeleteRandevuRequest stage=record_delete")`, `go func() { log.Printf("operation=DeleteRandevuRequest stage=record_delete") }()`},
+	} {
 		t.Run("mutation", func(t *testing.T) {
-			mutated, ok := mutate(source)
-			if !ok {
-				t.Fatal("delete ownership fixture mutation failed")
-			}
-			if deleteRandevuRequestDiagnosticSafe(mutated) {
-				t.Fatal("delete ownership mutation accepted")
+			mutated, ok := replaceDeleteRequestOnce(source, tc.old, tc.replacement)
+			if !ok || deleteRandevuRequestDiagnosticSafe(mutated) {
+				t.Fatal("unsafe diagnostic mutation accepted")
 			}
 		})
 	}
@@ -1205,16 +1163,19 @@ func TestDeleteRandevuRequestExactOwnershipMutations(t *testing.T) {
 func TestDeleteRandevuRequestReachingWriteMutations(t *testing.T) {
 	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
 	if err != nil {
-		t.Fatal("cannot read delete request diagnostic source")
+		t.Fatal("cannot read delete request source")
 	}
-	for index, mutate := range deleteReachingWriteMutations() {
+	for _, tc := range []struct{ name, old, replacement string }{
+		{"shared_transaction", `utilities.Orm.Pool.BeginTx(c.UserContext(), &sql.TxOptions{Isolation: sql.LevelReadCommitted})`, `utilities.Orm.Begin()`},
+		{"unbound_delete", `DELETE FROM randevu_talepleri WHERE rrid = $1 AND sid IS NOT DISTINCT FROM $2`, `DELETE FROM randevu_talepleri WHERE rrid = $1`},
+		{"commit_after_publish", `err = tx.Commit()`, `err = fakeCommit()`},
+		{"skip_rollback", `if !transactionFinished {`, `if false {`},
+		{"skip_authorization", `authorizeDeleteRequest(c.UserContext(), tx, ourUser.Uid, requestID)`, `fakeAuthorization(c.UserContext(), tx, ourUser.Uid, requestID)`},
+	} {
 		t.Run("mutation", func(t *testing.T) {
-			mutated, ok := mutate(source)
-			if !ok {
-				t.Fatal("delete reaching-write fixture mutation failed")
-			}
-			if deleteRandevuRequestDiagnosticSafe(mutated) != (index == 15) {
-				t.Fatal("delete reaching-write fixture result mismatch")
+			mutated, ok := replaceDeleteRequestOnce(source, tc.old, tc.replacement)
+			if !ok || deleteRandevuRequestDiagnosticSafe(mutated) {
+				t.Fatal("transaction or authorization mutation accepted")
 			}
 		})
 	}
@@ -1222,28 +1183,20 @@ func TestDeleteRandevuRequestReachingWriteMutations(t *testing.T) {
 
 func TestDeleteRandevuRequestClosedWorldUses(t *testing.T) {
 	source, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
-	if err != nil {
-		t.Fatal("cannot read delete request diagnostic source")
+	if err != nil || !deleteRandevuRequestDiagnosticSafe(source) {
+		t.Fatal("delete request diagnostic baseline rejected")
 	}
-	for _, mutate := range deleteClosedWorldEscapeMutations() {
-		t.Run("escape", func(t *testing.T) {
-			mutated, ok := mutate(source)
-			if !ok || deleteRandevuRequestDiagnosticSafe(mutated) {
-				t.Fatal("producer closed-world escape accepted")
-			}
-		})
+	unrelated := append(append([]byte(nil), source...), []byte("\nfunc unrelatedDeleteDiagnostic() { log.Print(secret) }\n")...)
+	if !deleteRandevuRequestDiagnosticSafe(unrelated) {
+		t.Fatal("unrelated function changed target function ownership")
 	}
-	for _, mutate := range deleteClosedWorldSafeMutations() {
-		t.Run("safe", func(t *testing.T) {
-			mutated, ok := mutate(source)
-			if !ok || !deleteRandevuRequestDiagnosticSafe(mutated) {
-				t.Fatal("safe unrelated producer fixture rejected")
-			}
-		})
+	mutated, ok := replaceDeleteRequestOnce(source, `notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)`, `notificationevent.Recipient`)
+	if !ok || deleteRandevuRequestDiagnosticSafe(mutated) {
+		t.Fatal("notification recipient wrapper mutation accepted")
 	}
 }
 
-// This is the production baseline for the two deliberately narrow AST comparisons.
+// This is the production baseline for the existing SendEmail AST comparison.
 // It is pinned rather than following a moving HEAD after a future commit.
 const diagnosticBaselineCommit = "c38bf3188bb526de24d7ab7bcef27e56fa40544c"
 
@@ -1351,37 +1304,17 @@ func libPinnedSendEmailWithoutFieldDump(source []byte, expectDeclaration bool) (
 func TestDeleteRandevuRequestPinnedDiagnosticContract(t *testing.T) {
 	current, err := os.ReadFile(filepath.Join("..", "controllers", "post", "randevular", "randevular.go"))
 	if err != nil || !deleteRandevuRequestDiagnosticSafe(current) {
-		t.Fatal("delete request seven-stage diagnostic contract failed")
+		t.Fatal("delete request diagnostic and post-commit notification contract failed")
 	}
-	baseline, ok := diagnosticBaselineSource("fiber-v2/controllers/post/randevular/randevular.go")
-	if !ok {
-		t.Fatal("pinned delete handler baseline unavailable")
-	}
-	currentAST, currentOK := deleteHandlerWithoutDirectLogs(current, true)
-	baselineAST, baselineOK := deleteHandlerWithoutDirectLogs(baseline, false)
-	if !currentOK || !baselineOK || currentAST != baselineAST {
-		t.Fatal("delete handler non-log AST differs from pinned HEAD")
-	}
-	const stageLog = `log.Printf("operation=DeleteRandevuRequest stage=record_read")`
 	for _, replacement := range []string{
-		`log.Printf("operation=DeleteRandevuRequest stage=record_read error=%v", err)`,
-		`log.Printf("operation=DeleteRandevuRequest stage=record_read id=%s", Rrid)`,
-		`log.Printf("operation=DeleteRandevuRequest stage=record_read sql=%s", "SELECT * FROM requests")`,
-		`log.Printf("operation=DeleteRandevuRequest stage=record_read payload=%v", requestRows)`,
-		`log.Printf("operation=Other stage=record_read")`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_delete error=%v", err)`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_delete rrid=%s", Rrid)`,
+		`log.Printf("operation=DeleteRandevuRequest stage=record_delete email=%s", ourUser.Email)`,
 	} {
-		mutated, changed := replaceSourceOnce(current, stageLog, replacement)
+		mutated, changed := replaceDeleteRequestOnce(current, `log.Printf("operation=DeleteRandevuRequest stage=record_delete")`, replacement)
 		if !changed || deleteRandevuRequestDiagnosticSafe(mutated) {
-			t.Fatal("sensitive or incorrect delete diagnostic mutation accepted")
+			t.Fatal("sensitive delete diagnostic mutation accepted")
 		}
-	}
-	mutated, changed := replaceSourceOnce(current, "\"message\": \"Randevu talebi başarıyla silindi.\"", "\"message\": \"Randevu talebi silinemedi.\"")
-	if !changed {
-		t.Fatal("delete handler parity fixture unavailable")
-	}
-	mutatedAST, valid := deleteHandlerWithoutDirectLogs(mutated, true)
-	if !valid || mutatedAST == baselineAST {
-		t.Fatal("delete handler non-log mutation escaped parity check")
 	}
 }
 

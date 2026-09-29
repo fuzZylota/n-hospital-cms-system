@@ -614,140 +614,62 @@ func DeleteRandevuRequest(states *models.AppState, utilities *models.Utilities) 
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
 		if err != nil {
-			return c.Status(401).JSON(fiber.Map{
-				"status":  401,
-				"message": "Unauthorized",
-			})
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
 		}
-
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
-			return c.Status(403).JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden: Admin access required",
-			})
-		}
-
 		Rrid := c.Params("rrid")
-		if Rrid == "" {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Request ID is required",
-			})
+		requestID, ok := editPositiveID(Rrid)
+		if !ok {
+			return requestDeleteFailure(c, 404)
+		}
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return requestDeleteFailure(c, 503)
 		}
 
-		// Admin değilse can_delete iznini kontrol et
-		if ourUser.Role != "admin" {
-			Orm2 := utilities.Orm
-			GetTalepSube := Orm2.Select([]string{"sid"})
-			GetTalepSube.Table("randevu_talepleri")
-			GetTalepSube.Where("rrid", "=", Rrid)
-			GetTalepSube.Finish()
-			_ = GetTalepSube.Execute()
-			talepRows, _ := GetTalepSube.Rows()
-			if len(talepRows) > 0 {
-				talepSid := lib.String(talepRows[0]["sid"])
-				CheckDelPerm := Orm2.Select([]string{"can_delete"})
-				CheckDelPerm.Table("user_branch_permissions")
-				CheckDelPerm.Where("uid", "=", ourUser.Uid)
-				CheckDelPerm.And("sid", "=", talepSid)
-				CheckDelPerm.Finish()
-				_ = CheckDelPerm.Execute()
-				delPermRows, _ := CheckDelPerm.Rows()
-				if len(delPermRows) == 0 || !lib.Bool(delPermRows[0]["can_delete"]) {
-					return c.Status(403).JSON(fiber.Map{"status": 403, "message": "Randevu silme yetkiniz yoktur."})
-				}
-
-			}
-		}
-		Orm := utilities.Orm
-
-		// Check if request exists
-		GetRequest := Orm.Select([]string{"rrid", "patient_first_name", "patient_last_name"})
-		GetRequest.Table("randevu_talepleri")
-		GetRequest.Where("rrid", "=", Rrid)
-		GetRequest.Finish()
-		err = GetRequest.Execute()
-
-		if err != nil {
-			log.Printf("operation=DeleteRandevuRequest stage=record_read")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		requestRows, err := GetRequest.Rows()
-		if err != nil {
-			log.Printf("operation=DeleteRandevuRequest stage=record_rows")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if len(requestRows) == 0 {
-			return c.Status(404).JSON(fiber.Map{
-				"status":  404,
-				"message": "Randevu talebi bulunamadı",
-			})
-		}
-
-		// Start transaction
-		err = Orm.Begin()
+		tx, err := utilities.Orm.Pool.BeginTx(c.UserContext(), &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 		if err != nil {
 			log.Printf("operation=DeleteRandevuRequest stage=transaction_begin")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			return requestDeleteFailure(c, 503)
 		}
+		transactionFinished := false
+		defer func() {
+			if !transactionFinished {
+				if rollbackErr := tx.Rollback(); rollbackErr != nil {
+					log.Printf("operation=DeleteRandevuRequest stage=transaction_rollback")
+				}
+			}
+		}()
 
-		// Delete the appointment request
-		DeleteRequest := Orm.Delete()
-		DeleteRequest.Table("randevu_talepleri")
-		DeleteRequest.Where("rrid", "=", Rrid)
-		DeleteRequest.Finish()
-		err = DeleteRequest.Execute()
-
+		requestSID, status := authorizeDeleteRequest(c.UserContext(), tx, ourUser.Uid, requestID)
+		if status != 0 {
+			if status == 503 {
+				log.Printf("operation=DeleteRandevuRequest stage=authorization_read")
+			}
+			return requestDeleteFailure(c, status)
+		}
+		result, err := tx.ExecContext(c.UserContext(), "DELETE FROM randevu_talepleri WHERE rrid = $1 AND sid IS NOT DISTINCT FROM $2", requestID, requestSID)
 		if err != nil {
-			Orm.Rollback()
 			log.Printf("operation=DeleteRandevuRequest stage=record_delete")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			return requestDeleteFailure(c, 503)
 		}
-
-		ra, err := DeleteRequest.RowsAffected()
+		affected, err := result.RowsAffected()
 		if err != nil {
-			Orm.Rollback()
 			log.Printf("operation=DeleteRandevuRequest stage=affected_rows")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			return requestDeleteFailure(c, 503)
 		}
-
-		if ra == 0 {
-			Orm.Rollback()
-			return c.Status(404).JSON(fiber.Map{
-				"status":  404,
-				"message": "Randevu talebi bulunamadı.",
-			})
+		if affected == 0 {
+			return requestDeleteFailure(c, 404)
 		}
-
-		// Commit transaction
-		err = Orm.Commit()
+		if affected != 1 {
+			log.Printf("operation=DeleteRandevuRequest stage=affected_rows")
+			return requestDeleteFailure(c, 503)
+		}
+		err = tx.Commit()
+		transactionFinished = true
 		if err != nil {
-			Orm.Rollback()
 			log.Printf("operation=DeleteRandevuRequest stage=transaction_commit")
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			return requestDeleteFailure(c, 503)
 		}
 
-		// WebSocket broadcast - silme
 		go func() {
 			if publishErr := notificationevent.Publish(utilities.NotificationHub, notificationevent.Deleted{Type: "randevu_talebi_silindi", Rrid: Rrid}, notificationevent.CurrentRecipients(utilities.UserStatusReader, notificationevent.Recipient)); publishErr != nil {
 				log.Printf("operation=DeleteRandevuRequest stage=notification_publish")
