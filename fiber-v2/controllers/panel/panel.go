@@ -6544,54 +6544,25 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Rid := c.Params("rid")
 
 		if Rid == "" {
-			return c.Redirect("/panel/randevular")
+			return appointmentDetailUnavailable(c, fiber.StatusNotFound)
 		}
 
+		if utilities == nil || utilities.Orm == nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
+		}
 		Orm := utilities.Orm
+		rows, currentRole, status := readAuthorizedAppointmentDetail(c.UserContext(), Orm.Pool, Rid, ourUser.Uid)
+		if status != fiber.StatusOK {
+			return appointmentDetailUnavailable(c, status)
+		}
+		ourUser.Role = currentRole
 
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		// Fetch the randevu
-		RandevuQuery := Orm.Select([]string{"r.*", "d.title as doctor_title", "d.first_name as doctor_first_name",
-			"d.last_name as doctor_last_name", "s.name as sube_name", "s.city as sube_city", "b.name as branch_name",
-			"rt.rrid as related_appointment_rid", "rt.patient_first_name as related_appointment_patient_first_name",
-			"rt.patient_last_name as related_appointment_patient_last_name", "rt.patient_phone as related_appointment_patient_phone",
-			"rt.patient_email as related_appointment_patient_email", "rt.preferred_date as related_appointment_preferred_date",
-			"rt.preferred_time as related_appointment_preferred_time", "rt.message as related_appointment_message",
-			"ak.name as related_appointment_anlasmali_kurum_name", "tb.name as related_appointment_tibbi_birim_name",
-			"t.name as related_appointment_tedkik_name"})
-		RandevuQuery.Table("randevular r")
-		RandevuQuery.LeftJoin("doktorlar d", "r.drid", "=", "d.drid")
-		RandevuQuery.LeftJoin("subeler s", "r.sid", "=", "s.sid")
-		RandevuQuery.LeftJoin("branslar b", "r.brid", "=", "b.brid")
-		RandevuQuery.LeftJoin("randevu_talepleri rt", "r.rrid", "=", "rt.rrid")
-		RandevuQuery.LeftJoin("anlasmali_kurumlar ak", "r.akid", "=", "ak.akid")
-		RandevuQuery.LeftJoin("tibbi_birimler tb", "r.tbid", "=", "tb.tbid")
-		RandevuQuery.LeftJoin("tedkikler t", "r.tid", "=", "t.tid")
-		RandevuQuery.Where("r.rid", "=", Rid)
-		RandevuQuery.Finish()
-
-		err = RandevuQuery.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevular")
-		}
-
-		rows, err := RandevuQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevular")
-		}
-
-		if len(rows) == 0 {
-			return c.Redirect("/panel/randevular")
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
 
 		RandevuData := models.Randevular{
