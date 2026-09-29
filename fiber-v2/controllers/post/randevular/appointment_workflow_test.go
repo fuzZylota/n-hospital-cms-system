@@ -3,7 +3,6 @@ package randevular
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -44,13 +43,11 @@ func TestAddRandevuEarlyHTTPContract(t *testing.T) {
 		wantHTTP, wantJSON, calls int
 	}{
 		{"unauthenticated", "", `{`, "Unauthorized", &appointmentWorkflowReader{}, 401, 401, 0},
-		{"forbidden role", "ik", `{`, "Forbidden: Admin access required", &appointmentWorkflowReader{}, 403, 403, 0},
-		{"malformed body", "admin", `{`, "Geçersiz veri formatı", &appointmentWorkflowReader{}, 200, 400, 0},
-		{"missing patient", "moderator", `{}`, "Hasta adı, soyadı ve telefon numarası zorunludur", &appointmentWorkflowReader{}, 200, 400, 0},
-		{"missing appointment", "santral", `{"patient_first_name":"Ada","patient_last_name":"Yilmaz","patient_phone":"555"}`, "Şube, randevu tarihi ve saati zorunludur", &appointmentWorkflowReader{}, 200, 400, 0},
-		{"missing snapshot", "admin", valid, "Server Hatası: Lütfen daha sonra tekrar deneyin.", &appointmentWorkflowReader{}, 200, 500, 1},
-		{"backend failure", "moderator", valid, "Server Hatası: Lütfen daha sonra tekrar deneyin.", &appointmentWorkflowReader{err: errors.New("private backend detail")}, 200, 500, 1},
-		{"nil reader", "santral", valid, "Server Hatası: Lütfen daha sonra tekrar deneyin.", nil, 200, 500, 0},
+		{"malformed body", "admin", `{`, "Geçersiz veri formatı", &appointmentWorkflowReader{}, 400, 400, 0},
+		{"missing patient", "moderator", `{}`, "Hasta adı, soyadı ve telefon numarası zorunludur", &appointmentWorkflowReader{}, 400, 400, 0},
+		{"missing appointment", "santral", `{"patient_first_name":"Ada","patient_last_name":"Yilmaz","patient_phone":"555"}`, "Şube, randevu tarihi ve saati zorunludur", &appointmentWorkflowReader{}, 400, 400, 0},
+		{"missing transaction pool", "admin", valid, "Server Hatası: Lütfen daha sonra tekrar deneyin.", &appointmentWorkflowReader{}, 503, 503, 0},
+		{"nil reader after missing pool", "santral", valid, "Server Hatası: Lütfen daha sonra tekrar deneyin.", nil, 503, 503, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			app := fiber.New()
@@ -102,63 +99,22 @@ func TestAddRandevuSnapshotFlowAndWiring(t *testing.T) {
 	if handler == nil {
 		t.Fatal("AddRandevu handler missing")
 	}
-	counts := map[string]int{}
-	positions := map[string]token.Pos{}
-	ast.Inspect(handler.Body, func(node ast.Node) bool {
-		if call, ok := node.(*ast.CallExpr); ok {
-			name := appointmentNode(call.Fun)
-			counts[name]++
-			if positions[name] == token.NoPos {
-				positions[name] = call.Pos()
-			}
-		}
-		return true
-	})
-	for name, count := range map[string]int{
-		"lib.CheckAuth": 1, "c.BodyParser": 1, "appointmentworkflowsnapshot.Read": 1,
-		"c.UserContext": 1, "Orm.Count": 1, "Orm.Begin": 1, "Orm.Insert": 1,
-		"Orm.Commit": 1, "lib.SendEmail": 1, "lib.VerifyRecaptcha": 0,
-		"GetOptions.FetchOptionsForBackend": 0,
-	} {
-		if counts[name] != count {
-			t.Fatalf("%s call count changed: %d", name, counts[name])
-		}
-	}
-	ordered := []string{"lib.CheckAuth", "c.BodyParser", "appointmentworkflowsnapshot.Read", "Orm.Count", "Orm.Begin", "Orm.Insert", "Orm.Commit", "lib.SendEmail"}
-	for index := 1; index < len(ordered); index++ {
-		if positions[ordered[index-1]] == token.NoPos || positions[ordered[index-1]] >= positions[ordered[index]] {
-			t.Fatal("appointment workflow side-effect order changed")
-		}
-	}
-	readIndex := -1
-	for index, statement := range handler.Body.List {
-		assignment, ok := statement.(*ast.AssignStmt)
-		if ok && len(assignment.Lhs) == 2 && len(assignment.Rhs) == 1 && appointmentNode(assignment.Lhs[0]) == "appointmentSnapshot" && appointmentNode(assignment.Lhs[1]) == "err" {
-			if appointmentNode(assignment.Rhs[0]) != "appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)" {
-				t.Fatal("snapshot read arguments changed")
-			}
-			readIndex = index
-		}
-	}
-	if readIndex < 1 || readIndex+1 >= len(handler.Body.List) {
-		t.Fatal("snapshot read moved from legacy decision point")
-	}
-	guard, ok := handler.Body.List[readIndex+1].(*ast.IfStmt)
-	if !ok || appointmentNode(guard.Cond) != "err != nil" || !strings.Contains(appointmentNode(guard.Body), `log.Printf("operation=AddRandevu stage=options_read")`) || !strings.Contains(appointmentNode(guard.Body), `"status": 500`) {
-		t.Fatal("snapshot failure guard changed")
-	}
-	for _, statement := range handler.Body.List[:readIndex] {
-		if branch, ok := statement.(*ast.IfStmt); ok && (strings.Contains(appointmentNode(branch.Cond), "inputs.PatientPhone") || strings.Contains(appointmentNode(branch.Cond), "inputs.AppointmentDate")) && branch.End() >= handler.Body.List[readIndex].Pos() {
-			t.Fatal("required validation moved after snapshot read")
-		}
-	}
 	flow := appointmentNode(handler.Body)
+	ordered := []string{
+		"lib.CheckAuth(", "c.BodyParser(", "createRequestID(", "BeginTx(",
+		"authorizeCreateAppointment(", "checkCreateAppointmentSlot(",
+		"appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)",
+		"insertCreatedAppointment(", "tx.Commit(", "lib.SendEmail(",
+	}
+	previous := -1
+	for _, call := range ordered {
+		position := strings.Index(flow, call)
+		if position <= previous {
+			t.Fatalf("appointment write order changed at %s", call)
+		}
+		previous = position
+	}
 	for _, required := range []string{
-		`ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral"`,
-		`inputs.Drid != "" && inputs.Drid != "0"`,
-		`CheckDoctorAvailability.And(CreateStartTimeColumnValue, ">", ExactStartTime)`,
-		`CheckDoctorAvailability.And("appointment_time", "<", ExactEndTime)`,
-		`InsertRandevu.Returning("rid")`,
 		`appointmentSnapshot.SMTPHost != "" && appointmentSnapshot.SMTPPort != 0 && appointmentSnapshot.SMTPUsername != "" && appointmentSnapshot.SMTPPassword != "" && inputs.PatientEmail != ""`,
 		`appointmentSnapshot.SiteLogoPath`, `appointmentSnapshot.PrimaryColor`, `appointmentSnapshot.SecondaryColor`,
 		`Password: appointmentSnapshot.SMTPPassword`,
@@ -169,25 +125,11 @@ func TestAddRandevuSnapshotFlowAndWiring(t *testing.T) {
 			t.Fatalf("appointment flow contract missing: %s", required)
 		}
 	}
-	for _, forbidden := range []string{"GetOptions", "FetchOptionsForBackend", "Recaptcha", "MaxUploadSize", "SiteDescription"} {
+	for _, forbidden := range []string{"Orm.Begin(", "Orm.Insert(", "Orm.Commit(", "can_view", "can_delete", "GetOptions", "FetchOptionsForBackend", "Recaptcha"} {
 		if strings.Contains(flow, forbidden) {
-			t.Fatalf("unused option or legacy call entered handler: %s", forbidden)
+			t.Fatalf("legacy or unrelated path entered create handler: %s", forbidden)
 		}
 	}
-	mailIndex := -1
-	for index, statement := range handler.Body.List {
-		branch, ok := statement.(*ast.IfStmt)
-		if ok && strings.Contains(appointmentNode(branch.Cond), "appointmentSnapshot.SMTPHost") {
-			mailIndex = index
-			if strings.Contains(appointmentNode(branch.Body), "Orm.Rollback") {
-				t.Fatal("mail failure can roll back committed appointment")
-			}
-		}
-	}
-	if mailIndex < 1 || positions["Orm.Commit"] >= handler.Body.List[mailIndex].Pos() || mailIndex+1 >= len(handler.Body.List) || !strings.Contains(appointmentNode(handler.Body.List[mailIndex+1]), `"status": 201`) {
-		t.Fatal("conditional mail no longer follows commit and precedes success response")
-	}
-
 	main := parseAppointmentSource(t, filepath.Join("..", "..", "..", "main", "main.go"))
 	mainText := appointmentNode(main)
 	if strings.Count(mainText, "postgres.OpenPool(") != 1 || strings.Count(mainText, "postgres.NewOptionsRepository(") != 1 || strings.Count(mainText, "optionsRepository := postgres.NewOptionsRepository(pool)") != 1 || strings.Count(mainText, "utilities.AppointmentWorkflowSnapshotReader = optionsRepository") != 1 {

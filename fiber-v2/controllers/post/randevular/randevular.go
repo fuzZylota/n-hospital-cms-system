@@ -1,6 +1,7 @@
 package randevular
 
 import (
+	"database/sql"
 	"fmt"
 	lib "lib"
 	"log"
@@ -951,17 +952,10 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			})
 		}
 
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
-			return c.Status(403).JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden: Admin access required",
-			})
-		}
-
 		var inputs models.Randevular
 		if err := c.BodyParser(&inputs); err != nil {
 			log.Printf("operation=AddRandevu stage=request_parse")
-			return c.JSON(fiber.Map{
+			return c.Status(400).JSON(fiber.Map{
 				"status":  400,
 				"message": "Geçersiz veri formatı",
 			})
@@ -969,79 +963,59 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		// Validate required fields
 		if inputs.PatientFirstName == "" || inputs.PatientLastName == "" || inputs.PatientPhone == "" {
-			return c.JSON(fiber.Map{
+			return c.Status(400).JSON(fiber.Map{
 				"status":  400,
 				"message": "Hasta adı, soyadı ve telefon numarası zorunludur",
 			})
 		}
 
 		if inputs.Sid == "" || inputs.AppointmentDate.IsZero() || inputs.AppointmentTime.IsZero() {
-			return c.JSON(fiber.Map{
+			return c.Status(400).JSON(fiber.Map{
 				"status":  400,
 				"message": "Şube, randevu tarihi ve saati zorunludur",
 			})
 		}
 
-		Orm := utilities.Orm
-
-		appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)
-
-		if err != nil {
-			log.Printf("operation=AddRandevu stage=options_read")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+		requestID, status := createRequestID(inputs.Rrid)
+		if status != 0 {
+			return c.Status(status).JSON(fiber.Map{"status": status, "message": "Geçersiz randevu talebi"})
 		}
-
-		// Check if doctor is available at the specified time (if drid is provided)
-		if inputs.Drid != "" && inputs.Drid != "0" {
-			ExactDate := inputs.AppointmentDate.Format("2006-01-02")
-			ExactStartTime := inputs.AppointmentTime.Format("15:04:05")
-			ExactEndTime := inputs.AppointmentTime.Add(time.Duration(inputs.Duration) * time.Minute).Format("15:04:05")
-
-			//CreateStartTimeColumnValue := fmt.Sprintf("(appointment_time + make_interval(mins => %d))", inputs.Duration)
-			CreateStartTimeColumnValue := "(appointment_time + (duration || ' minutes')::interval)"
-
-			CheckDoctorAvailability := Orm.Count("randevular")
-			CheckDoctorAvailability.Where("drid", "=", inputs.Drid)
-			CheckDoctorAvailability.And("appointment_date", "=", ExactDate)
-			CheckDoctorAvailability.And(CreateStartTimeColumnValue, ">", ExactStartTime)
-			CheckDoctorAvailability.And("appointment_time", "<", ExactEndTime)
-			CheckDoctorAvailability.Finish()
-
-			err = CheckDoctorAvailability.Execute()
-
-			if err != nil {
-				log.Printf("operation=AddRandevu stage=availability_read")
-				return c.JSON(fiber.Map{
-					"status":  500,
-					"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-				})
-			}
-
-			if CheckDoctorAvailability.Length() > 0 {
-				log.Printf("operation=AddRandevu stage=availability_conflict")
-				return c.JSON(fiber.Map{
-					"status":  400,
-					"message": "Seçilen doktorun bu tarih ve saatte başka bir randevusu bulunmaktadır",
-				})
-			}
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.Status(503).JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
 		}
-
-		// Begin transaction
-		err = Orm.Begin()
+		// The user row, request row and appointment insert share this request's transaction.
+		tx, err := utilities.Orm.Pool.BeginTx(c.UserContext(), &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 		if err != nil {
 			log.Printf("operation=AddRandevu stage=transaction_begin")
-			return c.JSON(fiber.Map{
-				"status":  500,
+			return c.Status(503).JSON(fiber.Map{
+				"status":  503,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
+		}
+		transactionFinished := false
+		defer func() {
+			if !transactionFinished {
+				if rollbackErr := tx.Rollback(); rollbackErr != nil {
+					log.Printf("operation=AddRandevu stage=transaction_rollback")
+				}
+			}
+		}()
+		branchID, doctorID, status := authorizeCreateAppointment(c.UserContext(), tx, ourUser.Uid, inputs, requestID)
+		if status != 0 {
+			return createAppointmentFailure(c, status)
+		}
+		if status = checkCreateAppointmentSlot(c.UserContext(), tx, inputs, doctorID); status != 0 {
+			return createAppointmentFailure(c, status)
+		}
+		appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)
+		if err != nil {
+			log.Printf("operation=AddRandevu stage=options_read")
+			return createAppointmentFailure(c, 503)
 		}
 
 		// Insert randevu
 		columns := []string{"patient_first_name", "rrid", "patient_last_name", "patient_phone", "sid", "appointment_date", "appointment_time", "duration"}
-		values := []interface{}{inputs.PatientFirstName, inputs.Rrid, inputs.PatientLastName, inputs.PatientPhone, inputs.Sid, inputs.AppointmentDate, inputs.AppointmentTime, inputs.Duration}
+		values := []any{inputs.PatientFirstName, requestID, inputs.PatientLastName, inputs.PatientPhone, branchID, inputs.AppointmentDate, inputs.AppointmentTime, inputs.Duration}
 
 		// Add optional fields if provided
 		if inputs.Price > 0 {
@@ -1097,27 +1071,22 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			values = append(values, inputs.Notes)
 		}
 
-		InsertRandevu := Orm.Insert(columns, values)
-		InsertRandevu.Table("randevular")
-		InsertRandevu.Returning("rid")
-		InsertRandevu.Finish()
-		err = InsertRandevu.Execute()
+		_, err = insertCreatedAppointment(c.UserContext(), tx, columns, values)
 
 		if err != nil {
-			Orm.Rollback()
 			log.Printf("operation=AddRandevu stage=record_insert")
-			return c.JSON(fiber.Map{
+			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
 		}
 
-		// Commit transaction
-		err = Orm.Commit()
+		// Commit completes the SQL transaction even when it reports an error.
+		err = tx.Commit()
+		transactionFinished = true
 		if err != nil {
-			Orm.Rollback()
 			log.Printf("operation=AddRandevu stage=transaction_commit")
-			return c.JSON(fiber.Map{
+			return c.Status(500).JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
 			})
@@ -1140,45 +1109,18 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 				SubeName := ""
 				DoctorName := ""
 
-				if inputs.Sid != "" && inputs.Sid != "0" {
-					GetSubeName := Orm.Select([]string{"name"})
-					GetSubeName.Table("subeler")
-					GetSubeName.Where("sid", "=", inputs.Sid)
-					GetSubeName.Finish()
-
-					err = GetSubeName.Execute()
-
-					if err != nil {
-						log.Printf("operation=AddRandevu stage=branch_read")
-					}
-
-					GetSubeNameRows, err := GetSubeName.Rows()
-
-					if err != nil {
-						log.Printf("operation=AddRandevu stage=branch_rows")
-					}
-
-					SubeName = lib.String(GetSubeNameRows[0]["name"])
+				if readErr := utilities.Orm.Pool.QueryRowContext(c.UserContext(), "SELECT name FROM subeler WHERE sid = $1", branchID).Scan(&SubeName); readErr != nil {
+					log.Printf("operation=AddRandevu stage=branch_read")
+					SubeName = ""
 				}
 
-				if inputs.Drid != "" && inputs.Drid != "0" {
-					GetDoctorName := Orm.Select([]string{"title", "first_name", "last_name"})
-					GetDoctorName.Table("doktorlar")
-					GetDoctorName.Where("drid", "=", inputs.Drid)
-					GetDoctorName.Finish()
-					err = GetDoctorName.Execute()
-
-					if err != nil {
+				if doctorID.Valid {
+					var title, firstName, lastName string
+					if readErr := utilities.Orm.Pool.QueryRowContext(c.UserContext(), "SELECT title, first_name, last_name FROM doktorlar WHERE drid = $1 AND sid = $2", doctorID.Int64, branchID).Scan(&title, &firstName, &lastName); readErr != nil {
 						log.Printf("operation=AddRandevu stage=doctor_read")
+					} else {
+						DoctorName = title + " " + firstName + " " + lastName + " - " + SubeName
 					}
-
-					GetDoctorNameRows, err := GetDoctorName.Rows()
-
-					if err != nil {
-						log.Printf("operation=AddRandevu stage=doctor_rows")
-					}
-
-					DoctorName = lib.String(GetDoctorNameRows[0]["title"]) + " " + lib.String(GetDoctorNameRows[0]["first_name"]) + " " + lib.String(GetDoctorNameRows[0]["last_name"]) + " - " + SubeName
 				}
 
 				LogoName := filepath.Base(GetLogo)
@@ -1378,9 +1320,12 @@ func AddRandevu(states *models.AppState, utilities *models.Utilities) fiber.Hand
 					Attachments: []string{GetLogo},
 				}
 
-				err = lib.DeliverEmailAfterPersistence(
-					func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
-				)
+				err = lib.DeliverEmailAfterPersistence(func() error {
+					if addAppointmentMailHook != nil {
+						return addAppointmentMailHook(&CreateEmailInfos)
+					}
+					return lib.SendEmail(&CreateEmailInfos)
+				}, nil)
 
 				if err != nil {
 					log.Printf("operation=AddRandevu stage=%s", lib.EmailFailureStage(err))
