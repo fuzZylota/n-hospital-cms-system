@@ -4556,36 +4556,21 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 			})
 		}
 
-		// Fetch recent appointments for this tibbi_birim
-		Randevular := Orm.Select([]string{"rid", "patient_first_name", "patient_last_name", "patient_phone", "appointment_date", "appointment_time", "status"})
-		Randevular.Table("randevular")
-		Randevular.Where("tbid", "=", TibbiBirimId)
-		Randevular.OrderBy("appointment_date", "DESC")
-		Randevular.Limit(10)
-		Randevular.Finish()
-		err = Randevular.Execute()
-
+		// Only the relationship count is needed on the unit detail page.
+		RandevuSayisi := Orm.Select([]string{"COUNT(*) AS appointment_count"})
+		RandevuSayisi.Table("randevular")
+		RandevuSayisi.Where("tbid", "=", TibbiBirimId)
+		RandevuSayisi.Finish()
+		err = RandevuSayisi.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-
-		randevularRows, err := Randevular.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
+		randevuSayisiRows, err := RandevuSayisi.Rows()
+		if err != nil || len(randevuSayisiRows) != 1 {
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
-
-		RandevularArray := []models.Randevular{}
-		for _, row := range randevularRows {
-			RandevularArray = append(RandevularArray, models.Randevular{
-				Rid:              lib.String(row["rid"]),
-				PatientFirstName: lib.String(row["patient_first_name"]),
-				PatientLastName:  lib.String(row["patient_last_name"]),
-				PatientPhone:     lib.String(row["patient_phone"]),
-				AppointmentDate:  row["appointment_date"].(time.Time),
-				AppointmentTime:  row["appointment_time"].(time.Time),
-				Status:           lib.String(row["status"]),
-			})
-		}
+		randevuSayisi := lib.Int64(randevuSayisiRows[0]["appointment_count"])
 
 		return c.Render("views/panel/tibbi-birimler-sayfalari/tibbi-birim", fiber.Map{
 			"PathOnStart": "../../",
@@ -4593,7 +4578,7 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 			"User":        ourUser,
 			"TibbiBirim":  TibbiBirimData,
 			"Doktorlar":   DoktorlarArray,
-			"Randevular":  RandevularArray,
+			"RandevuSayisi": randevuSayisi,
 			"Options":     GetOptions,
 		}, "layouts/panel/panel")
 	}

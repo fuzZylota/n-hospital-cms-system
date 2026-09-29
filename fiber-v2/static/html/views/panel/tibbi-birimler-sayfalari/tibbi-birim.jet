@@ -186,47 +186,18 @@
         {{end}}
 
         <!-- Related Appointments Section -->
-        {{if len(Randevular) > 0}}
         <div class="content-card">
             <div class="card-header">
                 <div class="card-icon">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
-                <h3 class="card-title">Bu Birime Ait Randevular ({{ len(Randevular) }})</h3>
+                <h3 class="card-title">Bu Birime Ait Randevular ({{ RandevuSayisi }})</h3>
             </div>
             <div class="card-content">
-                <div class="related-list">
-                    {{range Randevular}}
-                    <div class="related-item">
-                        <div class="related-info">
-                            <div class="related-title">{{ .PatientFirstName }} {{ .PatientLastName }}</div>
-                            <div class="related-details">
-                                <span class="detail-item">
-                                    <i class="fas fa-calendar"></i>
-                                    {{ mthr(.AppointmentDate, User.Timezone) }}
-                                </span>
-                                <span class="detail-item">
-                                    <i class="fas fa-phone"></i>
-                                    {{ .PatientPhone }}
-                                </span>
-                                <span class="detail-item status-{{ .Status }}">
-                                    <i class="fas fa-info-circle"></i>
-                                    {{ .Status }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="related-actions">
-                            <a href="/panel/randevular/{{ .Rid }}" class="btn btn-sm btn-secondary">
-                                <i class="fas fa-eye"></i>
-                                Görüntüle
-                            </a>
-                        </div>
-                    </div>
-                    {{end}}
-                </div>
+                <p>Randevu kayıtlarını randevular bölümünde inceleyebilirsiniz.</p>
+                <a href="/panel/randevular" class="btn btn-sm btn-secondary">Randevulara Git</a>
             </div>
         </div>
-        {{end}}
 
         <!-- HTML Content Section -->
         <div class="content-card">
