@@ -1406,12 +1406,6 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			})
 		}
 
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden",
-			})
-		}
 		Rid := c.Params("rid")
 
 		var inputs models.RandevularEdit
@@ -1432,7 +1426,44 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			})
 		}
 
-		Orm := utilities.Orm
+		appointmentID, valid := validEditAppointmentID(Rid, inputs.Rid)
+		if !valid {
+			return c.JSON(fiber.Map{"status": 400, "message": "Invalid appointment ID"})
+		}
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		db := utilities.Orm.Pool
+		tx, err := db.BeginTx(c.UserContext(), nil)
+		if err != nil {
+			log.Printf("operation=EditRandevu stage=transaction_begin")
+			return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		transactionFinished := false
+		defer func() {
+			if !transactionFinished {
+				if rollbackErr := tx.Rollback(); rollbackErr != nil {
+					log.Printf("operation=EditRandevu stage=transaction_rollback")
+				}
+			}
+		}()
+		targetSID, accessStatus := authorizeEditAppointment(c.UserContext(), tx, ourUser.Uid, appointmentID)
+		if accessStatus != 0 {
+			message := "Forbidden"
+			if accessStatus == 404 {
+				message = "Randevu not found"
+			} else if accessStatus == 503 {
+				message = "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			}
+			return c.JSON(fiber.Map{"status": accessStatus, "message": message})
+		}
+		if destinationStatus := validateEditDestination(c.UserContext(), tx, inputs.Sid, inputs.Drid); destinationStatus != 0 {
+			message := "Invalid appointment destination"
+			if destinationStatus == 503 {
+				message = "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			}
+			return c.JSON(fiber.Map{"status": destinationStatus, "message": message})
+		}
 
 		appointmentSnapshot, err := appointmentworkflowsnapshot.Read(c.UserContext(), utilities.AppointmentWorkflowSnapshotReader)
 
@@ -1444,54 +1475,16 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			})
 		}
 
-		// Check if randevu exists
-		CheckQuery := Orm.Select([]string{"rid"})
-		CheckQuery.Table("randevular")
-		CheckQuery.Where("rid", "=", inputs.Rid)
-		CheckQuery.Finish()
-		err = CheckQuery.Execute()
-
-		if err != nil {
-			log.Printf("operation=EditRandevu stage=record_read")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		checkRows, err := CheckQuery.Rows()
-		if err != nil {
-			log.Printf("operation=EditRandevu stage=record_rows")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if len(checkRows) == 0 {
-			return c.JSON(fiber.Map{
-				"status":  404,
-				"message": "Randevu not found",
-			})
-		}
-
-		if (inputs.AppointmentDate != inputs.OldAppointmentDate || inputs.AppointmentTime != inputs.OldAppointmentTime || inputs.Duration != inputs.OldDuration || inputs.Drid != inputs.OldDrid) && (inputs.Drid != "") {
+		if inputs.Drid != "" {
 			ExactDate := inputs.AppointmentDate.Format("2006-01-02")
 			ExactStartTime := inputs.AppointmentTime.Format("15:04:05")
 			ExactEndTime := inputs.AppointmentTime.Add(time.Duration(inputs.Duration) * time.Minute).Format("15:04:05")
 
-			//CreateStartTimeColumnValue := fmt.Sprintf("(appointment_time + make_interval(mins => %d))", inputs.Duration)
-			CreateStartTimeColumnValue := "(appointment_time + (duration || ' minutes')::interval)"
-
-			CheckDoctorAvailability := Orm.Count("randevular")
-			CheckDoctorAvailability.Where("drid", "=", inputs.Drid)
-			CheckDoctorAvailability.And("rid", "!=", Rid)
-			CheckDoctorAvailability.And("appointment_date", "=", ExactDate)
-			CheckDoctorAvailability.And(CreateStartTimeColumnValue, ">", ExactStartTime)
-			CheckDoctorAvailability.And("appointment_time", "<", ExactEndTime)
-			CheckDoctorAvailability.Finish()
-
-			err = CheckDoctorAvailability.Execute()
+			var conflicts int64
+			err = tx.QueryRowContext(c.UserContext(), `SELECT COUNT(*) FROM randevular
+				WHERE drid = $1 AND rid != $2 AND appointment_date = $3
+				AND (appointment_time + (duration || ' minutes')::interval) > $4
+				AND appointment_time < $5`, inputs.Drid, appointmentID, ExactDate, ExactStartTime, ExactEndTime).Scan(&conflicts)
 
 			if err != nil {
 				log.Printf("operation=EditRandevu stage=availability_read")
@@ -1501,7 +1494,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				})
 			}
 
-			if CheckDoctorAvailability.Length() > 0 {
+			if conflicts > 0 {
 				log.Printf("operation=EditRandevu stage=availability_conflict")
 				return c.JSON(fiber.Map{
 					"status":  400,
@@ -1510,19 +1503,8 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			}
 		}
 
-		// Begin transaction
-		err = Orm.Begin()
-		if err != nil {
-			log.Printf("operation=EditRandevu stage=transaction_begin")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
 		// Execute update
-		UpdateQuery := Orm.Update()
-		UpdateQuery.Table("randevular")
+		UpdateQuery := newEditAppointmentUpdate(c.UserContext(), tx, appointmentID, targetSID)
 
 		SomethingSet := false
 
@@ -1571,7 +1553,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			SomethingSet = true
 		}
 
-		if inputs.Sid != inputs.OldSid {
+		if !sameEditBranch(inputs.Sid, targetSID) {
 			if inputs.Sid == "" {
 				UpdateQuery.Set("sid", nil)
 				UpdateQuery.Set("drid", nil)
@@ -1588,7 +1570,7 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			SomethingSet = true
 		}
 
-		if inputs.Sid == inputs.OldSid && inputs.Drid != inputs.OldDrid {
+		if sameEditBranch(inputs.Sid, targetSID) && inputs.Drid != inputs.OldDrid {
 			if inputs.Drid == "" {
 				UpdateQuery.Set("drid", nil)
 			} else {
@@ -1691,14 +1673,11 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		}
 
 		UpdateQuery.Set("updated_at", "NOW()")
-		UpdateQuery.Where("rid", "=", inputs.Rid)
-		UpdateQuery.Finish()
 
 		err = UpdateQuery.Execute()
 
 		if err != nil {
 			log.Printf("operation=EditRandevu stage=record_update")
-			Orm.Rollback()
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1709,7 +1688,6 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		rowsAffected, err := UpdateQuery.RowsAffected()
 		if err != nil {
 			log.Printf("operation=EditRandevu stage=affected_rows")
-			Orm.Rollback()
 			return c.JSON(fiber.Map{
 				"status":  500,
 				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
@@ -1717,7 +1695,6 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		}
 
 		if rowsAffected == 0 {
-			Orm.Rollback()
 			return c.JSON(fiber.Map{
 				"status":  404,
 				"message": "Randevu not found or no changes made",
@@ -1725,7 +1702,9 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 		}
 
 		// Commit transaction
-		err = Orm.Commit()
+		err = tx.Commit()
+		// database/sql closes the transaction even when Commit returns an error.
+		transactionFinished = true
 		if err != nil {
 			log.Printf("operation=EditRandevu stage=transaction_commit")
 			return c.JSON(fiber.Map{
@@ -1753,44 +1732,19 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				DoctorName := ""
 
 				if inputs.Sid != "" && inputs.Sid != "0" {
-					GetSubeName := Orm.Select([]string{"name"})
-					GetSubeName.Table("subeler")
-					GetSubeName.Where("sid", "=", inputs.Sid)
-					GetSubeName.Finish()
-
-					err = GetSubeName.Execute()
-
-					if err != nil {
+					if err = db.QueryRowContext(c.UserContext(), "SELECT name FROM subeler WHERE sid = $1", inputs.Sid).Scan(&SubeName); err != nil {
 						log.Printf("operation=EditRandevu stage=branch_read")
+						SubeName = ""
 					}
-
-					GetSubeNameRows, err := GetSubeName.Rows()
-
-					if err != nil {
-						log.Printf("operation=EditRandevu stage=branch_rows")
-					}
-
-					SubeName = lib.String(GetSubeNameRows[0]["name"])
 				}
 
 				if inputs.Drid != "" && inputs.Drid != "0" {
-					GetDoctorName := Orm.Select([]string{"title", "first_name", "last_name"})
-					GetDoctorName.Table("doktorlar")
-					GetDoctorName.Where("drid", "=", inputs.Drid)
-					GetDoctorName.Finish()
-					err = GetDoctorName.Execute()
-
-					if err != nil {
+					var title, firstName, lastName string
+					if err = db.QueryRowContext(c.UserContext(), "SELECT title, first_name, last_name FROM doktorlar WHERE drid = $1", inputs.Drid).Scan(&title, &firstName, &lastName); err != nil {
 						log.Printf("operation=EditRandevu stage=doctor_read")
+					} else {
+						DoctorName = title + " " + firstName + " " + lastName + " - " + SubeName
 					}
-
-					GetDoctorNameRows, err := GetDoctorName.Rows()
-
-					if err != nil {
-						log.Printf("operation=EditRandevu stage=doctor_rows")
-					}
-
-					DoctorName = lib.String(GetDoctorNameRows[0]["title"]) + " " + lib.String(GetDoctorNameRows[0]["first_name"]) + " " + lib.String(GetDoctorNameRows[0]["last_name"]) + " - " + SubeName
 				}
 
 				LogoName := filepath.Base(GetLogo)
@@ -1991,7 +1945,12 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 				}
 
 				err = lib.DeliverEmailAfterPersistence(
-					func() error { return lib.SendEmail(&CreateEmailInfos) }, nil,
+					func() error {
+						if editAppointmentMailHook != nil {
+							return editAppointmentMailHook(&CreateEmailInfos)
+						}
+						return lib.SendEmail(&CreateEmailInfos)
+					}, nil,
 				)
 
 				if err != nil {

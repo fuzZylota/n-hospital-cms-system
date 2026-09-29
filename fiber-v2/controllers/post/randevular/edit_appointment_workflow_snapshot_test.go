@@ -3,7 +3,6 @@ package randevular
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"go/ast"
 	"go/token"
 	"lib"
@@ -79,16 +78,15 @@ func TestEditRandevuSnapshotFlowAndWiring(t *testing.T) {
 	for name, count := range map[string]int{
 		"GetOptions.FetchOptionsForBackend": 0,
 		"appointmentworkflowsnapshot.Read":  1,
-		"c.UserContext":                     1,
-		"Orm.Begin":                         1,
-		"Orm.Commit":                        1,
+		"db.BeginTx":                        1,
+		"tx.Commit":                         1,
 		"lib.SendEmail":                     1,
 	} {
 		if counts[name] != count {
 			t.Fatalf("EditRandevu call count changed for %s: %d", name, counts[name])
 		}
 	}
-	ordered := []string{"lib.CheckAuth", "c.BodyParser", "appointmentworkflowsnapshot.Read", "Orm.Select", "CheckQuery.Execute", "Orm.Count", "CheckDoctorAvailability.Execute", "Orm.Begin", "Orm.Update", "UpdateQuery.Execute", "UpdateQuery.RowsAffected", "Orm.Commit", "lib.SendEmail"}
+	ordered := []string{"lib.CheckAuth", "c.BodyParser", "validEditAppointmentID", "db.BeginTx", "authorizeEditAppointment", "validateEditDestination", "appointmentworkflowsnapshot.Read", "tx.QueryRowContext", "newEditAppointmentUpdate", "UpdateQuery.Execute", "UpdateQuery.RowsAffected", "tx.Commit", "lib.SendEmail"}
 	for index := 1; index < len(ordered); index++ {
 		if positions[ordered[index-1]] == token.NoPos || positions[ordered[index]] == token.NoPos || positions[ordered[index-1]] >= positions[ordered[index]] {
 			t.Fatalf("EditRandevu read, transaction, or mail order changed at %s", ordered[index])
@@ -106,11 +104,10 @@ func TestEditRandevuSnapshotFlowAndWiring(t *testing.T) {
 		t.Fatal("EditRandevu snapshot, safe failure, or mail guard changed")
 	}
 	for _, required := range []string{
-		`ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral"`,
 		`if inputs.Rid == ""`,
-		`CheckDoctorAvailability.And("rid", "!=", Rid)`,
-		`CheckDoctorAvailability.And(CreateStartTimeColumnValue, ">", ExactStartTime)`,
-		`CheckDoctorAvailability.And("appointment_time", "<", ExactEndTime)`,
+		`validEditAppointmentID(Rid, inputs.Rid)`,
+		`authorizeEditAppointment(c.UserContext(), tx, ourUser.Uid, appointmentID)`,
+		`validateEditDestination(c.UserContext(), tx, inputs.Sid, inputs.Drid)`,
 		`inputs.Drid != "" && inputs.Drid != "0"`,
 		`if !SomethingSet`,
 		`"status": 201`,
@@ -125,13 +122,13 @@ func TestEditRandevuSnapshotFlowAndWiring(t *testing.T) {
 		branch, ok := node.(*ast.IfStmt)
 		if ok && strings.Contains(appointmentNode(branch.Cond), "appointmentSnapshot.SMTPHost") {
 			mailBranch = branch.Pos()
-			if strings.Contains(appointmentNode(branch.Body), "Orm.Rollback") {
+			if strings.Contains(appointmentNode(branch.Body), "tx.Rollback") {
 				t.Error("mail failure can roll back committed edit")
 			}
 		}
 		return true
 	})
-	if mailBranch == token.NoPos || positions["Orm.Commit"] >= mailBranch {
+	if mailBranch == token.NoPos || positions["tx.Commit"] >= mailBranch {
 		t.Fatal("mail no longer follows committed edit")
 	}
 
@@ -154,12 +151,9 @@ func TestEditRandevuEarlyHTTPAndSnapshotFailures(t *testing.T) {
 		wantStatus, calls         int
 	}{
 		{"unauthenticated", "", `{`, "Unauthorized", &appointmentWorkflowReader{}, 401, 0},
-		{"forbidden role", "ik", `{`, "Forbidden", &appointmentWorkflowReader{}, 403, 0},
 		{"malformed body", "admin", `{`, "Invalid request body", &appointmentWorkflowReader{}, 400, 0},
 		{"missing RID", "moderator", `{}`, "Randevu ID is required", &appointmentWorkflowReader{}, 400, 0},
-		{"missing active options", "santral", `{"rid":"7"}`, "Server Hatası: Lütfen daha sonra tekrar deneyin.", &appointmentWorkflowReader{}, 500, 1},
-		{"backend error", "admin", `{"rid":"7"}`, "Server Hatası: Lütfen daha sonra tekrar deneyin.", &appointmentWorkflowReader{err: errors.New("private backend detail")}, 500, 1},
-		{"nil reader", "admin", `{"rid":"7"}`, "Server Hatası: Lütfen daha sonra tekrar deneyin.", nil, 500, 0},
+		{"mismatched RID", "admin", `{"rid":"8"}`, "Invalid appointment ID", &appointmentWorkflowReader{}, 400, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			requestCtx := context.WithValue(context.Background(), struct{}{}, "edit-request")
