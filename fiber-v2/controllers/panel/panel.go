@@ -6388,6 +6388,12 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 		if err != nil {
 			return c.Redirect("/giris")
 		}
+		if utilities == nil || utilities.Orm == nil {
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+		}
+		if status := contactRequestReadAccess(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, nil); status != fiber.StatusOK {
+			return contactRequestReadFailure(c, status)
+		}
 
 		Page := 1
 		if c.Query("page") != "" {
@@ -6404,8 +6410,7 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		Query := c.Query("query", "")
@@ -6417,7 +6422,7 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 		itemsPerPage := GetOptions.Options.ItemsPerPage
 		var offset int = (Page - 1) * int(itemsPerPage)
 
-		ContactRequests := Orm.Select([]string{"crid", "first_name", "last_name", "email", "phone", "subject", "message", "department", "priority", "status", "assigned_to", "response", "response_date", "ip_address", "user_agent", "source", "is_read", "created_at", "updated_at"})
+		ContactRequests := Orm.Select([]string{"crid", "first_name", "last_name", "email", "phone", "subject", "department", "priority", "status", "assigned_to", "is_read", "created_at"})
 		ContactRequests.Table("contact_requests")
 		if Query != "" {
 			ContactRequests.OpenParenthesis("WHERE")
@@ -6454,38 +6459,33 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 		err = ContactRequests.Execute()
 
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		rows, err := ContactRequests.Rows()
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		ContactRequestsArray := []models.ContactRequests{}
+		browserStats := []contactRequestBrowserStats{}
 		for _, row := range rows {
 			ContactRequestsArray = append(ContactRequestsArray, models.ContactRequests{
-				Crid:         lib.String(row["crid"]),
-				FirstName:    lib.String(row["first_name"]),
-				LastName:     lib.String(row["last_name"]),
-				Email:        lib.String(row["email"]),
-				Phone:        lib.String(row["phone"]),
-				Subject:      lib.String(row["subject"]),
-				Message:      lib.String(row["message"]),
-				Department:   lib.String(row["department"]),
-				Priority:     lib.String(row["priority"]),
-				Status:       lib.String(row["status"]),
-				AssignedTo:   lib.String(row["assigned_to"]),
-				Response:     lib.String(row["response"]),
-				ResponseDate: lib.Time(row["response_date"]),
-				IpAddress:    lib.String(row["ip_address"]),
-				UserAgent:    lib.String(row["user_agent"]),
-				Source:       lib.String(row["source"]),
-				IsRead:       row["is_read"].(bool),
-				CreatedAt:    row["created_at"].(time.Time),
-				UpdatedAt:    row["updated_at"].(time.Time),
+				Crid:       lib.String(row["crid"]),
+				FirstName:  lib.String(row["first_name"]),
+				LastName:   lib.String(row["last_name"]),
+				Email:      lib.String(row["email"]),
+				Phone:      lib.String(row["phone"]),
+				Subject:    lib.String(row["subject"]),
+				Department: lib.String(row["department"]),
+				Priority:   lib.String(row["priority"]),
+				Status:     lib.String(row["status"]),
+				AssignedTo: lib.String(row["assigned_to"]),
+				IsRead:     row["is_read"].(bool),
+				CreatedAt:  row["created_at"].(time.Time),
+			})
+			browserStats = append(browserStats, contactRequestBrowserStats{
+				Status: lib.String(row["status"]), IsRead: row["is_read"].(bool), Priority: lib.String(row["priority"]),
 			})
 		}
 
@@ -6494,6 +6494,7 @@ func ContactRequestsPage(states *models.AppState, utilities *models.Utilities) f
 			"PageTitle":       "İletişim Talepleri",
 			"Page":            c.Query("page"),
 			"ContactRequests": ContactRequestsArray,
+			"BrowserStats":    browserStats,
 			"Count":           len(ContactRequestsArray),
 			"User":            ourUser,
 			"Options":         GetOptions,
@@ -6513,48 +6514,18 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 		if err != nil {
 			return c.Redirect("/giris")
 		}
-
+		id, ok := canonicalContactRequestID(c.Params("crid"))
+		if !ok {
+			return contactRequestReadFailure(c, fiber.StatusNotFound)
+		}
+		if utilities == nil || utilities.Orm == nil {
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+		}
+		if status := contactRequestReadAccess(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, &id); status != fiber.StatusOK {
+			return contactRequestReadFailure(c, status)
+		}
 		Orm := utilities.Orm
-
-		if c.Query("notification") == "true" {
-			GetOriginalUrl := c.OriginalURL()
-
-			UpdateNotification := Orm.Update()
-			UpdateNotification.Table("notifications")
-			UpdateNotification.Set("is_read", true)
-			UpdateNotification.Where("link", "=", GetOriginalUrl)
-
-			UpdateNotification.Finish()
-
-			err = UpdateNotification.Execute()
-
-			if err != nil {
-				log.Printf("%v\n", err)
-			}
-
-			ra, err := UpdateNotification.RowsAffected()
-			if err != nil {
-				log.Printf("%v\n", err)
-			}
-
-			if ra == 0 {
-				log.Printf("Notification not found: %s\n", GetOriginalUrl)
-			}
-		}
-
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		// Get contact request ID from route parameter
-		ContactRequestId := c.Params("crid")
-		if ContactRequestId == "" {
-			return c.Redirect("/panel/contact-requests")
-		}
+		ContactRequestId := strconv.FormatInt(id, 10)
 
 		// Fetch the specific contact request
 		ContactRequest := Orm.Select([]string{"crid", "first_name", "last_name", "email", "phone", "subject", "message", "department", "priority", "status", "assigned_to", "response", "response_date", "ip_address", "user_agent", "source", "is_read", "created_at", "updated_at"})
@@ -6564,18 +6535,16 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 
 		err = ContactRequest.Execute()
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/contact-requests")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		rows, err := ContactRequest.Rows()
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/contact-requests")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		if len(rows) == 0 {
-			return c.Redirect("/panel/contact-requests")
+			return contactRequestReadFailure(c, fiber.StatusNotFound)
 		}
 
 		row := rows[0]
@@ -6600,7 +6569,24 @@ func ContactRequestPage(states *models.AppState, utilities *models.Utilities) fi
 			CreatedAt:    row["created_at"].(time.Time),
 			UpdatedAt:    row["updated_at"].(time.Time),
 		}
-
+		GetOptions := database.Options{}
+		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
+		if err != nil {
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+		}
+		if c.Query("notification") == "true" {
+			update := Orm.Update()
+			update.Table("notifications")
+			update.Set("is_read", true)
+			update.Where("link", "=", c.OriginalURL())
+			update.Finish()
+			if err := update.Execute(); err != nil {
+				return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+			}
+			if _, err := update.RowsAffected(); err != nil {
+				return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+			}
+		}
 		return c.Render("views/panel/contact-requests-sayfalari/contact-request", fiber.Map{
 			"PathOnStart":    "../../",
 			"PageTitle":      "İletişim Talebi",
@@ -6618,6 +6604,21 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 		if err != nil {
 			return c.Redirect("/giris")
 		}
+		ContactRequestId := c.Query("crid")
+		var target *int64
+		if ContactRequestId != "" {
+			id, ok := canonicalContactRequestID(ContactRequestId)
+			if !ok {
+				return contactRequestReadFailure(c, fiber.StatusNotFound)
+			}
+			target = &id
+		}
+		if utilities == nil || utilities.Orm == nil {
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
+		}
+		if status := contactRequestReadAccess(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, target); status != fiber.StatusOK {
+			return contactRequestReadFailure(c, status)
+		}
 
 		Orm := utilities.Orm
 
@@ -6625,11 +6626,8 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
 
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
-
-		ContactRequestId := c.Query("crid")
 
 		// Fetch all contact requests for dropdown
 		ContactRequests := Orm.Select([]string{"crid", "subject", "is_replied"})
@@ -6642,14 +6640,12 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 
 		err = ContactRequests.Execute()
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/iletisim-istekleri")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		rows, err := ContactRequests.Rows()
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/iletisim-istekleri")
+			return contactRequestReadFailure(c, fiber.StatusServiceUnavailable)
 		}
 
 		ContactRequestsArray := []models.ContactRequests{}
@@ -6662,6 +6658,9 @@ func RespondToContactRequestPage(states *models.AppState, utilities *models.Util
 		}
 
 		if len(ContactRequestsArray) == 0 {
+			if target != nil {
+				return contactRequestReadFailure(c, fiber.StatusNotFound)
+			}
 			return c.Redirect("/panel/iletisim-istekleri")
 		}
 

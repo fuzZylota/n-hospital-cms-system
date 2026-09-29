@@ -527,7 +527,7 @@
         return txt.value;
     }
 
-    const escaped = '{{stj(ContactRequests)}}';
+    const escaped = '{{stj(BrowserStats)}}';
     const decoded = decodeHtmlEntities(escaped);
     const data = decoded ? JSON.parse(decoded) : [];
     window.pageData = {
