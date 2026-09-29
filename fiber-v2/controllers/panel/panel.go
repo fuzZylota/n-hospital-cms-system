@@ -6034,233 +6034,63 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
-
 		if err != nil {
 			return c.Redirect("/giris")
 		}
-
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
-			return c.Redirect("/panel")
+		if utilities == nil || utilities.Orm == nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
-
-		Orm := utilities.Orm
-
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
+		page := c.QueryInt("page", 1)
+		if page < 1 {
+			page = 1
+		}
+		if page > 214748364 {
+			page = 214748364
+		}
+		query := c.Query("query", "")
+		status := c.Query("status", "all")
+		sortBy := c.Query("sort_by", "created_at")
+		switch sortBy {
+		case "rrid", "patient_first_name", "patient_last_name", "patient_phone", "patient_email",
+			"preferred_date", "preferred_time", "message", "drid", "sid", "created_at", "updated_at", "status":
+		default:
+			sortBy = "created_at"
+		}
+		sortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
+		result, accessStatus := readAuthorizedAppointmentRequestList(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, appointmentRequestListFilter{
+			query: query, status: status, branch: c.Query("sube", "all"), sid: c.Query("sid", "all"),
+			sortBy: sortBy, sortOrder: sortOrder, page: page,
+		})
+		if accessStatus != fiber.StatusOK {
+			return appointmentDetailUnavailable(c, accessStatus)
+		}
+		ourUser.Role = result.role
+		optionsReader := database.Options{}
+		options, err := optionsReader.FetchOptionsForPanel(utilities.Orm, []string{}, []string{}, ourUser)
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
-
-		UserSid := ""
-
-		if ourUser.Role == "santral" {
-			GetUserSid := Orm.Select([]string{"sid"})
-			GetUserSid.Table("users")
-			GetUserSid.Where("uid", "=", ourUser.Uid)
-			GetUserSid.Finish()
-			err = GetUserSid.Execute()
-			if err != nil {
-				log.Printf("%v\n", err)
-				return c.Redirect("/panel")
-			}
-
-			rows, err := GetUserSid.Rows()
-			if err != nil {
-				log.Printf("%v\n", err)
-				return c.Redirect("/panel")
-			}
-
-			UserSid = lib.String(rows[0]["sid"])
-		}
-
-		Page := 1
-		if c.Query("page") != "" {
-			NewPage, err := strconv.Atoi(c.Query("page"))
-			if err != nil {
-				Page = 1
-			} else {
-				Page = NewPage
-			}
-		}
-
-		Query := c.Query("query", "")
-		Status := c.Query("status", "all")
-		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "created_at"), "created_at")
-		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
-
-		itemsPerPage := GetOptions.Options.ItemsPerPage
-
-		var offset int = 0
-
-		if Page > 1 {
-			offset = (Page - 1) * int(itemsPerPage)
-		} else {
-			offset = 0
-		}
-
-		// Build query with filters
-		RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.preferred_date", "rt.preferred_time", "rt.message", "rt.drid", "rt.sid", "rt.created_at", "rt.updated_at", "rt.status", "s.name as sube_name"})
-		RandevuTalepleri.Table("randevu_talepleri rt")
-		RandevuTalepleri.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
-
-		if Query != "" {
-			RandevuTalepleri.OpenParenthesis("WHERE")
-			RandevuTalepleri.Like("WHERE", "rt.patient_first_name", Query, "contains")
-			RandevuTalepleri.Like("OR", "rt.patient_last_name", Query, "contains")
-			RandevuTalepleri.Like("OR", "rt.patient_phone", Query, "contains")
-			RandevuTalepleri.Like("OR", "rt.patient_email", Query, "contains")
-			RandevuTalepleri.Like("OR", "rt.message", Query, "contains")
-			RandevuTalepleri.CloseParenthesis()
-		}
-
-		if Status != "all" {
-			if strings.Contains(RandevuTalepleri.Query, "WHERE") {
-				RandevuTalepleri.And("rt.status", "=", Status)
-			} else {
-				RandevuTalepleri.Where("rt.status", "=", Status)
-			}
-		}
-
-		if ourUser.Role == "santral" && UserSid != "" {
-			RandevuTalepleri.And("rt.sid", "=", UserSid)
-		}
-            // BRANCH_PERMS_FILTER_APPLIED
-            // Admin değilse: kullanıcıya atanmış şubeler (can_view=true) dışında randevu taleplerini gösterme
-            if ourUser.Role != "admin" {
-                    AllowedSids := []any{}
-
-                    GetPermSids := Orm.Select([]string{"sid"})
-                    GetPermSids.Table("user_branch_permissions")
-                    GetPermSids.Where("uid", "=", ourUser.Uid)
-                    GetPermSids.And("can_view", "=", true)
-                    GetPermSids.Finish()
-                    _ = GetPermSids.Execute()
-                    permRows, _ := GetPermSids.Rows()
-
-                    for _, r := range permRows {
-                            AllowedSids = append(AllowedSids, r["sid"])
-                    }
-
-                    if len(AllowedSids) == 0 {
-                            // hiçbir şube yetkisi yoksa: liste boş gelsin
-                            RandevuTalepleri.And("rt.sid", "=", -1)
-                    } else {
-                            // mevcut WHERE koşullarına ekle
-                            RandevuTalepleri.In("AND", "rt.sid", AllowedSids)
-                    }
-            }
-
-
-
-		RandevuTalepleri.OrderBy("rt."+SortBy, SortOrder)
-		RandevuTalepleri.Limit(int(itemsPerPage))
-		RandevuTalepleri.Offset(offset)
-		RandevuTalepleri.Finish()
-
-		FinishedQuery := RandevuTalepleri.GetFullQuery()
-
-		GetQuery := strings.Split(FinishedQuery, " FROM ")
-
-		GetQuery1 := strings.Split(GetQuery[1], " ORDER BY ")
-
-		RandevuTalepleri2 := Orm.CustomSelectQuery(FinishedQuery)
-		err = RandevuTalepleri2.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		rows, err := RandevuTalepleri2.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		RandevuTalepleriArray := []models.RandevuRequests{}
-		for _, row := range rows {
-			RandevuTalepleriArray = append(RandevuTalepleriArray, models.RandevuRequests{
-				Rrid:             lib.String(row["rrid"]),
-				PatientFirstName: lib.String(row["patient_first_name"]),
-				PatientLastName:  lib.String(row["patient_last_name"]),
-				PatientPhone:     lib.String(row["patient_phone"]),
-				PatientEmail:     lib.String(row["patient_email"]),
-				PreferredDate:    lib.Time(row["preferred_date"]),
-				PreferredTime:    lib.Time(row["preferred_time"]),
-				Message:          lib.String(row["message"]),
-				Drid:             lib.String(row["drid"]),
-				Sid:              lib.String(row["sid"]),
-				SubeName:         lib.String(row["sube_name"]),
-				Status:           lib.String(row["status"]),
-				CreatedAt:        lib.Time(row["created_at"]),
-				UpdatedAt:        lib.Time(row["updated_at"]),
+		requests := []models.RandevuRequests{}
+		for _, row := range result.rows {
+			requests = append(requests, models.RandevuRequests{
+				Rrid: lib.String(row["rrid"]), PatientFirstName: lib.String(row["patient_first_name"]),
+				PatientLastName: lib.String(row["patient_last_name"]), PatientPhone: lib.String(row["patient_phone"]),
+				PatientEmail: lib.String(row["patient_email"]), PreferredDate: lib.Time(row["preferred_date"]),
+				PreferredTime: lib.Time(row["preferred_time"]), Message: lib.String(row["message"]),
+				Drid: lib.String(row["drid"]), Sid: lib.String(row["sid"]), SubeName: lib.String(row["sube_name"]),
+				Status: lib.String(row["status"]), CreatedAt: lib.Time(row["created_at"]), UpdatedAt: lib.Time(row["updated_at"]),
 			})
 		}
-
-		GetQuery2 := "SELECT COUNT(*) as length FROM " + GetQuery1[0]
-
-		ActualLengthOfQuery := Orm.CustomSelectQuery(GetQuery2)
-		err = ActualLengthOfQuery.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+		branches := []models.Subeler{}
+		for _, row := range result.branches {
+			branches = append(branches, models.Subeler{Sid: lib.String(row["sid"]), Name: lib.String(row["name"])})
 		}
-
-		rows, err = ActualLengthOfQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		var Length int64 = 0
-
-		if len(rows) != 0 {
-			Length = lib.Int64(rows[0]["length"])
-		}
-
-		LengthsString := "SELECT COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('day', now())) AS today_length, COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('week', now())) AS this_week_length, COUNT(*) FILTER (WHERE rt.created_at >= date_trunc('month', now())) AS this_month_length FROM " + GetQuery1[0]
-
-		LengthsQuery := Orm.CustomSelectQuery(LengthsString)
-		err = LengthsQuery.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		rows, err = LengthsQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		var TodayLength int64 = 0
-		var WeekLength int64 = 0
-		var MonthLength int64 = 0
-
-		if len(rows) != 0 {
-			TodayLength = lib.Int64(rows[0]["today_length"])
-			WeekLength = lib.Int64(rows[0]["this_week_length"])
-			MonthLength = lib.Int64(rows[0]["this_month_length"])
-		}
-
 		return c.Render("views/panel/randevular-sayfalari/randevu-talepleri", fiber.Map{
-			"PathOnStart":      "../",
-			"PageTitle":        "Randevu Talepleri",
-			"Page":             c.Query("page"),
-			"RandevuTalepleri": RandevuTalepleriArray,
-			"Count":            Length,
-			"User":             ourUser,
-			"Options":          GetOptions,
-			"TodayLength":      TodayLength,
-			"WeekLength":       WeekLength,
-			"MonthLength":      MonthLength,
-			"Query":            Query,
-			"Status":           Status,
-			"ItemsPerPage":     itemsPerPage,
-			"SortBy":           SortBy,
-			"SortOrder":        SortOrder,
+			"PathOnStart": "../", "PageTitle": "Randevu Talepleri", "Page": c.Query("page"),
+			"RandevuTalepleri": requests, "Count": result.count, "User": ourUser, "Options": options,
+			"TodayLength": result.today, "WeekLength": result.week, "MonthLength": result.month,
+			"Query": query, "Status": status, "ItemsPerPage": result.itemsPerPage,
+			"SortBy": sortBy, "SortOrder": sortOrder, "Subeler": branches,
 		}, "layouts/panel/panel")
 	}
 }
