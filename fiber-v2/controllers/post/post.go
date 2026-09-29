@@ -2589,97 +2589,32 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 
 func DeleteContactRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ourUser, err := lib.CheckAuth(c)
+		actor, err := lib.CheckAuth(c)
 		if err != nil {
-			return c.Status(401).JSON(fiber.Map{
-				"status":  401,
-				"message": "Unauthorized",
-			})
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
 		}
-
-		if ourUser.Role != "admin" {
-			return c.Status(403).JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden: Admin access required",
-			})
+		crid, validID := contactDeleteID(c.Params("crid"))
+		if !validID {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Invalid contact request ID"})
 		}
-
-		ContactRequestId := c.Params("crid")
-		if ContactRequestId == "" {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Contact request ID is required",
-			})
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.Status(503).JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
 		}
-
-		Orm := utilities.Orm
-
-		// Check if contact request exists
-		GetContactRequest := Orm.Select([]string{"crid"})
-		GetContactRequest.Table("contact_requests")
-		GetContactRequest.Where("crid", "=", ContactRequestId)
-		GetContactRequest.Finish()
-		err = GetContactRequest.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+		status := deleteContactRequestTransaction(c.UserContext(), utilities.Orm.Pool, actor.Uid, crid)
+		if status != 201 {
+			message := "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			if status == 403 {
+				message = "Bu işlem için yetkiniz yok."
+			}
+			if status == 404 {
+				message = "İletişim talebi bulunamadı."
+			}
+			if status >= 500 {
+				log.Printf("operation=DeleteContactRequest stage=delete_transaction")
+			}
+			return c.Status(status).JSON(fiber.Map{"status": status, "message": message})
 		}
-
-		contactRequestRows, err := GetContactRequest.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if len(contactRequestRows) == 0 {
-			return c.Status(404).JSON(fiber.Map{
-				"status":  404,
-				"message": "Contact request not found",
-			})
-		}
-
-		// Delete the contact request
-		DeleteContactRequest := Orm.Delete()
-		DeleteContactRequest.Table("contact_requests")
-		DeleteContactRequest.Where("crid", "=", ContactRequestId)
-		DeleteContactRequest.Finish()
-		err = DeleteContactRequest.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		ra, err := DeleteContactRequest.RowsAffected()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if ra == 0 {
-			return c.Status(404).JSON(fiber.Map{
-				"status":  404,
-				"message": "İletişim talebi bulunamadı.",
-			})
-		}
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "İletişim talebi başarıyla silindi.",
-		})
+		return c.JSON(fiber.Map{"status": 201, "message": "İletişim talebi başarıyla silindi."})
 	}
 }
 
