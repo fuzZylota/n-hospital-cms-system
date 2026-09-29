@@ -518,8 +518,33 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT FALSE,
     sid INTEGER REFERENCES subeler(sid) ON DELETE SET NULL,
     link VARCHAR(200),
+    delivery_model VARCHAR(10) NOT NULL DEFAULT 'legacy',
+    event_kind VARCHAR(32),
+    subject_id INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT notifications_delivery_contract CHECK (
+        (delivery_model = 'legacy' AND event_kind IS NULL AND subject_id IS NULL)
+        OR (delivery_model = 'personal'
+            AND event_kind IS NOT NULL AND subject_id IS NOT NULL
+            AND event_kind IN ('request_created', 'application_created', 'contact_created')
+            AND subject_id > 0)
+    )
+);
+
+-- A receipt is one person's read state. Legacy rows acquire no invented UID.
+-- RESTRICT preserves receipt ownership/history. It will block the current
+-- DeleteUser path for a recipient with receipts; deletion policy is separate.
+CREATE TABLE notification_receipts (
+    nid INTEGER NOT NULL REFERENCES notifications(nid) ON DELETE RESTRICT,
+    recipient_uid INTEGER NOT NULL REFERENCES users(uid) ON DELETE RESTRICT,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    read_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT notification_receipts_pkey PRIMARY KEY (nid, recipient_uid),
+    CONSTRAINT notification_receipts_read_state CHECK (
+        (is_read = FALSE AND read_at IS NULL)
+        OR (is_read = TRUE AND read_at IS NOT NULL)
+    )
 );
 -- =====================================================
 -- INDEXES FOR PERFORMANCE
@@ -585,6 +610,13 @@ CREATE INDEX idx_contact_requests_created ON contact_requests(created_at);
 CREATE INDEX idx_job_applications_status ON job_applications(status);
 CREATE INDEX idx_job_applications_position ON job_applications(position_applied);
 CREATE INDEX idx_job_applications_created ON job_applications(created_at);
+
+-- The current three personal event kinds each represent one creation per object.
+CREATE UNIQUE INDEX idx_notifications_personal_event_subject
+    ON notifications(event_kind, subject_id) WHERE delivery_model = 'personal';
+CREATE INDEX idx_notifications_created_nid ON notifications(created_at DESC, nid DESC);
+CREATE INDEX idx_notification_receipts_user_unread
+    ON notification_receipts(recipient_uid, is_read, nid DESC);
 
 -- =====================================================
 -- DATABASE TRIGGERS FOR DATA CONSISTENCY
