@@ -2422,16 +2422,21 @@ func TedkikPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("examination detail options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		tedkikName := c.Params("tetkik")
 
-		GetTedkik := Orm.Select([]string{"t.*", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
+		GetTedkik := Orm.Select([]string{"t.name", "t.url_name", "t.description", "t.html_content", "t.javascript_content", "t.css_content", "t.created_at", "t.updated_at", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		GetTedkik.Table("tedkikler t")
 		GetTedkik.LeftJoin("medias m", "t.cover_mid", "=", "m.mid")
 		GetTedkik.Where("t.url_name", "=", tedkikName)
+		GetTedkik.And("t.is_active", "=", true)
 		GetTedkik.Finish()
-		err := GetTedkik.Execute()
+		err = GetTedkik.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
