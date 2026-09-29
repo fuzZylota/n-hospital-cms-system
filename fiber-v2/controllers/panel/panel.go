@@ -5878,100 +5878,41 @@ func TedkikDuzenlePage(states *models.AppState, utilities *models.Utilities) fib
 func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
-
 		if err != nil {
 			return c.Redirect("/giris")
 		}
-
-		Rrid := c.Params("rrid")
-
-		if Rrid == "" {
-			return c.Redirect("/panel/randevu-talepleri")
+		rrid := c.Params("rrid")
+		if rrid == "" {
+			return appointmentDetailUnavailable(c, fiber.StatusNotFound)
 		}
-
-		Orm := utilities.Orm
-
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" {
-			if ourUser.Role != "santral" {
-				return c.Redirect("/panel")
-			}
-
-			CheckIfUserHasAccessToSube := Orm.Count("randevu_talepleri rt")
-			CheckIfUserHasAccessToSube.LeftJoin("users u", "u.uid", "=", ourUser.Uid)
-			CheckIfUserHasAccessToSube.Where("rt.rrid", "=", Rrid)
-			CheckIfUserHasAccessToSube.AndExpr("rt.sid", "=", "u.sid")
-			CheckIfUserHasAccessToSube.Finish()
-			err = CheckIfUserHasAccessToSube.Execute()
-
-			if err != nil {
-				log.Printf("%v\n", err)
-				return c.Redirect("/panel")
-			}
-
-			if CheckIfUserHasAccessToSube.Length() == 0 {
-				return c.Redirect("/panel/randevu-talepleri")
-			}
+		if utilities == nil || utilities.Orm == nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
+		orm := utilities.Orm
+		rows, currentRole, accessStatus := readAuthorizedAppointmentRequestDetail(c.UserContext(), orm.Pool, rrid, ourUser.Uid)
+		if accessStatus != fiber.StatusOK {
+			return appointmentDetailUnavailable(c, accessStatus)
+		}
+		ourUser.Role = currentRole
+		ourUser.IsActive = true
 
-
+		options := database.Options{}
+		options, err = options.FetchOptionsForPanel(orm, []string{}, []string{}, ourUser)
+		if err != nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
+		}
 		if c.Query("notification") == "true" {
-			GetOriginalUrl := c.OriginalURL()
-
-			UpdateNotification := Orm.Update()
-			UpdateNotification.Table("notifications")
-			UpdateNotification.Set("is_read", true)
-			UpdateNotification.Where("link", "=", GetOriginalUrl)
-
-			UpdateNotification.Finish()
-
-			err = UpdateNotification.Execute()
-
-			if err != nil {
-				log.Printf("%v\n", err)
+			update := orm.Update()
+			update.Table("notifications")
+			update.Set("is_read", true)
+			update.Where("link", "=", c.OriginalURL())
+			update.Finish()
+			if err := update.Execute(); err != nil {
+				return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 			}
-
-			ra, err := UpdateNotification.RowsAffected()
-			if err != nil {
-				log.Printf("%v\n", err)
+			if _, err := update.RowsAffected(); err != nil {
+				return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 			}
-
-			if ra == 0 {
-				log.Printf("Notification not found: %s\n", GetOriginalUrl)
-			}
-		}
-
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		// Fetch the randevu talebi
-		RandevuTalebi := Orm.Select([]string{"rt.*", "d.title as doctor_title", "d.first_name as doctor_first_name", "d.last_name as doctor_last_name", "s.name as sube_name", "s.city as sube_city", "r.rid as related_appointment_rid", "r.appointment_date as related_appointment_date", "r.appointment_time as related_appointment_time", "r.status as related_appointment_status", "u.name as user_first_name", "u.surname as user_surname", "u.email as user_email", "u.role as user_role"})
-		RandevuTalebi.Table("randevu_talepleri rt")
-		RandevuTalebi.LeftJoin("doktorlar d", "rt.drid", "=", "d.drid")
-		RandevuTalebi.LeftJoin("subeler s", "rt.sid", "=", "s.sid")
-		RandevuTalebi.LeftJoin("randevular r", "rt.rrid", "=", "r.rrid")
-		RandevuTalebi.LeftJoin("users u", "u.uid", "=", "rt.last_modified_uid")
-		RandevuTalebi.Where("rt.rrid", "=", Rrid)
-		RandevuTalebi.Finish()
-		err = RandevuTalebi.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevu-talepleri")
-		}
-
-		rows, err := RandevuTalebi.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevu-talepleri")
-		}
-
-		if len(rows) == 0 {
-			return c.Redirect("/panel/randevu-talepleri")
 		}
 
 		RandevuTalebiData := models.RandevuRequests{
@@ -6026,7 +5967,7 @@ func RandevuTalebiPage(states *models.AppState, utilities *models.Utilities) fib
 			"SubeInfo":              SubeInfo,
 			"HasRelatedAppointment": lib.String(rows[0]["related_appointment_rid"]) != "",
 			"RelatedAppointment":    RelatedAppointment,
-			"Options":               GetOptions,
+			"Options":               options,
 		}, "layouts/panel/panel")
 	}
 }
