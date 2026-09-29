@@ -12,6 +12,14 @@ import (
 // The branch, principal, permission, and detail reads share one PostgreSQL
 // snapshot. The final predicate also ties the PII row to the authorized branch.
 func readAuthorizedAppointmentDetail(ctx context.Context, db *sql.DB, rid, uid string) ([]map[string]interface{}, string, int) {
+	return readAuthorizedAppointment(ctx, db, rid, uid, false)
+}
+
+func readAuthorizedAppointmentEdit(ctx context.Context, db *sql.DB, rid, uid string) ([]map[string]interface{}, string, int) {
+	return readAuthorizedAppointment(ctx, db, rid, uid, true)
+}
+
+func readAuthorizedAppointment(ctx context.Context, db *sql.DB, rid, uid string, edit bool) ([]map[string]interface{}, string, int) {
 	appointmentID, err := strconv.ParseInt(rid, 10, 32)
 	if err != nil || appointmentID <= 0 || uid == "" {
 		return nil, "", fiber.StatusNotFound
@@ -73,7 +81,7 @@ func readAuthorizedAppointmentDetail(ctx context.Context, db *sql.DB, rid, uid s
 		return nil, "", fiber.StatusNotFound
 	}
 
-	rows, err := tx.QueryContext(ctx, `SELECT r.*, d.title AS doctor_title, d.first_name AS doctor_first_name,
+	query := `SELECT r.*, d.title AS doctor_title, d.first_name AS doctor_first_name,
 		d.last_name AS doctor_last_name, s.name AS sube_name, s.city AS sube_city,
 		b.name AS branch_name, rt.rrid AS related_appointment_rid,
 		rt.patient_first_name AS related_appointment_patient_first_name,
@@ -94,7 +102,11 @@ func readAuthorizedAppointmentDetail(ctx context.Context, db *sql.DB, rid, uid s
 		LEFT JOIN anlasmali_kurumlar ak ON r.akid = ak.akid
 		LEFT JOIN tibbi_birimler tb ON r.tbid = tb.tbid
 		LEFT JOIN tedkikler t ON r.tid = t.tid
-		WHERE r.rid = $1 AND r.sid = $2`, appointmentID, branchID.Int64)
+		WHERE r.rid = $1 AND r.sid = $2`
+	if edit {
+		query = "SELECT r.* FROM randevular r WHERE r.rid = $1 AND r.sid = $2"
+	}
+	rows, err := tx.QueryContext(ctx, query, appointmentID, branchID.Int64)
 	if err != nil {
 		return nil, "", fiber.StatusServiceUnavailable
 	}

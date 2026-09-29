@@ -79,6 +79,9 @@ func (c *appointmentConn) query(query string, args []driver.Value) (driver.Rows,
 		if len(args) != 1 {
 			return nil, fmt.Errorf("branch args: %v", args)
 		}
+		if args[0] == int64(11) {
+			return &unitPanelRows{columns: []string{"sid"}, values: [][]driver.Value{{int64(2)}}}, nil
+		}
 		if args[0] != int64(1) && args[0] != int64(2) {
 			return &unitPanelRows{columns: []string{"sid"}}, nil
 		}
@@ -101,6 +104,19 @@ func (c *appointmentConn) query(query string, args []driver.Value) (driver.Rows,
 			return nil, fmt.Errorf("permission args: %v", args)
 		}
 		return &unitPanelRows{columns: []string{"exists"}, values: [][]driver.Value{{f.permissions[args[1].(int64)]}}}, nil
+	case strings.Contains(query, "SELECT r.* FROM randevular r"):
+		f.events = append(f.events, "pii")
+		if !strings.Contains(query, "WHERE r.rid = $1 AND r.sid = $2") || len(args) != 2 || !((args[0] == int64(11) && args[1] == int64(2)) || args[0] == args[1]) {
+			return nil, fmt.Errorf("edit missing id and branch predicate: %s / %v", query, args)
+		}
+		if f.failure == "edit" {
+			return nil, errors.New("synthetic edit read failure")
+		}
+		stamp := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+		return &unitPanelRows{
+			columns: []string{"rid", "sid", "patient_first_name", "patient_last_name", "patient_phone", "patient_email", "patient_tc_kimlik", "patient_birth_date", "patient_gender", "drid", "brid", "akid", "tid", "tbid", "rrid", "appointment_date", "appointment_time", "duration", "status", "notes", "complaint", "cancel_reason", "reminder_sent", "confirmation_code", "price", "payment_status", "created_at", "updated_at"},
+			values:  [][]driver.Value{{args[0], args[1], appointmentTestPII, "Synthetic", "555123", "patient@example.invalid", "12345678901", stamp, "erkek", int64(3), int64(4), int64(5), int64(6), int64(7), int64(8), stamp, stamp, int64(30), "beklemede", "synthetic notes", "synthetic complaint", "", false, "CODE123", float64(75), "odenmedi", stamp, stamp}},
+		}, nil
 	case strings.Contains(query, "SELECT r.*"):
 		f.events = append(f.events, "pii")
 		if !strings.Contains(query, "WHERE r.rid = $1 AND r.sid = $2") || len(args) != 2 || args[0] != args[1] {

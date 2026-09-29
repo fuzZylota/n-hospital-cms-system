@@ -6585,45 +6585,24 @@ func RandevuDuzenlePage(states *models.AppState, utilities *models.Utilities) fi
 		Rid := c.Params("rid")
 
 		if Rid == "" {
-			return c.Redirect("/panel/randevular")
+			return appointmentDetailUnavailable(c, fiber.StatusNotFound)
 		}
 
+		if utilities == nil || utilities.Orm == nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
+		}
 		Orm := utilities.Orm
+		rows, currentRole, status := readAuthorizedAppointmentEdit(c.UserContext(), Orm.Pool, Rid, ourUser.Uid)
+		if status != fiber.StatusOK {
+			return appointmentDetailUnavailable(c, status)
+		}
+		ourUser.Role = currentRole
 
 		GetOptions := database.Options{}
 		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
 
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		// Fetch the randevu
-		RandevuQuery := Orm.Select([]string{
-			"rid", "patient_first_name", "patient_last_name", "patient_phone", "patient_email",
-			"patient_tc_kimlik", "patient_birth_date", "patient_gender", "drid", "brid", "sid",
-			"akid", "tid", "tbid", "rrid", "appointment_date", "appointment_time", "duration",
-			"status", "notes", "complaint", "cancel_reason", "reminder_sent", "confirmation_code",
-			"price", "payment_status", "created_at", "updated_at",
-		})
-		RandevuQuery.Table("randevular")
-		RandevuQuery.Where("rid", "=", Rid)
-		RandevuQuery.Finish()
-		err = RandevuQuery.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevular")
-		}
-
-		rows, err := RandevuQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel/randevular")
-		}
-
-		if len(rows) == 0 {
-			return c.Redirect("/panel/randevular")
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
 
 		RandevuData := models.Randevular{
