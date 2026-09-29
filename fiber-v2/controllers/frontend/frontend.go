@@ -1470,7 +1470,11 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("center detail options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		subeName := c.Params("sube")
 
@@ -1478,8 +1482,9 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		GetSube.Table("subeler s")
 		GetSube.LeftJoin("medias m", "s.mid", "=", "m.mid")
 		GetSube.Where("s.url_name", "=", subeName)
+		GetSube.And("s.is_active", "=", true)
 		GetSube.Finish()
-		err := GetSube.Execute()
+		err = GetSube.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
@@ -1558,10 +1563,12 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 
 		GetAnlasmaliKurumCount := Orm.Count("anlasmali_kurumlar")
 		GetAnlasmaliKurumCount.Where("sid", "=", Sube.Sid)
+		GetAnlasmaliKurumCount.And("is_active", "=", true)
 		GetAnlasmaliKurumCount.Finish()
 		err = GetAnlasmaliKurumCount.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		AnlasmaliKurumCount := GetAnlasmaliKurumCount.Length()
@@ -1570,16 +1577,19 @@ func SubePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		GetAnlasmaliKurumlar.Table("anlasmali_kurumlar ak")
 		GetAnlasmaliKurumlar.LeftJoin("medias m", "ak.logo_mid", "=", "m.mid")
 		GetAnlasmaliKurumlar.Where("ak.sid", "=", Sube.Sid)
+		GetAnlasmaliKurumlar.And("ak.is_active", "=", true)
 		GetAnlasmaliKurumlar.OrderBy("ak.name", "ASC")
 		GetAnlasmaliKurumlar.Finish()
 		err = GetAnlasmaliKurumlar.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err = GetAnlasmaliKurumlar.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		AnlasmaliKurumlar := []models.AnlasmaliKurumlar{}
