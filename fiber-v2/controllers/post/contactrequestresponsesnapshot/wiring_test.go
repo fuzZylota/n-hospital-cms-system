@@ -32,7 +32,7 @@ func TestRespondToContactRequestOwnedSnapshotWiring(t *testing.T) {
 		return true
 	})
 
-	if counts["contactrequestresponsesnapshot.Read"] != 1 || counts["c.UserContext"] != 1 {
+	if counts["contactrequestresponsesnapshot.Read"] != 1 || counts["c.UserContext"] != 4 {
 		t.Fatal("response snapshot must be read exactly once from the request context")
 	}
 	if counts["GetOptions.FetchOptionsForBackend"] != 0 {
@@ -54,17 +54,17 @@ func TestRespondToContactRequestOwnedSnapshotWiring(t *testing.T) {
 		t.Fatal("snapshot failure no longer returns the existing opaque server error")
 	}
 
-	for _, name := range []string{"c.BodyParser", "contactrequestresponsesnapshot.Read", "Orm.Select", "lib.SendEmailThenMarkReplied"} {
+	for _, name := range []string{"c.BodyParser", "contactrequestresponsesnapshot.Read", "authorizeContactResponse", "lib.SendEmailThenMarkReplied"} {
 		if positions[name] == token.NoPos {
 			t.Fatal("required response workflow operation is missing")
 		}
 	}
-	if !(positions["c.BodyParser"] < positions["contactrequestresponsesnapshot.Read"] && positions["contactrequestresponsesnapshot.Read"] < positions["Orm.Select"] && positions["Orm.Select"] < positions["lib.SendEmailThenMarkReplied"]) {
+	if !(positions["c.BodyParser"] < positions["authorizeContactResponse"] && positions["authorizeContactResponse"] < positions["contactrequestresponsesnapshot.Read"] && positions["contactrequestresponsesnapshot.Read"] < positions["lib.SendEmailThenMarkReplied"]) {
 		t.Fatal("response workflow order changed")
 	}
 
 	source := responseNodeSource(function)
-	for _, forbidden := range []string{"database.Options", "models.Options", "GetOptions", "FetchOptionsForBackend", "Medias[0]", "(*GetOptions.Medias)[0]", "sql.Open", "sql.OpenDB", "postgres.NewOptionsRepository", "optionscache", "c.Render(", "c.Locals("} {
+	for _, forbidden := range []string{"database.Options", "models.Options", "GetOptions", "FetchOptionsForBackend", "Medias[0]", "(*GetOptions.Medias)[0]", "sql.Open", "sql.OpenDB", "postgres.NewOptionsRepository", "optionscache", "c.Render(", "c.Locals(", "utilities.Orm.Tx", "Orm.Select", "Orm.Update"} {
 		if strings.Contains(source, forbidden) {
 			t.Fatal("legacy reader, fallback, pool, or public snapshot surface remains")
 		}
@@ -76,8 +76,66 @@ func TestRespondToContactRequestOwnedSnapshotWiring(t *testing.T) {
 	if !responseSnapshotFieldsAreExact(function) {
 		t.Fatal("response snapshot mapping or request-local secret boundary changed")
 	}
+	if !responseAuthorizedReadCloses(function) {
+		t.Fatal("authorized read must commit before options and SMTP; state persistence must use a separate transaction")
+	}
 	assertResponseJSONContract(t, body)
 	assertReplyWorkflowOrder(t, body)
+}
+
+func responseAuthorizedReadCloses(function *ast.FuncDecl) bool {
+	body, ok := responseHandlerBlock(function)
+	if !ok {
+		return false
+	}
+	for index, statement := range body.List {
+		assignment, ok := statement.(*ast.AssignStmt)
+		if !ok || len(assignment.Rhs) != 1 {
+			continue
+		}
+		call, ok := assignment.Rhs[0].(*ast.CallExpr)
+		if !ok || responseNodeSource(call.Fun) != "authorizeContactResponse" {
+			continue
+		}
+		if index+3 >= len(body.List) {
+			return false
+		}
+		guard, ok := body.List[index+1].(*ast.IfStmt)
+		if !ok || responseNodeSource(guard.Cond) != "accessStatus != 0" || len(guard.Body.List) != 1 || responseNodeSource(guard.Body.List[0]) != `return c.JSON(fiber.Map{"status": accessStatus, "message": "İşlem tamamlanamadı."})` {
+			return false
+		}
+		commit, ok := body.List[index+2].(*ast.IfStmt)
+		if !ok || responseNodeSource(commit.Init) != "err := tx.Commit()" || responseNodeSource(commit.Cond) != "err != nil" || len(commit.Body.List) != 2 || !responseFixedLog(commit.Body.List[0], `log.Printf("operation=RespondToContactRequest stage=authorized_read_commit")`) || responseNodeSource(commit.Body.List[1]) != `return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})` {
+			return false
+		}
+		next, ok := body.List[index+3].(*ast.AssignStmt)
+		if !ok || len(next.Rhs) != 1 {
+			return false
+		}
+		read, ok := next.Rhs[0].(*ast.CallExpr)
+		return ok && responseNodeSource(read.Fun) == "contactrequestresponsesnapshot.Read" && strings.Contains(responseNodeSource(function), "return markContactResponse(c.UserContext(), utilities.Orm.Pool, ContactRequestData.Crid)")
+	}
+	return false
+}
+
+func TestResponseAuthorizedReadClosureNegativeFixtures(t *testing.T) {
+	for _, fixture := range [][2]string{
+		{"if err := tx.Commit(); err != nil {", "if err := error(nil); err != nil {"},
+		{"if err := tx.Commit(); err != nil {", "if err := tx.Commit(); err == nil {"},
+		{"if accessStatus != 0 {", "if accessStatus == 0 {"},
+		{`return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+
+		contactRequestResponseSnapshot`, `_ = c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+
+		contactRequestResponseSnapshot`},
+		{"return markContactResponse(c.UserContext(), utilities.Orm.Pool, ContactRequestData.Crid)", "return markContactResponse(c.UserContext(), tx, ContactRequestData.Crid)"},
+	} {
+		if responseAuthorizedReadCloses(responseFunctionReplacement(t, fixture[0], fixture[1])) {
+			t.Fatal("unsafe read/SMTP transaction boundary fixture accepted")
+		}
+	}
 }
 
 func TestRespondToContactRequestSnapshotFieldMappingMutationFixtures(t *testing.T) {
@@ -504,12 +562,13 @@ func assertResponseJSONContract(t *testing.T, body *ast.BlockStmt) {
 	t.Helper()
 	wanted := map[string]int{
 		`"status": 401, "message": "Unauthorized"`:                                               1,
-		`"status": 400, "message": "Contact request ID is required"`:                             1,
+		`"status": 400, "message": "Invalid contact request ID"`:                                 1,
 		`"status": 400, "message": "Invalid request data"`:                                       1,
 		`"status": 400, "message": "Title and response text are required"`:                       1,
-		`"status": 500, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."`:           4,
+		`"status": 500, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."`:           2,
 		`"status": 500, "message": "E-posta bilgileriniz girilmemişse e-posta gönderemezsiniz."`: 1,
-		`"status": 404, "message": "Contact request not found"`:                                  1,
+		`"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."`:           3,
+		`"status": accessStatus, "message": "İşlem tamamlanamadı."`:                              1,
 	}
 	seen := map[string]int{}
 	replyResponses := 0
@@ -563,7 +622,7 @@ func assertReplyWorkflowOrder(t *testing.T, body *ast.BlockStmt) {
 		}
 		first, firstOK := call.Args[0].(*ast.FuncLit)
 		second, secondOK := call.Args[1].(*ast.FuncLit)
-		if !firstOK || !secondOK || responseCallCount(first, "lib.SendEmail") != 1 || responseCallCount(first, "Orm.Update") != 0 || responseCallCount(second, "lib.SendEmail") != 0 || responseCallCount(second, "Orm.Update") != 1 {
+		if !firstOK || !secondOK || responseCallCount(first, "lib.SendEmail") != 1 || responseCallCount(first, "Orm.Update") != 0 || responseCallCount(second, "lib.SendEmail") != 0 || responseCallCount(second, "markContactResponse") != 1 || responseCallCount(second, "Orm.Update") != 0 {
 			t.Fatal("mail delivery no longer precedes reply-state persistence")
 		}
 		workflowIndex = index

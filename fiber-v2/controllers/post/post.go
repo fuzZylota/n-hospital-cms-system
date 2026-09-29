@@ -2,6 +2,7 @@ package post
 
 import (
 	"database"
+	"database/sql"
 	"fmt"
 	lib "lib"
 	"log"
@@ -2759,9 +2760,11 @@ func SetAsReadAContactRequest(states *models.AppState, utilities *models.Utiliti
 	}
 }
 
-func RespondToContactRequest(states *models.AppState, utilities *models.Utilities) fiber.Handler {
+// The optional server-side sender allows isolated HTTP tests without SMTP.
+// The registered production route supplies no override and uses lib.SendEmail.
+func RespondToContactRequest(states *models.AppState, utilities *models.Utilities, senders ...func(*models.EmailInfos) error) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		_, err := lib.CheckAuth(c)
+		actor, err := lib.CheckAuth(c)
 		if err != nil {
 			log.Printf("operation=RespondToContactRequest stage=auth")
 			return c.JSON(fiber.Map{
@@ -2771,11 +2774,11 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 		}
 
 		// Get contact request ID from route parameter
-		ContactRequestId := c.Params("crid")
-		if ContactRequestId == "" {
+		ContactRequestId, validID := contactResponseID(c.Params("crid"))
+		if !validID {
 			return c.JSON(fiber.Map{
 				"status":  400,
-				"message": "Contact request ID is required",
+				"message": "Invalid contact request ID",
 			})
 		}
 
@@ -2802,7 +2805,25 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 			})
 		}
 
-		Orm := utilities.Orm
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		tx, err := utilities.Orm.Pool.BeginTx(c.UserContext(), &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+		if err != nil {
+			log.Printf("operation=RespondToContactRequest stage=transaction_begin")
+			return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		defer tx.Rollback()
+		ContactRequestData, accessStatus := authorizeContactResponse(c.UserContext(), tx, actor.Uid, ContactRequestId)
+		if accessStatus != 0 {
+			return c.JSON(fiber.Map{"status": accessStatus, "message": "İşlem tamamlanamadı."})
+		}
+
+		// End the authorized read before options, message building or SMTP.
+		if err := tx.Commit(); err != nil {
+			log.Printf("operation=RespondToContactRequest stage=authorized_read_commit")
+			return c.JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
 
 		contactRequestResponseSnapshot, err := contactrequestresponsesnapshot.Read(c.UserContext(), utilities.ContactRequestResponseWorkflowSnapshotReader)
 		if err != nil {
@@ -2818,50 +2839,6 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 				"status":  500,
 				"message": "E-posta bilgileriniz girilmemişse e-posta gönderemezsiniz.",
 			})
-		}
-
-		// 1. Check if contact request exists
-		CheckContactRequest := Orm.Select([]string{"crid", "first_name", "last_name", "email"})
-		CheckContactRequest.Table("contact_requests")
-		CheckContactRequest.Where("crid", "=", ContactRequestId)
-		CheckContactRequest.Finish()
-
-		err = CheckContactRequest.Execute()
-		if err != nil {
-			log.Printf("operation=RespondToContactRequest stage=record_read")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		rows, err := CheckContactRequest.Rows()
-		if err != nil {
-			log.Printf("operation=RespondToContactRequest stage=record_rows")
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if len(rows) == 0 {
-			return c.JSON(fiber.Map{
-				"status":  404,
-				"message": "Contact request not found",
-			})
-		}
-
-		row := rows[0]
-		ContactRequestData := struct {
-			Crid      string
-			FirstName string
-			LastName  string
-			Email     string
-		}{
-			Crid:      lib.String(row["crid"]),
-			FirstName: lib.String(row["first_name"]),
-			LastName:  lib.String(row["last_name"]),
-			Email:     lib.String(row["email"]),
 		}
 
 		GetLogo := ""
@@ -3128,17 +3105,13 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 
 		err = lib.SendEmailThenMarkReplied(
 			func() error {
+				if len(senders) == 1 {
+					return senders[0](&CreateEmailInfos)
+				}
 				return lib.SendEmail(&CreateEmailInfos)
 			},
 			func() error {
-				UpdateContactRequest := Orm.Update()
-				UpdateContactRequest.Table("contact_requests")
-				UpdateContactRequest.Set("is_replied", true)
-				UpdateContactRequest.Set("response_date", "NOW()")
-				UpdateContactRequest.Set("updated_at", "NOW()")
-				UpdateContactRequest.Where("crid", "=", ContactRequestId)
-				UpdateContactRequest.Finish()
-				return UpdateContactRequest.Execute()
+				return markContactResponse(c.UserContext(), utilities.Orm.Pool, ContactRequestData.Crid)
 			},
 		)
 		if err != nil {
