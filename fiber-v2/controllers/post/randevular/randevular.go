@@ -1976,100 +1976,61 @@ func DeleteRandevu(states *models.AppState, utilities *models.Utilities) fiber.H
 			})
 		}
 
-		if ourUser.Role != "admin" && ourUser.Role != "moderator" && ourUser.Role != "santral" {
-			return c.Status(403).JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden: Admin access required",
-			})
+		appointmentID, valid := editPositiveID(c.Params("rid"))
+		if !valid {
+			return c.Status(400).JSON(fiber.Map{"status": 400, "message": "Invalid appointment ID"})
+		}
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.Status(503).JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
 		}
 
-		Rid := c.Params("rid")
-		if Rid == "" {
-			return c.Status(400).JSON(fiber.Map{
-				"status":  400,
-				"message": "Randevu ID is required",
-			})
-		}
-
-		log.Printf("Rid: %s", Rid)
-
-		Orm := utilities.Orm
-
-		// Check if randevu exists
-		CheckRandevu := Orm.Count("randevular")
-		CheckRandevu.Where("rid", "=", Rid)
-		CheckRandevu.Finish()
-		err = CheckRandevu.Execute()
-
+		// This request owns its transaction. The current user and target row are
+		// locked before deletion; no client-supplied branch is an authority source.
+		tx, err := utilities.Orm.Pool.BeginTx(c.UserContext(), nil)
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			log.Printf("operation=DeleteRandevu stage=transaction_begin")
+			return c.Status(503).JSON(fiber.Map{"status": 503, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		transactionFinished := false
+		defer func() {
+			if !transactionFinished {
+				if rollbackErr := tx.Rollback(); rollbackErr != nil {
+					log.Printf("operation=DeleteRandevu stage=transaction_rollback")
+				}
+			}
+		}()
+
+		targetSID, accessStatus := authorizeEditAppointment(c.UserContext(), tx, ourUser.Uid, appointmentID)
+		if accessStatus != 0 {
+			message := "Forbidden"
+			if accessStatus == 404 {
+				message = "Randevu bulunamadı"
+			} else if accessStatus == 503 {
+				message = "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			}
+			return c.Status(accessStatus).JSON(fiber.Map{"status": accessStatus, "message": message})
 		}
 
-		if CheckRandevu.Length() == 0 {
-			return c.JSON(fiber.Map{
-				"status":  404,
-				"message": "Randevu bulunamadı",
-			})
-		}
-
-		// Begin transaction
-		err = Orm.Begin()
+		result, err := tx.ExecContext(c.UserContext(), "DELETE FROM randevular WHERE rid = $1 AND sid IS NOT DISTINCT FROM $2", appointmentID, targetSID)
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			log.Printf("operation=DeleteRandevu stage=record_delete")
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil || rowsAffected != 1 {
+			if err != nil || rowsAffected > 1 {
+				log.Printf("operation=DeleteRandevu stage=affected_rows")
+				return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
+			}
+			return c.Status(404).JSON(fiber.Map{"status": 404, "message": "Randevu bulunamadı"})
 		}
 
-		// Delete randevu
-		DeleteRandevuQuery := Orm.Delete()
-		DeleteRandevuQuery.Table("randevular")
-		DeleteRandevuQuery.Where("rid", "=", Rid)
-		DeleteRandevuQuery.Finish()
-		err = DeleteRandevuQuery.Execute()
-
+		err = tx.Commit()
+		// database/sql closes the transaction even when Commit reports failure.
+		transactionFinished = true
 		if err != nil {
-			Orm.Rollback()
-			log.Printf("%v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		// Check if deletion was successful
-		rowsAffected, err := DeleteRandevuQuery.RowsAffected()
-		if err != nil {
-			Orm.Rollback()
-			log.Printf("%v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
-		}
-
-		if rowsAffected == 0 {
-			Orm.Rollback()
-			return c.JSON(fiber.Map{
-				"status":  404,
-				"message": "Randevu bulunamadı",
-			})
-		}
-
-		// Commit transaction
-		err = Orm.Commit()
-		if err != nil {
-			Orm.Rollback()
-			log.Printf("%v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Server Hatası: Lütfen daha sonra tekrar deneyin.",
-			})
+			log.Printf("operation=DeleteRandevu stage=transaction_commit")
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server Hatası: Lütfen daha sonra tekrar deneyin."})
 		}
 
 		return c.JSON(fiber.Map{
