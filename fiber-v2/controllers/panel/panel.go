@@ -6344,137 +6344,48 @@ func RandevuTalepleriLatestAPI(states *models.AppState, utilities *models.Utilit
 func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ourUser, err := lib.CheckAuth(c)
-
 		if err != nil {
 			return c.Redirect("/giris")
 		}
-
-		Orm := utilities.Orm
-
-		GetOptions := database.Options{}
-		GetOptions, err = GetOptions.FetchOptionsForPanel(Orm, []string{}, []string{}, ourUser)
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+		if utilities == nil || utilities.Orm == nil {
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
-
-		// Get pagination parameters
 		page := c.QueryInt("page", 1)
-		perPage := 10
-
 		if page < 1 {
 			page = 1
 		}
-
-		offset := (page - 1) * perPage
-
-		GetAllSubeler := Orm.CustomSelectQuery("SELECT DISTINCT s.name, s.sid FROM randevular r LEFT JOIN subeler s ON r.sid = s.sid")
-		GetAllSubeler.Finish()
-		err = GetAllSubeler.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
+		if page > 214748364 {
+			page = 214748364
 		}
-
-		subelerRows, err := GetAllSubeler.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/panel")
-		}
-
-		GetAllSubelerArray := []models.Subeler{}
-		for _, row := range subelerRows {
-			GetAllSubelerArray = append(GetAllSubelerArray, models.Subeler{
-				Sid:  lib.String(row["sid"]),
-				Name: lib.String(row["name"]),
-			})
-		}
-
 		Query := c.Query("query", "")
 		Status := c.Query("is_active", "all")
-		SortBy := lib.SanitizeSortColumn(c.Query("sort_by", "patient_first_name"), "patient_first_name")
+		SortBy := c.Query("sort_by", "patient_first_name")
+		switch SortBy {
+		case "patient_first_name", "patient_last_name", "patient_phone", "patient_email", "appointment_date", "duration", "status":
+		default:
+			SortBy = "patient_first_name"
+		}
 		SortOrder := lib.SanitizeSortOrder(c.Query("sort_order", "DESC"))
 		SubelerQuery := c.Query("sube", "all")
-
-		// Get randevular data
-		RandevularQuery := Orm.Select([]string{
-			"r.rid", "r.patient_first_name", "r.patient_last_name", "r.patient_phone",
-			"r.patient_email", "r.appointment_date", "r.appointment_time", "r.duration",
-			"r.status", "r.payment_status", "r.price", "r.created_at", "r.updated_at",
-			"d.title", "d.first_name as doctor_first_name", "d.last_name as doctor_last_name",
-			"s.name as sube_name", "s.city as sube_city",
-			"b.name as branch_name",
+		result, accessStatus := readAuthorizedAppointmentList(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, appointmentListFilter{
+			query: Query, status: Status, branch: SubelerQuery, sortBy: SortBy, sortOrder: SortOrder, page: page,
 		})
-		RandevularQuery.Table("randevular r")
-		RandevularQuery.LeftJoin("doktorlar d", "r.drid", "=", "d.drid")
-		RandevularQuery.LeftJoin("subeler s", "r.sid", "=", "s.sid")
-		RandevularQuery.LeftJoin("branslar b", "r.brid", "=", "b.brid")
-		if Query != "" {
-			RandevularQuery.OpenParenthesis("WHERE")
-			RandevularQuery.Like("WHERE", "r.patient_first_name", Query, "contains")
-			RandevularQuery.Like("OR", "r.patient_last_name", Query, "contains")
-			RandevularQuery.Like("OR", "r.patient_phone", Query, "contains")
-			RandevularQuery.Like("OR", "r.patient_email", Query, "contains")
-			RandevularQuery.Like("OR", "r.complaint", Query, "contains")
-			RandevularQuery.Like("OR", "r.notes", Query, "contains")
-			RandevularQuery.CloseParenthesis()
+		if accessStatus != fiber.StatusOK {
+			return appointmentDetailUnavailable(c, accessStatus)
 		}
-
-		if Status != "all" {
-			if strings.Contains(RandevularQuery.Query, "WHERE") {
-				RandevularQuery.And("r.status", "=", Status)
-			} else {
-				RandevularQuery.Where("r.status", "=", Status)
-			}
-		}
-
-		if SubelerQuery != "all" {
-			if strings.Contains(RandevularQuery.Query, "WHERE") {
-				RandevularQuery.And("r.sid", "=", SubelerQuery)
-			} else {
-				RandevularQuery.Where("r.sid", "=", SubelerQuery)
-			}
-		}
-
-		RandevularQuery.OrderBy("r."+SortBy, SortOrder)
-		RandevularQuery.Limit(perPage)
-		RandevularQuery.Offset(offset)
-		RandevularQuery.Finish()
-
-		err = RandevularQuery.Execute()
-
+		ourUser.Role = result.role
+		GetOptions := database.Options{}
+		GetOptions, err = GetOptions.FetchOptionsForPanel(utilities.Orm, []string{}, []string{}, ourUser)
 		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
+			return appointmentDetailUnavailable(c, fiber.StatusServiceUnavailable)
 		}
-
-		rows, err := RandevularQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		// Get total count
-		CountQuery := Orm.Select([]string{"COUNT(*) as count"})
-		CountQuery.Table("randevular")
-		CountQuery.Finish()
-		err = CountQuery.Execute()
-
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		countRows, err := CountQuery.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-			return c.Redirect("/giris")
-		}
-
-		Count := 0
-		if len(countRows) > 0 {
-			Count = int(lib.Int64(countRows[0]["count"]))
+		rows := result.rows
+		Count := result.count
+		GetAllSubelerArray := []models.Subeler{}
+		for _, row := range result.branches {
+			GetAllSubelerArray = append(GetAllSubelerArray, models.Subeler{
+				Sid: lib.String(row["sid"]), Name: lib.String(row["name"]),
+			})
 		}
 
 		// Map rows to Randevular structs
