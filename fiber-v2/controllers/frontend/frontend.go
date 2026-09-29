@@ -1699,9 +1699,35 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("center doctors options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		subeName := c.Params("sube")
+		GetSubeName := Orm.Select([]string{"sid", "name"})
+		GetSubeName.Table("subeler")
+		GetSubeName.Where("url_name", "=", subeName)
+		GetSubeName.And("is_active", "=", true)
+		GetSubeName.Finish()
+		err = GetSubeName.Execute()
+		if err != nil {
+			log.Printf("center doctors center: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		subeRows, err := GetSubeName.Rows()
+		if err != nil {
+			log.Printf("center doctors center rows: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		if len(subeRows) == 0 {
+			return FallbackPage(states, utilities)(c)
+		}
+		SubeName := models.SubeForFrontendPages{
+			Sid:  lib.String(subeRows[0]["sid"]),
+			Name: lib.String(subeRows[0]["name"]),
+		}
 
 		Doctors := []models.DoktorForHomePage{}
 		GetDoctors := Orm.Select([]string{"d.drid", "d.url_name", "d.title", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
@@ -1710,23 +1736,24 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
 		GetDoctors.LeftJoin("medias m", "d.photo_mid", "=", "m.mid")
 		GetDoctors.Where("s.url_name", "=", subeName)
+		GetDoctors.And("s.is_active", "=", true)
 		GetDoctors.And("d.is_active", "=", true)
 		GetDoctors.AppendCustom("ORDER BY CASE d.title WHEN 'Prof. Dr.' THEN 1 WHEN 'Doç. Dr.' THEN 2 WHEN 'Op. Dr.' THEN 3 WHEN 'Uzm. Dr.' THEN 4 WHEN 'Dr.' THEN 5 ELSE 6 END, d.drid ASC")
 		GetDoctors.Finish()
 
 		log.Printf("GetDoctors Query: %v", GetDoctors.Query)
 
-		err := GetDoctors.Execute()
+		err = GetDoctors.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/subelerimiz/" + subeName)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err := GetDoctors.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
-			return c.Redirect("/subelerimiz/" + subeName)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		for _, row := range rows {
@@ -1750,31 +1777,9 @@ func DoktorlarPage(states *models.AppState, utilities *models.Utilities) fiber.H
 			})
 		}
 
-		GetSubeName := Orm.Select([]string{"sid", "name"})
-		GetSubeName.Table("subeler")
-		GetSubeName.Where("url_name", "=", subeName)
-		GetSubeName.Finish()
-		err = GetSubeName.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		rows, err = GetSubeName.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		SubeName := models.SubeForFrontendPages{}
-		for _, row := range rows {
-			SubeName = models.SubeForFrontendPages{
-				Sid:  lib.String(row["sid"]),
-				Name: lib.String(row["name"]),
-			}
-		}
-
 		return c.Render("views/frontend/doktorlar", fiber.Map{
 			"PathOnStart": "../../",
-			"Route":       "/subeler/" + subeName + "/doktorlar",
+			"Route":       "/merkezlerimiz/" + subeName + "/doktorlar",
 			"Options":     Options,
 			"User":        OurUser,
 			"Doctors":     Doctors,
@@ -1903,7 +1908,11 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("center doctor options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		subeName := c.Params("sube")
 		doktorName := c.Params("doktor")
@@ -1916,9 +1925,10 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		GetDoktor.Where("d.url_name", "=", doktorName)
 		GetDoktor.And("d.is_active", "=", true)
 		GetDoktor.And("s.url_name", "=", subeName)
+		GetDoktor.And("s.is_active", "=", true)
 		GetDoktor.Finish()
 
-		err := GetDoktor.Execute()
+		err = GetDoktor.Execute()
 
 		if err != nil {
 			log.Printf("%v\n", err)
@@ -1939,6 +1949,7 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		for _, row := range rows {
 			Doktor = models.Doktorlar{
 				Drid:                 lib.String(row["drid"]),
+				UrlName:              lib.String(row["url_name"]),
 				Title:                lib.String(row["title"]),
 				FirstName:            lib.String(row["first_name"]),
 				LastName:             lib.String(row["last_name"]),
@@ -1977,11 +1988,13 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		err = GetDoctorExperiences.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err = GetDoctorExperiences.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		DoctorExperiences := []models.DoctorExperiences{}
@@ -2004,11 +2017,13 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 		err = GetDoctorExpertises.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		rows, err = GetDoctorExpertises.Rows()
 		if err != nil {
 			log.Printf("%v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
 		DoctorExpertises := []models.DoctorExpertises{}
@@ -2026,7 +2041,7 @@ func DoktorPage(states *models.AppState, utilities *models.Utilities) fiber.Hand
 
 		return c.Render("views/frontend/doktor", fiber.Map{
 			"PathOnStart": "../../../",
-			"Route":       "/doktorlar/" + subeName + "/doktorlar/" + doktorName,
+			"Route":       "/merkezlerimiz/" + subeName + "/doktorlar/" + doktorName,
 			"Options":     Options,
 			"User":        OurUser,
 			"Doktor":      Doktor,
