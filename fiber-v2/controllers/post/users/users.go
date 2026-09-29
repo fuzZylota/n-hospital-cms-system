@@ -508,45 +508,48 @@ func ChangeUserPassword(states *models.AppState, utilities *models.Utilities) fi
 
 func DeleteUser(states *models.AppState, utilities *models.Utilities) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		OurUser, err := lib.CheckAuth(c)
-
+		actor, err := lib.CheckAuth(c)
 		if err != nil {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Forbidden",
-			})
+			return c.JSON(fiber.Map{"status": 403, "message": "Forbidden"})
 		}
-
-		UserUid := c.Params("uid")
-
-		Orm := utilities.Orm
-
-		if OurUser.Role != "admin" || OurUser.Uid == UserUid {
-			return c.JSON(fiber.Map{
-				"status":  403,
-				"message": "Only admins can delete users",
-			})
+		targetID, ok := canonicalDeleteUID(c.Params("uid"))
+		if !ok {
+			return c.JSON(fiber.Map{"status": 400, "message": "Bad request"})
 		}
-
-		DeleteUser := Orm.Delete()
-		DeleteUser.Table("users")
-		DeleteUser.Where("uid", "=", UserUid)
-		DeleteUser.Finish()
-
-		err = DeleteUser.Execute()
-
+		actorID, ok := canonicalDeleteUID(actor.Uid)
+		if !ok {
+			return c.JSON(fiber.Map{"status": 403, "message": "Forbidden"})
+		}
+		if utilities == nil || utilities.Orm == nil || utilities.Orm.Pool == nil {
+			return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+		}
+		tx, err := utilities.Orm.Pool.BeginTx(c.UserContext(), &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 		if err != nil {
-			log.Printf("Cannot delete user: %v\n", err)
-			return c.JSON(fiber.Map{
-				"status":  500,
-				"message": "Internal server error",
-			})
+			return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
 		}
-
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "User deleted successfully",
-		})
+		finished := false
+		defer func() {
+			if !finished {
+				_ = tx.Rollback()
+			}
+		}()
+		result := runUserDelete(c.UserContext(), tx, actorID, targetID)
+		if result.status != 201 {
+			rollbackErr := tx.Rollback()
+			finished = true
+			if rollbackErr != nil {
+				return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+			}
+			return c.JSON(fiber.Map{"status": result.status, "message": result.message})
+		}
+		if err = tx.Commit(); err != nil {
+			finished = true
+			// database/sql marks the transaction done after a failed Commit.
+			_ = tx.Rollback()
+			return c.JSON(fiber.Map{"status": 500, "message": "Internal server error"})
+		}
+		finished = true
+		return c.JSON(fiber.Map{"status": 201, "message": "User deleted successfully"})
 	}
 }
 
