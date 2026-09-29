@@ -2291,17 +2291,22 @@ func TibbiBirimPage(states *models.AppState, utilities *models.Utilities) fiber.
 		}
 
 		Options := database.Options{}
-		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		Options, err := Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
+		if err != nil {
+			log.Printf("medical unit detail options: %v\n", err)
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
 
 		tibbiBirimName := c.Params("tibbibirim")
 
-		GetTibbiBirim := Orm.Select([]string{"tb.*", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title", "m2.file_path as video_path"})
+		GetTibbiBirim := Orm.Select([]string{"tb.name", "tb.url_name", "tb.description", "tb.html_content", "tb.javascript_content", "tb.css_content", "tb.is_active", "tb.created_at", "tb.updated_at", "tb.video_mid", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title", "m2.file_path as video_path"})
 		GetTibbiBirim.Table("tibbi_birimler tb")
 		GetTibbiBirim.LeftJoin("medias m", "tb.cover_mid", "=", "m.mid")
 		GetTibbiBirim.LeftJoin("medias m2", "tb.video_mid", "=", "m2.mid")
 		GetTibbiBirim.Where("tb.url_name", "=", tibbiBirimName)
+		GetTibbiBirim.And("tb.is_active", "=", true)
 		GetTibbiBirim.Finish()
-		err := GetTibbiBirim.Execute()
+		err = GetTibbiBirim.Execute()
 		if err != nil {
 			log.Printf("%v\n", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
