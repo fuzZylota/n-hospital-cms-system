@@ -7186,65 +7186,34 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
 		}
-		Orm := utilities.Orm
-		dateStart := c.Query("date_start", "")
-		dateEnd := c.Query("date_end", "")
-		statuses := c.Query("statuses", "")
-
-		Query := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.patient_email", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name"})
-		Query.Table("randevu_talepleri rt")
-		Query.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
-
-		if dateStart != "" {
-			Query.Where("rt.created_at", ">=", dateStart)
+		if utilities == nil || utilities.Orm == nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"status": 503, "message": "Hizmet kullanılamıyor"})
 		}
-		if dateEnd != "" {
-			Query.And("rt.created_at", "<=", dateEnd+" 23:59:59")
-		}
-		if statuses != "" {
-			statusList := strings.Split(statuses, ",")
-			sids := make([]interface{}, len(statusList))
-			for i, s := range statusList {
-				sids[i] = strings.TrimSpace(s)
+		c.Set("Cache-Control", "no-store")
+		rows, accessStatus := readAuthorizedAppointmentRequestExport(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, appointmentRequestExportFilter{
+			dateStart: c.Query("date_start", ""), dateEnd: c.Query("date_end", ""), statuses: c.Query("statuses", ""),
+		})
+		if accessStatus != fiber.StatusOK {
+			if accessStatus == fiber.StatusNotFound {
+				return c.Status(accessStatus).JSON(fiber.Map{"status": 404, "message": "Bulunamadı"})
 			}
-			Query.In("AND", "rt.status", sids)
-		}
-		if ourUser.Role != "admin" {
-			AllowedSids := []any{}
-			GetPermSids := Orm.Select([]string{"sid"})
-			GetPermSids.Table("user_branch_permissions")
-			GetPermSids.Where("uid", "=", ourUser.Uid)
-			GetPermSids.And("can_view", "=", true)
-			GetPermSids.Finish()
-			_ = GetPermSids.Execute()
-			permRows, _ := GetPermSids.Rows()
-			for _, r := range permRows {
-				AllowedSids = append(AllowedSids, r["sid"])
-			}
-			if len(AllowedSids) == 0 {
-				return c.Status(403).JSON(fiber.Map{"status": 403, "message": "Yetkiniz yok"})
-			}
-			Query.In("AND", "rt.sid", AllowedSids)
-		}
-		Query.OrderBy("rt.created_at", "DESC")
-		Query.Finish()
-		err = Query.Execute()
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Sorgu hatası"})
-		}
-		rows, err := Query.Rows()
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Veri hatası"})
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"status": 503, "message": "Hizmet kullanılamıyor"})
 		}
 
 		f := excelize.NewFile()
+		defer f.Close()
+		workbookFailure := func() error {
+			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Excel oluşturma hatası"})
+		}
 		sheet := "Randevu Talepleri"
-		f.SetSheetName("Sheet1", sheet)
+		if err := f.SetSheetName("Sheet1", sheet); err != nil {
+			return workbookFailure()
+		}
 
 		// Başlık stili
-		headerStyle, _ := f.NewStyle(&excelize.Style{
-			Font: &excelize.Font{Bold: true, Color: "FFFFFF", Size: 11},
-			Fill: excelize.Fill{Type: "pattern", Color: []string{"2563EB"}, Pattern: 1},
+		headerStyle, err := f.NewStyle(&excelize.Style{
+			Font:      &excelize.Font{Bold: true, Color: "FFFFFF", Size: 11},
+			Fill:      excelize.Fill{Type: "pattern", Color: []string{"2563EB"}, Pattern: 1},
 			Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center", WrapText: true},
 			Border: []excelize.Border{
 				{Type: "left", Color: "FFFFFF", Style: 1},
@@ -7252,9 +7221,12 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 				{Type: "bottom", Color: "FFFFFF", Style: 1},
 			},
 		})
+		if err != nil {
+			return workbookFailure()
+		}
 		// Satır stili (çift)
-		evenStyle, _ := f.NewStyle(&excelize.Style{
-			Fill: excelize.Fill{Type: "pattern", Color: []string{"EFF6FF"}, Pattern: 1},
+		evenStyle, err := f.NewStyle(&excelize.Style{
+			Fill:      excelize.Fill{Type: "pattern", Color: []string{"EFF6FF"}, Pattern: 1},
 			Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
 			Border: []excelize.Border{
 				{Type: "left", Color: "DBEAFE", Style: 1},
@@ -7262,8 +7234,11 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 				{Type: "bottom", Color: "DBEAFE", Style: 1},
 			},
 		})
+		if err != nil {
+			return workbookFailure()
+		}
 		// Satır stili (tek)
-		oddStyle, _ := f.NewStyle(&excelize.Style{
+		oddStyle, err := f.NewStyle(&excelize.Style{
 			Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
 			Border: []excelize.Border{
 				{Type: "left", Color: "DBEAFE", Style: 1},
@@ -7271,6 +7246,9 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 				{Type: "bottom", Color: "DBEAFE", Style: 1},
 			},
 		})
+		if err != nil {
+			return workbookFailure()
+		}
 
 		headers := []string{"#", "Ad", "Soyad", "Telefon", "E-posta", "Şube", "Mesaj", "Durum", "Talep Tarihi"}
 		colWidths := []float64{5, 15, 15, 15, 25, 20, 40, 18, 20}
@@ -7278,11 +7256,19 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 
 		for i, h := range headers {
 			cell := cols[i] + "1"
-			f.SetCellValue(sheet, cell, h)
-			f.SetCellStyle(sheet, cell, cell, headerStyle)
-			f.SetColWidth(sheet, cols[i], cols[i], colWidths[i])
+			if err := f.SetCellValue(sheet, cell, h); err != nil {
+				return workbookFailure()
+			}
+			if err := f.SetCellStyle(sheet, cell, cell, headerStyle); err != nil {
+				return workbookFailure()
+			}
+			if err := f.SetColWidth(sheet, cols[i], cols[i], colWidths[i]); err != nil {
+				return workbookFailure()
+			}
 		}
-		f.SetRowHeight(sheet, 1, 22)
+		if err := f.SetRowHeight(sheet, 1, 22); err != nil {
+			return workbookFailure()
+		}
 
 		statusLabels := map[string]string{
 			"yeni": "Yeni", "randevu-verildi": "Randevu Verildi",
@@ -7317,15 +7303,21 @@ func RandevuTalepleriExport(states *models.AppState, utilities *models.Utilities
 			}
 			for j, val := range values {
 				cell := cols[j] + fmt.Sprintf("%d", rowNum)
-				f.SetCellValue(sheet, cell, val)
-				f.SetCellStyle(sheet, cell, cell, style)
+				if err := f.SetCellValue(sheet, cell, val); err != nil {
+					return workbookFailure()
+				}
+				if err := f.SetCellStyle(sheet, cell, cell, style); err != nil {
+					return workbookFailure()
+				}
 			}
-			f.SetRowHeight(sheet, rowNum, 18)
+			if err := f.SetRowHeight(sheet, rowNum, 18); err != nil {
+				return workbookFailure()
+			}
 		}
 
 		buf, err := f.WriteToBuffer()
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Excel oluşturma hatası"})
+			return workbookFailure()
 		}
 
 		fileName := "randevu-talepleri-" + time.Now().Format("2006-01-02") + ".xlsx"

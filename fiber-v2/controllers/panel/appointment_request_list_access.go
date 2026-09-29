@@ -3,7 +3,6 @@ package panel
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -38,46 +37,11 @@ func readAuthorizedAppointmentRequestList(ctx context.Context, db *sql.DB, uid s
 		return result, fiber.StatusServiceUnavailable
 	}
 	defer tx.Rollback()
-	var role string
-	var userBranch sql.NullInt64
-	var active bool
-	err = tx.QueryRowContext(ctx, "SELECT role, sid, is_active FROM users WHERE uid = $1", userID).Scan(&role, &userBranch, &active)
-	if errors.Is(err, sql.ErrNoRows) || (err == nil && !active) {
-		return result, fiber.StatusNotFound
-	}
-	if err != nil {
-		return result, fiber.StatusServiceUnavailable
+	role, allowed, accessStatus := appointmentRequestReadScope(ctx, tx, userID)
+	if accessStatus != fiber.StatusOK {
+		return appointmentRequestListResult{}, accessStatus
 	}
 	result.role = role
-	var allowed []int64
-	switch role {
-	case "admin":
-	case "moderator", "santral":
-		permissionRows, err := tx.QueryContext(ctx, "SELECT sid FROM user_branch_permissions WHERE uid = $1 AND can_view = true", userID)
-		if err != nil {
-			return appointmentRequestListResult{}, fiber.StatusServiceUnavailable
-		}
-		for permissionRows.Next() {
-			var sid int64
-			if err := permissionRows.Scan(&sid); err != nil {
-				permissionRows.Close()
-				return appointmentRequestListResult{}, fiber.StatusServiceUnavailable
-			}
-			if role == "moderator" || (userBranch.Valid && sid == userBranch.Int64) {
-				allowed = append(allowed, sid)
-			}
-		}
-		rowErr := permissionRows.Err()
-		closeErr := permissionRows.Close()
-		if rowErr != nil || closeErr != nil {
-			return appointmentRequestListResult{}, fiber.StatusServiceUnavailable
-		}
-		if len(allowed) == 0 {
-			return appointmentRequestListResult{}, fiber.StatusNotFound
-		}
-	default:
-		return appointmentRequestListResult{}, fiber.StatusNotFound
-	}
 
 	// The existing panel setting controls pagination; read it after authorization.
 	if err := tx.QueryRowContext(ctx, "SELECT items_per_page FROM options WHERE option_set_is_active = true LIMIT 1").Scan(&result.itemsPerPage); err != nil || result.itemsPerPage <= 0 || result.itemsPerPage > 1000 {
