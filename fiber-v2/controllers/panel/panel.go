@@ -6097,78 +6097,42 @@ func RandevuTalepleriPage(states *models.AppState, utilities *models.Utilities) 
 
 
 func RandevuTalepleriLatestAPI(states *models.AppState, utilities *models.Utilities) fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        ourUser, err := lib.CheckAuth(c)
-        if err != nil {
-            return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
-        }
-
-        Orm := utilities.Orm
-        since := c.Query("since", "")
-
-        RandevuTalepleri := Orm.Select([]string{"rt.rrid", "rt.patient_first_name", "rt.patient_last_name", "rt.patient_phone", "rt.message", "rt.created_at", "rt.status", "s.name as sube_name"})
-        RandevuTalepleri.Table("randevu_talepleri rt")
-        RandevuTalepleri.InnerJoin("subeler s", "rt.sid", "=", "s.sid")
-
-        if since != "" {
-            RandevuTalepleri.Where("rt.created_at", ">", since)
-        }
-
-        // Admin değilse sadece izinli şubeleri göster
-        if ourUser.Role != "admin" {
-            AllowedSids := []any{}
-            GetPermSids := Orm.Select([]string{"sid"})
-            GetPermSids.Table("user_branch_permissions")
-            GetPermSids.Where("uid", "=", ourUser.Uid)
-            GetPermSids.And("can_view", "=", true)
-            GetPermSids.Finish()
-            _ = GetPermSids.Execute()
-            permSids, _ := GetPermSids.Rows()
-            for _, r := range permSids {
-                AllowedSids = append(AllowedSids, r["sid"])
-            }
-            if len(AllowedSids) == 0 {
-                return c.JSON(fiber.Map{"status": 200, "data": []fiber.Map{}})
-            }
-            RandevuTalepleri.In("AND", "rt.sid", AllowedSids)
-        }
-
-        RandevuTalepleri.OrderBy("rt.created_at", "DESC")
-        RandevuTalepleri.Limit(20)
-        RandevuTalepleri.Finish()
-
-        RandevuTalepleriQuery := Orm.CustomSelectQuery(RandevuTalepleri.GetFullQuery())
-        err = RandevuTalepleriQuery.Execute()
-        if err != nil {
-            return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server error"})
-        }
-
-        rows, err := RandevuTalepleriQuery.Rows()
-        if err != nil {
-            return c.Status(500).JSON(fiber.Map{"status": 500, "message": "Server error"})
-        }
-
-        result := []fiber.Map{}
-        for _, row := range rows {
-            result = append(result, fiber.Map{
-                "rrid":               lib.String(row["rrid"]),
-                "patient_first_name": lib.String(row["patient_first_name"]),
-                "patient_last_name":  lib.String(row["patient_last_name"]),
-                "patient_phone":      lib.String(row["patient_phone"]),
-                "message":    lib.String(row["message"]),
-                "created_at": func() string {
-                    if t, ok := row["created_at"].(time.Time); ok {
-                        return t.Format("2006-01-02T15:04:05Z07:00")
-                    }
-                    return lib.String(row["created_at"])
-                }(),
-                "status":             lib.String(row["status"]),
-                "sube_name":          lib.String(row["sube_name"]),
-            })
-        }
-
-        return c.JSON(fiber.Map{"status": 200, "data": result})
-    }
+	return func(c *fiber.Ctx) error {
+		ourUser, err := lib.CheckAuth(c)
+		if err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": 401, "message": "Unauthorized"})
+		}
+		if utilities == nil || utilities.Orm == nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"status": 503, "message": "Hizmet kullanılamıyor"})
+		}
+		c.Set("Cache-Control", "no-store")
+		rows, accessStatus := readAuthorizedAppointmentRequestLatest(c.UserContext(), utilities.Orm.Pool, ourUser.Uid, c.Query("since", ""))
+		if accessStatus != fiber.StatusOK {
+			if accessStatus == fiber.StatusNotFound {
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"status": 404, "message": "Bulunamadı"})
+			}
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"status": 503, "message": "Hizmet kullanılamıyor"})
+		}
+		result := []fiber.Map{}
+		for _, row := range rows {
+			result = append(result, fiber.Map{
+				"rrid":               lib.String(row["rrid"]),
+				"patient_first_name": lib.String(row["patient_first_name"]),
+				"patient_last_name":  lib.String(row["patient_last_name"]),
+				"patient_phone":      lib.String(row["patient_phone"]),
+				"message":            lib.String(row["message"]),
+				"created_at": func() string {
+					if t, ok := row["created_at"].(time.Time); ok {
+						return t.Format("2006-01-02T15:04:05Z07:00")
+					}
+					return lib.String(row["created_at"])
+				}(),
+				"status":    lib.String(row["status"]),
+				"sube_name": lib.String(row["sube_name"]),
+			})
+		}
+		return c.JSON(fiber.Map{"status": 200, "data": result})
+	}
 }
 
 func RandevularPage(states *models.AppState, utilities *models.Utilities) fiber.Handler {
