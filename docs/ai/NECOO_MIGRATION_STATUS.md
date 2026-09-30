@@ -96,7 +96,7 @@ erişim/indirme, DB veya production doğrulaması yapılmadı.
 ### Tarihsel belge
 
 - `docs/ai/OWNED_DATA_LAYER_MIGRATION_PLAN.md` (retired hedef ve N00–N11),
-  `docs/ai/PROJECT_STATE.md`, `docs/ai/N04B_NOTIFICATION_HUB_WIRING.md` ve
+  [eski proje durumu arşivi](CURRENT_HANDOFF.md#historical-project-state), `docs/ai/N04B_NOTIFICATION_HUB_WIRING.md` ve
   `CLAUDE.md` eski paketi anıyor. `AGENTS.md` de mevcut ORM mimarisini anlatıyor;
   güncel işletim gerçeği olarak yenilenmesi N11 kapsamındadır. Bu belge
   migration'ın tamamlandığına kanıt değildir.

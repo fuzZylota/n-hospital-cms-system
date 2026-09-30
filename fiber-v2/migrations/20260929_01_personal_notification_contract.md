@@ -37,18 +37,25 @@ run either command against a real or production DB without separate approval.
 The Go fake and static schema tests do **not** prove PostgreSQL constraint,
 lock, timing, or migration behavior.
 
-The registered `POST /backend/user/:uid/delete` calls `DeleteUser`, which
-directly deletes from `users` (`baserouter/baserouter.go` and
-`controllers/post/users/users.go`). A recipient with a receipt will make that
-DELETE fail under the chosen `ON DELETE RESTRICT`; a referenced notification
-also cannot be cleaned up by a direct DELETE. No notification DELETE endpoint
-or cleanup job was found in the current source. `CASCADE` would silently erase
-personal read history, and `SET NULL` would detach its owner from the
-`(nid, recipient_uid)` primary key. This first phase retains `RESTRICT` and
-does not alter those live deletion paths. Account/notification retention,
-deletion and error handling need a separate product and application decision.
-Do not wire a producer to the owned writer until that decision is implemented
-and tested, including the existing user-delete response.
+At this first-phase snapshot, registered `POST /backend/user/:uid/delete`
+used a direct users DELETE, which would fail for recipients with receipts under
+`ON DELETE RESTRICT`. That warning is historical. Commit `97d533b` now removes
+only the target user's receipts before exactly one users row in the same
+request-local transaction (`controllers/post/users/user_delete_transaction.go`).
+Current active admin, real target and self-delete checks precede mutation;
+events and other recipients survive. **Deployment is CLOSED**: this handler
+depends on `notification_receipts` even for a target with zero receipts. The
+migration is unapplied; real PostgreSQL deletion/FK behavior must be verified
+before deployment. Fake tests do not establish that gate.
+
+A referenced notification still cannot be cleaned up by direct DELETE. No
+notification DELETE endpoint or cleanup job was found in the reviewed source.
+`CASCADE` would silently erase personal read history; `SET NULL` would detach
+its owner from the `(nid, recipient_uid)` primary key. The first phase retains
+`RESTRICT`. Last-admin, account/event retention, source-object deletion and
+asynchronous producer races remain product/application decisions. Receipt
+compatibility is not producer cutover approval. Do not wire producers until
+their recipient/lifecycle contracts and real DB behavior are approved and tested.
 
 Rollback before migration COMMIT is PostgreSQL transaction rollback. After
 COMMIT, do not drop the added columns/table while any personal notification or
