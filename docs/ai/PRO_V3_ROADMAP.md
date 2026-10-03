@@ -123,6 +123,18 @@ P0 → P1-0 (karar) → P1 (1–4) → P2 → P3-1 → P6-1/3/4 → P3 kalan →
 Her görev tek commit; görev başına yalnız ilgili dosyalar okunur; büyük
 belgeler (`docs/ai/*`, 670 KB) yeniden okunmaz — bu dosya tek kaynak.
 
+## Ajan sistemi (2026-10-03 araştırması sonucu)
+| Repo dosyası | Uyarlandığı kaynak | Ne zaman |
+| --- | --- | --- |
+| `.claude/skills/nivgoz-pro/SKILL.md` | GSD / spec-kit döngüsü, obra/superpowers (plan + görev başına alt ajan + inceleme) | Her yol haritası görevi |
+| `.claude/skills/nivgoz-design/SKILL.md` | Anthropic `frontend-design` skill, UI UX Pro Max (Healthcare kuralları) | Her yeni ekran/bileşen |
+| `.claude/agents/design-reviewer.md` | OneRedOak/claude-code-workflows design-review (7 aşama, Playwright) | UI görevi commit'inden önce |
+| `.claude/agents/seo-auditor.md` | AgriciDaniel/claude-seo (teknik + yerel + schema) | P4 ve şablon değişikliği |
+| yerleşik `/security-review`, `/code-review` | Claude Code | Güvenlik/backend değişikliği |
+Kurulmayanlar ve nedeni: UI UX Pro Max (100+ stil/161 palet veritabanı; marka
+ve kitle zaten sabit), claude-seo tam paket (18 ajan, harici API'ler), GSD/BMAD
+(tek geliştiricili, tek repoluk iş için fazla tören). Yöntemleri alındı.
+
 ## Araştırma kaynakları
 - Spec odaklı ajan iş akışları (GSD, spec-kit, BMAD): planı tek kaynak dosyada tut, görev = kabul ölçütü.
 - Anthropic `frontend-design` skill: jenerik font/renk/düzenden kaçın, net estetik yön seç.

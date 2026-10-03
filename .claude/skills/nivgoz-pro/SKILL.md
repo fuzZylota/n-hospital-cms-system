@@ -15,7 +15,11 @@ sadeleştirilmiş hâlidir.
 2. **Bağlam (dar)** — Yalnız görevin "Dosyalar" satırındaki dosyaları oku.
    `docs/ai/` altındaki büyük belgeleri bütün okuma; `grep` ile ilgili bölümü
    çek. Geniş tarama gerekiyorsa tek bir Explore alt ajanına ver.
-3. **Uygula** — Mevcut kodun deyimine uy. Jet kuralları (CLAUDE.md) geçerli.
+3. **Uygula** — UI görevinde önce `nivgoz-design` skill'ini yükle (plan →
+   eleştiri → kod). Mekanik/tekrarlı işleri (ör. 60 panel sayfasını aynı
+   Tabler kalıbına çevirmek) görev başına taze bir alt ajana (`model:
+   sonnet`) ver; ana oturum yalnız planı ve incelemeyi tutar
+   (superpowers "subagent-driven development" deseni). Mevcut kodun deyimine uy. Jet kuralları (CLAUDE.md) geçerli.
    Yeni CSS/JS: `static/css|js/frontend|panel/`. `static/assets/` tema
    dosyalarına dokunma; yeni kütüphane `static/vendor/<ad>@<sürüm>/` altına
    sabit sürümle konur (CDN yok).
@@ -26,6 +30,9 @@ sadeleştirilmiş hâlidir.
      sayfayı aç, 390px ve 1280px ekran görüntüsü, klavye ile odak turu,
      axe-core taraması (hedef: kritik/ciddi ihlal 0). Çalıştırılamayan
      kontrolü "ölçülmedi/çalıştırılmadı" diye raporla.
+   - UI görevi → `design-reviewer` alt ajanı; SEO etkisi → `seo-auditor`;
+     güvenlik/yetki değişikliği → yerleşik `/security-review`.
+     Engelleyici/yüksek bulgu kalmadan commit yok.
 5. **Kaydet** — Görev başına tek commit, Türkçe mesaj (`ui:`, `sec:`, `seo:`,
    `perf:`, `panel:`, `docs:` öneki). Yol haritasında `[x]` + commit kısa
    hash'i. Push: `git push -u origin nivgoz-professional-v2`.
