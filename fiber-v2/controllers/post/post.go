@@ -152,6 +152,8 @@ func AuthenticationController(states *models.AppState, utilities *models.Utiliti
 			Name:     cookieName,
 			Value:    tokenString,
 			HTTPOnly: true,
+			SameSite: fiber.CookieSameSiteLaxMode,
+			Secure:   c.Protocol() == "https" || c.Get("X-Forwarded-Proto") == "https",
 		}
 
 		if inputs.Remember {
@@ -192,6 +194,8 @@ func LogoutController(states *models.AppState, utilities *models.Utilities) fibe
 			Value:    "",
 			Expires:  time.Now().Add(-time.Hour),
 			HTTPOnly: true,
+			SameSite: fiber.CookieSameSiteLaxMode,
+			Secure:   c.Protocol() == "https" || c.Get("X-Forwarded-Proto") == "https",
 			MaxAge:   0,
 		})
 

@@ -66,6 +66,13 @@ Riskler:
 - Ölçülmedi: Lighthouse/Web Vitals (P5'te), gerçek canlı içerik, ekran okuyucu ile elle test.
 - Not: uygulamadaki genel istek sınırı (100/dk/IP) hızlı taramayı 429'a düşürür; araç sayfalar arası 1,5 sn bekler.
 
+## P1 notları (2026-10-03) — canlıya çıkmadan önce sunucuda yapılacaklar
+- **PROXY_HEADER=X-Real-IP** ortam değişkeni ayarlanmalı ve nginx `proxy_set_header X-Real-IP $remote_addr;` göndermeli. Aksi hâlde `c.IP()` hep nginx'in 127.0.0.1 adresidir: mevcut genel 100/dk limiti **tüm ziyaretçilerin toplamı** olur, yeni form limitleri (5/10 dk) tek bir ziyaretçiyle herkese kilitlenir. Değişken boşken davranış eskisiyle aynı.
+- Nginx `Host` başlığını geçirmiyorsa Origin denetimi meşru POST'ları 403'ler (`proxy_set_header Host $host` ya da `X-Forwarded-Host`).
+- Nginx de HSTS/X-Frame-Options/nosniff ekliyorsa başlıklar çift gider; uygulama upstream başlığını ezmez. CSP şimdilik yalnız **Report-Only** (tema inline script kullanıyor; P5'te inline'lar kalkınca enforce).
+- Sitemap: `baseURL` kodda sabit `https://nivgoz.com`; doktor/şube detay sayfaları sitemap'te yok (P4).
+- Gerçek tarayıcıda canlı giriş + form gönderimi ve sunucu nginx yapılandırması ölçülmedi.
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
@@ -80,10 +87,10 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 
 ### P1 — Güvenlik ve backend sertleştirme
 - [~] P1-0 — Randevu yazma rol kararı (2026-10-03, kullanıcı: "iş akışı durmasın"): **randevu oluşturma, düzenleme ve talep durumu değiştirme** artık admin + moderatör + santral. Admin tüm şubeler; moderatör `user_branch_permissions.can_view` olan şubelerde; santral ayrıca `users.sid` eşleşmesiyle. Şube taşıma hedef şubede de yetki ister, şubeyi boşaltmak yalnız admin. **Kesinleşmiş randevu silme admin'de kaldı** (`can_delete` bunu kapsamaz — ChatGPT kaydı). Kod: `appointment_branch_write_access.go`; testler eklendi. Açık: `user_branch_permissions` yalnız `can_view`/`can_delete` taşıyor, ayrı yazma bayrağı yok (istenirse migration + kullanıcı formu); iletişim/İK/içerik rolleri hâlâ geçici admin-only → kalıcı matris ONAY bekliyor.
-- [ ] P1-1 — Güvenlik başlıkları middleware'i (CSP report-only → enforce, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, frame-ancestors). · `main/` · securityheaders.com ≥ A.
-- [ ] P1-2 — Public formlara (randevu, iletişim, İK) form bazlı sıkı hız sınırı (global 100/dk zaten var) + honeypot + sunucu tarafı doğrulama (Fiber yerleşik `limiter`, yeni bağımlılık yok). · `baserouter/`, ilgili controller · 429 + kullanıcı dostu mesaj.
-- [ ] P1-3 — Panel oturumu: CSRF koruması (Fiber yerleşik `csrf`), giriş deneme sınırı (cookie bayrakları + JWT exp Codex'te yapıldı; doğrulanacak). · `main/`, `lib/` · Testli.
-- [~] P1-4 — `robots.txt` + `sitemap.xml` route'ları var (`18e98fd`); yerel ortamda 200/content-type doğrulanacak.
+- [x] P1-1 — Güvenlik başlıkları middleware'i (CSP report-only → enforce, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, frame-ancestors). · `main/` · securityheaders.com ≥ A.
+- [x] P1-2 — Public formlara (randevu, iletişim, İK) form bazlı sıkı hız sınırı (global 100/dk zaten var) + honeypot + sunucu tarafı doğrulama (Fiber yerleşik `limiter`, yeni bağımlılık yok). · `baserouter/`, ilgili controller · 429 + kullanıcı dostu mesaj.
+- [x] P1-3 — Panel oturumu: CSRF koruması (Origin/Sec-Fetch-Site denetimi `main/origin_guard.go` + auth çerezi `SameSite=Lax`, HTTPS'te `Secure`; token tabanlı CSRF gerekmedi) (Fiber yerleşik `csrf`), giriş deneme sınırı (cookie bayrakları + JWT exp Codex'te yapıldı; doğrulanacak). · `main/`, `lib/` · Testli.
+- [x] P1-4 — `robots.txt` + `sitemap.xml` route'ları var (`18e98fd`); yerel ortamda 200/content-type doğrulanacak.
 - [ ] P1-5 — **ONAY** `dgrijalva/jwt-go` → `golang-jwt/jwt/v5` (bağımlılık değişimi). · `lib/` · Eski token'lar geçiş süresince okunur.
 - [ ] P1-6 — **ONAY** Sunucu: `127.0.0.1:2000` bind, root olmayan systemd servisi, TLS 1.2+, brotli. · deploy notu + `tools/deploy/` · Runbook.
 - [ ] P1-7 — Açık deploy kapısı: bildirim migration'ını geçici DB'de uygula/test et, production runbook'u hazırla. · `migrations/` · Kapı AÇIK.
