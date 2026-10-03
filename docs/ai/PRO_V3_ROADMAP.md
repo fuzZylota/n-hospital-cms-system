@@ -58,12 +58,20 @@ Riskler:
 | İkon | Tabler Icons (SVG sprite, yalnız kullanılanlar) | Font Awesome 1 MB'ı yerine |
 | Erişilebilirlik aracı | Header'da kalıcı "Aa+ / Yüksek kontrast" düğmesi (localStorage) | Kitleye özgü ayırt edici özellik |
 
+## Baseline (2026-10-03, yerel tohum veriyle; canlı değil)
+Ölçüm: `tools/qa/qa.mjs`, axe-core 4.10.2 (WCAG 2.0/2.1/2.2 A-AA kuralları), 9 public sayfa × (390, 1280 px).
+- **Public:** kritik 0, **ciddi 136** düğüm. Hepsi `color-contrast` (sayfa başı 1–9), ayrıca `link-name` (foto/video galeri: 7), `target-size`, `link-in-text-block`. Yatay taşma yok, her sayfada tek h1 var. **Etkileşimli öğelerin ~50–94'ü 44px'den küçük** (sayfa başına).
+- **Panel** (3 sayfa): kritik 26, ciddi 252. `button-name`, `select-name` (etiketsiz buton/select), `color-contrast` (/panel'de 71), mobilde `/panel/randevu-talepleri` ve `/panel/randevular` **yatay taşıyor**.
+- **Kırık kaynaklar (yerel 404):** `/images/close.png`, `/images/shapes/main-slider-title-shape-3-1.png`, `/assets/images/shapes/testimonial-card-bg-3-1.png`, `/assets/images/gallery/gallery-1-{1..7}.jpg`, `/files/defaults/tibbi-birimler/default-birim.png` ve bozuk adres `/%3Cdiv%20class=` (bir `src/href` içine HTML kaçmış). Dış: Google Fonts (Fontlar self-host olacak), reCAPTCHA, `nivgoz.com` mutlak görsel adresleri (tohum veri).
+- Ölçülmedi: Lighthouse/Web Vitals (P5'te), gerçek canlı içerik, ekran okuyucu ile elle test.
+- Not: uygulamadaki genel istek sınırı (100/dk/IP) hızlı taramayı 429'a düşürür; araç sayfalar arası 1,5 sn bekler.
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
 ### P0 — Doğrulama altyapısı (her şeyin önkoşulu)
 - [x] P0-1 — Yerel geçici ortam: tek komutla boş Postgres (port 55432) + `schema.sql` + örnek seed + uygulama. · `tools/dev/` · Production'a hiçbir bağlantı yok; `tools/dev/up.sh` ile ana sayfa 200 döner. **Yapıldı**: `tools/dev/{up,down,env}.sh`; geçici Postgres :55432 (/tmp), tohum yönetici `admin@nhospital.com` / `DevOnly-Nivgoz-123`; giriş → `/panel` doğrulandı. Bulgu: `schema.sql` canlı DB'den geride (`homepage_contents.tibbi_birim_id` eksikti, eklendi); tohum yönetici parolası bcrypt olmadığından yerelde değiştiriliyor.
-- [ ] P0-2 — QA betiği: Playwright + axe-core ile kritik 10 sayfanın 390/1280px ekran görüntüsü, a11y ihlal sayısı, konsol hatası. · `tools/qa/` · Tek komut, JSON + PNG çıktı; baseline kaydı.
+- [x] P0-2 — QA betiği: Playwright + axe-core ile kritik 10 sayfanın 390/1280px ekran görüntüsü, a11y ihlal sayısı, konsol hatası. · `tools/qa/` · Tek komut, JSON + PNG çıktı; baseline kaydı. **Yapıldı**: `cd tools/qa && npm i && node qa.mjs [--panel]` (çıktı `tools/qa/out/`, git'te yok).
 - [x] P0-4 — `TestGeneralFileUploadFilesystemFailureLeavesNoResult`: kök neden `lib.UniqueFilePath` hatayı sonuç alanına koyup `nil` dönüyordu (ENOTDIR'de upload 400 veriyordu). Artık hata ikinci değer olarak da dönüyor; sabitlenmiş gövde özeti güncellendi.
 - [ ] P0-4b — Kararsız test: `controllers/post/branslar` → `TestAddBranchOnlyRemovesItsNewUploadAfterDatabaseFailure` (bu değişiklikten bağımsız; 3 denemede 2-3 kez düşüyor, "branch (1).png: file exists").
 - [ ] P0-5 — AST wiring testleri envanteri: hangileri davranış testine çevrilecek, hangileri silinecek. **ONAY** (test silme).

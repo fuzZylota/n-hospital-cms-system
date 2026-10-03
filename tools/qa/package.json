@@ -1,0 +1,7 @@
+{
+  "name": "nivgoz-qa",
+  "private": true,
+  "description": "Yalnız geliştirme: Playwright + axe-core kalite taraması (üretim koduna girmez)",
+  "scripts": { "qa": "node qa.mjs" },
+  "devDependencies": { "axe-core": "4.10.2" }
+}

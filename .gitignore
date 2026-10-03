@@ -30,3 +30,6 @@ fiber-v2/main/main
 
 # Calisma ciktilari
 nohup.out
+
+tools/qa/node_modules
+tools/qa/out
