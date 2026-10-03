@@ -21,6 +21,8 @@ jobs:
         working-directory: fiber-v2
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # lib testi geçmiş bir commit'i `git show` ile okur
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25.1'
