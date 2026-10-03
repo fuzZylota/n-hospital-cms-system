@@ -568,7 +568,7 @@ color: #fff;
     <!-- Nivgoz tasarim sistemi (P2): tema CSS'inden SONRA, !important olmadan kazanir -->
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tokens.css?v=20261003-p2">
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fonts.css?v=20261003-p2">
-    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/components.css?v=20261003-p2">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/components.css?v=20261003-p33">
             <style>
 /*
  * Header / Topbar - consolidated single source of truth.
@@ -1214,6 +1214,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function announceDecision() {
+        try { document.dispatchEvent(new CustomEvent('nv:cookie-decision')); } catch (e) {}
+    }
+    window.nvCookieHasDecision = hasDecision;
+
     function hideBanner() {
         var el = getBanner();
         if (el) el.style.display = 'none';
@@ -1303,6 +1308,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideBanner();
         closeModal();
         loadAnalytics();
+        announceDecision();
     };
 
     window.nvRejectAllCookies = function () {
@@ -1314,6 +1320,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         hideBanner();
         closeModal();
+        announceDecision();
     };
 
     window.nvSaveCookiePreferences = function () {
@@ -1333,6 +1340,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (analytics) {
             loadAnalytics();
         }
+        announceDecision();
     };
 
     window.nvResetCookieConsent = function () {

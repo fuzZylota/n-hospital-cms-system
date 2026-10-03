@@ -10,7 +10,7 @@
             <p class="sidebar-one__about__text">{{ Options.Options.SiteDescription }}</p>
         </div><!-- /.sidebar-one__about -->
         <div class="sidebar-one__info sidebar-one__item">
-            <h4 class="sidebar-one__title">İletişim</h4>
+            <h2 class="sidebar-one__title">İletişim</h2>
             <ul class="sidebar-one__info__list">
                 {{ if Options.Options.ContactEmail != "" }}
                     <li>

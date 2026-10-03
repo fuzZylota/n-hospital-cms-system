@@ -8,137 +8,124 @@
 
 {{ if AtLeastOnePopup }}
     <style>
-        /* Popup Overlay */
+        /* P3-3: yalnızca --nv-* token'ları (css/frontend/tokens.css). Hareket yalnızca
+           kısa bir opaklık geçişi; backdrop-filter / dönme / yaylanma yok. */
         .popup-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0);
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            padding: var(--nv-space-3);
+            background: color-mix(in srgb, var(--nv-navy-950) 72%, transparent);
+            z-index: calc(var(--nv-z-skip) + 100); /* üstbilgi (10060) ve menülerin üstünde, çerez bandının altında */
             opacity: 0;
             visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
+            transition: opacity var(--nv-dur) linear, visibility 0s linear var(--nv-dur);
         }
-
         .popup-overlay.popup-active {
             opacity: 1;
             visibility: visible;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            transition: opacity var(--nv-dur) linear, visibility 0s;
         }
 
-        /* Popup Container */
         .popup-container {
-            background: white;
-            border-radius: 24px;
-            max-width: 35vw;
-            width: 90%;
-            max-height: 90vh;
-            overflow: hidden;
-            box-shadow: 0 25px 100px rgba(0, 0, 0, 0.4);
-            transform: scale(0.8) translateY(-50px);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
-            pointer-events: none;
+            box-sizing: border-box;
+            width: 92vw;
+            max-width: 92vw;
+            max-height: 90vh;
+            max-height: 90dvh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            background: var(--nv-surface);
+            color: var(--nv-text);
+            font-family: var(--nv-font-sans);
+            font-size: var(--nv-text-body);
+            line-height: var(--nv-leading-body);
+            border: var(--nv-border-width) solid var(--nv-border-subtle);
+            border-radius: var(--nv-radius-lg);
+            box-shadow: var(--nv-shadow);
+        }
+        @media (min-width: 768px) {
+            .popup-container { width: min(560px, 92vw); }
         }
 
-        .popup-overlay.popup-active .popup-container {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-            background: #ffffff;
-            display: block;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        /* (Moved popup-header/icon/title/subtitle styles to the extra style block below) */
-
-        /* (Moved popup-body/content/footer/button styles to the extra style block below) */
-
-        /* Close Button */
-        .popup-close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            cursor: pointer;
+        /* Kapat çubuğu: kaydırırken de görünür kalır */
+        .popup-bar {
+            position: sticky;
+            top: 0;
+            z-index: var(--nv-z-base);
             display: flex;
+            justify-content: flex-end;
+            padding: var(--nv-space-2);
+            background: var(--nv-surface);
+            border-bottom: var(--nv-border-width) solid var(--nv-border-subtle);
+        }
+        .popup-close-btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 20px;
-            transition: all 0.3s ease;
-            z-index: 10;
-            animation: popup-rotate-in 0.5s ease-out 0.5s backwards;
+            gap: var(--nv-space-2);
+            min-width: var(--nv-target-min);
+            min-height: var(--nv-target-min);
+            padding: 0 var(--nv-space-4);
+            background: var(--nv-paper);
+            color: var(--nv-navy-900);
+            border: var(--nv-field-border-width) solid var(--nv-navy-900);
+            border-radius: var(--nv-radius-md);
+            font: inherit;
+            font-size: var(--nv-text-sm);
+            font-weight: var(--nv-weight-bold);
+            line-height: 1;
+            cursor: pointer;
         }
-
-        @keyframes popup-rotate-in {
-            from {
-                transform: rotate(-180deg) scale(0);
-                opacity: 0;
-            }
-            to {
-                transform: rotate(0) scale(1);
-                opacity: 1;
-            }
+        .popup-close-btn:hover { background: var(--nv-navy-900); color: var(--nv-paper); }
+        .popup-close-btn:focus-visible {
+            outline: var(--nv-focus-outline);
+            outline-offset: var(--nv-focus-offset);
+            box-shadow: var(--nv-focus-shadow);
         }
+        .popup-close-btn .popup-close-x { font-size: 1.5em; line-height: 1; }
+        :root[data-contrast="high"] .popup-close-btn { color: #000; border-color: #000; }
+        :root[data-contrast="high"] .popup-close-btn:hover { background: #000; color: var(--nv-paper); }
 
-        .popup-close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
+        /* Panelden gelen içerik (DB CSS'i) eski renk/hareket/boyutlarla gelir;
+           burada token'lara ve sakin harekete çekilir. */
+        .popup-container .popup-body { max-height: none; overflow: visible; padding: var(--nv-space-5); }
+        .popup-container .popup-header { max-width: 100%; }
+        .popup-container .popup-header img, .popup-container img { max-width: 100%; height: auto; }
+        .popup-container .popup-header-image { height: 100%; width: 100%; }
+        .popup-container .popup-content-item { animation: none; margin-bottom: var(--nv-space-5); }
+        .popup-container .popup-content-label { color: var(--nv-heading); font-size: var(--nv-text-h5); margin: 0 0 var(--nv-space-2); }
+        .popup-container .popup-content-value { color: var(--nv-text); font-size: var(--nv-text-sm); line-height: var(--nv-leading-body); }
+        .popup-container .popup-footer { background: var(--nv-bg-alt); border-top: var(--nv-border-width) solid var(--nv-border-subtle); padding: var(--nv-space-4) var(--nv-space-5); flex-wrap: wrap; }
+        .popup-container .popup-btn {
+            min-height: var(--nv-target-min); border-radius: var(--nv-radius-md); transition: none; font-size: var(--nv-text-sm);
         }
+        .popup-container .popup-btn:hover { transform: none; box-shadow: none; }
+        .popup-container .popup-btn:focus-visible { outline: var(--nv-focus-outline); outline-offset: var(--nv-focus-offset); box-shadow: var(--nv-focus-shadow); }
+        .popup-container .popup-btn-primary { background: var(--nv-cta-bg); color: var(--nv-cta-fg); }
+        .popup-container .popup-btn-secondary { background: var(--nv-paper); color: var(--nv-navy-900); border: var(--nv-field-border-width) solid var(--nv-navy-900); }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .popup-container {
-                width: 95%;
-                max-width: 85vw;
-                border-radius: 16px;
-            }
-
-            .popup-header {
-                padding: 24px 16px;
-            }
-
-            .popup-icon {
-                width: 64px;
-                height: 64px;
-                font-size: 28px;
-            }
-
-            .popup-title {
-                font-size: 24px;
-            }
-
-            .popup-subtitle {
-                font-size: 16px;
+        @media (prefers-reduced-motion: reduce) {
+            .popup-overlay, .popup-overlay.popup-active, .popup-container, .popup-container * {
+                transition: none !important;
+                animation: none !important;
             }
         }
     </style>
-        
 
-    <!-- Popup Structure -->
-    {* P3-3: iletişim kutusu anlamı, adlı kapat düğmesi, odak yönetimi.
-       İçerik (DB HTML) değişmedi; kaydırılabilir .popup-body klavyeyle
-       kaydırılabilsin diye script tabindex veriyor. *}
+    {* P3-3: role=dialog, aria-modal, odak tuzağı, Esc, dış tık, odak dönüşü.
+       Açılış: çerez bandı karar bekliyorsa karar verildikten sonra; oturum başına bir kez. *}
     <div class="popup-overlay" id="popupOverlay">
-        <div class="popup-container" role="dialog" aria-modal="true" aria-label="Duyuru">
-            <button type="button" class="popup-close-btn" id="closePopupBtn" aria-label="Duyuruyu kapat">
-                <span aria-hidden="true">×</span>
-            </button>
+        <div class="popup-container" role="dialog" aria-modal="true" aria-label="Duyuru" id="popupDialog">
+            <div class="popup-bar">
+                <button type="button" class="popup-close-btn" id="closePopupBtn" aria-label="Duyuruyu kapat">
+                    <span>Kapat</span><span class="popup-close-x" aria-hidden="true">×</span>
+                </button>
+            </div>
 
             {{ range index1, Content := AllHomepageContents }}
                 {{ if Content.ContentType == "popup" }}
@@ -153,276 +140,87 @@
                     </script>
                 {{ end }}
             {{ end }}
-            
-            <!--<style>
-                    /* Extra styles (optional, component-scoped) */
-                    /* Enhancement-only CSS for popup body/content/footer/buttons */
-
-                    /* Header & animations (moved from base) */
-                    .popup-header {
-                        /*background: #000;*/
-                        padding: 0;
-                        text-align: center;
-                        position: relative;
-                        overflow: hidden;
-                        height: 200px;
-                    }
-
-                    .popup-header::before {
-                        content: '';
-                        position: absolute;
-                        inset: 0;
-                        background: transparent;
-                    }
-
-                    @keyframes popup-header-glow {
-                        0%, 100% { transform: translate(0, 0); }
-                        50% { transform: translate(20px, 20px); }
-                    }
-
-                    .popup-header-image {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: contain;
-                        display: flex;
-                        align-items: center;
-                        place-content: center;
-                    }
-
-                    @keyframes popup-icon-bounce {
-                        0% { transform: scale(0); opacity: 0; }
-                        50% { transform: scale(1.2); }
-                        100% { transform: scale(1); opacity: 1; }
-                    }
-
-                    .popup-title { display: none; }
-                    .popup-subtitle { display: none; }
-
-                    @keyframes popup-slide-up {
-                        from { opacity: 0; transform: translateY(20px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-
-                    .popup-body {
-                        padding: 32px 24px;
-                        max-height: 60vh;
-                        overflow-y: auto;
-                    }
-
-                    .popup-body::-webkit-scrollbar {
-                        width: 8px;
-                    }
-
-                    .popup-body::-webkit-scrollbar-track {
-                        background: #f1f1f1;
-                        border-radius: 4px;
-                    }
-
-                    .popup-body::-webkit-scrollbar-thumb {
-                        background: #667eea;
-                        border-radius: 4px;
-                    }
-
-                    .popup-body::-webkit-scrollbar-thumb:hover {
-                        background: #764ba2;
-                    }
-
-                    .popup-content-item {
-                        margin-bottom: 20px;
-                        animation: popup-fade-in 0.5s ease-out backwards;
-                    }
-
-                    .popup-content-item:nth-child(1) { animation-delay: 0.6s; }
-                    .popup-content-item:nth-child(2) { animation-delay: 0.7s; }
-                    .popup-content-item:nth-child(3) { animation-delay: 0.8s; }
-                    .popup-content-item:nth-child(4) { animation-delay: 0.9s; }
-
-                    @keyframes popup-fade-in {
-                        from {
-                            opacity: 0;
-                            transform: translateX(-20px);
-                        }
-                        to {
-                            opacity: 1;
-                            transform: translateX(0);
-                        }
-                    }
-
-                    .popup-content-label {
-                        font-size: 22px;
-                        font-weight: 700;
-                        color: #252525;
-                        text-transform: none;
-                        letter-spacing: 0;
-                        margin: 0 0 10px 0;
-                        text-align: center;
-                    }
-
-                    .popup-content-value {
-                        font-size: 16px;
-                        color: #333;
-                        line-height: 1.6;
-                    }
-
-                    .popup-footer {
-                        padding: 20px 24px;
-                        background: #f8f9fa;
-                        display: flex;
-                        gap: 12px;
-                        justify-content: flex-end;
-                        border-top: 1px solid #e9ecef;
-                    }
-
-                    .popup-btn {
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        border: none;
-                    }
-
-                    .popup-btn-secondary {
-                        background: #e9ecef;
-                        color: #495057;
-                    }
-
-                    .popup-btn-secondary:hover {
-                        background: #dee2e6;
-                        transform: translateY(-2px);
-                    }
-
-                    .popup-btn-primary {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                    }
-
-                    .popup-btn-primary:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-                    }
-
-                    @media (max-width: 600px) {
-                        .popup-body {
-                            padding: 24px 16px;
-                        }
-
-                        .popup-footer {
-                            padding: 16px;
-                            flex-direction: column;
-                        }
-
-                        .popup-btn {
-                            width: 100%;
-                        }
-                    }
-                </style>
-            
-            <div class="popup-header">
-                <img class="popup-header-image" src="/files/defaults/logo/n-hospital-logo.png" alt="popup header" />
-            </div>
-            
-            <div class="popup-body">
-                <div class="popup-content-item">
-                    <div class="popup-content-label">Hoş Geldiniz</div>
-                    <div class="popup-content-value">
-                        N‑Hospital CMS’e hoş geldiniz. Bu panel; hastane içeriğinizi, randevu süreçlerinizi, haber ve sayfalarınızı tek bir yerden yönetebilmeniz için tasarlanmış modern bir içerik ve operasyon yönetim sistemidir.
-                    </div>
-                </div>
-
-                <div class="popup-content-item">
-                    <div class="popup-content-label">Amacı</div>
-                    <div class="popup-content-value">
-                        Şubeler, doktorlar, branşlar, tetkikler ve içerikler gibi kurumsal varlıkları merkezi olarak düzenlemenizi; randevu ve başvuru akışlarını görünür, ölçülebilir ve yönetilebilir hale getirmenizi sağlar.
-                    </div>
-                </div>
-
-                <div class="popup-content-item">
-                    <div class="popup-content-label">Kimler İçin?</div>
-                    <div class="popup-content-value">
-                        Hastane yöneticileri ve moderatörler, içerik/editör ekipleri, İK ve çağrı merkezi çalışanları için optimize edilmiştir. Rolünüze göre yetkilendirilmiş, güvenli ve verimli bir deneyim sunar.
-                    </div>
-                </div>
-
-                <div class="popup-content-item">
-                    <div class="popup-content-label">İpuçları</div>
-                    <div class="popup-content-value">
-                        Sol menüden ilgili modüllere ulaşabilir, üst bar bildirimlerinden anlık iş akışlarını takip edebilirsiniz. Yardım gerekli olduğunda sistem yöneticinizle iletişime geçebilirsiniz.
-                    </div>
-                </div>
-            </div>-->
         </div>
     </div>
 
     <script>
-        // Scoped popup functionality
         (function() {
-            const popupOverlay = document.getElementById('popupOverlay');
-            const openPopupBtn = document.getElementById('openPopupBtn');
-            const closePopupBtn = document.getElementById('closePopupBtn');
-
+            var popupOverlay = document.getElementById('popupOverlay');
+            var dialog = document.getElementById('popupDialog');
+            var closePopupBtn = document.getElementById('closePopupBtn');
+            var openPopupBtn = document.getElementById('openPopupBtn');
+            var SEEN_KEY = 'nv_popup_seen';
             var lastFocus = null;
-            popupOverlay.querySelectorAll('.popup-body').forEach(function (el) {
-                if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-            });
 
-            // Open popup
+            // Başlık öğesi varsa iletişim kutusunun adı o olur, yoksa aria-label kalır
+            var title = dialog.querySelector('.popup-title, [data-popup-title], h1, h2, h3');
+            if (title && title.textContent.trim() && getComputedStyle(title).display !== 'none') {
+                if (!title.id) title.id = 'popupTitle';
+                dialog.setAttribute('aria-labelledby', title.id);
+                dialog.removeAttribute('aria-label');
+            }
+
+            function isOpen() { return popupOverlay.classList.contains('popup-active'); }
+
             function openPopup() {
+                if (isOpen()) return;
                 lastFocus = document.activeElement;
                 popupOverlay.classList.add('popup-active');
                 document.body.style.overflow = 'hidden';
-                // visibility geçişi bitmeden odak alınamıyor; kısa gecikmeyle dene
-                [60, 450].forEach(function (ms) {
-                    setTimeout(function () {
-                        if (popupOverlay.classList.contains('popup-active') && !popupOverlay.contains(document.activeElement)) closePopupBtn.focus({ preventScroll: true });
-                    }, ms);
-                });
+                closePopupBtn.focus({ preventScroll: true });
             }
 
-            // Close popup
             function closePopup() {
                 popupOverlay.classList.remove('popup-active');
                 document.body.style.overflow = '';
                 if (lastFocus && typeof lastFocus.focus === 'function' && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
             }
 
-            // Açıkken Tab kutunun içinde kalır
             popupOverlay.addEventListener('keydown', function (e) {
-                if (e.key !== 'Tab' || !popupOverlay.classList.contains('popup-active')) return;
-                var f = popupOverlay.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (e.key !== 'Tab' || !isOpen()) return;
+                var f = Array.prototype.filter.call(
+                    popupOverlay.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+                    function (el) { return el.offsetParent !== null || el === document.activeElement; });
                 if (!f.length) return;
                 var first = f[0], last = f[f.length - 1];
                 if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
                 else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
             });
 
-            // Event listeners (base)
             if (openPopupBtn) openPopupBtn.addEventListener('click', openPopup);
             closePopupBtn.addEventListener('click', closePopup);
-
-            // Close on overlay click
-            popupOverlay.addEventListener('click', function(e) {
-                if (e.target === popupOverlay) {
-                    closePopup();
-                }
-            });
-
-            // Close on ESC key
+            popupOverlay.addEventListener('click', function(e) { if (e.target === popupOverlay) closePopup(); });
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && popupOverlay.classList.contains('popup-active')) {
-                    closePopup();
-                }
+                if (e.key === 'Escape' && isOpen()) closePopup();
             });
 
-            // Auto-open on page load (later than 1 second) - base fallback
-            window.addEventListener('load', function() {
-                setTimeout(function(){
-                    if (!popupOverlay.classList.contains('popup-active')) {
-                        openPopup();
-                    }
-                }, 1200);
-            });
+            // Oturum başına en fazla bir otomatik açılış (depolama yoksa da çalışır)
+            function seen() { try { return sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { return false; } }
+            function markSeen() { try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {} }
+
+            function autoOpen() {
+                if (seen() || isOpen()) return;
+                markSeen();
+                openPopup();
+            }
+
+            // Çerez bandı karar bekliyorsa (window.nvCookieHasDecision, main.jet) karar sonrası aç
+            var started = false;
+            function start() {
+                if (started) return;
+                started = true;
+                setTimeout(autoOpen, 400);
+            }
+            function init() {
+                if (seen()) return;
+                if (typeof window.nvCookieHasDecision !== 'function' || window.nvCookieHasDecision()) {
+                    setTimeout(start, 1200);
+                } else {
+                    document.addEventListener('nv:cookie-decision', start, { once: true });
+                }
+            }
+            if (document.readyState === 'complete') init();
+            else window.addEventListener('load', init);
         })();
     </script>
 {{ end }}

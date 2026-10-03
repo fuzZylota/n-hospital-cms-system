@@ -5,7 +5,7 @@
     </button>
     <div class="fast-randevu__panel" aria-hidden="true">
         <div class="fast-randevu__header">
-            <h4>Hızlı Randevu</h4>
+            <h2 class="fast-randevu__title">Hızlı Randevu</h2>
 
             <p class="fast-randevu__availability"><i class="fas fa-clock"></i> 7/24 hizmetteyiz</p>
             <button type="button" class="fast-randevu__close" id="fastRandevuClose" aria-label="Hızlı randevu panelini kapat">

@@ -290,3 +290,10 @@
   transition: color var(--nv-dur-fast) var(--nv-ease),
               background-color var(--nv-dur-fast) var(--nv-ease);
 }
+
+/* Telefon numarası ortadan bölünmez; yalnız etiket sarar. */
+.nv-sf__phone > span { white-space: nowrap; }
+@media (max-width: 360px) {
+  :root[data-text="xlarge"] .nv-sf__phone { max-width: 100%; }
+  :root[data-text="xlarge"] .nv-sf__phone > span { white-space: normal; overflow-wrap: anywhere; }
+}

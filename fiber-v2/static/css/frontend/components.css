@@ -566,3 +566,6 @@ select.nv-input {
 :root[data-contrast="high"] a:not(.nv-btn) {
   text-decoration: underline;
 }
+
+/* Başlık hiyerarşisi: panel başlığı h4'ten h2'ye alındı, görünüm aynı kaldı */
+.fast-randevu__header .fast-randevu__title { font-size: 1rem; font-weight: 500; line-height: 1.2; margin: 0; }

@@ -30,7 +30,7 @@
             </section>
 
             <nav class="nv-sf__group nv-sf__group--centers" aria-labelledby="nvSfCentersTitle">
-                <h2 class="nv-sf__title" id="nvSfCentersTitle">Merkezlerimiz</h2>
+                <p class="nv-sf__title" id="nvSfCentersTitle">Merkezlerimiz</p>
                 <ul class="nv-sf__list nv-sf__list--centers">
                     {{ range index, SubeLink := Options.SubelerLinks }}
                         <li>

@@ -355,3 +355,15 @@ body.homepage main { color: var(--nv-text); }
 @media (forced-colors: active) {
   .nv-quick__card, .nv-review__figure { border-color: CanvasText; }
 }
+
+/* Telefon numarası ortadan bölünmez; yalnız etiket sarar. */
+.nv-center-card__phone > span:last-child,
+.nv-quick__card[href^="tel:"] { white-space: nowrap; }
+/* Son çare: 360px altı + en büyük yazıda numara görünümden taşacaksa
+   (kırpılmak yerine) boşluklardan sarar. */
+@media (max-width: 360px) {
+  :root[data-text="xlarge"] .nv-center-card__phone,
+  :root[data-text="xlarge"] .nv-quick__card[href^="tel:"] { max-width: 100%; }
+  :root[data-text="xlarge"] .nv-center-card__phone > span:last-child,
+  :root[data-text="xlarge"] .nv-quick__card[href^="tel:"] { white-space: normal; overflow-wrap: anywhere; }
+}
