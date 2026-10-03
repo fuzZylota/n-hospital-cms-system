@@ -1522,4 +1522,9 @@ CREATE TRIGGER generate_haberler_url_name BEFORE INSERT OR UPDATE ON haberler FO
 -- Apply validation triggers
 CREATE TRIGGER validate_appointment_slot_trigger BEFORE INSERT OR UPDATE ON randevular FOR EACH ROW EXECUTE FUNCTION validate_appointment_slot();
 
+-- Anasayfa içeriğinin isteğe bağlı tıbbi birim bağlantısı (kod: frontend.go, post.go).
+-- Önceki sürümlerde schema.sql'de eksikti; canlı veritabanında zaten mevcut olabilir.
+ALTER TABLE homepage_contents
+    ADD COLUMN IF NOT EXISTS tibbi_birim_id INTEGER REFERENCES tibbi_birimler(tbid) ON DELETE SET NULL;
+
 -- This completes the comprehensive hospital CMS database schema

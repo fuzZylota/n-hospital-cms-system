@@ -62,7 +62,7 @@ Riskler:
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
 ### P0 — Doğrulama altyapısı (her şeyin önkoşulu)
-- [ ] P0-1 — Yerel geçici ortam: tek komutla boş Postgres (port 55432) + `schema.sql` + örnek seed + uygulama. · `tools/dev/` · Production'a hiçbir bağlantı yok; `tools/dev/up.sh` ile ana sayfa 200 döner.
+- [x] P0-1 — Yerel geçici ortam: tek komutla boş Postgres (port 55432) + `schema.sql` + örnek seed + uygulama. · `tools/dev/` · Production'a hiçbir bağlantı yok; `tools/dev/up.sh` ile ana sayfa 200 döner. **Yapıldı**: `tools/dev/{up,down,env}.sh`; geçici Postgres :55432 (/tmp), tohum yönetici `admin@nhospital.com` / `DevOnly-Nivgoz-123`; giriş → `/panel` doğrulandı. Bulgu: `schema.sql` canlı DB'den geride (`homepage_contents.tibbi_birim_id` eksikti, eklendi); tohum yönetici parolası bcrypt olmadığından yerelde değiştiriliyor.
 - [ ] P0-2 — QA betiği: Playwright + axe-core ile kritik 10 sayfanın 390/1280px ekran görüntüsü, a11y ihlal sayısı, konsol hatası. · `tools/qa/` · Tek komut, JSON + PNG çıktı; baseline kaydı.
 - [x] P0-4 — `TestGeneralFileUploadFilesystemFailureLeavesNoResult`: kök neden `lib.UniqueFilePath` hatayı sonuç alanına koyup `nil` dönüyordu (ENOTDIR'de upload 400 veriyordu). Artık hata ikinci değer olarak da dönüyor; sabitlenmiş gövde özeti güncellendi.
 - [ ] P0-4b — Kararsız test: `controllers/post/branslar` → `TestAddBranchOnlyRemovesItsNewUploadAfterDatabaseFailure` (bu değişiklikten bağımsız; 3 denemede 2-3 kez düşüyor, "branch (1).png: file exists").
