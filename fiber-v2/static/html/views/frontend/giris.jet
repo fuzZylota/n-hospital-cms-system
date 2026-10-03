@@ -66,6 +66,7 @@
         'user_not_found': 'E-posta adresi bulunamadı.',
         'password_is_incorrect': 'Şifre hatalı. Lütfen tekrar deneyin.',
         'user_is_not_active': 'Hesabınız aktif değil. Yönetici ile iletişime geçin.',
+        'too_many_attempts': 'Çok fazla deneme yaptınız. Lütfen birkaç dakika sonra tekrar deneyin.',
         'internal_server_error': 'Bir hata oluştu. Lütfen daha sonra deneyin.',
         'error_while_getting_jwt': 'Oturum hatası. Lütfen tekrar giriş yapın.'
     };

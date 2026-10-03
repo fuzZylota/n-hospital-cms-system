@@ -15,6 +15,7 @@
                 <div class="col-xl-7 col-lg-6 order-1 order-lg-0 wow fadeInUp" data-wow-duration="1500ms">
                     <div class="contact-page__form">
                         <form id="contactForm" class="contact-form-validated form-one">
+                            <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
                             <div class="form-one__group">
                                 <div class="form-one__control">
                                     <input type="text" name="first_name" id="contactName" aria-label="Ad" placeholder="Ad" required>

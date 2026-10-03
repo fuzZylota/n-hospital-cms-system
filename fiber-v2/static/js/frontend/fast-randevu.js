@@ -266,6 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
             message: 'Hızlı randevu formu üzerinden iletilmiştir.'
         };
 
+        const honeypotInput = form.querySelector('input[name="website"]');
+        if (honeypotInput && honeypotInput.value) {
+            payload.website = honeypotInput.value;
+        }
+
         if (subeSelect && subeSelect.value) {
             payload.sid = subeSelect.value;
         }

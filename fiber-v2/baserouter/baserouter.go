@@ -15,6 +15,7 @@ import (
 	"subeler"
 	"tedkikler"
 	"tibbibirimler"
+	"time"
 	"users"
 	lib "lib"
 
@@ -162,11 +163,13 @@ func BackendRouter(server *fiber.App, states *models.AppState, utilities *models
 	// Public backend route'ları (auth gerektirmez)
 	publicRoutes := server.Group("/backend")
 	publicRoutes.Post("/greet", post.GreetPage(states, utilities))
-	publicRoutes.Post("/authenticate", post.AuthenticationController(states, utilities))
+	// Kötüye kullanım koruması: her rota kendi limiter örneğine (ayrı sayaç) sahiptir; global sınırdan ayrıdır.
+	loginLimiter := lib.NewLoginLimiter(10, 15*time.Minute)
+	publicRoutes.Post("/authenticate", loginLimiter, post.AuthenticationController(states, utilities))
 	publicRoutes.Get("/logout", post.LogoutController(states, utilities))
-	publicRoutes.Post("/add-randevu-request", randevular.AddRandevuRequest(states, utilities))
-	publicRoutes.Post("/add-contact-request", post.AddContactRequest(states, utilities))
-	publicRoutes.Post("/add-job-application", post.AddJobApplication(states, utilities))
+	publicRoutes.Post("/add-randevu-request", lib.NewPublicFormLimiter(5, 10*time.Minute), lib.HoneypotGuard("AddRandevuRequest", "Randevu talebi başarıyla oluşturuldu."), lib.FieldLengthGuard(map[string]int{"patient_first_name": 120, "patient_last_name": 120, "patient_phone": 30, "patient_email": 254, "message": 2000}), randevular.AddRandevuRequest(states, utilities))
+	publicRoutes.Post("/add-contact-request", lib.NewPublicFormLimiter(5, 10*time.Minute), lib.HoneypotGuard("AddContactRequest", "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız."), lib.FieldLengthGuard(map[string]int{"first_name": 120, "last_name": 120, "phone": 30, "email": 254, "subject": 200, "message": 2000}), post.AddContactRequest(states, utilities))
+	publicRoutes.Post("/add-job-application", lib.NewPublicFormLimiter(5, 10*time.Minute), lib.HoneypotGuard("AddJobApplication", "İş başvurusu başarıyla gönderildi"), post.AddJobApplication(states, utilities))
 
 	// Korumalı backend route'ları (auth gerektirir)
 	routes := server.Group("/backend", lib.PanelAuthMiddleware())

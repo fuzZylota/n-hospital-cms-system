@@ -558,7 +558,7 @@ color: #fff;
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
     {{ end }}
 
-    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20260913c">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-hp">
 
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
             <style>

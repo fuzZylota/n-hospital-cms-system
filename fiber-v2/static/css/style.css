@@ -3386,3 +3386,14 @@ summary:focus-visible,
 .nv-slider-pause__icon {
     pointer-events: none;
 }
+
+/* Honeypot (bot tuzağı): ekran dışında, erişilebilirlik ağacında da gizli.
+   display:none tek başına kullanılmaz; aria-hidden + tabindex=-1 ile birlikte çalışır. */
+.hp-field {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

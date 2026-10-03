@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sid: sidSelect?.value || '',
             message: messageInput?.value || '',
             recaptcha_token: recaptchaToken,
+            website: form.querySelector('input[name="website"]')?.value || '',
         };
 
         showModal();

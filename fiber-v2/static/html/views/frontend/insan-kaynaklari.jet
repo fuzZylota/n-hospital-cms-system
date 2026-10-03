@@ -56,6 +56,7 @@
                         </div>
 
                         <form id="jobApplicationForm" class="job-application-form">
+                            <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
                             <div class="form-section">
                                 <h2 class="section-title">Kişisel Bilgiler</h2>
                                 <div class="form-row">

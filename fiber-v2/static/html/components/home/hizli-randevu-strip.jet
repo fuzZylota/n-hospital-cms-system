@@ -7,6 +7,7 @@
                     Hızlı Randevu Al
                 </div>
                 <form id="stripRandevuForm" class="hizli-randevu-strip__form-grid" novalidate>
+                    <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
                     <input type="text" name="patient_first_name" id="stripFirstName" aria-label="Adınız" placeholder="Adınız*" class="hizli-randevu-strip__input" required>
                     <input type="text" name="patient_last_name" id="stripLastName" aria-label="Soyadınız" placeholder="Soyadınız*" class="hizli-randevu-strip__input" required>
                     <input type="tel" name="patient_phone" id="stripPhone" aria-label="Telefon numaranız" placeholder="Telefon Numaranız*" class="hizli-randevu-strip__input" required>
@@ -139,7 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 patient_phone: phone,
                 sid: sid,
                 message: '',
-                recaptcha_token: stripRecaptchaToken
+                recaptcha_token: stripRecaptchaToken,
+                website: (form.querySelector('input[name="website"]') || {}).value || ''
             })
         })
         .then(function(r) { return r.json(); })
