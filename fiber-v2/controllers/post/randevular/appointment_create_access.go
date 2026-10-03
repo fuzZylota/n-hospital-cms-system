@@ -57,13 +57,17 @@ func authorizeCreateAppointment(ctx context.Context, tx *sql.Tx, uid string, inp
 	if err != nil || !active.Valid {
 		return 0, sql.NullInt64{}, 503
 	}
-	if !active.Bool || role != "admin" {
+	if !active.Bool || !isAppointmentWriteRole(role) {
 		return 0, sql.NullInt64{}, 403
 	}
 
 	branchID, ok := editPositiveID(inputs.Sid)
 	if !ok {
 		return 0, sql.NullInt64{}, 400
+	}
+	// Admin dışı roller yalnız yetkili oldukları şubede oluşturabilir.
+	if status := authorizeBranchWrite(ctx, tx, userID, role, sql.NullInt64{Int64: branchID, Valid: true}); status != 0 {
+		return 0, sql.NullInt64{}, status
 	}
 	if requestID.Valid {
 		var requestSID sql.NullInt64

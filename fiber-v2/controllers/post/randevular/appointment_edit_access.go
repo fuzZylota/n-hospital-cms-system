@@ -25,7 +25,74 @@ func validEditAppointmentID(routeRID, bodyRID string) (int64, bool) {
 
 // Both rows remain locked until the appointment update commits or rolls back.
 // Neither an old JWT role nor client-supplied old_sid grants write access.
+// Admin tüm şubelerde; moderatör/santral yalnız randevunun gerçek şubesinde yetkiliyse.
 func authorizeEditAppointment(ctx context.Context, tx *sql.Tx, uid string, rid int64) (sql.NullInt64, int) {
+	userID, ok := editPositiveID(uid)
+	if !ok {
+		return sql.NullInt64{}, 403
+	}
+	var role string
+	var active sql.NullBool
+	err := tx.QueryRowContext(ctx, "SELECT role, is_active FROM users WHERE uid = $1 FOR UPDATE", userID).Scan(&role, &active)
+	if errors.Is(err, sql.ErrNoRows) {
+		return sql.NullInt64{}, 403
+	}
+	if err != nil || !active.Valid {
+		return sql.NullInt64{}, 503
+	}
+	if !active.Bool || !isAppointmentWriteRole(role) {
+		return sql.NullInt64{}, 403
+	}
+	var sid sql.NullInt64
+	err = tx.QueryRowContext(ctx, "SELECT sid FROM randevular WHERE rid = $1 FOR UPDATE", rid).Scan(&sid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return sql.NullInt64{}, 404
+	}
+	if err != nil {
+		return sql.NullInt64{}, 503
+	}
+	if status := authorizeBranchWrite(ctx, tx, userID, role, sid); status != 0 {
+		return sql.NullInt64{}, status
+	}
+	return sid, 0
+}
+
+// Şube değişikliği: admin dışı roller randevuyu yalnız yazma yetkisi olan başka
+// bir şubeye taşıyabilir; şubeyi boşaltmak admin'e özeldir.
+func authorizeEditDestination(ctx context.Context, tx *sql.Tx, uid string, current sql.NullInt64, input string) int {
+	if sameEditBranch(input, current) {
+		return 0
+	}
+	userID, ok := editPositiveID(uid)
+	if !ok {
+		return 403
+	}
+	var role string
+	var active sql.NullBool
+	err := tx.QueryRowContext(ctx, "SELECT role, is_active FROM users WHERE uid = $1 FOR UPDATE", userID).Scan(&role, &active)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 403
+	}
+	if err != nil || !active.Valid {
+		return 503
+	}
+	if !active.Bool {
+		return 403
+	}
+	target := sql.NullInt64{}
+	if input != "" {
+		id, ok := editPositiveID(input)
+		if !ok {
+			return 400
+		}
+		target = sql.NullInt64{Int64: id, Valid: true}
+	}
+	return authorizeBranchWrite(ctx, tx, userID, role, target)
+}
+
+// Kesinleşmiş randevu silme admin'e özel kalır (can_delete bunu kapsamaz).
+// Both rows remain locked until the delete commits or rolls back.
+func authorizeDeleteAppointment(ctx context.Context, tx *sql.Tx, uid string, rid int64) (sql.NullInt64, int) {
 	userID, ok := editPositiveID(uid)
 	if !ok {
 		return sql.NullInt64{}, 403

@@ -47,6 +47,10 @@ type editFixture struct {
 	updateQuery       string
 	updateArgs        []driver.NamedValue
 	inTx              bool
+	userSID           sql.NullInt64
+	perms             map[int64]bool
+	sidReads          int
+	permReads         int
 }
 
 func (f *editFixture) Connect(context.Context) (driver.Conn, error) { return &editConn{f: f}, nil }
@@ -76,6 +80,26 @@ func (c *editConn) BeginTx(context.Context, driver.TxOptions) (driver.Tx, error)
 func (c *editConn) QueryContext(_ context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
 	f := c.f
 	switch {
+	case query == "SELECT sid FROM users WHERE uid = $1 FOR UPDATE":
+		if !f.inTx || len(args) != 1 || args[0].Value != int64(7) {
+			return nil, errors.New("user sid not locked in edit transaction")
+		}
+		f.sidReads++
+		var v driver.Value
+		if f.userSID.Valid {
+			v = f.userSID.Int64
+		}
+		return editResult([]string{"sid"}, [][]driver.Value{{v}}), nil
+	case query == "SELECT can_view FROM user_branch_permissions WHERE uid = $1 AND sid = $2 FOR UPDATE":
+		if !f.inTx || len(args) != 2 || args[0].Value != int64(7) {
+			return nil, errors.New("permission not locked in edit transaction")
+		}
+		f.permReads++
+		canView, ok := f.perms[args[1].Value.(int64)]
+		if !ok {
+			return editResult([]string{"can_view"}, nil), nil
+		}
+		return editResult([]string{"can_view"}, [][]driver.Value{{canView}}), nil
 	case strings.Contains(query, "FROM users"):
 		if !f.inTx || !strings.Contains(query, "FOR UPDATE") {
 			return nil, errors.New("user was not locked in edit transaction")
@@ -211,7 +235,8 @@ func editHTTP(t *testing.T, f *editFixture, routeRID, jwtRole, body string, read
 }
 
 func editReadyFixture(sid int64) *editFixture {
-	return &editFixture{role: "admin", active: true, sid: sid, targetExists: true, doctorExists: true, rowsAffected: 1}
+	return &editFixture{role: "admin", active: true, sid: sid, targetExists: true, doctorExists: true, rowsAffected: 1,
+		userSID: sql.NullInt64{Int64: sid, Valid: true}, perms: branchPerms(sid)}
 }
 func editReadyReader() *appointmentWorkflowReader {
 	return &appointmentWorkflowReader{found: true, result: data.AppointmentWorkflowSnapshot{}}
@@ -220,12 +245,12 @@ func editReadyReader() *appointmentWorkflowReader {
 const editBody = `{"rid":"7","sid":"1","old_sid":"1","patient_first_name":"New","old_patient_first_name":"Old"}`
 
 func TestEditAppointmentCurrentRoleAndTargetHTTP(t *testing.T) {
-	for _, role := range []string{"moderator", "santral", "ik", "other"} {
+	for _, role := range []string{"ik", "other"} {
 		t.Run(role, func(t *testing.T) {
 			f, reader := editReadyFixture(1), editReadyReader()
 			f.role = role
 			status, message := editHTTP(t, f, "7", "admin", editBody, reader)
-			if status != 403 || message != "Forbidden" || f.userReads != 1 || f.targetReads != 0 || f.updates != 0 || f.rollbacks != 1 || reader.calls != 0 {
+			if status != 403 || message != "Forbidden" || f.userReads != 1 || f.targetReads != 0 || f.sidReads != 0 || f.permReads != 0 || f.updates != 0 || f.rollbacks != 1 || reader.calls != 0 {
 				t.Fatalf("denied role reached target/options/mutation: status=%d fixture=%+v calls=%d", status, f, reader.calls)
 			}
 		})
@@ -234,11 +259,59 @@ func TestEditAppointmentCurrentRoleAndTargetHTTP(t *testing.T) {
 		t.Run("admin branch", func(t *testing.T) {
 			f, reader := editReadyFixture(sid), editReadyReader()
 			status, _ := editHTTP(t, f, "7", "moderator", editBody, reader)
-			if status != 201 || f.targetReads != 1 || f.updates != 1 || f.commits != 1 || f.rollbacks != 0 || reader.calls != 1 {
+			if status != 201 || f.targetReads != 1 || f.sidReads != 0 || f.permReads != 0 || f.updates != 1 || f.commits != 1 || f.rollbacks != 0 || reader.calls != 1 {
 				t.Fatalf("current admin edit failed: status=%d fixture=%+v calls=%d", status, f, reader.calls)
 			}
 			if !strings.Contains(f.updateQuery, "WHERE rid = $") || !strings.Contains(f.updateQuery, "sid IS NOT DISTINCT FROM $") || f.updateArgs[len(f.updateArgs)-2].Value != int64(7) || f.updateArgs[len(f.updateArgs)-1].Value != sid {
 				t.Fatalf("update lost locked target: query=%s args=%v", f.updateQuery, f.updateArgs)
+			}
+		})
+	}
+}
+
+func TestEditAppointmentBranchWriteAccessHTTP(t *testing.T) {
+	null := sql.NullInt64{}
+	const moveTo2 = `{"rid":"7","sid":"2","patient_first_name":"New"}`
+	const clearSID = `{"rid":"7","sid":"","patient_first_name":"New"}`
+	for _, tc := range []struct {
+		name, body string
+		setup      func(*editFixture)
+		want       int
+		sidQ, perm int
+		targetRead int
+	}{
+		{"admin no extra queries", editBody, func(f *editFixture) { f.perms = nil }, 201, 0, 0, 1},
+		{"admin moves branch without permissions", moveTo2, func(f *editFixture) { f.perms = nil }, 201, 0, 0, 1},
+		{"moderator can_view", editBody, func(f *editFixture) { f.role = "moderator"; f.userSID = null }, 201, 0, 1, 1},
+		{"moderator no permission row", editBody, func(f *editFixture) { f.role = "moderator"; f.perms = nil }, 403, 0, 1, 1},
+		{"moderator can_view false", editBody, func(f *editFixture) { f.role = "moderator"; f.perms = map[int64]bool{1: false} }, 403, 0, 1, 1},
+		{"moderator object in other branch", editBody, func(f *editFixture) { f.role = "moderator"; f.sid = 2 }, 403, 0, 1, 1},
+		{"moderator moves to viewable branch", moveTo2, func(f *editFixture) { f.role = "moderator"; f.perms = branchPerms(1, 2) }, 201, 0, 2, 1},
+		{"moderator moves to branch without can_view", moveTo2, func(f *editFixture) { f.role = "moderator" }, 403, 0, 2, 1},
+		{"moderator moves to branch can_view false", moveTo2, func(f *editFixture) { f.role = "moderator"; f.perms = map[int64]bool{1: true, 2: false} }, 403, 0, 2, 1},
+		{"moderator clears branch", clearSID, func(f *editFixture) { f.role = "moderator" }, 403, 0, 1, 1},
+		{"admin clears branch", clearSID, func(*editFixture) {}, 201, 0, 0, 1},
+		{"santral matching sid and can_view", editBody, func(f *editFixture) { f.role = "santral" }, 201, 1, 1, 1},
+		{"santral sid mismatch", editBody, func(f *editFixture) { f.role = "santral"; f.userSID = sql.NullInt64{Int64: 2, Valid: true} }, 403, 1, 0, 1},
+		{"santral NULL sid", editBody, func(f *editFixture) { f.role = "santral"; f.userSID = null }, 403, 1, 0, 1},
+		{"santral moves to other branch (users.sid mismatch)", moveTo2, func(f *editFixture) { f.role = "santral" }, 403, 2, 1, 1},
+		{"inactive moderator", editBody, func(f *editFixture) { f.role = "moderator"; f.active = false }, 403, 0, 0, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f, reader := editReadyFixture(1), editReadyReader()
+			tc.setup(f)
+			status, message := editHTTP(t, f, "7", "ik", tc.body, reader)
+			if status != tc.want || f.sidReads != tc.sidQ || f.permReads != tc.perm || f.targetReads != tc.targetRead {
+				t.Fatalf("status=%d (want %d) message=%q fixture=%+v", status, tc.want, message, f)
+			}
+			if tc.want == 201 {
+				if f.updates != 1 || f.commits != 1 || f.rollbacks != 0 {
+					t.Fatalf("allowed edit did not commit: %+v", f)
+				}
+				return
+			}
+			if message != "Forbidden" || f.updates != 0 || f.commits != 0 || f.rollbacks != 1 || f.branchReads != 0 || f.doctorReads != 0 || reader.calls != 0 {
+				t.Fatalf("denied edit reached mutation: message=%q %+v calls=%d", message, f, reader.calls)
 			}
 		})
 	}
@@ -350,7 +423,8 @@ func TestEditAppointmentEmailOnlyAfterCommitHTTP(t *testing.T) {
 	}{
 		{"successful commit, SMTP failure", "admin", false, 201, 1},
 		{"commit failure", "admin", true, 500, 0},
-		{"denied role", "santral", false, 403, 0},
+		{"denied role", "ik", false, 403, 0},
+		{"santral in own branch, SMTP failure", "santral", false, 201, 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			f, reader := editReadyFixture(1), editReadyReader()

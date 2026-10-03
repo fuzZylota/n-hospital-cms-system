@@ -1146,6 +1146,15 @@ func EditRandevu(states *models.AppState, utilities *models.Utilities) fiber.Han
 			}
 			return c.JSON(fiber.Map{"status": accessStatus, "message": message})
 		}
+		if branchStatus := authorizeEditDestination(c.UserContext(), tx, ourUser.Uid, targetSID, inputs.Sid); branchStatus != 0 {
+			message := "Forbidden"
+			if branchStatus == 400 {
+				message = "Invalid appointment destination"
+			} else if branchStatus == 503 {
+				message = "Server Hatası: Lütfen daha sonra tekrar deneyin."
+			}
+			return c.JSON(fiber.Map{"status": branchStatus, "message": message})
+		}
 		if destinationStatus := validateEditDestination(c.UserContext(), tx, inputs.Sid, inputs.Drid); destinationStatus != 0 {
 			message := "Invalid appointment destination"
 			if destinationStatus == 503 {
@@ -1689,7 +1698,7 @@ func DeleteRandevu(states *models.AppState, utilities *models.Utilities) fiber.H
 			}
 		}()
 
-		targetSID, accessStatus := authorizeEditAppointment(c.UserContext(), tx, ourUser.Uid, appointmentID)
+		targetSID, accessStatus := authorizeDeleteAppointment(c.UserContext(), tx, ourUser.Uid, appointmentID)
 		if accessStatus != 0 {
 			message := "Forbidden"
 			if accessStatus == 404 {

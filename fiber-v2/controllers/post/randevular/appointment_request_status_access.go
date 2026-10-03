@@ -97,7 +97,7 @@ func toggleRandevuRequestStatus(utilities *models.Utilities) fiber.Handler {
 			log.Printf("operation=ToggleRandevuRequestStatus stage=user_read")
 			return reject(503)
 		}
-		if !active.Bool || role != "admin" {
+		if !active.Bool || !isAppointmentWriteRole(role) {
 			return reject(404)
 		}
 
@@ -109,6 +109,15 @@ func toggleRandevuRequestStatus(utilities *models.Utilities) fiber.Handler {
 		}
 		if err != nil {
 			log.Printf("operation=ToggleRandevuRequestStatus stage=request_read")
+			return reject(503)
+		}
+		// Admin dışı roller yalnız yetkili oldukları şubenin talebini değiştirebilir.
+		switch authorizeBranchWrite(c.UserContext(), tx, userID, role, sid) {
+		case 0:
+		case 403:
+			return reject(404)
+		default:
+			log.Printf("operation=ToggleRandevuRequestStatus stage=branch_permission_read")
 			return reject(503)
 		}
 		if !currentStatus.Valid || currentStatus.String != input.Status {

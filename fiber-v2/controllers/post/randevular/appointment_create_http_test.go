@@ -32,6 +32,9 @@ type createFixture struct {
 	insertCount, postReads, beginCount, commitCount, rollbackCount            int
 	insertArgs                                                                []driver.NamedValue
 	events                                                                    []string
+	userSID                                                                   sql.NullInt64
+	perms                                                                     map[int64]bool
+	sidReads, permReads                                                       int
 	requestLock                                                               chan struct{}
 	requestLockAttempt                                                        chan struct{}
 	commitGate                                                                chan struct{}
@@ -39,9 +42,18 @@ type createFixture struct {
 }
 
 func readyCreateFixture(sid int64) *createFixture {
-	f := &createFixture{role: "admin", active: true, requestSID: sid, requestPresent: true, branchExists: true, doctorExists: true, requestLock: make(chan struct{}, 1)}
+	f := &createFixture{role: "admin", active: true, userSID: sql.NullInt64{Int64: sid, Valid: true}, perms: branchPerms(sid), requestSID: sid, requestPresent: true, branchExists: true, doctorExists: true, requestLock: make(chan struct{}, 1)}
 	f.requestLock <- struct{}{}
 	return f
+}
+
+// branchPerms: sid -> can_view=true satırları (listede olmayan şubede satır yoktur).
+func branchPerms(sids ...int64) map[int64]bool {
+	m := map[int64]bool{}
+	for _, sid := range sids {
+		m[sid] = true
+	}
+	return m
 }
 
 func (f *createFixture) record(event string) {
@@ -137,6 +149,31 @@ func (c *createConn) QueryContext(ctx context.Context, query string, args []driv
 		return nil, errors.New("read outside transaction")
 	}
 	switch {
+	case query == "SELECT sid FROM users WHERE uid = $1 FOR UPDATE":
+		f.mu.Lock()
+		f.sidReads++
+		sid := f.userSID
+		f.mu.Unlock()
+		if len(args) != 1 || args[0].Value != int64(7) {
+			return nil, errors.New("wrong user")
+		}
+		var v driver.Value
+		if sid.Valid {
+			v = sid.Int64
+		}
+		return createRowsFor([]string{"sid"}, [][]driver.Value{{v}}), nil
+	case query == "SELECT can_view FROM user_branch_permissions WHERE uid = $1 AND sid = $2 FOR UPDATE":
+		f.mu.Lock()
+		f.permReads++
+		canView, ok := f.perms[args[1].Value.(int64)]
+		f.mu.Unlock()
+		if len(args) != 2 || args[0].Value != int64(7) {
+			return nil, errors.New("wrong permission key")
+		}
+		if !ok {
+			return createRowsFor([]string{"can_view"}, nil), nil
+		}
+		return createRowsFor([]string{"can_view"}, [][]driver.Value{{canView}}), nil
 	case strings.Contains(query, "FROM users"):
 		if !strings.Contains(query, "FOR UPDATE") {
 			return nil, errors.New("user not locked")
@@ -357,7 +394,7 @@ const createRequestBody = `{"patient_first_name":"Ada","patient_last_name":"Yilm
 
 func TestCreateAppointmentCurrentRolesAndManualNullHTTP(t *testing.T) {
 	t.Setenv("ROOT_DIRECTORY", t.TempDir())
-	for _, role := range []string{"moderator", "santral", "ik", "other"} {
+	for _, role := range []string{"ik", "other"} {
 		t.Run(role, func(t *testing.T) {
 			f, reader := readyCreateFixture(1), &createSnapshotReader{mail: true}
 			f.role = role
@@ -367,7 +404,7 @@ func TestCreateAppointmentCurrentRolesAndManualNullHTTP(t *testing.T) {
 			addAppointmentMailHook = func(*models.EmailInfos) error { mailCalls++; return nil }
 			body := strings.ReplaceAll(createRequestBody, `"patient_phone":"555"`, `"patient_phone":"555","patient_email":"synthetic@example.invalid"`)
 			http, status, message := createHTTP(t, f, reader, "admin", body)
-			if http != 403 || status != 403 || message != "Forbidden" || f.userReads != 1 || f.requestReads != 0 || f.insertCount != 0 || f.postReads != 0 || f.rollbackCount != 1 || reader.count() != 0 || mailCalls != 0 {
+			if http != 403 || status != 403 || message != "Forbidden" || f.userReads != 1 || f.sidReads != 0 || f.permReads != 0 || f.requestReads != 0 || f.insertCount != 0 || f.postReads != 0 || f.rollbackCount != 1 || reader.count() != 0 || mailCalls != 0 {
 				t.Fatalf("denial leaked work: http=%d status=%d fixture=%+v", http, status, f)
 			}
 		})
@@ -390,6 +427,67 @@ func TestCreateAppointmentCurrentRolesAndManualNullHTTP(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCreateAppointmentBranchWriteAccessHTTP(t *testing.T) {
+	t.Setenv("ROOT_DIRECTORY", t.TempDir())
+	original := addAppointmentMailHook
+	t.Cleanup(func() { addAppointmentMailHook = original })
+	addAppointmentMailHook = func(*models.EmailInfos) error { return nil }
+	null := sql.NullInt64{}
+	for _, tc := range []struct {
+		name  string
+		setup func(*createFixture)
+		want  int
+		sidQ  int
+		permQ int
+	}{
+		{"admin no extra queries", func(f *createFixture) { f.perms = nil }, 201, 0, 0},
+		{"moderator can_view", func(f *createFixture) { f.role = "moderator"; f.userSID = null }, 201, 0, 1},
+		{"moderator no permission row", func(f *createFixture) { f.role = "moderator"; f.perms = nil }, 403, 0, 1},
+		{"moderator can_view false", func(f *createFixture) { f.role = "moderator"; f.perms = map[int64]bool{1: false} }, 403, 0, 1},
+		{"moderator other branch only", func(f *createFixture) { f.role = "moderator"; f.perms = branchPerms(2) }, 403, 0, 1},
+		{"santral matching sid and can_view", func(f *createFixture) { f.role = "santral" }, 201, 1, 1},
+		{"santral sid mismatch", func(f *createFixture) { f.role = "santral"; f.userSID = sql.NullInt64{Int64: 2, Valid: true} }, 403, 1, 0},
+		{"santral NULL sid", func(f *createFixture) { f.role = "santral"; f.userSID = null }, 403, 1, 0},
+		{"santral sid ok but no can_view", func(f *createFixture) { f.role = "santral"; f.perms = nil }, 403, 1, 1},
+		{"ik", func(f *createFixture) { f.role = "ik" }, 403, 0, 0},
+		{"other", func(f *createFixture) { f.role = "other" }, 403, 0, 0},
+		{"inactive moderator", func(f *createFixture) { f.role = "moderator"; f.active = false }, 403, 0, 0},
+		{"missing user", func(f *createFixture) { f.failure = "user_missing" }, 403, 0, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f, reader := readyCreateFixture(1), &createSnapshotReader{}
+			tc.setup(f)
+			http, status, _ := createHTTP(t, f, reader, "ik", createManualBody)
+			if f.sidReads != tc.sidQ || f.permReads != tc.permQ {
+				t.Fatalf("permission queries sid=%d perm=%d: %+v", f.sidReads, f.permReads, f)
+			}
+			if tc.want == 201 {
+				if http != 200 || status != 201 || f.insertCount != 1 || f.commitCount != 1 {
+					t.Fatalf("allowed create failed: %d/%d %+v", http, status, f)
+				}
+				return
+			}
+			if http != 403 || status != 403 || f.insertCount != 0 || f.commitCount != 0 || f.rollbackCount != 1 || f.postReads != 0 || reader.count() != 0 {
+				t.Fatalf("denied create leaked work: %d/%d %+v", http, status, f)
+			}
+		})
+	}
+	t.Run("moderator converting request keeps branch binding", func(t *testing.T) {
+		f, reader := readyCreateFixture(1), &createSnapshotReader{}
+		f.role = "moderator"
+		http, status, _ := createHTTP(t, f, reader, "ik", createRequestBody)
+		if http != 200 || status != 201 || f.requestReads != 1 || f.insertCount != 1 {
+			t.Fatalf("moderator conversion failed: %d/%d %+v", http, status, f)
+		}
+		f2 := readyCreateFixture(2)
+		f2.role, f2.perms = "moderator", branchPerms(1)
+		_, status, _ = createHTTP(t, f2, reader, "ik", createRequestBody)
+		if status != 409 || f2.insertCount != 0 {
+			t.Fatalf("request from other branch converted: %d %+v", status, f2)
+		}
+	})
 }
 
 func TestCreateAppointmentConversionGuardsHTTP(t *testing.T) {
@@ -472,7 +570,7 @@ func TestCreateAppointmentTransactionFailuresHTTP(t *testing.T) {
 
 func TestCreateAppointmentRollbackFailureDoesNotExposeDetailsHTTP(t *testing.T) {
 	f, reader := readyCreateFixture(1), &createSnapshotReader{mail: true}
-	f.role, f.failure = "moderator", "rollback"
+	f.role, f.failure = "ik", "rollback"
 	http, status, message := createHTTP(t, f, reader, "admin", createRequestBody)
 	if http != 403 || status != 403 || message != "Forbidden" || f.rollbackCount != 1 || f.insertCount != 0 || f.postReads != 0 || reader.count() != 0 {
 		t.Fatalf("rollback failure changed denial: http=%d status=%d fixture=%+v", http, status, f)

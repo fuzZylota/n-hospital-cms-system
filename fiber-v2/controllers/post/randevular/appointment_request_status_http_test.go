@@ -29,11 +29,15 @@ type statusFixture struct {
 	rowsAffected                                                                              int64
 	begin, userReads, requestReads, piiReads, updates, commits, rollbacks, durable, publishes int
 	inTx, pending                                                                             bool
+	userSID                                                                                   sql.NullInt64
+	perms                                                                                     map[int64]bool
+	sidReads, permReads                                                                       int
 }
 
 func readyStatusFixture(sid int64) *statusFixture {
 	return &statusFixture{role: "admin", current: "yeni", active: true, userPresent: true, requestPresent: true,
-		sid: sql.NullInt64{Int64: sid, Valid: true}, rowsAffected: 1}
+		sid: sql.NullInt64{Int64: sid, Valid: true}, rowsAffected: 1,
+		userSID: sql.NullInt64{Int64: sid, Valid: true}, perms: branchPerms(sid)}
 }
 func (f *statusFixture) Connect(context.Context) (driver.Conn, error) { return &statusConn{f}, nil }
 func (*statusFixture) Driver() driver.Driver                          { return statusDriver{} }
@@ -81,9 +85,29 @@ func (c *statusConn) QueryContext(_ context.Context, query string, args []driver
 			return editResult([]string{"role", "is_active"}, nil), nil
 		}
 		return editResult([]string{"role", "is_active"}, [][]driver.Value{{f.role, f.active}}), nil
+	case "SELECT sid FROM users WHERE uid = $1 FOR UPDATE":
+		f.sidReads++
+		if len(args) != 1 || args[0].Value != int64(7) {
+			return nil, errors.New("wrong user")
+		}
+		var v driver.Value
+		if f.userSID.Valid {
+			v = f.userSID.Int64
+		}
+		return editResult([]string{"sid"}, [][]driver.Value{{v}}), nil
+	case "SELECT can_view FROM user_branch_permissions WHERE uid = $1 AND sid = $2 FOR UPDATE":
+		f.permReads++
+		if len(args) != 2 || args[0].Value != int64(7) || f.requestReads != 1 || !f.sid.Valid || args[1].Value != f.sid.Int64 {
+			return nil, errors.New("permission not bound to locked request branch")
+		}
+		canView, ok := f.perms[f.sid.Int64]
+		if !ok {
+			return editResult([]string{"can_view"}, nil), nil
+		}
+		return editResult([]string{"can_view"}, [][]driver.Value{{canView}}), nil
 	case "SELECT sid, status FROM randevu_talepleri WHERE rrid = $1 FOR UPDATE":
 		f.requestReads++
-		if len(args) != 1 || args[0].Value != int64(11) || f.userReads != 1 || f.role != "admin" || !f.active {
+		if len(args) != 1 || args[0].Value != int64(11) || f.userReads != 1 || !isAppointmentWriteRole(f.role) || !f.active {
 			return nil, errors.New("request read before authorization")
 		}
 		if f.failure == "request" {
@@ -272,7 +296,7 @@ func TestRequestStatusDeniedRolesAndTargetsHTTP(t *testing.T) {
 		active, userPresent, requestPresent bool
 		wantReads                           int
 	}{
-		{"moderator", "moderator", true, true, true, 0}, {"santral", "santral", true, true, true, 0}, {"ik", "ik", true, true, true, 0}, {"other", "other", true, true, true, 0},
+		{"ik", "ik", true, true, true, 0}, {"other", "other", true, true, true, 0},
 		{"inactive admin", "admin", false, true, true, 0}, {"missing user", "admin", true, false, true, 0}, {"missing request", "admin", true, true, false, 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -297,6 +321,58 @@ func TestRequestStatusDeniedRolesAndTargetsHTTP(t *testing.T) {
 		noStatusEvent(t, hub)
 	}
 }
+func TestRequestStatusBranchWriteAccessHTTP(t *testing.T) {
+	null := sql.NullInt64{}
+	body := `{"status":"yeni","sid":"999"}`
+	var denied string
+	for _, tc := range []struct {
+		name        string
+		setup       func(*statusFixture)
+		allow       bool
+		sidQ, permQ int
+		reqReads    int
+	}{
+		{"admin no extra queries", func(f *statusFixture) { f.perms = nil }, true, 0, 0, 1},
+		{"admin null request branch", func(f *statusFixture) { f.sid = null }, true, 0, 0, 1},
+		{"moderator can_view", func(f *statusFixture) { f.role = "moderator"; f.userSID = null }, true, 0, 1, 1},
+		{"moderator no permission row", func(f *statusFixture) { f.role = "moderator"; f.perms = nil }, false, 0, 1, 1},
+		{"moderator can_view false", func(f *statusFixture) { f.role = "moderator"; f.perms = map[int64]bool{1: false} }, false, 0, 1, 1},
+		{"moderator other branch request", func(f *statusFixture) { f.role = "moderator"; f.sid.Int64 = 2 }, false, 0, 1, 1},
+		{"moderator null request branch", func(f *statusFixture) { f.role = "moderator"; f.sid = null }, false, 0, 0, 1},
+		{"santral matching sid and can_view", func(f *statusFixture) { f.role = "santral" }, true, 1, 1, 1},
+		{"santral sid mismatch", func(f *statusFixture) { f.role = "santral"; f.userSID.Int64 = 2 }, false, 1, 0, 1},
+		{"santral NULL sid", func(f *statusFixture) { f.role = "santral"; f.userSID = null }, false, 1, 0, 1},
+		{"santral without can_view", func(f *statusFixture) { f.role = "santral"; f.perms = nil }, false, 1, 1, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f := readyStatusFixture(1)
+			tc.setup(f)
+			code, status, message, next, hub := statusHTTP(t, f, "11", "ik", body)
+			if f.sidReads != tc.sidQ || f.permReads != tc.permQ || f.requestReads != tc.reqReads || f.piiReads != 0 {
+				t.Fatalf("queries: %+v", f)
+			}
+			if tc.allow {
+				if code != 200 || status != 201 || next != "randevu-verildi" || f.updates != 1 || f.commits != 1 || f.durable != 1 || f.rollbacks != 0 {
+					t.Fatalf("allowed status change failed: %d/%d %q %+v", code, status, next, f)
+				}
+				select {
+				case <-hub.events:
+				case <-time.After(2 * time.Second):
+					t.Fatal("no post-commit event")
+				}
+				return
+			}
+			if denied == "" {
+				denied = message
+			}
+			if code != 404 || status != 404 || message != denied || f.updates != 0 || f.commits != 0 || f.durable != 0 || f.rollbacks != 1 {
+				t.Fatalf("denial: %d/%d %q %+v", code, status, message, f)
+			}
+			noStatusEvent(t, hub)
+		})
+	}
+}
+
 func TestRequestStatusInputStaleAndTransactionErrorsHTTP(t *testing.T) {
 	for _, body := range []string{`{"status":"unknown"}`, `{"status":""}`, `{"status":`, `{}`} {
 		f := readyStatusFixture(1)
@@ -327,7 +403,7 @@ func TestRequestStatusInputStaleAndTransactionErrorsHTTP(t *testing.T) {
 				f.rowsAffected = 2
 			}
 			if tc.stage == "rollback" {
-				f.role = "moderator"
+				f.role = "ik"
 			}
 			code, status, _, _, hub := statusHTTP(t, f, "11", "admin", `{"status":"yeni"}`)
 			if code != tc.want || status != tc.want || f.durable != 0 || f.piiReads != 0 || f.inTx {
