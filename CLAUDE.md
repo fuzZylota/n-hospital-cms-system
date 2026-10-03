@@ -65,8 +65,10 @@ sayfa çalışma zamanında patlar, derleme hatası vermez.
 - Sunucu hatalarında: "Server Hatası: Lütfen daha sonra tekrar deneyin."
 
 ## Mutlak kurallar
-- Sen frontend geliştiricisisin. Backend kodu YAZMA, inisiyatif alma.
-- Go handler, route, DB modeli, admin panel mantığına dokunma.
+- (3 Ekim 2026, kullanıcı kararı) Backend artık kapsamda: Go handler,
+  route, middleware, Jet yardımcı fonksiyonu ve admin panel mantığı
+  `docs/ai/PRO_V3_ROADMAP.md` görevleri için değiştirilebilir. Rol/iş
+  kuralı kararı, yeni Go bağımlılığı, migration ve deploy yine ayrıca sorulur.
 - Veritabanına hiçbir koşulda yazma. (14 Eylül 2026: kullanıcı, PNG→WebP
   dosya uzantısı geçişi için medias/homepage_contents path kolonlarını
   güncellemem konusunda dar kapsamlı, tek seferlik bir istisna tanıdı.
