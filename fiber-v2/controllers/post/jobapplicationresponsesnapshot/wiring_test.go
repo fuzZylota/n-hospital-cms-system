@@ -253,7 +253,7 @@ func assertResponseSnapshotFields(t *testing.T, function *ast.FuncDecl) {
 	// The formatted handler is a fail-closed allowlist for every return, field
 	// sink, callback, and side effect, including nested statements.
 	got := fmt.Sprintf("%x", sha256.Sum256([]byte(source)))
-	const allowedHandlerSHA256 = "41b1202dc33adacd2fef2e91ff8e9391f86f18529a3f65f4bdad9a6e5ffbb640"
+	const allowedHandlerSHA256 = "3fa2f6b439de81847ec4798fe457f2075ff43a9ce1d4afee0b1a60506b51d7b8"
 	if got != allowedHandlerSHA256 {
 		t.Fatal("response handler changed outside the approved wiring atom")
 	}
@@ -990,7 +990,7 @@ func responseSnapshotFieldsAreExact(function *ast.FuncDecl) bool {
 		return false
 	}
 	return !strings.Contains(source, "jobApplicationResponseSnapshot.Set") && !strings.Contains(source, "jobApplicationResponseSnapshot.SecondaryColor") &&
-		responseFieldUsageFingerprint(closure.Body) == "8aafad59d330b813209999601ea456de4ce85a590dfef63433af96f6c2135b3c"
+		responseFieldUsageFingerprint(closure.Body) == "309e9eccf9f5adf0afe0c8a1d6dab734ee364dd9c856f3659334b3468947a5c1"
 }
 
 func responseFieldUsageFingerprint(body *ast.BlockStmt) string {

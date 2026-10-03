@@ -391,7 +391,7 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 						
 						<div class="content">
 							<div class="greeting">
-								Sayın ` + inputs.PatientFirstName + ` ` + inputs.PatientLastName + `,
+								Sayın ` + lib.EscapeEmailText(inputs.PatientFirstName) + ` ` + lib.EscapeEmailText(inputs.PatientLastName) + `,
 							</div>
 							
 							<div class="message">
@@ -428,15 +428,15 @@ func AddRandevuRequest(states *models.AppState, utilities *models.Utilities) fib
 								<h3>📋 İletişim Bilgileriniz</h3>
 								<div class="info-row">
 									<span class="info-label">Ad Soyad:</span>
-									<span class="info-value">` + inputs.PatientFirstName + ` ` + inputs.PatientLastName + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.PatientFirstName) + ` ` + lib.EscapeEmailText(inputs.PatientLastName) + `</span>
 								</div>
 								<div class="info-row">
 									<span class="info-label">Telefon:</span>
-									<span class="info-value">` + inputs.PatientPhone + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.PatientPhone) + `</span>
 								</div>
 								<div class="info-row">
 									<span class="info-label">E-posta:</span>
-									<span class="info-value">` + inputs.PatientEmail + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.PatientEmail) + `</span>
 								</div>
 							</div>
 							

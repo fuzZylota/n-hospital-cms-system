@@ -120,6 +120,16 @@ func buildEmailMessage(message emailMessage) ([]byte, error) {
 func buildHTMLWithAttachments(from string, to []string, subject, plainText, html string, files []string) ([]byte, error) {
 	var b bytes.Buffer
 
+	// Header injection guard: CR/LF in user-influenced values (recipient,
+	// subject, sender) must never reach the header block.
+	from = SanitizeHeaderValue(from)
+	subject = SanitizeHeaderValue(subject)
+	safeTo := make([]string, len(to))
+	for i, address := range to {
+		safeTo[i] = SanitizeHeaderValue(address)
+	}
+	to = safeTo
+
 	mixedBoundary := generateEmailBoundary("MIXED")
 	altBoundary := generateEmailBoundary("ALT")
 

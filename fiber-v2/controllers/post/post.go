@@ -2478,7 +2478,7 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 						
 						<div class="content">
 							<div class="greeting">
-								Sayın ` + inputs.FirstName + ` ` + inputs.LastName + `,
+								Sayın ` + lib.EscapeEmailText(inputs.FirstName) + ` ` + lib.EscapeEmailText(inputs.LastName) + `,
 							</div>
 							
 							<div class="message">
@@ -2494,25 +2494,25 @@ func AddContactRequest(states *models.AppState, utilities *models.Utilities) fib
 								<h3>📋 İletişim Bilgileriniz</h3>
 								<div class="info-row">
 									<span class="info-label">Ad Soyad:</span>
-									<span class="info-value">` + inputs.FirstName + ` ` + inputs.LastName + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.FirstName) + ` ` + lib.EscapeEmailText(inputs.LastName) + `</span>
 								</div>
 								<div class="info-row">
 									<span class="info-label">E-posta:</span>
-									<span class="info-value">` + inputs.Email + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.Email) + `</span>
 								</div>`
 
 				if inputs.Phone != "" {
 					Html += `
 								<div class="info-row">
 									<span class="info-label">Telefon:</span>
-									<span class="info-value">` + inputs.Phone + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.Phone) + `</span>
 								</div>`
 				}
 
 				Html += `
 								<div class="info-row">
 									<span class="info-label">Konu:</span>
-									<span class="info-value">` + inputs.Subject + `</span>
+									<span class="info-value">` + lib.EscapeEmailText(inputs.Subject) + `</span>
 								</div>
 							</div>
 							
@@ -2770,7 +2770,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-						<title>` + inputs.Title + `</title>
+						<title>` + lib.EscapeEmailText(inputs.Title) + `</title>
 	<style>
 		body {
 			margin: 0;
@@ -2921,12 +2921,12 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 	<div class="email-container">
 		<div class="header">
 			<img src="cid:` + LogoName + `" alt="` + contactRequestResponseSnapshot.SiteName + `" />
-								<h1>` + inputs.Title + `</h1>
+								<h1>` + lib.EscapeEmailText(inputs.Title) + `</h1>
 		</div>
 		
 		<div class="content">
 			<div class="greeting">
-									Sayın ` + ContactRequestData.FirstName + ` ` + ContactRequestData.LastName + `,
+									Sayın ` + lib.EscapeEmailText(ContactRequestData.FirstName) + ` ` + lib.EscapeEmailText(ContactRequestData.LastName) + `,
 			</div>
 			
 			<div class="message">
@@ -2942,7 +2942,7 @@ func RespondToContactRequest(states *models.AppState, utilities *models.Utilitie
 								
 								<div class="responder-info">
 									<h3>👤 Cevap Veren</h3>
-									<p><strong>` + inputs.ResponderName + `</strong></p>
+									<p><strong>` + lib.EscapeEmailText(inputs.ResponderName) + `</strong></p>
 									<p>` + contactRequestResponseSnapshot.SiteName + ` İletişim Ekibi</p>
 			</div>
 			
@@ -3475,7 +3475,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 		
 		<div class="content">
 			<div class="greeting">
-				Sayın ` + inputs.FirstName + ` ` + inputs.LastName + `,
+				Sayın ` + lib.EscapeEmailText(inputs.FirstName) + ` ` + lib.EscapeEmailText(inputs.LastName) + `,
 			</div>
 			
 			<div class="message">
@@ -3492,32 +3492,32 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 				<h3>📋 Başvuru Bilgileriniz</h3>
 				<div class="info-row">
 					<span class="info-label">Ad Soyad:</span>
-					<span class="info-value">` + inputs.FirstName + ` ` + inputs.LastName + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.FirstName) + ` ` + lib.EscapeEmailText(inputs.LastName) + `</span>
 				</div>
 				<div class="info-row">
 					<span class="info-label">E-posta:</span>
-					<span class="info-value">` + inputs.Email + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.Email) + `</span>
 				</div>`
 
 				if inputs.Phone != "" {
 					Html += `
 				<div class="info-row">
 					<span class="info-label">Telefon:</span>
-					<span class="info-value">` + inputs.Phone + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.Phone) + `</span>
 				</div>`
 				}
 
 				Html += `
 				<div class="info-row">
 					<span class="info-label">Şehir:</span>
-					<span class="info-value">` + inputs.City + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.City) + `</span>
 				</div>`
 
 				if inputs.PositionApplied != "" {
 					Html += `
 				<div class="info-row">
 					<span class="info-label">Başvurulan Pozisyon:</span>
-					<span class="info-value">` + inputs.PositionApplied + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.PositionApplied) + `</span>
 				</div>`
 				}
 
@@ -3525,7 +3525,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 					Html += `
 				<div class="info-row">
 					<span class="info-label">Üniversite:</span>
-					<span class="info-value">` + inputs.University + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.University) + `</span>
 				</div>`
 				}
 
@@ -3533,7 +3533,7 @@ func AddJobApplication(states *models.AppState, utilities *models.Utilities) fib
 					Html += `
 				<div class="info-row">
 					<span class="info-label">Diller:</span>
-					<span class="info-value">` + inputs.Languages + `</span>
+					<span class="info-value">` + lib.EscapeEmailText(inputs.Languages) + `</span>
 				</div>`
 				}
 
@@ -4024,7 +4024,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 					<head>
 						<meta charset="UTF-8">
 						<meta name="viewport" content="width=device-width, initial-scale=1.0">
-						<title>` + inputs.Title + `</title>
+						<title>` + lib.EscapeEmailText(inputs.Title) + `</title>
 						<style>
 							body {
 								margin: 0;
@@ -4175,12 +4175,12 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 						<div class="email-container">
 							<div class="header">
 								<img src="cid:` + LogoName + `" alt="` + jobApplicationResponseSnapshot.SiteName + `" />
-								<h1>` + inputs.Title + `</h1>
+								<h1>` + lib.EscapeEmailText(inputs.Title) + `</h1>
 							</div>
 							
 							<div class="content">
 								<div class="greeting">
-									Sayın ` + JobApplicationData.FirstName + ` ` + JobApplicationData.LastName + `,
+									Sayın ` + lib.EscapeEmailText(JobApplicationData.FirstName) + ` ` + lib.EscapeEmailText(JobApplicationData.LastName) + `,
 								</div>
 								
 								<div class="message">
@@ -4196,7 +4196,7 @@ func RespondToJobApplication(states *models.AppState, utilities *models.Utilitie
 								
 								<div class="responder-info">
 									<h3>👤 Cevap Veren</h3>
-									<p><strong>` + inputs.ResponderName + `</strong></p>
+									<p><strong>` + lib.EscapeEmailText(inputs.ResponderName) + `</strong></p>
 									<p>` + jobApplicationResponseSnapshot.SiteName + ` İnsan Kaynakları Ekibi</p>
 								</div>
 								

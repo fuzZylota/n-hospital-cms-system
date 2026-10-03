@@ -31,6 +31,8 @@ type contactResponseFixture struct {
 	active, missingUser, missingTarget, mismatch, inTx                      bool
 	events                                                                  []string
 	durable, pending, sends, options                                        int
+	nameOverride                                                            string
+	captured                                                                *models.EmailInfos
 }
 
 func (f *contactResponseFixture) Connect(context.Context) (driver.Conn, error) {
@@ -199,13 +201,21 @@ func contactResponseHTTP(t *testing.T, f *contactResponseFixture, id, jwtRole, u
 	t.Setenv("AUTH_COOKIE_NAME", "n-hospital-auth")
 	t.Setenv("ROOT_DIRECTORY", t.TempDir())
 	f.liveFirstName, f.liveEmail = responseSynthetic, "synthetic@example.invalid"
+	if f.nameOverride != "" {
+		f.liveFirstName = f.nameOverride
+	}
 	db := sql.OpenDB(f)
 	t.Cleanup(func() { _ = db.Close() })
 	app := fiber.New()
+	plainNeedle := responseSynthetic
+	if f.nameOverride != "" {
+		plainNeedle = f.nameOverride
+	}
 	sender := func(email *models.EmailInfos) error {
 		f.sends++
+		f.captured = email
 		f.events = append(f.events, "smtp")
-		if f.inTx || !f.readClosed || f.actorLocked || f.targetLocked || db.Stats().InUse != 0 || len(email.To) != 1 || email.To[0] != "synthetic@example.invalid" || email.Subject != "Synthetic title - Synthetic Clinic" || !strings.Contains(email.PlainText, responseSynthetic) {
+		if f.inTx || !f.readClosed || f.actorLocked || f.targetLocked || db.Stats().InUse != 0 || len(email.To) != 1 || email.To[0] != "synthetic@example.invalid" || email.Subject != "Synthetic title - Synthetic Clinic" || !strings.Contains(email.PlainText, plainNeedle) {
 			t.Error("sender escaped authorized target/configuration")
 		}
 		if f.fail == "target_removed" {
@@ -368,5 +378,24 @@ func TestContactResponseImmutableTargetAndRevocationAfterReadHTTP(t *testing.T) 
 	result, events := contactResponseHTTP(t, f, "7", "admin", "7", contactResponseBody)
 	if result.Status != 201 || f.durable != 1 || f.role != "ik" || f.active || f.liveEmail != "changed@example.invalid" || events != "begin,actor,target,pii,commit,options,smtp,begin,write,commit" {
 		t.Fatalf("authorized copy/revocation boundary changed: %+v %s", result, events)
+	}
+}
+
+// Public-form kaynaklı ad (DB'den okunan) HTML gövdesine kaçışlanarak girmeli.
+func TestContactResponseEscapesUserControlledNameInHTMLBody(t *testing.T) {
+	const evil = `<a href="https://evil.example">x</a>`
+	f := &contactResponseFixture{role: "admin", active: true, nameOverride: evil}
+	result, _ := contactResponseHTTP(t, f, "7", "admin", "7", contactResponseBody)
+	if result.Status != 201 || f.captured == nil {
+		t.Fatal("response was not sent")
+	}
+	if strings.Contains(f.captured.Body, evil) || strings.Contains(f.captured.Body, `<a href="https://evil.example">`) {
+		t.Fatal("user-controlled name reached the HTML body unescaped")
+	}
+	if !strings.Contains(f.captured.Body, `&lt;a href=&#34;https://evil.example&#34;&gt;x&lt;/a&gt;`) {
+		t.Fatal("escaped name missing from the HTML body")
+	}
+	if !strings.Contains(f.captured.PlainText, evil) {
+		t.Fatal("plain text part must not be HTML-escaped")
 	}
 }
