@@ -377,10 +377,13 @@ func (s *branchInsertStmt) Exec(args []driver.Value) (driver.Result, error) {
 				return nil, errors.New("branch update ran before upload write")
 			}
 			if s.conn.connector.replaceOnUpdate {
-				if err := os.Remove(path); err != nil {
+				// Yeni dosya, eski silinmeden oluşturulur; aksi hâlde dosya sistemi aynı
+				// inode numarasını yeniden verip os.SameFile denetimini rastgele geçirir.
+				replacement := path + ".other"
+				if err := os.WriteFile(replacement, []byte("other request"), 0o644); err != nil {
 					return nil, err
 				}
-				if err := os.WriteFile(path, []byte("other request"), 0o644); err != nil {
+				if err := os.Rename(replacement, path); err != nil {
 					return nil, err
 				}
 			}

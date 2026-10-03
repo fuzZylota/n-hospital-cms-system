@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, nivgoz-professional-v2]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go:
+    name: Go derleme + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fiber-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.1'
+          cache-dependency-path: fiber-v2/**/go.sum
+      - name: Derle
+        run: cd main && go build ./...
+      - name: Test (go.work içindeki tüm modüller)
+        run: |
+          set -e
+          for m in $(sed -n '/use (/,/)/p' go.work | grep -oE '\./[^ ]+'); do
+            echo "== $m"
+            (cd "$m" && go test ./...)
+          done
+
+  node:
+    name: JS testleri
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test fiber-v2/test/*.test.cjs
