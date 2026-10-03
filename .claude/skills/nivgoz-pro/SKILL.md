@@ -52,7 +52,24 @@ sadeleştirilmiş hâlidir.
 - Rol/iş kuralı kararı (kim neyi görür/onaylar).
 - Yol haritasında "ONAY" etiketi taşıyan görev.
 
+## Model ve effort yönlendirmesi
+| İş | Model | Effort |
+| --- | --- | --- |
+| Kod/dosya arama, "nerede X var" soruları, log okuma (Explore alt ajan) | Haiku | düşük |
+| Mekanik uygulama: panel sayfası çevirme, CSS/Jet düzenleme, test yazma, bug fix, rutin yetki değişikliği | Sonnet | orta |
+| UI inceleme / SEO denetimi alt ajanları | Sonnet | orta |
+| Mimari karar (Tabler iskeleti, token sistemi, randevu akışı tasarımı), güvenlik/yetki tasarımı, kök nedeni belirsiz hata, çok modüllü refactor | Opus | yüksek |
+Kural: varsayılan Sonnet; Opus yalnız "yanlış karar sonradan pahalıya patlar"
+durumlarında (tasarım/mimari/güvenlik). Tasarım bitince Sonnet'e dön.
+Aynı işi iki ajana verme (tekrar tarama = çifte maliyet).
+`opusplan` takma adı: planlamada Opus, uygulamada Sonnet — büyük görevlerde
+(P2-1, P3-1, P6-1) kullan.
+
 ## Maliyet kuralları
+- Her görev sonrası `/compact`; konu değişince `/clear` (taşınan bağlam ~40k → ~9k token).
+- Çok sayıda dosya okuma/çıktı gerektiren işi alt ajana ver: ham çıktı onun
+  bağlamında kalır, ana oturuma yalnız özet döner.
+- Basit düzenlemelerde uzun düşünme gerekmez (effort düşük/orta).
 - Dosyayı bir kez oku; düzenledikten sonra yeniden okuma.
 - Büyük belgeleri özetleme amacıyla okuma; yalnız ilgili satırları çek.
 - Bağımsız işleri paralel araç çağrılarında yap; uzun raporlar yazma.

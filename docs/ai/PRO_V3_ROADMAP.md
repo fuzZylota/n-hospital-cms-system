@@ -136,6 +136,12 @@ Kurulmayanlar ve nedeni: UI UX Pro Max (100+ stil/161 palet veritabanı; marka
 ve kitle zaten sabit), claude-seo tam paket (18 ajan, harici API'ler), GSD/BMAD
 (tek geliştiricili, tek repoluk iş için fazla tören). Yöntemleri alındı.
 
+## Model ve maliyet politikası (2026-10-03)
+Ayrıntılı tablo `nivgoz-pro` skill'inde. Özet: varsayılan **Sonnet/orta**; keşif
+ve arama **Haiku** alt ajan; **Opus** yalnız tasarım-mimari-güvenlik kararlarında
+(`opusplan`: plan Opus, uygulama Sonnet). Kaynaklar: Composio, KDnuggets,
+claudelog, mcp.directory (effort seviyeleri: yüksek effort aynı istemde ~7x token).
+
 ## Araştırma kaynakları
 - Spec odaklı ajan iş akışları (GSD, spec-kit, BMAD): planı tek kaynak dosyada tut, görev = kabul ölçütü.
 - Anthropic `frontend-design` skill: jenerik font/renk/düzenden kaçın, net estetik yön seç.
