@@ -1,60 +1,45 @@
-<section class="home-merkezlerimiz" style="padding: 40px 0 60px; background: #fff;">
-    <div class="container">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
-            <h2 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Merkezlerimiz</h2>
-            <a href="/merkezlerimiz" class="home-all-doctors-btn">Tümünü Gör</a>
+{* P3-3 — Anasayfa merkezler: kart başına ad (merkez sayfasına bağlantı),
+   il/ilçe ve telefon. Adres controller'dan gelmiyor (HomeSubeler sorgusu
+   adres seçmiyor) → basılmaz, merkez sayfasında. Telefon yalnız DB'de
+   varsa basılır. Görsel alt'ı DB'deki medya alt metni, yoksa boş. *}
+{{ if len(Subeler) > 0 }}
+<section class="nv-home-sec" aria-labelledby="nvHomeCentersTitle">
+    <div class="nv-home__container">
+        <div class="nv-home-sec__head">
+            <h2 class="nv-home-sec__title" id="nvHomeCentersTitle">Merkezlerimiz</h2>
+            <a class="nv-home-sec__more" href="/merkezlerimiz">Tüm merkezlerimiz</a>
         </div>
-        <div style="position:relative; padding:0 44px;">
-            <button class="team-three__nav-btn team-three__nav-btn--prev" id="merkezPrev" aria-label="Önceki merkezler"><i class="icon-arrow-left" aria-hidden="true"></i></button>
-            <div class="owl-carousel owl-theme mediox-owl__carousel" id="merkezCarousel" data-owl-options='{
-                "items": 3,
-                "margin": 20,
-                "loop": true,
-                "smartSpeed": 700,
-                "nav": false,
-                "dots": false,
-                "autoplay": true,
-                "autoplayTimeout": 3500,
-                "autoplayHoverPause": true,
-                "responsive": {
-                    "0": {"items": 2, "margin": 10},
-                    "768": {"items": 3, "margin": 16},
-                    "992": {"items": 3, "margin": 20}
-                }
-            }'>
-                {{ range index3, Sube := Subeler }}
-                    <div class="item">
-                        <a href="/merkezlerimiz/{{ Sube.UrlName }}" class="home-merkez-card">
-                            <div class="home-merkez-card__img">
-                                {{ if Sube.MediaPath != "" }}
-                                    <img src="{{ Sube.MediaPath }}" alt="{{ Sube.Name }}" width="400" height="450" loading="lazy" decoding="async">
-                                {{ else }}
-                                    <div class="home-merkez-card__no-img">
-                                        <i class="fas fa-hospital"></i>
-                                    </div>
-                                {{ end }}
-                            </div>
-                            <div class="home-merkez-card__body">
-                                <div class="home-merkez-card__text">
-                                    <span class="home-merkez-card__name">{{ Sube.Name }}</span>
-                                    {{ if Sube.City != "" }}
-                                        <span class="home-merkez-card__location"><i class="fas fa-map-marker-alt"></i> {{ Sube.City }}{{ if Sube.District != "" }}, {{ Sube.District }}{{ end }}</span>
-                                    {{ end }}
-                                </div>
-                                <span class="home-merkez-card__arrow"><i class="fas fa-arrow-right"></i></span>
-                            </div>
-                        </a>
-                    </div>
+        <ul class="nv-home-grid nv-home-grid--centers" role="list">
+            {{ range index3, Sube := Subeler }}
+            <li class="nv-card nv-center-card">
+                {{ if Sube.MediaPath != "" }}
+                <img class="nv-center-card__img" src="{{ Sube.MediaPath }}" alt="{{ Sube.MediaAltText }}" width="400" height="300" loading="lazy" decoding="async">
+                {{ else }}
+                <span class="nv-center-card__img nv-center-card__img--empty" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 21V8l8-5 8 5v13M9 21v-6h6v6M12 7v4M10 9h4"/></svg>
+                </span>
                 {{ end }}
-            </div>
-            <button class="team-three__nav-btn team-three__nav-btn--next" id="merkezNext" aria-label="Sonraki merkezler"><i class="icon-arrow-right" aria-hidden="true"></i></button>
-        </div>
+                <div class="nv-card__body">
+                    <h3 class="nv-card__title"><a class="nv-card__link" href="/merkezlerimiz/{{ Sube.UrlName }}">{{ Sube.Name }}</a></h3>
+                    {{ if Sube.City != "" }}
+                    <p class="nv-card__meta nv-home-meta">
+                        <svg class="nv-home-meta__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                        <span>{{ if Sube.District != "" }}{{ Sube.District }}, {{ end }}{{ Sube.City }}</span>
+                    </p>
+                    {{ end }}
+                    <div class="nv-card__actions">
+                        {{ if Sube.Phone != "" }}
+                        <a class="nv-btn nv-btn--secondary nv-center-card__phone" href="tel:{{ Sube.Phone }}">
+                            <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+                            <span><span class="sr-only">{{ Sube.Name }} telefonu: </span>{{ Sube.Phone }}</span>
+                        </a>
+                        {{ end }}
+                        <a class="nv-btn nv-btn--ghost" href="/merkezlerimiz/{{ Sube.UrlName }}/doktorlar">Bu merkezin doktorları<span class="sr-only"> ({{ Sube.Name }})</span></a>
+                    </div>
+                </div>
+            </li>
+            {{ end }}
+        </ul>
     </div>
 </section>
-<script>
-(function waitOwlMerkez() {
-    if (typeof $ === 'undefined' || !$.fn.owlCarousel) { setTimeout(waitOwlMerkez, 200); return; }
-    $('#merkezPrev').on('click', function() { $('#merkezCarousel').trigger('prev.owl.carousel'); });
-    $('#merkezNext').on('click', function() { $('#merkezCarousel').trigger('next.owl.carousel'); });
-})();
-</script>
+{{ end }}

@@ -1,221 +1,42 @@
-<style>
-/* Ana sayfa - doktorlarımız bölümü */
-.team-three.section-space { padding-top: 40px !important; }
-
-/* KART - mediox sıfırla */
-.team-three .team-card-three {
-    position: relative;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    overflow: hidden;
-    display: flex !important;
-    flex-direction: column !important;
-    transition: box-shadow .25s ease !important;
-    transform: none !important;
-}
-.team-three .team-card-three:hover {
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-    transform: none !important;
-}
-
-/* FOTOĞRAF */
-.team-three .team-card-three__image {
-    width: 100% !important;
-    min-height: 220px !important;
-    max-height: 220px !important;
-    background-size: cover !important;
-    background-position: center top !important;
-    position: relative !important;
-    flex-shrink: 0;
-}
-
-/* HOVER PANEL - fotoğraf altına al */
-.team-three .team-card-three__hover {
-    position: relative !important;
-    top: auto !important; bottom: auto !important;
-    left: auto !important; right: auto !important;
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    background: #fff !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 12px 12px 14px !important;
-}
-
-/* İSİM - mediox vertical-rl sıfırla */
-.team-three .team-card-three__identity {
-    position: relative !important;
-    writing-mode: horizontal-tb !important;
-    text-orientation: initial !important;
-    transform: none !important;
-    right: auto !important; bottom: auto !important;
-    top: auto !important; left: auto !important;
-    background: none !important;
-    border-radius: 0 !important;
-    padding: 0 0 6px 0 !important;
-    z-index: 2 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transition: none !important;
-    text-align: center !important;
-    width: 100% !important;
-}
-.team-three .team-card-three:hover .team-card-three__identity {
-    background: none !important;
-    transform: none !important;
-}
-.team-three .team-card-three__name,
-.team-three .team-card-three__name span,
-.team-three .team-card-three__name a {
-    writing-mode: horizontal-tb !important;
-    transform: none !important;
-    text-align: center !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    color: #111827 !important;
-    white-space: normal !important;
-    display: block !important;
-    margin: 0 !important;
-}
-.team-three .team-card-three__designation { display: none !important; }
-.team-three .social-links { display: none !important; }
-
-/* RANDEVU BUTONU */
-.team-three .doctor-randevu-btn {
-    min-height: 44px !important;
-    align-self: center !important;
-    font-size: 16px !important;
-    padding: 7px 14px !important;
-    width: auto !important;
-}
-
-/* NAV BUTONLAR */
-.team-three__nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    border: none;
-    background: var(--theme-secondary-color);
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.team-three__nav-btn--prev { left: 0; }
-.team-three__nav-btn--next { right: 0; }
-.team-three__nav-btn:hover { background: #b80020; }
-
-/* TÜM DOKTORLAR */
-.home-all-doctors-btn {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 8px 18px;
-    background: var(--nv-cta-bg, #DF0024);
-    color: #fff !important;
-    border-radius: 8px;
-    font-size: 16px; font-weight: 700;
-    text-decoration: none !important;
-}
-.home-all-doctors-btn:hover { background: var(--nv-cta-bg-hover, #BE001F); }
-
-/* MOBİL */
-@media (max-width: 768px) {
-    .team-three__nav-btn { display: none !important; }
-    .team-three > .container > div[style] { padding: 0 !important; }
-    .team-three .team-card-three__image {
-        min-height: 160px !important;
-        max-height: 160px !important;
-    }
-    .team-three .team-card-three__name { font-size: 16px !important; }
-    .team-three .doctor-randevu-btn { font-size: 16px !important; padding: 6px 10px !important; }
-}
-
-/* Doktor kartı - tıklanabilir overlay */
-.team-three .team-card-three {
-    position: relative !important;
-}
-.team-three .team-card-three__link-overlay {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 1 !important;
-    cursor: pointer !important;
-}
-.team-three .team-card-three__hover {
-    position: relative !important;
-    z-index: 2 !important;
-}
-.team-three .doctor-randevu-btn {
-    position: relative !important;
-    z-index: 3 !important;
-}
-.team-three .team-card-three__identity {
-    position: relative !important;
-    z-index: 3 !important;
-    cursor: pointer !important;
-}
-.team-three .team-card-three__name a,
-.team-three .team-card-three__name {
-    position: relative !important;
-    z-index: 3 !important;
-    cursor: pointer !important;
-}
-</style>
-<section class="team-three section-space">
-    <div class="container">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-            <h2 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Doktorlarımız</h2>
-            <a href="/doktorlarimiz" class="home-all-doctors-btn">Tüm Doktorlar</a>
+{* P3-3 — Anasayfa doktorlar. Yalnız DB'deki aktif doktorlar; puan/sayı yok.
+   Otomatik kayan carousel kaldırıldı: statik ızgara, ilk 6 doktor (sıra
+   controller'da unvana göre). Fotoğrafın alt'ı boş: ad hemen yanındaki h3'te,
+   ekran okuyucu adı iki kez okumasın. Doktor yoksa bölüm hiç basılmaz. *}
+{{ if len(Doctors) > 0 }}
+<section class="nv-home-sec" aria-labelledby="nvHomeDoctorsTitle">
+    <div class="nv-home__container">
+        <div class="nv-home-sec__head">
+            <h2 class="nv-home-sec__title" id="nvHomeDoctorsTitle">Doktorlarımız</h2>
+            <a class="nv-home-sec__more" href="/doktorlarimiz">Tüm doktorlarımız</a>
         </div>
-        <div style="position:relative; padding:0 44px;">
-            <button class="team-three__nav-btn team-three__nav-btn--prev" id="doctorPrev" aria-label="Önceki doktorlar"><i class="icon-arrow-left" aria-hidden="true"></i></button>
-            <div class="team-three__carousel mediox-owl__carousel mediox-owl__carousel--basic-nav owl-carousel owl-theme" id="doctorCarousel" data-owl-options='{
-                "items": 4,
-                "margin": 20,
-                "loop": true,
-                "smartSpeed": 700,
-                "nav": false,
-                "dots": false,
-                "autoplay": true, "autoplayTimeout": 3000, "autoplayHoverPause": true,
-                "responsive": {
-                    "0": {"items": 2, "margin": 10},
-                    "768": {"items": 3, "margin": 16},
-                    "992": {"items": 4, "margin": 20}
-                }
-            }'>
-                {{ range index2, Doctor := Doctors }}
-                    <div class="item">
-                        <div class="team-card-three">
-                            <a class="team-card-three__link-overlay" href="/doktorlarimiz/{{ Doctor.UrlName }}" aria-label="{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}"></a>
-                            <div class="team-card-three__image" style='background-image: url("{{ Doctor.PhotoPath != "" ? Doctor.PhotoPath : "files/defaults/doktorlar/default-doctor-pic.png" }}")' ></div>
-                            <div class="team-card-three__hover">
-                                <div class="team-card-three__identity">
-                                    <h3 class="team-card-three__name">{{ Doctor.Title }} {{ Doctor.FirstName }} {{ Doctor.LastName }}</h3>
-                                    <p class="team-card-three__designation">{{ Doctor.BransName }}</p>
-                                </div>
-                                <a class="doctor-randevu-btn" href="/randevu" onclick="event.stopPropagation()">
-                                    Randevu Al <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <ul class="nv-home-grid nv-home-grid--people" role="list">
+            {{ range index2, Doctor := Doctors }}{{ if index2 < 6 }}
+            {{ doctorName := Doctor.Title + " " + Doctor.FirstName + " " + Doctor.LastName }}
+            {{ doctorCenter := Doctor.CalistigiSubelerText != "" ? Doctor.CalistigiSubelerText : Doctor.SubeName }}
+            <li class="nv-card nv-doc-card">
+                {{ if Doctor.PhotoPath != "" }}
+                <img class="nv-doc-card__photo" src="{{ Doctor.PhotoPath }}" alt="" width="400" height="480" loading="lazy" decoding="async">
+                {{ else }}
+                <span class="nv-doc-card__photo nv-doc-card__photo--empty" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>
+                </span>
                 {{ end }}
-            </div>
-            <button class="team-three__nav-btn team-three__nav-btn--next" id="doctorNext" aria-label="Sonraki doktorlar"><i class="icon-arrow-right" aria-hidden="true"></i></button>
-        </div>
+                <div class="nv-card__body">
+                    <h3 class="nv-card__title"><a class="nv-card__link" href="/doktorlarimiz/{{ Doctor.UrlName }}">{{ doctorName }}</a></h3>
+                    {{ if Doctor.BransName != "" }}<p class="nv-card__meta">{{ Doctor.BransName }}</p>{{ end }}
+                    {{ if doctorCenter != "" }}
+                    <p class="nv-card__meta nv-home-meta">
+                        <svg class="nv-home-meta__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                        <span><span class="sr-only">Merkez: </span>{{ doctorCenter }}</span>
+                    </p>
+                    {{ end }}
+                    <div class="nv-card__actions">
+                        <a class="nv-btn nv-btn--secondary nv-btn--block" href="/randevu">Randevu talebi<span class="sr-only">: {{ doctorName }}</span></a>
+                    </div>
+                </div>
+            </li>
+            {{ end }}{{ end }}
+        </ul>
     </div>
 </section>
-<script>
-(function waitOwl() {
-    if (typeof $ === 'undefined' || !$.fn.owlCarousel) { setTimeout(waitOwl, 200); return; }
-    $('#doctorPrev').on('click', function() { $('#doctorCarousel').trigger('prev.owl.carousel'); });
-    $('#doctorNext').on('click', function() { $('#doctorCarousel').trigger('next.owl.carousel'); });
-})();
-</script>
+{{ end }}

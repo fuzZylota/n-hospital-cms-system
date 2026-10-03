@@ -1,55 +1,31 @@
-<section class="home-tibbi-birimler" style="padding: 40px 0 60px; background: #f8fafc;">
-    <div class="container">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
-            <h2 style="font-size:32px; font-weight:800; color:#111827; margin:0;">Tıbbi Birimlerimiz</h2>
-            <a href="/tibbi-birimler" class="home-all-doctors-btn">Tümünü Gör</a>
+{* P3-3 — Anasayfa tıbbi birimler: taranabilir ızgara (carousel yok).
+   Ad, kısa açıklama ve kapak görseli DB'den (tibbi_birimler.description,
+   medias). Açıklama boşsa yalnız ad basılır; metin uydurulmaz. Görselin
+   alt'ı boş: birimin adı yanındaki h3'te. *}
+{{ if len(TibbiBirimler) > 0 }}
+<section class="nv-home-sec nv-home-sec--alt" aria-labelledby="nvHomeUnitsTitle">
+    <div class="nv-home__container">
+        <div class="nv-home-sec__head">
+            <h2 class="nv-home-sec__title" id="nvHomeUnitsTitle">Tıbbi birimlerimiz</h2>
+            <a class="nv-home-sec__more" href="/tibbi-birimler">Tüm tıbbi birimler</a>
         </div>
-        <div style="position:relative; padding:0 44px;">
-            <button class="team-three__nav-btn team-three__nav-btn--prev" id="tıbbıPrev" aria-label="Önceki tıbbi birimler"><i class="icon-arrow-left" aria-hidden="true"></i></button>
-            <div class="owl-carousel owl-theme mediox-owl__carousel" id="tibbiCarousel" data-owl-options='{
-                "items": 4,
-                "margin": 20,
-                "loop": true,
-                "smartSpeed": 700,
-                "nav": false,
-                "dots": false,
-                "autoplay": true,
-                "autoplayTimeout": 3000,
-                "autoplayHoverPause": true,
-                "responsive": {
-                    "0": {"items": 2, "margin": 10},
-                    "768": {"items": 3, "margin": 16},
-                    "992": {"items": 4, "margin": 20}
-                }
-            }'>
-                {{ range index2, TibbiBirim := TibbiBirimler }}
-                    <div class="item">
-                        <a href="/tibbi-birimler/{{ TibbiBirim.UrlName }}" class="home-tibbi-card">
-                            <div class="home-tibbi-card__img">
-                                {{ if TibbiBirim.CoverPath != "" }}
-                                    <img src="/{{ TibbiBirim.CoverPath }}" alt="{{ TibbiBirim.Name }}" width="500" height="289" loading="lazy" decoding="async">
-                                {{ else }}
-                                    <div class="home-tibbi-card__no-img">
-                                        <i class="fas fa-eye"></i>
-                                    </div>
-                                {{ end }}
-                            </div>
-                            <div class="home-tibbi-card__body">
-                                <span class="home-tibbi-card__name">{{ TibbiBirim.Name }}</span>
-                                <span class="home-tibbi-card__arrow"><i class="fas fa-arrow-right"></i></span>
-                            </div>
-                        </a>
-                    </div>
+        <ul class="nv-home-grid nv-home-grid--units" role="list">
+            {{ range index2, TibbiBirim := TibbiBirimler }}
+            <li class="nv-card nv-unit-card">
+                {{ if TibbiBirim.CoverPath != "" }}
+                <img class="nv-unit-card__img" src="{{ TibbiBirim.CoverPath }}" alt="" width="500" height="289" loading="lazy" decoding="async">
+                {{ else }}
+                <span class="nv-unit-card__img nv-unit-card__img--empty" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                </span>
                 {{ end }}
-            </div>
-            <button class="team-three__nav-btn team-three__nav-btn--next" id="tıbbıNext" aria-label="Sonraki tıbbi birimler"><i class="icon-arrow-right" aria-hidden="true"></i></button>
-        </div>
+                <div class="nv-card__body">
+                    <h3 class="nv-card__title"><a class="nv-card__link" href="/tibbi-birimler/{{ TibbiBirim.UrlName }}">{{ TibbiBirim.Name }}</a></h3>
+                    {{ if TibbiBirim.Description != "" }}<p class="nv-card__meta nv-unit-card__desc">{{ TibbiBirim.Description }}</p>{{ end }}
+                </div>
+            </li>
+            {{ end }}
+        </ul>
     </div>
 </section>
-<script>
-(function waitOwl() {
-    if (typeof $ === 'undefined' || !$.fn.owlCarousel) { setTimeout(waitOwl, 200); return; }
-    $('#tıbbıPrev').on('click', function() { $('#tibbiCarousel').trigger('prev.owl.carousel'); });
-    $('#tıbbıNext').on('click', function() { $('#tibbiCarousel').trigger('next.owl.carousel'); });
-})();
-</script>
+{{ end }}

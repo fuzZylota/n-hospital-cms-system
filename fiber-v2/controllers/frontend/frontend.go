@@ -34,7 +34,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			return c.Redirect("/giris")
 		}
 
-		GetTibbiBirimler := Orm.Select([]string{"tb.name", "tb.url_name", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
+		GetTibbiBirimler := Orm.Select([]string{"tb.name", "tb.url_name", "tb.description", "m.file_path as cover_path", "m.alt_text as cover_alt_text", "m.title as cover_title"})
 		GetTibbiBirimler.Table("tibbi_birimler tb")
 		GetTibbiBirimler.LeftJoin("medias m", "tb.cover_mid", "=", "m.mid")
 		GetTibbiBirimler.Where("tb.is_active", "=", true)
@@ -57,6 +57,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 			TibbiBirimler = append(TibbiBirimler, models.TibbiBirimler{
 				Name:         lib.String(row["name"]),
 				UrlName:      lib.String(row["url_name"]),
+				Description:  lib.String(row["description"]),
 				CoverPath:    lib.String(row["cover_path"]),
 				CoverAltText: lib.String(row["cover_alt_text"]),
 				CoverTitle:   lib.String(row["cover_title"]),
@@ -92,7 +93,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 		}
 
 		Doctors := []models.DoktorForHomePage{}
-		GetDoctors := Orm.Select([]string{"d.drid", "d.title", "d.url_name", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "d.calistigi_subeler_text", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
+		GetDoctors := Orm.Select([]string{"d.drid", "d.title", "d.url_name", "d.first_name", "d.last_name", "d.facebook_url", "d.x_url", "d.instagram_url", "d.linkedin_url", "d.personal_url", "d.calistigi_subeler_text", "b.name as brans_name", "b.url_name as brans_url_name", "s.url_name as sube_url_name", "s.name as sube_name", "m.file_path as photo_path", "m.alt_text as photo_alt_text", "m.title as photo_title"})
 		GetDoctors.Table("doktorlar d")
 		GetDoctors.LeftJoin("branslar b", "d.brid", "=", "b.brid")
 		GetDoctors.LeftJoin("subeler s", "d.sid", "=", "s.sid")
@@ -131,6 +132,7 @@ func HomePage(states *models.AppState, utilities *models.Utilities) fiber.Handle
 				LinkedinUrl:          lib.String(row["linkedin_url"]),
 				PersonalUrl:          lib.String(row["personal_url"]),
 				SubeUrlName:          lib.String(row["sube_url_name"]),
+				SubeName:             lib.String(row["sube_name"]),
 				CalistigiSubelerText: lib.String(row["calistigi_subeler_text"]),
 				BransName:            lib.String(row["brans_name"]),
 				BransUrlName:         lib.String(row["brans_url_name"]),

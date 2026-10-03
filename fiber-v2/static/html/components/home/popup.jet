@@ -131,10 +131,13 @@
         
 
     <!-- Popup Structure -->
+    {* P3-3: iletişim kutusu anlamı, adlı kapat düğmesi, odak yönetimi.
+       İçerik (DB HTML) değişmedi; kaydırılabilir .popup-body klavyeyle
+       kaydırılabilsin diye script tabindex veriyor. *}
     <div class="popup-overlay" id="popupOverlay">
-        <div class="popup-container">
-            <button class="popup-close-btn" id="closePopupBtn">
-                <span>×</span>
+        <div class="popup-container" role="dialog" aria-modal="true" aria-label="Duyuru">
+            <button type="button" class="popup-close-btn" id="closePopupBtn" aria-label="Duyuruyu kapat">
+                <span aria-hidden="true">×</span>
             </button>
 
             {{ range index1, Content := AllHomepageContents }}
@@ -359,17 +362,40 @@
             const openPopupBtn = document.getElementById('openPopupBtn');
             const closePopupBtn = document.getElementById('closePopupBtn');
 
+            var lastFocus = null;
+            popupOverlay.querySelectorAll('.popup-body').forEach(function (el) {
+                if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+            });
+
             // Open popup
             function openPopup() {
+                lastFocus = document.activeElement;
                 popupOverlay.classList.add('popup-active');
                 document.body.style.overflow = 'hidden';
+                // visibility geçişi bitmeden odak alınamıyor; kısa gecikmeyle dene
+                [60, 450].forEach(function (ms) {
+                    setTimeout(function () {
+                        if (popupOverlay.classList.contains('popup-active') && !popupOverlay.contains(document.activeElement)) closePopupBtn.focus({ preventScroll: true });
+                    }, ms);
+                });
             }
 
             // Close popup
             function closePopup() {
                 popupOverlay.classList.remove('popup-active');
                 document.body.style.overflow = '';
+                if (lastFocus && typeof lastFocus.focus === 'function' && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
             }
+
+            // Açıkken Tab kutunun içinde kalır
+            popupOverlay.addEventListener('keydown', function (e) {
+                if (e.key !== 'Tab' || !popupOverlay.classList.contains('popup-active')) return;
+                var f = popupOverlay.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (!f.length) return;
+                var first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            });
 
             // Event listeners (base)
             if (openPopupBtn) openPopupBtn.addEventListener('click', openPopup);

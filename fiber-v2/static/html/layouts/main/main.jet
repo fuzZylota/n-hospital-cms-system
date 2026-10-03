@@ -152,15 +152,24 @@
     </style>
 
 
+    {* P3-3: anasayfanin yerlesik bolumleri artik owl/WOW kullanmiyor.
+       Panelden eklenen icerik (homepage_contents generic/popup HTML'i) hala
+       owl-carousel ya da wow sinifi tasiyorsa kutuphaneler yine yuklenir. *}
+    {{ homeNeedsOwl := false }}{{ homeNeedsWow := false }}
+    {{ if Route == "/" && isset(AllHomepageContents) }}{{ range index1, HomeContent := AllHomepageContents }}{{ if contains(HomeContent.ContentHtml, "owl-carousel") }}{{ homeNeedsOwl = true }}{{ end }}{{ if contains(HomeContent.ContentHtml, "wow") }}{{ homeNeedsWow = true }}{{ end }}{{ end }}{{ end }}
     {{ if Route == "/" }}
+        {{ if homeNeedsOwl }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" media="print" onload="this.media='all'" />
         <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" media="print" onload="this.media='all'" />
+        {{ end }}
         {{ if isset(BannerContents) && len(BannerContents) > 1 }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" media="print" onload="this.media='all'" />
         {{ end }}
         <noscript>
+            {{ if homeNeedsOwl }}
             <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
             <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
+            {{ end }}
             {{ if isset(BannerContents) && len(BannerContents) > 1 }}
             <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
             {{ end }}
@@ -884,6 +893,7 @@ body > .page-wrapper {
     {{ end }}
     {{ if Route == "/" }}
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/hero.css?v=20261003-p2b">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/index.css?v=20261003-p33">
     {{ end }}
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
@@ -1025,13 +1035,17 @@ body > .page-wrapper {
     {{ end }}
 
     {{ if Route == "/" }}
+        {{ if homeNeedsOwl }}
         <script defer src="{{ PathOnStart }}assets/owl-carousel/js/owl.carousel.min.js"></script>
+        {{ end }}
         {{ if isset(BannerContents) && len(BannerContents) > 1 }}
         <script defer src="{{ PathOnStart }}assets/slick/js/slick.min.js"></script>
         {{ end }}
     {{ end }}
 
+    {{ if Route != "/" || homeNeedsWow }}
     <script defer src="{{ PathOnStart }}assets/wow/wow.js"></script>
+    {{ end }}
     <script defer src="{{ PathOnStart }}assets/mediox.js"></script>
     <script defer src="{{ PathOnStart }}assets/mediox-landing.js"></script>
 

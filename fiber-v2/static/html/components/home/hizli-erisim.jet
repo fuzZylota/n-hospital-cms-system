@@ -1,0 +1,49 @@
+{* P3-3 — Hızlı erişim: hero'nun hemen altında dört büyük bağlantı kartı.
+   Metinler arayüz etiketidir (tıbbi iddia yok). "Hemen Ara" yalnız
+   panelde telefon tanımlıysa basılır ve numaranın kendisini gösterir:
+   az gören ziyaretçi numarayı okuyup başka bir telefondan da arayabilir. *}
+<nav class="nv-quick" aria-labelledby="nvQuickTitle">
+    <div class="nv-home__container">
+        <h2 class="sr-only" id="nvQuickTitle">Hızlı erişim</h2>
+        <ul class="nv-quick__list" role="list">
+            <li>
+                <a class="nv-quick__card nv-quick__card--primary" href="/randevu">
+                    <svg class="nv-quick__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 15l2 2 4-4"/></svg>
+                    <span class="nv-quick__text">
+                        <span class="nv-quick__label">Randevu Talebi</span>
+                        <span class="nv-quick__hint">İnternetten oluşturun</span>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a class="nv-quick__card" href="/doktorlarimiz">
+                    <svg class="nv-quick__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0M12 15v4M10 17h4"/></svg>
+                    <span class="nv-quick__text">
+                        <span class="nv-quick__label">Doktorlarımız</span>
+                        <span class="nv-quick__hint">Hekimlerimizi tanıyın</span>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a class="nv-quick__card" href="/merkezlerimiz">
+                    <svg class="nv-quick__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
+                    <span class="nv-quick__text">
+                        <span class="nv-quick__label">Merkezlerimiz</span>
+                        <span class="nv-quick__hint">Adres ve iletişim</span>
+                    </span>
+                </a>
+            </li>
+            {{ if Options.Options.ContactPhone != "" }}
+            <li>
+                <a class="nv-quick__card" href="tel:{{ Options.Options.ContactPhone }}">
+                    <svg class="nv-quick__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+                    <span class="nv-quick__text">
+                        <span class="nv-quick__label">Hemen Ara</span>
+                        <span class="nv-quick__hint nv-quick__hint--phone">{{ Options.Options.ContactPhone }}</span>
+                    </span>
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+    </div>
+</nav>

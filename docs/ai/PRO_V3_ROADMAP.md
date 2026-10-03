@@ -99,6 +99,12 @@ Riskler:
 - Dev'de tohum reCAPTCHA anahtarları Google test anahtarları; sandbox'ta google.com erişilemediği için sunucu doğrulaması hep 400 döner. Canlıda doğrulanmadı: gerçek reCAPTCHA, SMTP e-postası, gerçek merkez/doktor verisi, ekran okuyucu (elle).
 - Ölçüm (dev tohum): axe ciddi 87 → 86, kritik 0, /randevu 0; 44px altı 331 → 305.
 
+## P3-3 notları (2026-10-03)
+- Yeni: `components/home/hizli-erisim.jet`, `css/frontend/index.css`; doktor/birim/merkez/yorum/popup bileşenleri yeniden yazıldı. Carousel, WOW ve sabit 5 yıldız kaldırıldı; owl/wow yalnız panel içeriği kullanıyorsa yüklenir. `/` JS aktarımı −51 KB; axe ciddi 86 → 80 (`/` sayfasında 0).
+- Müşteriden gereken içerik: "Neden Nivgöz"/güven kanıtları/SSS metinleri, birim açıklamaları (`tibbi_birimler.description`), eksik doktor/merkez fotoğrafları.
+- Kararlar: ana sayfada ilk 6 doktor; "Randevu talebi" `/randevu`'ya gider (`?doktor=` ön seçimi ayrı iş); merkez kartında adres yok (ana sayfa sorgusu seçmiyor).
+- Açık: popup sayfa açıldıktan 1,2 sn sonra kendiliğinden açılıyor (iş kararı); cls-guard'da ölü seçiciler ve kullanılmayan `home/*` bileşenleri; canlı veriyle doğrulanmadı.
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
@@ -132,7 +138,7 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 ### P3 — Public sayfalar
 - [x] P3-1 — **Randevu talep akışı** (sıfırdan): 4 adım (merkez → bölüm → doktor/tarih tercihi → iletişim), ilerleme göstergesi, her adımda doğrulama, onay ekranı + talep numarası, KVKK onayı. · `views/frontend/randevu.jet`, `js/frontend/randevu-page.js` · Ekran okuyucuyla uçtan uca tamamlanır.
 - [ ] P3-2 — **Randevu takip** (public): talep no + telefon ile durum sorgulama. · yeni route + view · **ONAY** (yeni public endpoint, PII riski — yalnız durum döner).
-- [ ] P3-3 — Anasayfa: hero, hızlı erişim (Randevu / Doktorlar / Merkezler / Ara), hizmetler, doktorlar, merkezler, güven kanıtları, SSS.
+- [x] P3-3 — Anasayfa: hero, hızlı erişim (Randevu / Doktorlar / Merkezler / Ara), hizmetler, doktorlar, merkezler, güven kanıtları, SSS.
 - [ ] P3-4 — Doktor liste/detay: filtre (merkez, bölüm), kart, profil + "bu doktordan randevu".
 - [ ] P3-5 — Merkez (şube) liste/detay: harita (lazy), yol tarifi, saatler, telefonla ara.
 - [ ] P3-6 — Tıbbi birim/tetkik sayfaları, haberler, iletişim, İK, KVKK, 404.

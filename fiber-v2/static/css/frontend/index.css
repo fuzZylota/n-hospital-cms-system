@@ -1,0 +1,357 @@
+/* ==========================================================================
+   index.css — P3-3 anasayfa, hero ALTINDAKİ bölümler. Yalnız "/" rotasında.
+   --------------------------------------------------------------------------
+   Yeni renk yok: tokens.css + components.css (.nv-card, .nv-btn) kullanılır.
+   Hareket yok (carousel/WOW kaldırıldı); yalnız hover/odak geçişleri, onlar
+   da --nv-dur ile, prefers-reduced-motion altında 0ms.
+   Ölçüler rem: data-text="large|xlarge" ile orantılı büyür; ızgaralar
+   minmax() ile sütun sayısını kendisi azaltır (320px'te yatay taşma yok).
+   ========================================================================== */
+
+/* Tema gövde rengi #707882 (beyaz üstünde 4.4:1, AA altı). Panelden eklenen
+   ve kendi rengini vermeyen anasayfa içeriği (homepage_contents) bunu
+   miras alıyordu; anasayfa <main>'inde gövde metni token'a çekilir. */
+body.homepage main { color: var(--nv-text); }
+
+.nv-home__container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-inline: 16px;
+}
+@media (min-width: 992px) {
+  .nv-home__container { padding-inline: 24px; }
+}
+
+/* ---- Bölüm iskeleti ------------------------------------------------------ */
+.nv-home-sec {
+  padding-block: var(--nv-space-7);
+  background-color: var(--nv-bg);
+  color: var(--nv-text);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  line-height: var(--nv-leading-body);
+}
+.nv-home-sec--alt { background-color: var(--nv-bg-alt); }
+@media (min-width: 992px) {
+  .nv-home-sec { padding-block: var(--nv-space-8); }
+}
+
+.nv-home-sec__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--nv-space-3) var(--nv-space-5);
+  margin-bottom: var(--nv-space-5);
+}
+.nv-home-sec__title {
+  margin: 0;
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h2);
+  font-weight: var(--nv-weight-heavy);
+  line-height: var(--nv-leading-heading);
+  letter-spacing: var(--nv-tracking-heading);
+}
+/* "Tümünü gör" bağlantısı: metin bağlantısı, ama 44px dokunma hedefi */
+.nv-home-sec__more,
+.nv-home-sec__more:visited {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--nv-target-min);
+  color: var(--nv-link);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.nv-home-sec__more:hover { color: var(--nv-link-hover); text-decoration-thickness: 2px; }
+.nv-home-sec__more:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+  border-radius: var(--nv-radius-sm);
+}
+
+/* ---- Izgara -------------------------------------------------------------- */
+.nv-home-grid {
+  display: grid;
+  gap: var(--nv-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-home-grid > li { margin: 0; min-width: 0; }
+/* min(100%, X): dar ekranda / büyük metinde tek sütuna düşer, taşmaz */
+.nv-home-grid--people  { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+.nv-home-grid--units   { grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); }
+.nv-home-grid--centers { grid-template-columns: repeat(auto-fit,  minmax(min(100%, 18rem), 1fr)); }
+.nv-home-grid--reviews { grid-template-columns: repeat(auto-fit,  minmax(min(100%, 20rem), 1fr)); }
+
+/* Kart başlığındaki bağlantı ve meta satırı */
+.nv-home-grid .nv-card__title { overflow-wrap: anywhere; }
+.nv-home-grid .nv-card__body { flex: 1; align-content: start; }
+.nv-home-grid .nv-card__actions { margin-top: auto; padding-top: var(--nv-space-2); }
+
+.nv-home-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nv-space-2);
+}
+.nv-home-meta__icon {
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.22em;
+  color: var(--nv-navy-700);
+}
+
+/* Görsel kutuları: oran CSS'ten, görsel inmeden yer ayrılır (CLS yok) */
+.nv-doc-card__photo,
+.nv-unit-card__img,
+.nv-center-card__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  background-color: var(--nv-navy-100);
+}
+.nv-doc-card__photo    { aspect-ratio: 5 / 6; object-position: center top; }
+.nv-unit-card__img     { aspect-ratio: 500 / 289; }
+.nv-center-card__img   { aspect-ratio: 4 / 3; }
+
+.nv-doc-card__photo--empty,
+.nv-unit-card__img--empty,
+.nv-center-card__img--empty {
+  display: grid;
+  place-items: center;
+  color: var(--nv-navy-600);
+}
+.nv-doc-card__photo--empty svg,
+.nv-unit-card__img--empty svg,
+.nv-center-card__img--empty svg { width: 30%; max-width: 5rem; height: auto; }
+
+/* Doktor kartı yatay (fotoğraf solda) — dikey portre fotoğraf tablet ve
+   masaüstünde ekranı dolduruyordu. 768+: 2 sütun, 992+: 3 sütun (6 = 3x2).
+   En büyük metin kademesinde metne yer kalsın diye dikey düzen korunur. */
+:root:not([data-text="xlarge"]) .nv-doc-card { flex-direction: row; align-items: stretch; }
+:root:not([data-text="xlarge"]) .nv-doc-card__photo {
+  flex: none;
+  width: clamp(6.5rem, 32%, 10rem);
+  aspect-ratio: auto;
+  min-height: 11rem;
+  height: auto;
+  align-self: stretch;
+}
+:root:not([data-text="xlarge"]) .nv-doc-card .nv-card__body { min-width: 0; padding: var(--nv-space-4); gap: var(--nv-space-2); }
+@media (min-width: 768px) {
+  .nv-home-grid--people { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 992px) {
+  .nv-home-grid--people { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Mobil: doktor ve birim kartları yatay (küçük görsel solda) — 6 doktor +
+   10 birim tek sütunda çok uzun bir sayfa olmasın. En büyük metin
+   kademesinde metne yer kalsın diye dikey düzen korunur. */
+@media (max-width: 575.98px) {
+  :root:not([data-text="xlarge"]) .nv-doc-card,
+  :root:not([data-text="xlarge"]) .nv-unit-card {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  :root:not([data-text="xlarge"]) .nv-doc-card__photo,
+  :root:not([data-text="xlarge"]) .nv-unit-card__img {
+    flex: none;
+    width: 6.5rem;
+    aspect-ratio: auto;
+    min-height: 7.5rem;
+    height: auto;
+    align-self: stretch;
+  }
+  :root:not([data-text="xlarge"]) .nv-doc-card .nv-card__body,
+  :root:not([data-text="xlarge"]) .nv-unit-card .nv-card__body {
+    min-width: 0;
+    padding: var(--nv-space-4);
+    gap: var(--nv-space-2);
+  }
+  .nv-home-grid--people,
+  .nv-home-grid--units { gap: var(--nv-space-4); }
+  .nv-center-card__img { aspect-ratio: 16 / 9; }
+  .nv-home-grid .nv-card__body { padding: var(--nv-space-4); }
+  :root[data-text="xlarge"] .nv-doc-card__photo { aspect-ratio: 4 / 3; }
+}
+
+/* Açıklama: en fazla 3 satır görünür (tam metin DOM'da, ekran okuyucu okur) */
+.nv-unit-card__desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* components.css ".nv-card__body a" kuralı düğmelerin altını çizip hover
+   rengini ezmesin (ikincil düğme hover'da lacivert üstünde lacivert olurdu) */
+.nv-home-grid .nv-card__body .nv-btn--secondary,
+.nv-home-grid .nv-card__body .nv-btn--secondary:visited { color: var(--nv-navy-900); text-decoration: none; }
+.nv-home-grid .nv-card__body .nv-btn--secondary:hover,
+.nv-home-grid .nv-card__body .nv-btn--secondary:active { color: var(--nv-paper); text-decoration: none; }
+/* Kart başlığı bağlantısı altı çizili kalır: az gören için tıklanabilirlik
+   ipucu. Bağlantının kendisi de en az 44px yüksek (kartın tamamı zaten
+   ::after ile tıklanabilir). */
+.nv-home-grid .nv-card__title .nv-card__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--nv-target-min);
+}
+
+.nv-center-card__phone .nv-icon { width: 1.2em; height: 1.2em; }
+.nv-center-card .nv-card__actions .nv-btn { flex: 1 1 auto; }
+
+/* ---- Hızlı erişim -------------------------------------------------------- */
+.nv-quick {
+  padding-block: var(--nv-space-5);
+  background-color: var(--nv-bg);
+  font-family: var(--nv-font-sans);
+}
+.nv-quick__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--nv-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-quick__list > li { margin: 0; min-width: 0; display: flex; }
+@media (min-width: 992px) {
+  .nv-quick__list { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: var(--nv-space-5); }
+}
+/* Büyük metin modunda 2 sütun dar kalır → tek sütun */
+@media (max-width: 575.98px) {
+  :root[data-text="xlarge"] .nv-quick__list { grid-template-columns: minmax(0, 1fr); }
+  :root[data-text="xlarge"] .nv-quick__card { flex-direction: row; align-items: center; min-height: 0; }
+}
+
+.nv-quick__card,
+.nv-quick__card:visited {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--nv-space-2);
+  min-height: 7rem;
+  padding: var(--nv-space-4);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-surface);
+  color: var(--nv-navy-900);
+  text-decoration: none;
+  transition: background-color var(--nv-dur) var(--nv-ease), color var(--nv-dur) var(--nv-ease);
+}
+@media (min-width: 768px) {
+  .nv-quick__card { flex-direction: row; align-items: center; gap: var(--nv-space-4); padding: var(--nv-space-5); min-height: 6rem; }
+}
+.nv-quick__card:hover {
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+.nv-quick__card:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+/* Birincil eylem: marka kırmızısı zemin (CTA kuralı), beyaz metin 5.04:1 kalın */
+.nv-quick__card--primary,
+.nv-quick__card--primary:visited {
+  border-color: var(--nv-cta-bg);
+  background-color: var(--nv-cta-bg);
+  color: var(--nv-cta-fg);
+}
+.nv-quick__card--primary:hover {
+  border-color: var(--nv-cta-bg-hover);
+  background-color: var(--nv-cta-bg-hover);
+  color: var(--nv-cta-fg);
+}
+
+.nv-quick__icon {
+  flex: none;
+  width: 2.5rem;    /* 40px simge, kartın kendisi ≥ 112px yüksek */
+  height: 2.5rem;
+}
+.nv-quick__text { display: grid; gap: 0.125rem; min-width: 0; }
+.nv-quick__label {
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-heavy);
+  line-height: var(--nv-leading-heading);
+  overflow-wrap: anywhere;
+}
+.nv-quick__hint {
+  font-size: var(--nv-text-sm);
+  font-weight: var(--nv-weight-regular);
+  line-height: 1.35;
+}
+.nv-quick__hint--phone {
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  /* 320px'te iki sütunda sığmaz: boşluklardan kırılır, taşmaz */
+  overflow-wrap: anywhere;
+}
+
+/* ---- Hasta yorumları ----------------------------------------------------- */
+.nv-review { display: flex; }
+.nv-review__figure {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--nv-space-4);
+  margin: 0;
+  padding: var(--nv-space-5);
+  border: var(--nv-border-width) solid var(--nv-border-subtle);
+  border-inline-start: 4px solid var(--nv-navy-700);
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-surface);
+}
+.nv-review__quote { margin: 0; padding: 0; border: 0; }
+.nv-review__quote p {
+  margin: 0;
+  max-width: var(--nv-measure);
+  color: var(--nv-text);
+  font-size: var(--nv-text-body);
+  line-height: var(--nv-leading-body);
+}
+.nv-review__by {
+  display: flex;
+  align-items: center;
+  gap: var(--nv-space-3);
+  margin: 0;
+}
+.nv-review__photo {
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--nv-navy-100);
+}
+.nv-review__name {
+  display: block;
+  color: var(--nv-heading);
+  font-weight: var(--nv-weight-bold);
+}
+.nv-review__role {
+  display: block;
+  color: var(--nv-text-muted);
+  font-size: var(--nv-text-sm);
+}
+
+/* ---- Yüksek kontrast ----------------------------------------------------- */
+:root[data-contrast="high"] .nv-quick__card:not(.nv-quick__card--primary) { border-color: var(--nv-ink); color: var(--nv-ink); }
+:root[data-contrast="high"] .nv-quick__card:not(.nv-quick__card--primary):hover { background-color: var(--nv-ink); color: var(--nv-paper); }
+:root[data-contrast="high"] .nv-review__figure { border-color: var(--nv-ink); border-inline-start-color: var(--nv-ink); }
+:root[data-contrast="high"] .nv-home-meta__icon { color: var(--nv-ink); }
+
+@media (forced-colors: active) {
+  .nv-quick__card, .nv-review__figure { border-color: CanvasText; }
+}
