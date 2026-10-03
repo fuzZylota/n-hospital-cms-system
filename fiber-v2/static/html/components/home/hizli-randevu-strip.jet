@@ -2,36 +2,56 @@
     <div class="container">
         <div class="hizli-randevu-strip__inner">
             <div class="hizli-randevu-strip__form-box">
-                <div class="hizli-randevu-strip__form-title">
-                    <i class="fas fa-calendar-check"></i>
-                    Hızlı Randevu Al
-                </div>
-                <form id="stripRandevuForm" class="hizli-randevu-strip__form-grid" novalidate>
+                <h2 class="hizli-randevu-strip__form-title" id="stripRandevuTitle">
+                    <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                    Hızlı randevu talebi
+                </h2>
+                <form id="stripRandevuForm" class="hizli-randevu-strip__form-grid" aria-labelledby="stripRandevuTitle" novalidate>
                     <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
-                    <input type="text" name="patient_first_name" id="stripFirstName" aria-label="Adınız" placeholder="Adınız*" class="hizli-randevu-strip__input" required>
-                    <input type="text" name="patient_last_name" id="stripLastName" aria-label="Soyadınız" placeholder="Soyadınız*" class="hizli-randevu-strip__input" required>
-                    <input type="tel" name="patient_phone" id="stripPhone" aria-label="Telefon numaranız" placeholder="Telefon Numaranız*" class="hizli-randevu-strip__input" required>
-                    <select name="sid" id="stripBranch" aria-label="Merkez seçiniz" class="hizli-randevu-strip__input hizli-randevu-strip__select">
-                        <option value="">Merkez Seçiniz</option>
-                        {{ range index2, Sube := AllSubeler }}
-                            <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
-                        {{ end }}
-                    </select>
-                    <div class="hizli-randevu-strip__kvkk">
-                        <label for="stripKVKK" class="checkbox-label">
-                            <input type="checkbox" id="stripKVKK" required>
-                            <span><a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve onaylıyorum.</span>
-                        </label>
+                    <div class="nv-field">
+                        <label class="nv-label" for="stripFirstName">Adınız <span class="nv-label__req">(zorunlu)</span></label>
+                        <input class="nv-input" type="text" name="patient_first_name" id="stripFirstName" autocomplete="given-name" maxlength="100" aria-describedby="stripFirstNameError">
+                        <p class="nv-error" id="stripFirstNameError"></p>
                     </div>
-                    <div style="transform:scale(0.82);transform-origin:left center;margin-bottom:-8px;">
+                    <div class="nv-field">
+                        <label class="nv-label" for="stripLastName">Soyadınız <span class="nv-label__req">(zorunlu)</span></label>
+                        <input class="nv-input" type="text" name="patient_last_name" id="stripLastName" autocomplete="family-name" maxlength="100" aria-describedby="stripLastNameError">
+                        <p class="nv-error" id="stripLastNameError"></p>
+                    </div>
+                    <div class="nv-field">
+                        <label class="nv-label" for="stripPhone">Telefon <span class="nv-label__req">(zorunlu)</span></label>
+                        <input class="nv-input" type="tel" name="patient_phone" id="stripPhone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="0532 123 45 67" aria-describedby="stripPhoneError">
+                        <p class="nv-error" id="stripPhoneError"></p>
+                    </div>
+                    <div class="nv-field">
+                        <label class="nv-label" for="stripBranch">Merkez <span class="nv-label__req">(isteğe bağlı)</span></label>
+                        <select class="nv-input" name="sid" id="stripBranch">
+                            <option value="">Fark etmez</option>
+                            {{ range index2, Sube := AllSubeler }}
+                                <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                    <div class="hizli-randevu-strip__kvkk">
+                        <label for="stripKVKK" class="nv-check">
+                            <input type="checkbox" id="stripKVKK" aria-describedby="stripKVKKError">
+                            <span><a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve onaylıyorum. <span class="nv-label__req">(zorunlu)</span></span>
+                        </label>
+                        <p class="nv-error" id="stripKVKKError"></p>
+                    </div>
+                    {{ if Options.Options.RecaptchaSiteKey != "" }}
+                    <div class="hizli-randevu-strip__captcha">
                         <div id="stripRecaptchaWidget"></div>
                         <input type="hidden" id="stripRecaptchaToken">
+                        <p class="nv-error" id="stripCaptchaError"></p>
                     </div>
-                    <button type="submit" class="hizli-randevu-strip__btn">
-                        Gönder <i class="fas fa-arrow-right"></i>
-                    </button>
+                    {{ end }}
+                    <div class="hizli-randevu-strip__actions">
+                        <button type="submit" class="nv-btn nv-btn--primary hizli-randevu-strip__submit">Talebi Gönder</button>
+                        <a href="/randevu">Bölüm ya da doktor seçmek için ayrıntılı form</a>
+                    </div>
                 </form>
-                <div class="hizli-randevu-strip__feedback" id="stripFeedback"></div>
+                <div class="hizli-randevu-strip__feedback" id="stripFeedback" role="status" aria-live="polite"></div>
             </div>
             <div class="hizli-randevu-strip__cards">
                 <a href="/kurumsal/anlasmali-kurumlar" class="hizli-randevu-strip__card">
@@ -81,6 +101,7 @@
 {{ end }}
 <script>
 var stripRecaptchaToken = '';
+var stripRecaptchaKey = '{{ Options.Options.RecaptchaSiteKey }}';
 window.onStripRecaptchaVerified = function(token) {
     stripRecaptchaToken = token;
 };
@@ -107,61 +128,56 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 200);
 
     var form = document.getElementById('stripRandevuForm');
-    if (!form) return;
+    if (!form || !window.NvTalep) return;
+    var T = window.NvTalep;
+    var sending = false;
+    var hasCaptcha = !!document.getElementById('stripRecaptchaWidget') && stripRecaptchaKey !== '';
+    function byId(id) { return document.getElementById(id); }
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        var firstName = document.getElementById('stripFirstName').value.trim();
-        var lastName = document.getElementById('stripLastName').value.trim();
-        var phone = document.getElementById('stripPhone').value.trim();
-        var sid = document.getElementById('stripBranch').value;
-        var kvkk = document.getElementById('stripKVKK').checked;
-        var feedback = document.getElementById('stripFeedback');
-        if (!firstName || !lastName || !phone) {
-            feedback.innerHTML = '<span style="color:#ef4444">Lütfen zorunlu alanları doldurunuz.</span>';
-            return;
+        if (sending) return;
+        var fields = [['stripFirstName', 'Adınızı yazın.'], ['stripLastName', 'Soyadınızı yazın.']];
+        var firstInvalid = null;
+        function fail(input, errId, msg) { T.fieldError(input, byId(errId), msg); if (!firstInvalid) firstInvalid = input; }
+        ['stripFirstName', 'stripLastName', 'stripPhone', 'stripKVKK'].forEach(function(id) { T.fieldError(byId(id), byId(id + 'Error'), ''); });
+        if (byId('stripCaptchaError')) byId('stripCaptchaError').textContent = '';
+        T.render(byId('stripFeedback'), null);
+        fields.forEach(function(f) { if (!byId(f[0]).value.trim()) fail(byId(f[0]), f[0] + 'Error', f[1]); });
+        var phoneInput = byId('stripPhone');
+        var phone = T.normalizePhone(phoneInput.value);
+        if (!phoneInput.value.trim()) fail(phoneInput, 'stripPhoneError', 'Telefon numaranızı yazın.');
+        else if (!T.isValidPhone(phone)) fail(phoneInput, 'stripPhoneError', 'Telefon numarası eksik görünüyor. Örnek: 0532 123 45 67.');
+        if (!byId('stripKVKK').checked) fail(byId('stripKVKK'), 'stripKVKKError', 'Aydınlatma metnini okuduğunuzu onaylayın.');
+        if (hasCaptcha && !stripRecaptchaToken) {
+            byId('stripCaptchaError').textContent = typeof grecaptcha === 'undefined'
+                ? 'Güvenlik doğrulaması yükleniyor. Birkaç saniye bekleyin.'
+                : '“Ben robot değilim” kutusunu işaretleyin.';
+            if (!firstInvalid) firstInvalid = byId('stripRecaptchaWidget');
         }
-        if (!kvkk) {
-            feedback.innerHTML = '<span style="color:#ef4444">Lütfen KVKK metnini onaylayınız.</span>';
-            return;
-        }
-        if (!stripRecaptchaToken) {
-            feedback.innerHTML = '<span style="color:#ef4444">Lütfen güvenlik doğrulamasını tamamlayınız.</span>';
-            return;
-        }
-        var btn = form.querySelector('.hizli-randevu-strip__btn');
-        btn.disabled = true;
-        btn.innerHTML = 'Gönderiliyor...';
-        fetch('/backend/add-randevu-request', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                patient_first_name: firstName,
-                patient_last_name: lastName,
-                patient_phone: phone,
-                sid: sid,
-                message: '',
-                recaptcha_token: stripRecaptchaToken,
-                website: (form.querySelector('input[name="website"]') || {}).value || ''
-            })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.status === 200 || data.status === 201) {
-                feedback.innerHTML = '<span style="color:#16a34a">✓ Talebiniz alındı, en kısa sürede sizi arayacağız.</span>';
-                form.reset();
-                stripRecaptchaToken = '';
-                setTimeout(function() { feedback.innerHTML = ''; }, 5000);
+        if (firstInvalid) { if (firstInvalid.tagName !== 'DIV') firstInvalid.focus(); return; }
 
-            } else {
-                feedback.innerHTML = '<span style="color:#ef4444">' + (data.message || 'Bir hata oluştu, lütfen tekrar deneyiniz.') + '</span>';
-            }
+        var btn = form.querySelector('.hizli-randevu-strip__submit');
+        sending = true;
+        btn.disabled = true;
+        btn.textContent = 'Gönderiliyor…';
+        T.post({
+            patient_first_name: byId('stripFirstName').value.trim(),
+            patient_last_name: byId('stripLastName').value.trim(),
+            patient_phone: phone,
+            sid: byId('stripBranch').value,
+            message: '',
+            recaptcha_token: stripRecaptchaToken,
+            website: (form.querySelector('input[name="website"]') || {}).value || ''
+        }).then(function(result) {
+            sending = false;
             btn.disabled = false;
-            btn.innerHTML = 'Gönder <i class="fas fa-arrow-right"></i>';
-        })
-        .catch(function() {
-            feedback.innerHTML = '<span style="color:#ef4444">Bir hata oluştu, lütfen tekrar deneyiniz.</span>';
-            btn.disabled = false;
-            btn.innerHTML = 'Gönder <i class="fas fa-arrow-right"></i>';
+            btn.textContent = 'Talebi Gönder';
+            T.render(byId('stripFeedback'), result);
+            if (result.ok) form.reset();
+            if (result.captcha && byId('stripCaptchaError')) byId('stripCaptchaError').textContent = result.text;
+            // Jeton tek kullanımlık: her yanıttan sonra sıfırla.
+            stripRecaptchaToken = '';
+            if (hasCaptcha && typeof grecaptcha !== 'undefined') { try { grecaptcha.reset(); } catch (err) {} }
         });
     });
 });

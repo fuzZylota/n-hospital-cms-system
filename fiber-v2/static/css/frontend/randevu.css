@@ -1,0 +1,379 @@
+/* ==========================================================================
+   randevu.css — /randevu talep sihirbazı (P3-1)
+   Yalnız tokens.css değişkenleri ve components.css bileşenleri (.nv-btn,
+   .nv-field, .nv-alert, .nv-check) üstüne kurulur; yeni renk yok.
+   Kitleye özgü kararlar:
+   - Seçenekler büyük kart/satır (≥56px), tüm satır tıklanır; seçili durum
+     yalnız renkle değil kalın kenarlık + işaretle verilir.
+   - Adım göstergesi önce METİN ("Adım 2 / 4: Bölüm"), sonra görsel.
+   - "Telefonla daha kolay mı?" kutusu her adımda görünür; merkez seçilince
+     o merkezin numarasına döner.
+   ========================================================================== */
+
+.nv-randevu-crumb {
+  padding-block: var(--nv-space-3);
+  background-color: var(--nv-bg-alt);
+}
+
+.nv-randevu {
+  padding-block: var(--nv-space-6) var(--nv-space-9);
+  background-color: var(--nv-bg);
+  color: var(--nv-text);
+}
+
+.nv-randevu__layout {
+  display: grid;
+  gap: var(--nv-space-5);
+  grid-template-areas: "intro" "call" "app";
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 992px) {
+  .nv-randevu__layout {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-areas: "intro intro" "app call";
+    column-gap: var(--nv-space-7);
+    align-items: start;
+  }
+  .nv-randevu__call { position: sticky; top: calc(var(--nv-space-9) + var(--nv-space-6)); }
+}
+
+.nv-randevu__intro { grid-area: intro; max-width: var(--nv-measure); }
+.nv-randevu__app,
+.nv-randevu__done,
+.nv-randevu__noscript { grid-area: app; min-width: 0; }
+
+.nv-randevu__title {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h1);
+  font-weight: var(--nv-weight-heavy);
+  line-height: var(--nv-leading-heading);
+  letter-spacing: var(--nv-tracking-heading);
+}
+
+.nv-randevu__lead {
+  margin: 0;
+  font-size: var(--nv-text-lg);
+  line-height: var(--nv-leading-body);
+}
+
+/* ---- Telefon kutusu ---------------------------------------------------- */
+.nv-randevu__call {
+  grid-area: call;
+  display: grid;
+  gap: var(--nv-space-2);
+  padding: var(--nv-space-4) var(--nv-space-5);
+  border: var(--nv-border-width) solid var(--nv-border-subtle);
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-bg-alt);
+}
+.nv-randevu__call-title {
+  margin: 0;
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-bold);
+  line-height: var(--nv-leading-heading);
+}
+.nv-randevu__call-text { margin: 0; }
+.nv-randevu .js-nv-call { flex-wrap: wrap; }
+.nv-randevu .js-nv-call-number { white-space: nowrap; }
+
+.nv-randevu__noscript-list {
+  display: grid;
+  gap: var(--nv-space-3);
+  margin: var(--nv-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---- Adım göstergesi ---------------------------------------------------- */
+.nv-steps { margin: 0 0 var(--nv-space-5); }
+
+.nv-steps__text {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-heading);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.35;
+}
+.nv-steps__count { font-weight: var(--nv-weight-heavy); }
+
+.nv-steps__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--nv-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nv-steps__item {
+  display: grid;
+  justify-items: start;
+  gap: var(--nv-space-1);
+  padding-top: var(--nv-space-2);
+  border-top: 6px solid var(--nv-border-subtle);
+  color: var(--nv-text-muted);
+  font-size: var(--nv-text-sm);
+  line-height: 1.3;
+}
+.nv-steps__num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75em;
+  height: 1.75em;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-weight: var(--nv-weight-bold);
+}
+.nv-steps__item.is-done { border-top-color: var(--nv-navy-600); color: var(--nv-text); }
+.nv-steps__item.is-current {
+  border-top-color: var(--nv-navy-900);
+  color: var(--nv-heading);
+  font-weight: var(--nv-weight-bold);
+}
+.nv-steps__item.is-current .nv-steps__num {
+  background-color: var(--nv-navy-900);
+  border-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+
+/* Dar ekranda yalnız numaralar; metin zaten üstteki satırda */
+@media (max-width: 479px) {
+  .nv-steps__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* ---- Adım ---------------------------------------------------------------- */
+.nv-step[hidden],
+.nv-randevu__done[hidden],
+.nv-randevu__app[hidden] { display: none; }
+
+.nv-step__title {
+  margin: 0 0 var(--nv-space-5);
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h3);
+  font-weight: var(--nv-weight-bold);
+  line-height: var(--nv-leading-heading);
+  scroll-margin-top: 9.5rem;
+}
+.nv-step__title:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+.nv-step__summary { scroll-margin-top: 9.5rem; }
+.nv-step__summary-list { margin: var(--nv-space-1) 0 0; padding-inline-start: 1.25em; }
+.nv-step__summary-list li { margin: 0 0 var(--nv-space-1); }
+.nv-step__summary a { color: inherit; font-weight: var(--nv-weight-bold); }
+.nv-step__summary:focus-visible,
+.nv-randevu__result:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+.nv-step__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-3);
+  margin-top: var(--nv-space-6);
+}
+@media (max-width: 575px) {
+  .nv-step__nav .nv-btn { flex: 1 1 100%; }
+}
+
+/* ---- Seçenek grupları (radyo kartları) --------------------------------- */
+.nv-choices {
+  min-width: 0;
+  margin: 0 0 var(--nv-space-6);
+  padding: 0;
+  border: 0;
+}
+.nv-choices__legend {
+  float: none;
+  width: auto;
+  margin: 0 0 var(--nv-space-2);
+  padding: 0;
+  color: var(--nv-heading);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.35;
+}
+.nv-choices > .nv-hint { margin-bottom: var(--nv-space-3); }
+
+.nv-choices__grid {
+  display: grid;
+  gap: var(--nv-space-3);
+  margin-bottom: var(--nv-space-2);
+}
+@media (min-width: 768px) {
+  .nv-choices__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nv-choices__grid--centers { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .nv-choices__grid--inline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.nv-choice {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nv-space-3);
+  min-height: 56px;
+  margin: 0;
+  padding: var(--nv-space-3) var(--nv-space-4);
+  border: var(--nv-field-border-width) solid var(--nv-field-border);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-field-bg);
+  color: var(--nv-text);
+  font-size: var(--nv-text-body);
+  line-height: 1.4;
+  cursor: pointer;
+}
+.nv-choice[hidden] { display: none; }
+.nv-choice:hover { border-color: var(--nv-navy-900); }
+
+.nv-choice__input {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0.1em 0 0;
+  accent-color: var(--nv-navy-900);
+  cursor: pointer;
+}
+.nv-choice__body { display: grid; gap: var(--nv-space-1); min-width: 0; overflow-wrap: anywhere; }
+.nv-choice__title { color: var(--nv-heading); font-weight: var(--nv-weight-bold); }
+.nv-choice__meta { color: var(--nv-text-muted); }
+
+.nv-choice--card { padding: var(--nv-space-4) var(--nv-space-5); }
+.nv-choice--card .nv-choice__title { font-size: var(--nv-text-h5); }
+
+/* Seçili: kalın lacivert kenarlık + açık zemin (renk tek ipucu değil:
+   radyo işareti de dolu). */
+.nv-choice:has(.nv-choice__input:checked) {
+  border-color: var(--nv-navy-900);
+  border-width: 3px;
+  padding: calc(var(--nv-space-3) - 1px) calc(var(--nv-space-4) - 1px);
+  background-color: var(--nv-navy-50);
+}
+.nv-choice--card:has(.nv-choice__input:checked) {
+  padding: calc(var(--nv-space-4) - 1px) calc(var(--nv-space-5) - 1px);
+}
+.nv-choice:has(.nv-choice__input:focus-visible) {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+.nv-choice__input:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: 2px;
+}
+
+.nv-choices--error .nv-choice { border-color: var(--nv-error-text); }
+.nv-choices--error .nv-choices__legend { color: var(--nv-error-text); }
+
+/* ---- Alanlar ------------------------------------------------------------- */
+.nv-randevu .nv-field { max-width: 40rem; }
+.nv-randevu .nv-field .nv-check { margin: 0; }
+.nv-input--date { max-width: 16rem; }
+.nv-input--phone { max-width: 20rem; letter-spacing: 0.02em; }
+.nv-randevu__count:empty { display: none; }
+
+@media (min-width: 768px) {
+  .nv-randevu__names {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--nv-space-4);
+    max-width: 40rem;
+  }
+}
+
+.nv-randevu__captcha { min-height: 110px; }
+
+/* ---- Özet ---------------------------------------------------------------- */
+.nv-summary {
+  margin: 0 0 var(--nv-space-6);
+  padding: var(--nv-space-4) var(--nv-space-5);
+  border: var(--nv-border-width) solid var(--nv-border-subtle);
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-bg-alt);
+}
+.nv-summary__title {
+  margin: 0 0 var(--nv-space-2);
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-bold);
+  line-height: var(--nv-leading-heading);
+}
+.nv-summary__list { margin: 0; }
+.nv-summary__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 var(--nv-space-4);
+  padding-block: var(--nv-space-2);
+  border-bottom: var(--nv-border-width) solid var(--nv-border-subtle);
+}
+.nv-summary__row:last-child { border-bottom: 0; }
+.nv-summary__row dt { margin: 0; font-weight: var(--nv-weight-bold); color: var(--nv-heading); }
+.nv-summary__row dd { margin: 0; overflow-wrap: anywhere; }
+.nv-summary__edit .nv-btn { padding-inline: 0; min-height: var(--nv-target-min); }
+@media (min-width: 768px) {
+  .nv-summary__row { grid-template-columns: 9rem minmax(0, 1fr) auto; align-items: center; }
+  .nv-summary__edit .nv-btn { padding-inline: var(--nv-space-3); }
+}
+
+/* ---- Sonuç / uyarılar ---------------------------------------------------- */
+.nv-randevu__result { margin-top: var(--nv-space-5); scroll-margin-top: 9.5rem; scroll-margin-bottom: 8rem; }
+.nv-randevu__result[hidden] { display: none; }
+.nv-randevu__result-call { margin-top: var(--nv-space-2); }
+
+.nv-randevu__notice {
+  max-width: var(--nv-measure);
+  margin: var(--nv-space-5) 0 0;
+  padding-inline-start: var(--nv-space-4);
+  border-inline-start: 4px solid var(--nv-navy-600);
+}
+
+/* ---- Onay ekranı --------------------------------------------------------- */
+.nv-randevu__done {
+  padding: var(--nv-space-6) var(--nv-space-5);
+  border: 2px solid var(--nv-success-border);
+  border-inline-start-width: 8px;
+  border-radius: var(--nv-radius-lg);
+  background-color: var(--nv-success-bg);
+  color: var(--nv-success-fg);
+}
+.nv-randevu__done-title {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-success-fg);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h2);
+  font-weight: var(--nv-weight-heavy);
+  line-height: var(--nv-leading-heading);
+  scroll-margin-top: 9.5rem;
+}
+.nv-randevu__done-title::before {
+  content: "✓ ";
+  content: "✓ " / "";
+}
+.nv-randevu__done-title:focus-visible { outline: var(--nv-focus-outline); outline-offset: var(--nv-focus-offset); box-shadow: var(--nv-focus-shadow); }
+.nv-randevu__done-lead { margin: 0 0 var(--nv-space-3); font-size: var(--nv-text-lg); font-weight: var(--nv-weight-bold); }
+.nv-randevu__done-ref,
+.nv-randevu__done-note { margin: 0 0 var(--nv-space-3); max-width: var(--nv-measure); }
+.nv-randevu__done-ref strong { font-size: var(--nv-text-h5); }
+.nv-randevu__done-actions { display: flex; flex-wrap: wrap; gap: var(--nv-space-3); margin-top: var(--nv-space-5); }
+@media (max-width: 575px) {
+  .nv-randevu__done-actions .nv-btn { flex: 1 1 100%; }
+}
+
+/* ---- Yüksek kontrast ------------------------------------------------------ */
+:root[data-contrast="high"] .nv-choice,
+:root[data-contrast="high"] .nv-summary,
+:root[data-contrast="high"] .nv-randevu__call { border-color: #000000; }
+:root[data-contrast="high"] .nv-choice:has(.nv-choice__input:checked) { border-width: 4px; }
+:root[data-contrast="high"] .nv-steps__item { border-top-color: #000000; color: #000000; }

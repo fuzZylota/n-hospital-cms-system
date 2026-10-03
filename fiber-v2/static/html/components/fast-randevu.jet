@@ -14,37 +14,52 @@
         </div>
         <form id="fastRandevuForm" class="fast-randevu__form" novalidate>
             <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
-            <div class="fast-randevu__field">
-                <input type="text" name="patient_first_name" id="fastRandevuName" aria-label="Adınız" placeholder="Adınız*" required>
+            <div class="nv-field fast-randevu__field">
+                <label class="nv-label" for="fastRandevuName">Adınız <span class="nv-label__req">(zorunlu)</span></label>
+                <input class="nv-input" type="text" name="patient_first_name" id="fastRandevuName" autocomplete="given-name" maxlength="100" aria-describedby="fastRandevuNameError">
+                <p class="nv-error" id="fastRandevuNameError"></p>
             </div>
-            <div class="fast-randevu__field">
-                <input type="text" name="patient_last_name" id="fastRandevuSurname" aria-label="Soyadınız" placeholder="Soyadınız*" required>
+            <div class="nv-field fast-randevu__field">
+                <label class="nv-label" for="fastRandevuSurname">Soyadınız <span class="nv-label__req">(zorunlu)</span></label>
+                <input class="nv-input" type="text" name="patient_last_name" id="fastRandevuSurname" autocomplete="family-name" maxlength="100" aria-describedby="fastRandevuSurnameError">
+                <p class="nv-error" id="fastRandevuSurnameError"></p>
             </div>
-            <div class="fast-randevu__field">
-                <input type="tel" name="patient_phone" id="fastRandevuPhone" aria-label="Telefon numaranız" placeholder="Telefon Numaranız*" required>
+            <div class="nv-field fast-randevu__field">
+                <label class="nv-label" for="fastRandevuPhone">Telefon numaranız <span class="nv-label__req">(zorunlu)</span></label>
+                <p class="nv-hint" id="fastRandevuPhoneHint">Örnek: 0532 123 45 67</p>
+                <input class="nv-input" type="tel" name="patient_phone" id="fastRandevuPhone" autocomplete="tel" inputmode="tel" maxlength="20" aria-describedby="fastRandevuPhoneHint fastRandevuPhoneError">
+                <p class="nv-error" id="fastRandevuPhoneError"></p>
             </div>
-            <div class="fast-randevu__field">
-                <select name="sid" id="fastRandevuSube" aria-label="Merkez seçiniz" class="fast-randevu__select">
-                    <option value="">Merkez Seçiniz</option>
+            <div class="nv-field fast-randevu__field">
+                <label class="nv-label" for="fastRandevuSube">Merkez <span class="nv-label__req">(isteğe bağlı)</span></label>
+                <select class="nv-input" name="sid" id="fastRandevuSube">
+                    <option value="">Fark etmez</option>
+                    {* Liste sunucuda basılır: /backend/get-all-subeler oturum istiyor (ziyaretçiye 302). *}
+                    {{ range fi, FastSube := Options.SubelerLinks }}
+                    <option value="{{ FastSube.Sid }}">{{ FastSube.Name }}</option>
+                    {{ end }}
                 </select>
             </div>
             <div class="fast-randevu__kvkk">
                 <label for="fastRandevuKVKK" class="checkbox-label">
-                    <input type="checkbox" id="fastRandevuKVKK" required>
+                    <input type="checkbox" id="fastRandevuKVKK" aria-describedby="fastRandevuKVKKError">
                     <span>
-                        <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
+                        <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum. (zorunlu)
                     </span>
                 </label>
+                <p class="nv-error" id="fastRandevuKVKKError"></p>
             </div>
             {{ if Options.Options.RecaptchaSiteKey != "" }}
             <div class="fast-randevu__field fast-randevu__recaptcha">
-                <div class="g-recaptcha fast-randevu__recaptcha-widget" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedFast" data-expired-callback="onRecaptchaExpiredFast"></div>
+                <div class="g-recaptcha fast-randevu__recaptcha-widget" id="fastRandevuCaptcha" data-sitekey="{{ Options.Options.RecaptchaSiteKey }}" data-callback="onRecaptchaVerifiedFast" data-expired-callback="onRecaptchaExpiredFast"></div>
                 <input type="hidden" name="recaptcha_token" id="fastRandevuRecaptchaToken">
+                <p class="nv-error" id="fastRandevuCaptchaError"></p>
             </div>
             {{ end }}
             <div class="fast-randevu__actions">
-                <button type="submit" class="fast-randevu__submit" id="fastRandevuSubmit">Gönder</button>
-                <div class="fast-randevu__feedback" id="fastRandevuFeedback" role="status" aria-live="assertive"></div>
+                <button type="submit" class="nv-btn nv-btn--primary nv-btn--block" id="fastRandevuSubmit">Talebi Gönder</button>
+                <div class="fast-randevu__feedback" id="fastRandevuFeedback" role="status" aria-live="polite"></div>
+                <p class="fast-randevu__more">Bölüm ya da doktor seçmek isterseniz <a href="/randevu">ayrıntılı talep formunu</a> kullanın.</p>
             </div>
         </form>
     </div>

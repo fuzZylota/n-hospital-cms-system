@@ -151,10 +151,6 @@
 }
     </style>
 
-    {{ if Route == "/randevu" }}
-        <link rel="stylesheet" href="{{ PathOnStart }}assets/jquery-ui/jquery-ui.css" />
-        <link rel="stylesheet" href="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.css" />
-    {{ end }}
 
     {{ if Route == "/" }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" media="print" onload="this.media='all'" />
@@ -557,7 +553,7 @@ color: #fff;
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
     {{ end }}
 
-    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-p2b">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-p3">
 
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
     <!-- Nivgoz tasarim sistemi (P2): tema CSS'inden SONRA, !important olmadan kazanir -->
@@ -883,6 +879,9 @@ body > .page-wrapper {
          bloklarından SONRA yüklenir. -->
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header.css?v=20261003-p2b">
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/footer.css?v=20261003-p2b">
+    {{ if Route == "/randevu" }}
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu.css?v=20261003-p3">
+    {{ end }}
     {{ if Route == "/" }}
     <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/hero.css?v=20261003-p2b">
     {{ end }}
@@ -995,7 +994,7 @@ body > .page-wrapper {
          {{ if Route != "/randevu" }}{{ include "../../components/fast-randevu" }}{{ end }}
     </div>
 
-    <script defer src="{{ PathOnStart }}js/frontend/fast-randevu.js"></script>
+    {{ if Route != "/randevu" }}<script defer src="{{ PathOnStart }}js/frontend/fast-randevu.js?v=20261003-p3"></script>{{ end }}
     <script defer src="{{ PathOnStart }}js/frontend/hareket-tercihi.js"></script>
     <script defer src="{{ PathOnStart }}js/frontend/header.js?v=20261003-p2b"></script>
 
@@ -1021,12 +1020,7 @@ body > .page-wrapper {
     <script defer src="{{ PathOnStart }}js/script.js?v=20261003-p2b"></script>
     <script defer src="{{ PathOnStart }}assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    {{ if Route == "/randevu" }}
-        <script defer src="{{ PathOnStart }}assets/jquery-ui/jquery-ui.js"></script>
-        <script defer src="{{ PathOnStart }}assets/bootstrap-select/bootstrap-select.min.js"></script>
-    {{ end }}
-
-    {{ if Route == "/randevu" || Route == "/iletisim" }}
+    {{ if Route == "/iletisim" }}
         <script defer src="{{ PathOnStart }}assets/jquery-validate/jquery.validate.min.js"></script>
     {{ end }}
 
@@ -1178,16 +1172,49 @@ document.addEventListener('DOMContentLoaded', function () {
         return preloader.parentNode !== null;
     }
 
+    /* P3-1: Band görünürken sayfanın altında bandın yüksekliği kadar yer
+     * ayrılır (body padding + scroll-padding) ve klavyeyle odaklanan öğe
+     * bandın altında kalıyorsa yukarı kaydırılır. Böylece band mobilde form
+     * alanlarını ve gönder düğmelerini örtmez. Onay mantığı değişmedi. */
+    function reserveBannerSpace() {
+        var el = getBanner();
+        var root = document.documentElement;
+        if (!el || el.style.display === 'none') {
+            root.classList.remove('nv-ck-visible');
+            root.style.removeProperty('--nv-ck-space');
+            return;
+        }
+        var space = Math.max(0, Math.ceil(window.innerHeight - el.getBoundingClientRect().top));
+        root.style.setProperty('--nv-ck-space', space + 'px');
+        root.classList.add('nv-ck-visible');
+    }
+
+    function keepFocusAboveBanner(e) {
+        var el = getBanner();
+        if (!el || el.style.display === 'none' || !e.target || el.contains(e.target)) return;
+        if (!e.target.getBoundingClientRect) return;
+        var r = e.target.getBoundingClientRect();
+        var top = el.getBoundingClientRect().top;
+        if (r.bottom > top - 8 && r.top < window.innerHeight) {
+            window.scrollBy(0, Math.ceil(r.bottom - top + 16));
+        }
+    }
+
     function hideBanner() {
         var el = getBanner();
         if (el) el.style.display = 'none';
+        reserveBannerSpace();
     }
 
     function showBanner() {
         if (isPreloaderVisible()) return;
         var el = getBanner();
         if (el) el.style.display = 'block';
+        reserveBannerSpace();
     }
+
+    window.addEventListener('resize', reserveBannerSpace);
+    document.addEventListener('focusin', keepFocusAboveBanner);
 
     function syncBannerVisibility() {
         if (hasDecision()) {
@@ -1427,13 +1454,61 @@ document.addEventListener('DOMContentLoaded', function () {
     color: #fff;
 }
 
+/* P3-1: dokunma hedefi 44px; band görünürken altta yer ayrılır */
+#nvCookieBanner .nv-ck-btn,
+#nvCookieBanner .nv-ck-manage-link {
+    min-height: 44px;
+}
+
+/* style.css "ROOT GAP FINAL FIX" html/body'ye "padding: 0 !important" veriyor;
+   yalnız band görünürken, daha özgül seçiciyle alt boşluk ayrılır. */
+html.nv-ck-visible {
+    padding-bottom: var(--nv-ck-space, 0px) !important;
+    scroll-padding-bottom: var(--nv-ck-space, 0px);
+}
+
 @media (max-width: 560px) {
     #nvCookieBanner {
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
         width: auto;
-        border-radius: 14px;
+        max-height: 45vh;
+        overflow-y: auto;
+        border-radius: 12px;
+    }
+
+    /* Kompakt: metin üstte, "Kabul Et / Reddet / Tercihler" tek satırda */
+    #nvCookieBanner .nv-ck-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    #nvCookieBanner .nv-ck-text {
+        grid-column: 1 / -1;
+    }
+
+    #nvCookieBanner .nv-ck-title {
+        display: inline;
+        margin: 0;
+    }
+
+    #nvCookieBanner .nv-ck-title::after {
+        content: " ";
+    }
+
+    #nvCookieBanner .nv-ck-desc {
+        display: inline;
+        margin: 0;
+    }
+
+    #nvCookieBanner .nv-ck-manage-link {
+        width: auto;
+        margin: 0;
+        padding: 0 4px;
     }
 }
 
@@ -1656,10 +1731,10 @@ document.addEventListener('DOMContentLoaded', function () {
     bottom: 20px;
     right: auto;
     z-index: 99997;
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0;
     border: none;
     border-radius: 8px;
@@ -1897,38 +1972,36 @@ document.addEventListener('DOMContentLoaded', function () {
     gap: 12px;
 }
 
-.fast-randevu__field input,
-.fast-randevu__field textarea,
-.fast-randevu__field select {
-    width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 10px 12px;
-    min-height: 44px; /* P2: govde satir yuksekligi 1.6'ya inince 44px altina dusuyordu */
-    color: #fff;
+/* P3-1: alanlar .nv-field/.nv-input (beyaz alan, görünür etiket); koyu
+   panel üstünde etiket/ipucu beyaz, hata metni açık kırmızı zeminde. */
+.fast-randevu .nv-field {
+    margin: 0;
+    gap: 4px;
+}
+
+.fast-randevu .nv-label,
+.fast-randevu .nv-label__req,
+.fast-randevu .nv-hint {
+    color: var(--nv-paper);
+}
+
+.fast-randevu .nv-error {
+    padding: 4px 8px;
+    border-radius: var(--nv-radius-sm);
+    background-color: var(--nv-danger-bg);
+    color: var(--nv-danger-fg);
+}
+
+.fast-randevu__more {
+    margin: 0;
+    color: var(--nv-paper);
     font-size: 16px;
-    transition: border 0.2s ease, background 0.2s ease;
+    line-height: 1.4;
 }
 
-.fast-randevu__field input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.fast-randevu__field input:focus,
-.fast-randevu__field textarea:focus,
-.fast-randevu__field select:focus {
-    border-color: var(--theme-accent-color, #33c1ed);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.fast-randevu__select {
-    cursor: pointer;
-}
-
-.fast-randevu__select option {
-    background: var(--theme-primary-color, #0A2241);
-    color: #fff;
+.fast-randevu__more a {
+    color: var(--nv-paper);
+    text-decoration: underline;
 }
 
 .fast-randevu__kvkk {
@@ -1960,32 +2033,7 @@ document.addEventListener('DOMContentLoaded', function () {
     gap: 8px;
 }
 
-.fast-randevu__submit {
-    border: none;
-    border-radius: 10px;
-    padding: 12px 16px;
-    min-height: 44px;
-    font-weight: 600;
-    background: var(--theme-accent-color);
-    color: #fff;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.fast-randevu__submit:hover:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.fast-randevu__submit:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
 .fast-randevu__feedback {
-    margin-top: 8px;
-    font-size: 16px;
-    padding: 10px 12px;
-    border-radius: 10px;
     display: none;
 }
 
@@ -1993,19 +2041,16 @@ document.addEventListener('DOMContentLoaded', function () {
     display: block;
 }
 
-.fast-randevu__feedback--loading {
-    background: rgba(15, 23, 42, 0.92);
-    color: #e0f2fe;
+.fast-randevu__feedback .nv-alert {
+    margin: 0;
 }
 
-.fast-randevu__feedback--success {
-    background: rgba(34, 197, 94, 0.9);
-    color: #052e16;
-}
-
-.fast-randevu__feedback--error {
-    background: rgba(239, 68, 68, 0.9);
-    color: #fef2f2;
+/* Etiketler eklenince panel uzadı: kısa ekranda kırpılmasın, kaysın */
+.fast-randevu__panel {
+    max-height: calc(100vh - 96px);
+    max-height: calc(100dvh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .fast-randevu__recaptcha {
@@ -2039,7 +2084,7 @@ document.addEventListener('DOMContentLoaded', function () {
         position: relative;
         box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
         pointer-events: auto;
-        overflow: hidden;
+        overflow-y: auto;
     }
 
     .fast-randevu.is-open .fast-randevu__panel {

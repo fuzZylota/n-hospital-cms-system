@@ -1,174 +1,286 @@
-<div class="compact-page-header">
+{* P3-1 — Randevu TALEP sihirbazı (kesin randevu değil).
+   4 adım: merkez → bölüm/doktor → gün/saat tercihi → iletişim + özet.
+   Gönderim: POST /backend/add-randevu-request (JSON), js/frontend/randevu.js.
+   Bölüm/doktor tercihi ve saat tercihi handler'da ayrı kolon olarak
+   saklanmadığı için "message" alanına okunur satırlar olarak eklenir.
+   Hasta verisi tarayıcı deposuna (localStorage/sessionStorage) yazılmaz. *}
+<div class="nv-randevu-crumb">
     <div class="container">
-        <ul class="compact-breadcrumb">
-            <li><a href="/"><i class="icon-home"></i> Anasayfa</a></li>
-                        <li><span class="current">Randevu</span></li>
-        </ul>
+        <nav class="nv-breadcrumb" aria-label="Sayfa konumu">
+            <ol class="nv-breadcrumb__list">
+                <li><a href="/">Ana Sayfa</a></li>
+                <li><span aria-current="page">Randevu Talebi</span></li>
+            </ol>
+        </nav>
     </div>
 </div>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-page.css?v=20261003-p2">
-
-<section class="appointment-page section-space">
+<section class="nv-randevu" aria-labelledby="nvRandevuTitle">
     <div class="container">
-        <div class="appointment-page__wrapper">
+        <div class="nv-randevu__layout">
+            <header class="nv-randevu__intro">
+                <h1 class="nv-randevu__title" id="nvRandevuTitle">Randevu talebi bırakın</h1>
+                <p class="nv-randevu__lead">4 kısa adım. Talebinizi aldıktan sonra merkezimiz sizi arar, uygun gün ve saati birlikte belirleriz.</p>
+            </header>
 
-            <div class="appointment-page__form-card">
-                <div class="appointment-page__form-header">
-                    <h1 class="appointment-page__form-title">Randevu Talep Formu</h1>
-                    <p class="appointment-page__form-subtitle">* işaretli alanlar zorunludur.</p>
+            <aside class="nv-randevu__call" aria-labelledby="nvCallTitle">
+                <h2 class="nv-randevu__call-title" id="nvCallTitle">Telefonla daha kolay mı?</h2>
+                <p class="nv-randevu__call-text">Formu doldurmak yerine bizi arayabilirsiniz.</p>
+                {{ if Options.Options.ContactPhone != "" }}
+                <a class="nv-btn nv-btn--secondary nv-btn--block js-nv-call" href="tel:{{ Options.Options.ContactPhone }}" data-default-href="tel:{{ Options.Options.ContactPhone }}" data-default-number="{{ Options.Options.ContactPhone }}">
+                    <span>Hemen Ara:</span> <span class="js-nv-call-number">{{ Options.Options.ContactPhone }}</span>
+                </a>
+                {{ end }}
+            </aside>
+
+            <noscript>
+                <style>#nvRandevuApp{display:none}</style>
+                <div class="nv-alert nv-alert--warning nv-randevu__noscript">
+                    <p class="nv-alert__title">Bu form tarayıcınızda çalışmıyor</p>
+                    <p>Talep formu için JavaScript gerekiyor. Randevu talebinizi telefonla bırakabilirsiniz:</p>
+                    <ul class="nv-randevu__noscript-list">
+                        {{ range i, nm := RandevuMerkezleri }}{{ if nm.Phone != "" }}
+                        <li><a class="nv-btn nv-btn--secondary" href="tel:{{ nm.PhoneHref }}">{{ nm.Name }}: {{ nm.Phone }}</a></li>
+                        {{ end }}{{ end }}
+                        {{ if Options.Options.ContactPhone != "" }}
+                        <li><a class="nv-btn nv-btn--primary" href="tel:{{ Options.Options.ContactPhone }}">Hemen Ara: {{ Options.Options.ContactPhone }}</a></li>
+                        {{ end }}
+                    </ul>
                 </div>
-                <form class="appointment-one__form form-one" data-wow-duration="1500ms">
-                    <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
-                    <div class="form-one__group">
-                        <div class="form-one__control">
-                            <label for="patientFirstName" class="form-one__label">Adınız*</label>
-                            <input type="text" id="patientFirstName" name="patient_first_name" placeholder="Adınız" required>
-                        </div><!-- /.form-one__control -->
-                        <div class="form-one__control">
-                            <label for="patientLastName" class="form-one__label">Soyadınız*</label>
-                            <input type="text" id="patientLastName" name="patient_last_name" placeholder="Soyadınız" required>
-                        </div><!-- /.form-one__control -->
+            </noscript>
 
-                        <div class="form-one__control form-one__control--full">
-                            <label for="patientPhone" class="form-one__label">Telefon Numaranız*</label>
-                            <input type="tel" id="patientPhone" name="patient_phone" placeholder="Telefon Numaranız" required>
-                        </div><!-- /.form-one__control -->
-                        <!--<div class="form-one__control appointment-one__form__date">
-                            <label for="appointmentDate" class="form-one__label">Tercih Ettiğiniz Tarih</label>
-                            <input type="text" id="appointmentDate" name="preferred_date" placeholder="Randevu Tarihi" class="mediox-datepicker">
-                            <span class="appointment-one__form__date__arrow" aria-hidden="true">
-                                <i class="icon-caret-down"></i>
-                            </span>
-                        </div>-->
-                        <div class="form-one__control form-one__control--full">
-                            <label for="appointmentBranch" class="form-one__label">Merkez Seçiniz</label>
-                            <select class="selectpicker" aria-label="Merkez Seçiniz" name="sid" id="appointmentBranch">
-                                <option value="" selected disabled>Merkez seçiniz</option>
-                                {{ range index2, Sube := AllSubeler }}
-                                    <option value="{{ Sube.Sid }}">{{ Sube.Name }}</option>
-                                {{ end }}
-                            </select>
-                        </div><!-- /.form-one__control -->
-                        <div class="form-one__control form-one__control--full">
-                            <label for="appointmentMessage" class="form-one__label">Mesajınız</label>
-                            <textarea id="appointmentMessage" name="message" placeholder="Eklemek istediğiniz notları yazabilirsiniz..."></textarea>
-                        </div><!-- /.form-one__control -->
-                        <div class="form-one__control form-one__control--full appointment-page__kvkk">
-                            <label for="appointmentKVKK" class="checkbox-label">
-                                <input type="checkbox" id="appointmentKVKK" required>
-                                <span>
-                                    <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini</a> okudum ve kişisel verilerimin işlenmesini onaylıyorum.
-                                </span>
-                            </label>
+            <div class="nv-randevu__app" id="nvRandevuApp">
+                <div class="nv-steps" id="nvSteps">
+                    <p class="nv-steps__text" id="nvStepText"><span class="nv-steps__count">Adım 1 / 4:</span> <span class="js-nv-step-name">Merkez</span></p>
+                    <ol class="nv-steps__list" aria-hidden="true">
+                        <li class="nv-steps__item is-current" data-step-dot="1"><span class="nv-steps__num">1</span><span class="nv-steps__label">Merkez</span></li>
+                        <li class="nv-steps__item" data-step-dot="2"><span class="nv-steps__num">2</span><span class="nv-steps__label">Bölüm</span></li>
+                        <li class="nv-steps__item" data-step-dot="3"><span class="nv-steps__num">3</span><span class="nv-steps__label">Gün ve saat</span></li>
+                        <li class="nv-steps__item" data-step-dot="4"><span class="nv-steps__num">4</span><span class="nv-steps__label">İletişim</span></li>
+                    </ol>
+                </div>
+                <div class="sr-only" id="nvStepLive" aria-live="polite" aria-atomic="true"></div>
+
+                <form class="nv-randevu__form" id="nvRandevuForm" novalidate
+                      data-endpoint="/backend/add-randevu-request"
+                      data-recaptcha-key="{{ Options.Options.RecaptchaSiteKey }}">
+                    <div class="hp-field" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label></div>
+
+                    {* ---------------- Adım 1: Merkez ---------------- *}
+                    <section class="nv-step" id="nvStep1" data-step="1" data-step-name="Merkez" aria-labelledby="nvStep1Title">
+                        <h2 class="nv-step__title" id="nvStep1Title" tabindex="-1">Merkez seçimi</h2>
+                        <div class="nv-alert nv-alert--danger nv-step__summary" id="nvStep1Summary" role="alert" tabindex="-1" hidden></div>
+
+                        {{ if len(RandevuMerkezleri) == 0 }}
+                        <div class="nv-alert nv-alert--warning">
+                            <p class="nv-alert__title">Şu an çevrim içi talep alamıyoruz</p>
+                            <p>Lütfen bizi telefonla arayın.</p>
                         </div>
+                        {{ else }}
+                        <fieldset class="nv-choices" id="nvSidGroup" aria-describedby="nvSidHint nvSidError">
+                            <legend class="nv-choices__legend">Hangi merkezimize gelmek istersiniz? <span class="nv-label__req">(zorunlu)</span></legend>
+                            <p class="nv-hint" id="nvSidHint">Merkezin adresi ve telefonu kartta yazıyor.</p>
+                            <div class="nv-choices__grid nv-choices__grid--centers">
+                                {{ range i, m := RandevuMerkezleri }}
+                                <label class="nv-choice nv-choice--card">
+                                    <input class="nv-choice__input" type="radio" name="sid" value="{{ m.Sid }}"
+                                           data-name="{{ m.Name }}" data-phone="{{ m.Phone }}" data-phone-href="{{ m.PhoneHref }}">
+                                    <span class="nv-choice__body">
+                                        <span class="nv-choice__title">{{ m.Name }}</span>
+                                        {{ if m.District != "" || m.City != "" }}<span class="nv-choice__meta">{{ m.District }}{{ if m.District != "" && m.City != "" }}, {{ end }}{{ m.City }}</span>{{ end }}
+                                        {{ if m.Address != "" }}<span class="nv-choice__meta">{{ m.Address }}</span>{{ end }}
+                                        {{ if m.Phone != "" }}<span class="nv-choice__meta">Telefon: {{ m.Phone }}</span>{{ end }}
+                                    </span>
+                                </label>
+                                {{ end }}
+                            </div>
+                            <p class="nv-error" id="nvSidError"></p>
+                        </fieldset>
+                        {{ end }}
+
+                        <div class="nv-step__nav">
+                            <button type="button" class="nv-btn nv-btn--primary nv-btn--lg" data-next>İleri: Bölüm</button>
+                        </div>
+                    </section>
+
+                    {* ---------------- Adım 2: Bölüm ve doktor ---------------- *}
+                    <section class="nv-step" id="nvStep2" data-step="2" data-step-name="Bölüm" aria-labelledby="nvStep2Title" hidden>
+                        <h2 class="nv-step__title" id="nvStep2Title" tabindex="-1">Bölüm ve doktor tercihi</h2>
+                        <div class="nv-alert nv-alert--danger nv-step__summary" id="nvStep2Summary" role="alert" tabindex="-1" hidden></div>
+
+                        <fieldset class="nv-choices" id="nvBolumGroup" aria-describedby="nvBolumHint nvBolumError">
+                            <legend class="nv-choices__legend">Hangi bölüme başvurmak istiyorsunuz? <span class="nv-label__req">(zorunlu)</span></legend>
+                            <p class="nv-hint" id="nvBolumHint">Yalnız seçtiğiniz merkezdeki bölümler gösteriliyor. Emin değilseniz merkezimiz sizi doğru bölüme yönlendirir.</p>
+                            <div class="nv-choices__grid">
+                                <label class="nv-choice">
+                                    <input class="nv-choice__input" type="radio" name="bolum" value="emin-degilim" data-name="Emin değilim, merkez yönlendirsin">
+                                    <span class="nv-choice__body"><span class="nv-choice__title">Emin değilim, merkez yönlendirsin</span></span>
+                                </label>
+                                {{ range i, m := RandevuMerkezleri }}{{ range j, b := m.Bolumler }}
+                                <label class="nv-choice" data-for-sid="{{ m.Sid }}" hidden>
+                                    <input class="nv-choice__input" type="radio" name="bolum" value="{{ b.Brid }}" data-name="{{ b.Name }}">
+                                    <span class="nv-choice__body"><span class="nv-choice__title">{{ b.Name }}</span></span>
+                                </label>
+                                {{ end }}{{ end }}
+                            </div>
+                            <p class="nv-error" id="nvBolumError"></p>
+                        </fieldset>
+
+                        <fieldset class="nv-choices" id="nvDoktorGroup" aria-describedby="nvDoktorHint">
+                            <legend class="nv-choices__legend">Belirli bir doktoru tercih ediyor musunuz? <span class="nv-label__req">(isteğe bağlı)</span></legend>
+                            <p class="nv-hint" id="nvDoktorHint">Tercihiniz iletilir; doktorun uygunluğuna göre size seçenek sunulur.</p>
+                            <p class="nv-hint" id="nvDoktorEmpty" hidden>Bu seçim için çevrim içi doktor listesi yok. Merkezimiz sizin için uygun hekimi belirler.</p>
+                            <div class="nv-choices__grid">
+                                <label class="nv-choice">
+                                    <input class="nv-choice__input" type="radio" name="doktor" value="fark-etmez" data-name="Fark etmez" checked>
+                                    <span class="nv-choice__body"><span class="nv-choice__title">Fark etmez</span></span>
+                                </label>
+                                {{ range i, m := RandevuMerkezleri }}{{ range j, d := m.Doktorlar }}
+                                <label class="nv-choice" data-for-sid="{{ m.Sid }}" data-brid="{{ d.Brid }}" hidden>
+                                    <input class="nv-choice__input" type="radio" name="doktor" value="{{ d.Drid }}" data-name="{{ d.FullName }}">
+                                    <span class="nv-choice__body">
+                                        <span class="nv-choice__title">{{ d.FullName }}</span>
+                                        {{ range k, db := m.Bolumler }}{{ if db.Brid == d.Brid }}<span class="nv-choice__meta">{{ db.Name }}</span>{{ end }}{{ end }}
+                                    </span>
+                                </label>
+                                {{ end }}{{ end }}
+                            </div>
+                        </fieldset>
+
+                        <div class="nv-step__nav">
+                            <button type="button" class="nv-btn nv-btn--primary nv-btn--lg" data-next>İleri: Gün ve saat</button>
+                            <button type="button" class="nv-btn nv-btn--secondary nv-btn--lg" data-prev>Geri</button>
+                        </div>
+                    </section>
+
+                    {* ---------------- Adım 3: Gün ve saat tercihi ---------------- *}
+                    <section class="nv-step" id="nvStep3" data-step="3" data-step-name="Gün ve saat" aria-labelledby="nvStep3Title" hidden>
+                        <h2 class="nv-step__title" id="nvStep3Title" tabindex="-1">Ne zaman gelmek istersiniz?</h2>
+                        <div class="nv-alert nv-alert--danger nv-step__summary" id="nvStep3Summary" role="alert" tabindex="-1" hidden></div>
+
+                        <div class="nv-field">
+                            <label class="nv-label" for="nvDate">Tercih ettiğiniz gün <span class="nv-label__req">(isteğe bağlı)</span></label>
+                            <p class="nv-hint" id="nvDateHint">Boş bırakabilirsiniz. Kesin gün ve saati sizi aradığımızda birlikte belirleriz.</p>
+                            <input class="nv-input nv-input--date" type="date" id="nvDate" name="preferred_date" aria-describedby="nvDateHint nvDateError">
+                            <p class="nv-error" id="nvDateError"></p>
+                        </div>
+
+                        <fieldset class="nv-choices" id="nvSaatGroup">
+                            <legend class="nv-choices__legend">Hangi saatler size daha uygun? <span class="nv-label__req">(isteğe bağlı)</span></legend>
+                            <div class="nv-choices__grid nv-choices__grid--inline">
+                                <label class="nv-choice">
+                                    <input class="nv-choice__input" type="radio" name="saat" value="Fark etmez" checked>
+                                    <span class="nv-choice__body"><span class="nv-choice__title">Fark etmez</span></span>
+                                </label>
+                                <label class="nv-choice">
+                                    <input class="nv-choice__input" type="radio" name="saat" value="Sabah saatleri">
+                                    <span class="nv-choice__body"><span class="nv-choice__title">Sabah saatleri</span></span>
+                                </label>
+                                <label class="nv-choice">
+                                    <input class="nv-choice__input" type="radio" name="saat" value="Öğleden sonra">
+                                    <span class="nv-choice__body"><span class="nv-choice__title">Öğleden sonra</span></span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <div class="nv-field">
+                            <label class="nv-label" for="nvNote">Eklemek istediğiniz bir not <span class="nv-label__req">(isteğe bağlı)</span></label>
+                            <p class="nv-hint" id="nvNoteHint">Örneğin şikâyetiniz, kontrol randevusu olduğu ya da refakatçiyle geleceğiniz. En fazla 1000 karakter.</p>
+                            <textarea class="nv-input" id="nvNote" name="note" rows="4" maxlength="1000" aria-describedby="nvNoteHint"></textarea>
+                        </div>
+
+                        <div class="nv-step__nav">
+                            <button type="button" class="nv-btn nv-btn--primary nv-btn--lg" data-next>İleri: İletişim</button>
+                            <button type="button" class="nv-btn nv-btn--secondary nv-btn--lg" data-prev>Geri</button>
+                        </div>
+                    </section>
+
+                    {* ---------------- Adım 4: İletişim + özet ---------------- *}
+                    <section class="nv-step" id="nvStep4" data-step="4" data-step-name="İletişim" aria-labelledby="nvStep4Title" hidden>
+                        <h2 class="nv-step__title" id="nvStep4Title" tabindex="-1">İletişim bilgileriniz</h2>
+                        <div class="nv-alert nv-alert--danger nv-step__summary" id="nvStep4Summary" role="alert" tabindex="-1" hidden></div>
+
+                        <div class="nv-summary" aria-labelledby="nvSummaryTitle">
+                            <h3 class="nv-summary__title" id="nvSummaryTitle">Talebinizin özeti</h3>
+                            <dl class="nv-summary__list">
+                                <div class="nv-summary__row"><dt>Merkez</dt><dd data-sum="merkez"></dd><dd class="nv-summary__edit"><button type="button" class="nv-btn nv-btn--ghost" data-goto="1">Merkezi değiştir</button></dd></div>
+                                <div class="nv-summary__row"><dt>Bölüm</dt><dd data-sum="bolum"></dd><dd class="nv-summary__edit"><button type="button" class="nv-btn nv-btn--ghost" data-goto="2">Bölümü değiştir</button></dd></div>
+                                <div class="nv-summary__row"><dt>Doktor</dt><dd data-sum="doktor"></dd><dd class="nv-summary__edit"><button type="button" class="nv-btn nv-btn--ghost" data-goto="2">Doktoru değiştir</button></dd></div>
+                                <div class="nv-summary__row"><dt>Gün ve saat</dt><dd data-sum="zaman"></dd><dd class="nv-summary__edit"><button type="button" class="nv-btn nv-btn--ghost" data-goto="3">Gün ve saati değiştir</button></dd></div>
+                            </dl>
+                        </div>
+
+                        <div class="nv-randevu__names">
+                            <div class="nv-field">
+                                <label class="nv-label" for="nvFirstName">Adınız <span class="nv-label__req">(zorunlu)</span></label>
+                                <input class="nv-input" type="text" id="nvFirstName" name="patient_first_name" autocomplete="given-name" maxlength="100" aria-describedby="nvFirstNameError">
+                                <p class="nv-error" id="nvFirstNameError"></p>
+                            </div>
+                            <div class="nv-field">
+                                <label class="nv-label" for="nvLastName">Soyadınız <span class="nv-label__req">(zorunlu)</span></label>
+                                <input class="nv-input" type="text" id="nvLastName" name="patient_last_name" autocomplete="family-name" maxlength="100" aria-describedby="nvLastNameError">
+                                <p class="nv-error" id="nvLastNameError"></p>
+                            </div>
+                        </div>
+
+                        <div class="nv-field">
+                            <label class="nv-label" for="nvPhone">Telefon numaranız <span class="nv-label__req">(zorunlu)</span></label>
+                            <p class="nv-hint" id="nvPhoneHint">Sizi bu numaradan arayacağız. Örnek: 0532 123 45 67. Boşluk bırakabilirsiniz.</p>
+                            <input class="nv-input nv-input--phone" type="tel" id="nvPhone" name="patient_phone" autocomplete="tel" inputmode="tel" maxlength="20" aria-describedby="nvPhoneHint nvPhoneCount nvPhoneError">
+                            <p class="nv-hint nv-randevu__count" id="nvPhoneCount"></p>
+                            <p class="nv-error" id="nvPhoneError"></p>
+                        </div>
+
+                        <div class="nv-field">
+                            <label class="nv-label" for="nvEmail">E-posta adresiniz <span class="nv-label__req">(isteğe bağlı)</span></label>
+                            <p class="nv-hint" id="nvEmailHint">Yazarsanız size e-postayla da bilgi verebiliriz.</p>
+                            <input class="nv-input" type="email" id="nvEmail" name="patient_email" autocomplete="email" inputmode="email" maxlength="100" aria-describedby="nvEmailHint nvEmailError">
+                            <p class="nv-error" id="nvEmailError"></p>
+                        </div>
+
+                        <div class="nv-field">
+                            <label class="nv-check" for="nvKvkk">
+                                <input type="checkbox" id="nvKvkk" name="kvkk" aria-describedby="nvKvkkError">
+                                <span>Kişisel verilerimin talebim için işlenmesine ilişkin <a href="/kurumsal/kvkk" target="_blank" rel="noopener">KVKK aydınlatma metnini (yeni sekmede açılır)</a> okudum. <span class="nv-label__req">(zorunlu)</span></span>
+                            </label>
+                            <p class="nv-error" id="nvKvkkError"></p>
+                        </div>
+
                         {{ if Options.Options.RecaptchaSiteKey != "" }}
-                        <div class="form-one__control form-one__control--full">
-                            <div id="randevuRecaptchaWidget"></div>
-                            <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+                        <div class="nv-field nv-randevu__captcha" id="nvCaptchaField">
+                            <p class="nv-label" id="nvCaptchaLabel">Güvenlik doğrulaması</p>
+                            <div id="nvRecaptcha"></div>
+                            <p class="nv-error" id="nvCaptchaError"></p>
                         </div>
                         {{ end }}
-                        <div class="form-one__control form-one__control--full">
-                            <button type="submit" class="mediox-btn mediox-btn--primary" id="appointmentSubmitBtn">
-                                <span>Randevu Al</span>
-                                <span class="mediox-btn__icon"><i class="icon-up-right-arrow randevu-btn"></i></span>
-                            </button><!-- /.mediox-btn -->
-                        </div><!-- /.form-one__control -->
-                    </div><!-- /.form-one__group -->
-                </form><!-- /.form-one -->
-                <div class="result"></div><!-- /.result -->
 
+                        <div class="nv-randevu__result" id="nvResult" tabindex="-1" hidden></div>
+
+                        <p class="nv-randevu__notice">Bu bir randevu <strong>talebidir</strong>, kesin randevu değildir. Merkezimiz sizi arayıp uygun gün ve saati birlikte belirler.</p>
+
+                        <div class="nv-step__nav">
+                            <button type="submit" class="nv-btn nv-btn--primary nv-btn--lg" id="nvSubmit"><span class="js-nv-submit-label">Talebi Gönder</span></button>
+                            <button type="button" class="nv-btn nv-btn--secondary nv-btn--lg" data-prev>Geri</button>
+                        </div>
+                    </section>
+                </form>
             </div>
+
+            {* ---------------- Onay ekranı ---------------- *}
+            <section class="nv-randevu__done" id="nvRandevuDone" aria-labelledby="nvDoneTitle" hidden>
+                <h2 class="nv-randevu__done-title" id="nvDoneTitle" tabindex="-1">Talebiniz alındı</h2>
+                <p class="nv-randevu__done-lead">Merkezimiz mesai saatleri içinde sizi arayacak.</p>
+                <p class="nv-randevu__done-ref" id="nvDoneRef" hidden>Talep numaranız: <strong class="js-nv-ref"></strong>. Bizi ararsanız bu numarayı söyleyebilirsiniz.</p>
+                <p class="nv-randevu__done-note">Bu bir randevu onayı değildir. Gün ve saati telefonda birlikte belirleyeceğiz.</p>
+                <div class="nv-randevu__done-actions">
+                    {{ if Options.Options.ContactPhone != "" }}
+                    <a class="nv-btn nv-btn--secondary nv-btn--lg js-nv-call" href="tel:{{ Options.Options.ContactPhone }}" data-default-href="tel:{{ Options.Options.ContactPhone }}" data-default-number="{{ Options.Options.ContactPhone }}"><span>Hemen Ara:</span> <span class="js-nv-call-number">{{ Options.Options.ContactPhone }}</span></a>
+                    {{ end }}
+                    <a class="nv-btn nv-btn--primary nv-btn--lg" href="/">Ana sayfaya dön</a>
+                </div>
+            </section>
         </div>
     </div>
 </section>
 
-{{ if Options.Options.RecaptchaSiteKey != "" }}
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-{{ end }}
-<script>
-var recaptchaVerified = false;
-
-function onRecaptchaVerified(token) {
-    recaptchaVerified = true;
-    window._randevuCaptchaToken = token;
-    var tokenInput = document.getElementById('recaptchaToken');
-    if (tokenInput) tokenInput.value = token;
-    updateSubmitButtonState();
-}
-
-function onRecaptchaExpired() {
-    recaptchaVerified = false;
-    window._randevuCaptchaToken = '';
-    var tokenInput = document.getElementById('recaptchaToken');
-    if (tokenInput) tokenInput.value = '';
-    updateSubmitButtonState();
-}
-
-function updateSubmitButtonState() {
-    var kvkkCheckbox = document.getElementById('appointmentKVKK');
-    var submitButton = document.getElementById('appointmentSubmitBtn');
-    var recaptchaWidget = document.querySelector('.g-recaptcha');
-    
-    if (kvkkCheckbox && submitButton) {
-        var shouldDisable = !kvkkCheckbox.checked;
-        if (recaptchaWidget) {
-            shouldDisable = shouldDisable || !recaptchaVerified;
-        }
-        submitButton.disabled = shouldDisable;
-        submitButton.classList.toggle('is-disabled', shouldDisable);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    var headerBg = document.querySelector('.page-header__bg[data-bg]');
-    if (headerBg && headerBg.dataset.bg) {
-        headerBg.style.backgroundImage = 'url(' + headerBg.dataset.bg + ')';
-    }
-
-    var kvkkCheckbox = document.getElementById('appointmentKVKK');
-    var submitButton = document.getElementById('appointmentSubmitBtn');
-
-    if (kvkkCheckbox && submitButton) {
-        kvkkCheckbox.addEventListener('change', updateSubmitButtonState);
-        updateSubmitButtonState();
-    }
-});
-</script>
-{{ if Options.Options.RecaptchaSiteKey != "" }}
-<script>
-function onRandevuRecaptchaLoad() {
-    var widget = document.getElementById('randevuRecaptchaWidget');
-    if (widget && typeof grecaptcha !== 'undefined' && widget.childElementCount === 0) {
-        try {
-            var widgetId = grecaptcha.render('randevuRecaptchaWidget', {
-                sitekey: '{{ Options.Options.RecaptchaSiteKey }}',
-                callback: 'onRecaptchaVerified',
-                'expired-callback': 'onRecaptchaExpired'
-            });
-            widget._widgetId = widgetId;
-            window._randevuCaptchaWidgetId = widgetId;
-        } catch(e) {}
-    }
-}
-var existingRecaptchaScript = document.querySelector('script[src*="recaptcha/api.js"]');
-if (!existingRecaptchaScript) {
-    var rs = document.createElement('script');
-    rs.src = 'https://www.google.com/recaptcha/api.js?onload=onRandevuRecaptchaLoad&render=explicit';
-    rs.async = true;
-    rs.defer = true;
-    document.head.appendChild(rs);
-} else {
-    document.addEventListener('DOMContentLoaded', function() {
-        var checkInterval = setInterval(function() {
-            if (typeof grecaptcha !== 'undefined' && typeof grecaptcha.render !== 'undefined') {
-                clearInterval(checkInterval);
-                setTimeout(onRandevuRecaptchaLoad, 300);
-            }
-        }, 200);
-    });
-}
-</script>
-{{ end }}
-<script src="{{ PathOnStart }}js/frontend/insert-randevu-talebi.js?v=20260311-fix2"></script>
+<script defer src="{{ PathOnStart }}js/frontend/randevu.js?v=20261003-p3"></script>

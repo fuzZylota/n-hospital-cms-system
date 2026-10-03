@@ -90,6 +90,15 @@ Riskler:
 - Sosyal linkler artık DB'den; boş/"#" olanlar gizli. Mobil header'da kırmızı CTA yok (menü ilk öğesi + hero + alttaki hızlı randevu çubuğu).
 - Canlı veriyle doğrulanmadı: gerçek banner oranları, sosyal URL'ler, açık logo, menü öğe sayısı. Dil menüsü klavye sırası (tema) ve ölü header/slider stilleri `main.jet`'te duruyor.
 
+## P3-1 notları (2026-10-03)
+- `/randevu` 4 adımlı talep sihirbazı: `views/frontend/randevu.jet`, `css/frontend/randevu.css`, `js/frontend/randevu.js`; veri `controllers/frontend/randevu_page_data.go` (aktif merkez + bölüm + `online_appointment` doktorlar). Handler/pin değişmedi; `rrid` zaten dönüyordu.
+- Bölüm/doktor/saat tercihi handler'da kolon olarak saklanmıyor → `message` alanına satır satır yazılıyor. `drid`/`preferred_time` kolonları var ama handler yazmıyor (istenirse küçük backend işi + doğrulama).
+- Telefon tek biçime (`05XXXXXXXXX`) çevrilerek gönderiliyor (24 saat kuralı metin karşılaştırıyor); hızlı panel ve şerit de aynı (`window.NvTalep`, fast-randevu.js).
+- Bulgu/düzeltme: hızlı paneldeki merkez listesi `/backend/get-all-subeler`'den geliyordu, uç oturum istiyor (ziyaretçiye 302) → liste hiç dolmuyordu; artık `Options.SubelerLinks`'ten basılıyor.
+- Çerez bandı görünürken `html` altında bandın yüksekliği kadar yer ayrılıyor + odak bandın üstüne kaydırılıyor; mobilde kompakt.
+- Dev'de tohum reCAPTCHA anahtarları Google test anahtarları; sandbox'ta google.com erişilemediği için sunucu doğrulaması hep 400 döner. Canlıda doğrulanmadı: gerçek reCAPTCHA, SMTP e-postası, gerçek merkez/doktor verisi, ekran okuyucu (elle).
+- Ölçüm (dev tohum): axe ciddi 87 → 86, kritik 0, /randevu 0; 44px altı 331 → 305.
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
@@ -121,7 +130,7 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 - [x] P2-6 — Hero/slider: tek slide gerçeğine göre statik hero (otomatik kayan yok), net değer önerisi + 2 CTA; slick anasayfadan kalkar. · `components/home/` · LCP < 2.5 sn hedef.
 
 ### P3 — Public sayfalar
-- [ ] P3-1 — **Randevu talep akışı** (sıfırdan): 4 adım (merkez → bölüm → doktor/tarih tercihi → iletişim), ilerleme göstergesi, her adımda doğrulama, onay ekranı + talep numarası, KVKK onayı. · `views/frontend/randevu.jet`, `js/frontend/randevu-page.js` · Ekran okuyucuyla uçtan uca tamamlanır.
+- [x] P3-1 — **Randevu talep akışı** (sıfırdan): 4 adım (merkez → bölüm → doktor/tarih tercihi → iletişim), ilerleme göstergesi, her adımda doğrulama, onay ekranı + talep numarası, KVKK onayı. · `views/frontend/randevu.jet`, `js/frontend/randevu-page.js` · Ekran okuyucuyla uçtan uca tamamlanır.
 - [ ] P3-2 — **Randevu takip** (public): talep no + telefon ile durum sorgulama. · yeni route + view · **ONAY** (yeni public endpoint, PII riski — yalnız durum döner).
 - [ ] P3-3 — Anasayfa: hero, hızlı erişim (Randevu / Doktorlar / Merkezler / Ara), hizmetler, doktorlar, merkezler, güven kanıtları, SSS.
 - [ ] P3-4 — Doktor liste/detay: filtre (merkez, bölüm), kart, profil + "bu doktordan randevu".

@@ -2210,36 +2210,16 @@ func RandevuPage(states *models.AppState, utilities *models.Utilities) fiber.Han
 		Options := database.Options{}
 		Options, _ = Options.FetchOptionsForFrontendWithCache(&FrontendOptions)
 
-		AllSubeler := []models.Subeler{}
-		GetAllSubeler := Orm.Select([]string{"sid", "name"})
-		GetAllSubeler.Table("subeler")
-		GetAllSubeler.Where("is_active", "=", true)
-		GetAllSubeler.Finish()
-		err := GetAllSubeler.Execute()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		rows, err := GetAllSubeler.Rows()
-		if err != nil {
-			log.Printf("%v\n", err)
-		}
-
-		for _, row := range rows {
-			AllSubeler = append(AllSubeler, models.Subeler{
-				Sid:  lib.String(row["sid"]),
-				Name: lib.String(row["name"]),
-			})
-		}
+		RandevuMerkezleri := loadRandevuMerkezleri(utilities)
 
 		return c.Render("views/frontend/randevu", fiber.Map{
-			"PathOnStart": "",
-			"Route":       "/randevu",
-			"Options":     Options,
-			"User":        OurUser,
-			"AllSubeler":  AllSubeler,
-			"Title":       "Randevu Al | " + Options.Options.SiteName,
-			"Description": "Bu sayfa, " + Options.Options.SiteName + " kurumundan randevu almanızı sağlayan sayfadır.",
+			"PathOnStart":       "",
+			"Route":             "/randevu",
+			"Options":           Options,
+			"User":              OurUser,
+			"RandevuMerkezleri": RandevuMerkezleri,
+			"Title":             "Randevu Talebi | " + Options.Options.SiteName,
+			"Description":       "Bu sayfa, " + Options.Options.SiteName + " merkezlerine 4 adımda randevu talebi bırakabileceğiniz sayfadır; merkezimiz sizi arayıp uygun saati birlikte belirler.",
 		}, "layouts/main/main")
 	}
 }
