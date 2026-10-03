@@ -347,8 +347,10 @@
 .appointment-page .form-one__control textarea,
 .appointment-page .form-one__control select,
 .appointment-page .form-one__control .bootstrap-select .btn {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
+    /* P2: 8px idi; govde satir yuksekligi 1.6'ya inince alan 43.6px'e
+       dusuyordu (44px kurali). 10px ile ~48px. */
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
     min-height: unset !important;
     height: auto !important;
     font-size: 16px !important;

@@ -97,7 +97,7 @@
     align-items: center;
     gap: 5px;
     padding: 7px 14px;
-    background: var(--theme-secondary-color, #d6293e);
+    background: var(--nv-cta-bg, #DF0024);
     color: #fff !important;
     border-radius: 8px;
     font-size: 16px;
@@ -107,7 +107,7 @@
     letter-spacing: 0.3px;
 }
 .merkez-card__btn:hover {
-    background: #b80020;
+    background: var(--nv-cta-bg-hover, #BE001F);
     transform: translateY(-1px);
 }
 .merkez-card__btn--secondary {

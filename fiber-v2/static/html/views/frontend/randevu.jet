@@ -8,7 +8,7 @@
 </div>
 
 <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-modal.css">
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-page.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/randevu-page.css?v=20261003-p2">
 
 <section class="appointment-page section-space">
     <div class="container">

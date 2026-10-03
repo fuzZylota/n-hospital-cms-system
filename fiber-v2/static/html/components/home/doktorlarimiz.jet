@@ -85,6 +85,7 @@
 
 /* RANDEVU BUTONU */
 .team-three .doctor-randevu-btn {
+    min-height: 44px !important;
     align-self: center !important;
     font-size: 16px !important;
     padding: 7px 14px !important;
@@ -113,15 +114,17 @@
 
 /* TÜM DOKTORLAR */
 .home-all-doctors-btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     padding: 8px 18px;
-    background: var(--theme-secondary-color);
+    background: var(--nv-cta-bg, #DF0024);
     color: #fff !important;
     border-radius: 8px;
     font-size: 16px; font-weight: 700;
     text-decoration: none !important;
 }
-.home-all-doctors-btn:hover { background: #b80020; }
+.home-all-doctors-btn:hover { background: var(--nv-cta-bg-hover, #BE001F); }
 
 /* MOBİL */
 @media (max-width: 768px) {

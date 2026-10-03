@@ -867,13 +867,13 @@ body.homepage .main-header .navbar-nav .nav-link {
 
 /* Hızlı Randevu butonu - her zaman secondary (kırmızı) */
 .fast-randevu__toggle {
-    background: var(--theme-secondary-color) !important;
+    background: var(--nv-cta-bg, #DF0024) !important;
     color: #fff !important;
 }
 
 /* Mobil Hızlı Randevu butonu - secondary (kırmızı) */
 .fast-randevu__mobile-line {
-    background: var(--theme-secondary-color) !important;
+    background: var(--nv-cta-bg, #DF0024) !important;
     color: #fff !important;
 }
 
@@ -1198,7 +1198,7 @@ footer.main-footer .main-footer__copyright {
 .hizli-randevu-strip__select option { color: #111; }
 .hizli-randevu-strip__btn {
     padding: 9px 18px;
-    background: var(--theme-secondary-color, #df0024);
+    background: var(--nv-cta-bg, #DF0024);
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -1212,7 +1212,7 @@ footer.main-footer .main-footer__copyright {
     height: 40px;
     transition: background .2s;
 }
-.hizli-randevu-strip__btn:hover { background: #b80020; }
+.hizli-randevu-strip__btn:hover { background: var(--nv-cta-bg-hover, #BE001F); }
 .hizli-randevu-strip__note {
     font-size: 16px;
     color: #9ca3af;
@@ -3281,8 +3281,12 @@ textarea:focus-visible,
 summary:focus-visible,
 [tabindex]:focus-visible,
 [role="button"]:focus-visible {
-    outline: 3px solid #0a2241;
-    outline-offset: 2px;
+    /* P2-1: cift halka — amber ic (box-shadow) + navy dis (outline).
+       Bkz. css/frontend/tokens.css "--nv-focus-*". Yedek degerler token
+       dosyasi yuklenmezse eski lacivert halkayi korur. */
+    outline: var(--nv-focus-outline, 3px solid #0a2241);
+    outline-offset: var(--nv-focus-offset, 2px);
+    box-shadow: var(--nv-focus-shadow, none);
 }
 
 /* Koyu zeminlerde lacivert halka gorunmez; beyaza cevriliyor.

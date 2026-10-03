@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktor.css?v=20261003-p2">
 
 
 <section class="dr-hero">

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--
+  Nivgöz UI kiti — YALNIZ GELİŞTİRME. Yayına çıkmaz (fiber-v2/static dışında).
+  Gerçek CSS dosyalarını göreli yolla içe aktarır:
+    ../../fiber-v2/static/css/frontend/{tokens,fonts,components}.css
+  Açma: file:///…/tools/qa/ui-kit.html   veya   depo kökünden
+        python3 -m http.server 8099  →  http://127.0.0.1:8099/tools/qa/ui-kit.html
+  (http.server tools/qa içinden başlatılırsa ../../ yolları kökün dışına
+   çıkamaz; o yüzden kökten başlatın.)
+  Mod: ?contrast=high ve/veya ?text=large|xlarge, ya da sayfadaki düğmeler.
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nivgöz UI kiti (dev)</title>
+  <link rel="stylesheet" href="../../fiber-v2/static/css/frontend/tokens.css">
+  <link rel="stylesheet" href="../../fiber-v2/static/css/frontend/fonts.css">
+  <link rel="stylesheet" href="../../fiber-v2/static/css/frontend/components.css">
+  <style>
+    /* Yalnız önizleme düzeni — bileşen stili değil */
+    body { margin: 0; background: var(--nv-bg); color: var(--nv-text); }
+    .kit { max-width: 72rem; margin: 0 auto; padding: var(--nv-space-6) var(--nv-space-4) var(--nv-space-9); }
+    .kit h1 { font-size: var(--nv-text-h1); line-height: var(--nv-leading-heading); color: var(--nv-heading); margin: 0 0 var(--nv-space-3); }
+    .kit h2 { font-size: var(--nv-text-h3); line-height: var(--nv-leading-heading); color: var(--nv-heading); margin: var(--nv-space-8) 0 var(--nv-space-4); border-top: 2px solid var(--nv-border-subtle); padding-top: var(--nv-space-5); }
+    .kit p { max-width: var(--nv-measure); }
+    .row { display: flex; flex-wrap: wrap; gap: var(--nv-space-4); align-items: center; }
+    .grid { display: grid; gap: var(--nv-space-5); grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+    .mist { background: var(--nv-bg-alt); padding: var(--nv-space-5); border-radius: var(--nv-radius-lg); }
+    .dark { background: var(--nv-navy-900); padding: var(--nv-space-5); border-radius: var(--nv-radius-lg); color: var(--nv-paper); }
+    .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--nv-space-3); }
+    .sw div { padding: var(--nv-space-4) var(--nv-space-3); border-radius: var(--nv-radius-md); border: 1px solid var(--nv-border-subtle); font-size: 1rem; }
+    .type-sample > * { margin: 0 0 var(--nv-space-3); color: var(--nv-heading); line-height: var(--nv-leading-heading); }
+    .toolbar { background: var(--nv-bg); border-bottom: 2px solid var(--nv-border-strong); padding: var(--nv-space-3) var(--nv-space-4); }
+    .skip-demo { position: relative; min-height: 64px; }
+    .skip-demo .nv-skip-link { position: absolute; top: 0; }
+    .toast-demo { position: relative; }
+    .toast-demo .nv-toast-region { position: static; }
+  </style>
+</head>
+<body>
+  <div class="toolbar row" role="group" aria-label="Önizleme modları">
+    <button type="button" class="nv-btn nv-btn--secondary" data-toggle="contrast" aria-pressed="false">Yüksek kontrast</button>
+    <button type="button" class="nv-btn nv-btn--secondary" data-toggle="text" aria-pressed="false">Metin: normal</button>
+  </div>
+
+  <main class="kit" id="anaIcerik">
+    <h1>Nivgöz UI kiti</h1>
+    <p>Token ve bileşenlerin canlı önizlemesi. Her metin/zemin çiftinin kontrast oranı <code>tokens.css</code> başındaki tabloda hesaplanmış olarak durur.</p>
+
+    <h2>İçeriğe atla bağlantısı</h2>
+    <div class="skip-demo"><a href="#anaIcerik" class="nv-skip-link" style="top:0">İçeriğe atla</a></div>
+
+    <h2>Renk</h2>
+    <div class="sw">
+      <div style="background:var(--nv-navy-900);color:#fff">navy-900<br>beyaz 15.93:1</div>
+      <div style="background:var(--nv-navy-800);color:#fff">navy-800</div>
+      <div style="background:var(--nv-navy-700);color:#fff">navy-700<br>bağlantı 10.22:1</div>
+      <div style="background:var(--nv-navy-600);color:#fff">navy-600<br>ghost 7.30:1</div>
+      <div style="background:var(--nv-navy-100);color:var(--nv-ink)">navy-100</div>
+      <div style="background:var(--nv-navy-50);color:var(--nv-ink)">navy-50</div>
+      <div style="background:var(--nv-mist);color:var(--nv-ink)">mist<br>ink 14.25:1</div>
+      <div style="background:var(--nv-red-600);color:#fff">red-600 CTA<br>beyaz 5.04:1</div>
+      <div style="background:var(--nv-red-700);color:#fff">red-700<br>6.54:1</div>
+      <div style="background:var(--nv-red-800);color:#fff">red-800<br>8.65:1</div>
+      <div style="background:var(--nv-ink);color:#fff">ink<br>15.77:1</div>
+      <div style="background:var(--nv-ink-muted);color:#fff">ink-muted<br>8.72:1</div>
+      <div style="background:var(--nv-focus);color:var(--nv-navy-900)">focus amber<br>navy 9.64:1</div>
+    </div>
+
+    <h2>Tipografi</h2>
+    <div class="type-sample">
+      <p style="font-size:var(--nv-text-h1);font-weight:800">Başlık 1 — Göz sağlığınız güvende</p>
+      <p style="font-size:var(--nv-text-h2);font-weight:700">Başlık 2 — Katarakt ameliyatı</p>
+      <p style="font-size:var(--nv-text-h3);font-weight:700">Başlık 3 — Çukurova merkezi</p>
+      <p style="font-size:var(--nv-text-h4);font-weight:700">Başlık 4 — Şaşılık tedavisi</p>
+      <p style="font-size:var(--nv-text-h5);font-weight:700">Başlık 5 — İletişim bilgileri</p>
+    </div>
+    <p style="font-size:var(--nv-text-lg)">Giriş paragrafı (20px): Adana Barajyolu, Çukurova ve Mersin'deki merkezlerimizde göz muayenesi için randevu talebi oluşturabilirsiniz.</p>
+    <p>Gövde metni (18px masaüstü / 17px mobil, satır 1.6, en fazla 70 karakter): Ğ ğ Ş ş İ ı Ö ö Ü ü Ç ç — Il1 O0 rn/m. Atkinson Hyperlegible Next, birbirine benzeyen harfleri ayırt etmek için tasarlandı. <em>İtalik örnek.</em> <a class="nv-link" href="#">Metin içi bağlantı</a>.</p>
+    <p style="font-size:var(--nv-text-sm);color:var(--nv-text-muted)">Küçük metin (16px, sitedeki alt sınır), ikincil renk 8.72:1.</p>
+
+    <h2>Buton</h2>
+    <div class="row">
+      <a class="nv-btn nv-btn--primary" href="#">Randevu Talebi Oluştur</a>
+      <a class="nv-btn nv-btn--secondary" href="tel:+903220000000"><span class="nv-btn__icon" aria-hidden="true">☎</span>Hemen Ara</a>
+      <button type="button" class="nv-btn nv-btn--ghost">Tüm doktorları gör</button>
+      <button type="button" class="nv-btn nv-btn--primary" disabled>Talebi Gönder (pasif)</button>
+    </div>
+    <div class="row" style="margin-top:var(--nv-space-4)">
+      <a class="nv-btn nv-btn--primary nv-btn--lg" href="#">Randevu Talebi Oluştur</a>
+      <a class="nv-btn nv-btn--secondary nv-btn--lg" href="#">Hemen Ara</a>
+    </div>
+    <div class="row mist" style="margin-top:var(--nv-space-4)">
+      <a class="nv-btn nv-btn--primary" href="#">Mist üstünde birincil</a>
+      <a class="nv-btn nv-btn--secondary" href="#">Mist üstünde ikincil</a>
+      <a class="nv-btn nv-btn--ghost" href="#">Mist üstünde ghost</a>
+    </div>
+    <div class="row dark" style="margin-top:var(--nv-space-4)">
+      <a class="nv-btn nv-btn--primary" href="#" id="focusDemoDark">Koyu zeminde birincil (odak)</a>
+      <a class="nv-btn nv-btn--secondary" href="#">Koyu zeminde ikincil</a>
+    </div>
+    <p>Odak halkası örneği (açık zemin):</p>
+    <div class="row"><a class="nv-btn nv-btn--secondary" href="#" id="focusDemoLight">Klavye odağı burada</a></div>
+
+    <h2>Form alanları</h2>
+    <form class="grid" novalidate onsubmit="return false">
+      <div class="nv-field">
+        <label class="nv-label" for="kitAd">Adınız ve soyadınız <span class="nv-label__req">(zorunlu)</span></label>
+        <input class="nv-input" id="kitAd" name="ad" autocomplete="name" required>
+      </div>
+      <div class="nv-field">
+        <label class="nv-label" for="kitTel">Telefon numaranız <span class="nv-label__req">(zorunlu)</span></label>
+        <p class="nv-hint" id="kitTelIpucu">Sizi bu numaradan arayacağız. Örnek: 0532 123 45 67</p>
+        <input class="nv-input" id="kitTel" name="tel" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="kitTelIpucu" placeholder="05xx xxx xx xx">
+      </div>
+      <div class="nv-field nv-field--error">
+        <label class="nv-label" for="kitEposta">E-posta adresiniz</label>
+        <p class="nv-hint" id="kitEpostaIpucu">İsteğe bağlı. Talep numaranızı e-postayla da göndeririz.</p>
+        <input class="nv-input" id="kitEposta" name="eposta" type="email" value="ahmet@" aria-invalid="true" aria-describedby="kitEpostaIpucu kitEpostaHata">
+        <p class="nv-error" id="kitEpostaHata">E-posta adresi eksik. "@" işaretinden sonra alan adını yazın (ör. ornek@gmail.com).</p>
+      </div>
+      <div class="nv-field">
+        <label class="nv-label" for="kitMerkez">Merkez</label>
+        <select class="nv-input" id="kitMerkez" name="merkez">
+          <option>Adana — Barajyolu</option><option>Adana — Çukurova</option><option>Mersin</option>
+        </select>
+      </div>
+      <div class="nv-field">
+        <label class="nv-label" for="kitNot">Şikâyetinizi kısaca yazın</label>
+        <textarea class="nv-input" id="kitNot" name="not" rows="3"></textarea>
+      </div>
+      <div class="nv-field">
+        <label class="nv-check"><input type="checkbox" name="kvkk"> <span><a href="#">KVKK aydınlatma metnini</a> okudum ve onaylıyorum.</span></label>
+        <label class="nv-check"><input type="radio" name="saat" checked> <span>Sabah aranmak istiyorum</span></label>
+        <label class="nv-check"><input type="radio" name="saat"> <span>Öğleden sonra aranmak istiyorum</span></label>
+      </div>
+    </form>
+
+    <h2>Kart</h2>
+    <div class="grid">
+      <article class="nv-card">
+        <div class="nv-card__media" role="img" aria-label="Doktor fotoğrafı yer tutucu"></div>
+        <div class="nv-card__body">
+          <h3 class="nv-card__title"><a class="nv-card__link" href="#">Op. Dr. Ayşe Yılmaz</a></h3>
+          <p class="nv-card__meta">Retina ve katarakt · Barajyolu</p>
+          <div class="nv-card__actions"><span class="nv-badge">Barajyolu</span><span class="nv-badge nv-badge--success">Bugün müsait</span></div>
+        </div>
+      </article>
+      <article class="nv-card">
+        <div class="nv-card__body">
+          <h3 class="nv-card__title">Mersin merkezi</h3>
+          <p class="nv-card__meta">Hafta içi 08.30–18.00, Cumartesi 09.00–14.00</p>
+          <p>Adres metni burada. <a href="#">Yol tarifi al</a></p>
+          <div class="nv-card__actions"><a class="nv-btn nv-btn--secondary" href="#">Hemen Ara</a></div>
+        </div>
+      </article>
+    </div>
+
+    <h2>Rozet</h2>
+    <div class="row">
+      <span class="nv-badge">Bilgi</span>
+      <span class="nv-badge nv-badge--success">Onaylandı</span>
+      <span class="nv-badge nv-badge--warning">Beklemede</span>
+      <span class="nv-badge nv-badge--danger">İptal edildi</span>
+      <span class="nv-badge nv-badge--neutral">Çukurova</span>
+    </div>
+
+    <h2>Bildirim</h2>
+    <div class="nv-alert" role="status"><p class="nv-alert__title">Bilgi</p><p>Bayram tatilinde Mersin merkezimiz kapalıdır. <a href="#">Diğer merkezler</a></p></div>
+    <div class="nv-alert nv-alert--success" role="status"><p class="nv-alert__title">Talebiniz alındı — talep no: NV-2026-0412</p><p>Merkezimiz mesai saatleri içinde sizi arayacak.</p></div>
+    <div class="nv-alert nv-alert--warning" role="status"><p class="nv-alert__title">Dikkat</p><p>Ani görme kaybında randevu beklemeyin, en yakın acil servise başvurun.</p></div>
+    <div class="nv-alert nv-alert--danger" role="alert"><p class="nv-alert__title">Form gönderilemedi</p><p>Server Hatası: Lütfen daha sonra tekrar deneyin.</p></div>
+
+    <h2>Toast</h2>
+    <div class="toast-demo">
+      <div class="nv-toast-region" aria-live="polite">
+        <div class="nv-toast nv-toast--success" role="status">
+          <div class="nv-toast__body"><span class="nv-toast__title">Talebiniz gönderildi</span>Talep numaranız: NV-2026-0412</div>
+          <button type="button" class="nv-toast__close" aria-label="Bildirimi kapat">×</button>
+        </div>
+        <div class="nv-toast nv-toast--danger" role="alert">
+          <div class="nv-toast__body"><span class="nv-toast__title">Gönderilemedi</span>Server Hatası: Lütfen daha sonra tekrar deneyin.</div>
+          <button type="button" class="nv-toast__close" aria-label="Bildirimi kapat">×</button>
+        </div>
+      </div>
+    </div>
+
+    <h2>Breadcrumb</h2>
+    <nav class="nv-breadcrumb" aria-label="Sayfa konumu">
+      <ol class="nv-breadcrumb__list">
+        <li><a href="#">Ana Sayfa</a></li>
+        <li><a href="#">Tıbbi Birimler</a></li>
+        <li><span aria-current="page">Az Görenlere Yardım</span></li>
+      </ol>
+    </nav>
+  </main>
+
+  <script>
+    (function () {
+      var root = document.documentElement, q = new URLSearchParams(location.search);
+      if (q.get('contrast') === 'high') root.setAttribute('data-contrast', 'high');
+      if (q.get('text')) root.setAttribute('data-text', q.get('text'));
+      var steps = ['', 'large', 'xlarge'], names = { '': 'normal', large: 'büyük', xlarge: 'çok büyük' };
+      function sync() {
+        var c = document.querySelector('[data-toggle=contrast]'), t = document.querySelector('[data-toggle=text]');
+        c.setAttribute('aria-pressed', String(root.getAttribute('data-contrast') === 'high'));
+        var cur = root.getAttribute('data-text') || '';
+        t.textContent = 'Metin: ' + names[cur]; t.setAttribute('aria-pressed', String(cur !== ''));
+      }
+      document.querySelector('[data-toggle=contrast]').addEventListener('click', function () {
+        root.getAttribute('data-contrast') === 'high' ? root.removeAttribute('data-contrast') : root.setAttribute('data-contrast', 'high'); sync();
+      });
+      document.querySelector('[data-toggle=text]').addEventListener('click', function () {
+        var next = steps[(steps.indexOf(root.getAttribute('data-text') || '') + 1) % steps.length];
+        next ? root.setAttribute('data-text', next) : root.removeAttribute('data-text'); sync();
+      });
+      sync();
+    })();
+  </script>
+</body>
+</html>

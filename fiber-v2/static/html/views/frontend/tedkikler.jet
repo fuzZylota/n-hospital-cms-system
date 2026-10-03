@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkikler.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tedkikler.css?v=20261003-p2">
 
 <section class="tetkikler-page section-space" style="padding-top: 30px;">
     <div class="container">

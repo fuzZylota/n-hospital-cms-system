@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birimler.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tibbi-birimler.css?v=20261003-p2">
 
 <section class="tibbi-birimler-page section-space" style="padding-top: 30px;">
     <div class="container">

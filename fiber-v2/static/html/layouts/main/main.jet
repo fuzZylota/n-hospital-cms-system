@@ -1,26 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    {{ FontRaw := Options.Options.FontFamily != "" ? Options.Options.FontFamily : "Poppins" }}
-    {{ FontSafe := contains("|Poppins|Roboto|Open Sans|Lato|Montserrat|Manrope|Inter|Oswald|Noto Sans|Raleway|Ubuntu|Playfair Display|Work Sans|Outfit|", "|" + FontRaw + "|") ? FontRaw : "Poppins" }}
-
-    {{ if FontSafe == "Manrope" }}
-        <!-- Manrope'un latin + latin-ext (Turkce karakterler icin) dosyalari
-             400/500/600/700 agirliklarinin hepsinde ayni degisken font
-             dosyasina isaret ediyor (fonts.googleapis.com/css2 yanitindan
-             dogrulandi) - bu yuzden tek bir preload cifti tum agirliklari
-             kapsiyor. Sadece FontSafe == "Manrope" oldugunda calisiyor;
-             admin panelden font degistirilirse bu preload'lar kendiliginden
-             devre disi kalir (yanlis font icin bosa preload yapilmaz). -->
-        <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSg.woff2" crossorigin>
-        <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggmxSuXd.woff2" crossorigin>
-    {{ end }}
-
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family={{ if FontSafe == "Open Sans" }}Open+Sans{{ else if FontSafe == "Noto Sans" }}Noto+Sans{{ else if FontSafe == "Playfair Display" }}Playfair+Display{{ else if FontSafe == "Work Sans" }}Work+Sans{{ else }}{{ FontSafe }}{{ end }}:wght@400;500;600;700{{ if FontSafe != "Manrope" }}&family=Manrope:wght@200..800{{ end }}&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ if FontSafe == "Open Sans" }}Open+Sans{{ else if FontSafe == "Noto Sans" }}Noto+Sans{{ else if FontSafe == "Playfair Display" }}Playfair+Display{{ else if FontSafe == "Work Sans" }}Work+Sans{{ else }}{{ FontSafe }}{{ end }}:wght@400;500;600;700{{ if FontSafe != "Manrope" }}&family=Manrope:wght@200..800{{ end }}&display=swap">
     <style>
         :root {
             --theme-primary-color: {{ Options ? Options.Options.PrimaryColor : "rgba(40, 59, 106, 1)" }};
@@ -28,12 +8,23 @@
             --theme-accent-color: {{ Options ? Options.Options.AccentColor : "rgba(51, 193, 237, 1)" }};
             --theme-background-color: {{ Options ? Options.Options.BackgroundColor : "rgba(255, 255, 255, 1)" }};
             --theme-text-color: {{ Options ? Options.Options.FontColor : "rgba(51, 51, 51, 1)" }};
-            --theme-font-family: {{ Options ? Options.Options.FontFamily : "Poppins, sans-serif" }};
+            /* Panelden secilen font (options.font_family) public sitede artik
+               kullanilmiyor: tek aile Atkinson Hyperlegible Next (P2-2). */
+            --theme-font-family: "Atkinson Hyperlegible Next", "Nv Fallback Arial", "Nv Fallback Roboto", system-ui, sans-serif;
             --theme-header-text-color: {{ Options ? Options.Options.FontColor : "rgba(255,255,255,1)" }};
         }
     </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Atkinson Hyperlegible Next self-host (css/frontend/fonts.css). Google
+         Fonts kaldirildi. Turkce metin her sayfada hem latin (c o u i) hem
+         latin-ext (g s I) alt kumesini kullaniyor; 400 + 700 ikisi de preload.
+         800 ve italik yalniz kullanildiginda iner. -->
+    <link rel="preload" as="font" type="font/woff2" href="{{ PathOnStart }}css/fonts/atkinson/atkinson-hyperlegible-next-latin-400-normal.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="{{ PathOnStart }}css/fonts/atkinson/atkinson-hyperlegible-next-latin-ext-400-normal.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="{{ PathOnStart }}css/fonts/atkinson/atkinson-hyperlegible-next-latin-700-normal.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="{{ PathOnStart }}css/fonts/atkinson/atkinson-hyperlegible-next-latin-ext-700-normal.woff2" crossorigin>
 
     <link rel="apple-touch-icon" sizes="180x180" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
     <link rel="icon" type="image/png" sizes="32x32" href="{{ PathOnStart }}{{ Options.Medias[2].FilePath != "" ? Options.Medias[2].FilePath : "files/defaults/favicon/n-hospital-icon.png" }}" />
@@ -558,9 +549,13 @@ color: #fff;
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
     {{ end }}
 
-    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-hp">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-p2">
 
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
+    <!-- Nivgoz tasarim sistemi (P2): tema CSS'inden SONRA, !important olmadan kazanir -->
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/tokens.css?v=20261003-p2">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/fonts.css?v=20261003-p2">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/components.css?v=20261003-p2">
             <style>
 /*
  * Header / Topbar - consolidated single source of truth.
@@ -949,7 +944,7 @@ body > .page-wrapper {
 
 
 <body class="{{ if Route == "/" }}homepage{{ end }}">
-    <a href="#anaIcerik" class="skip-to-content">İçeriğe atla</a>
+    <a href="#anaIcerik" class="skip-to-content nv-skip-link">İçeriğe atla</a>
     
 
     
@@ -1886,6 +1881,7 @@ document.addEventListener('DOMContentLoaded', function () {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 10px 12px;
+    min-height: 44px; /* P2: govde satir yuksekligi 1.6'ya inince 44px altina dusuyordu */
     color: #fff;
     font-size: 16px;
     transition: border 0.2s ease, background 0.2s ease;
@@ -1944,6 +1940,7 @@ document.addEventListener('DOMContentLoaded', function () {
     border: none;
     border-radius: 10px;
     padding: 12px 16px;
+    min-height: 44px;
     font-weight: 600;
     background: var(--theme-accent-color);
     color: #fff;

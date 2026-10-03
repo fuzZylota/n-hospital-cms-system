@@ -1,0 +1,568 @@
+/* ==========================================================================
+   components.css — Nivgöz bileşenleri (P2-3)
+   --------------------------------------------------------------------------
+   Yalnız tokens.css değişkenlerini kullanır. Tema CSS'inden SONRA yüklenir;
+   !important yok, düşük özgüllüklü sınıflar ve :where() sıfırlamaları.
+   Önizleme: tools/qa/ui-kit.html (yalnız geliştirme, yayına çıkmaz).
+
+   Kitleye özgü kararlar (tasarım eleştirisinden sonra):
+   - Rozet ve ipucu metni dahil hiçbir metin 16px altına inmez.
+   - Hata hiçbir zaman yalnız renkle verilmez: "!" işareti + kalın metin +
+     kalın kenarlık; zorunlu alan "(zorunlu)" yazısıyla, yıldızla değil.
+   - Toast kendiliğinden kaybolmaz (yavaş okuyan / ekran büyüteci kullanan
+     ziyaretçi için); kapatma düğmesi 44x44.
+   - Odak halkası çift renk (amber + navy), her zeminde görünür.
+   ========================================================================== */
+
+/* ---- Taban eşlemesi --------------------------------------------------------
+   Tema fontu --mediox-font değişkeninden okuyor; Atkinson'a bağlanıyor.
+   Gövde boyutu ve satır yüksekliği token'dan gelir. Gövde RENGİ bilerek
+   temada bırakıldı: tema koyu kartlarda (ör. yorum kartı) rengi body'den
+   miras alıyor; ink'e çekmek orada kontrastı 1.3:1'e düşürüyordu. Renk,
+   bölümler P3'te yeniden yazılırken bölüm bazında token'a geçirilecek. */
+:root {
+  --mediox-font: var(--nv-font-sans);
+}
+
+body {
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  line-height: var(--nv-leading-body);
+}
+
+:where([class^="nv-"], [class*=" nv-"]),
+:where([class^="nv-"], [class*=" nv-"])::before,
+:where([class^="nv-"], [class*=" nv-"])::after {
+  box-sizing: border-box;
+}
+
+:where(.nv-btn, .nv-input, .nv-toast__close) {
+  font: inherit;
+  margin: 0;
+}
+
+:where(.nv-breadcrumb__list) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- İçeriğe atla bağlantısı --------------------------------------------- */
+.nv-skip-link {
+  position: absolute;
+  top: -200px;
+  left: var(--nv-space-2);
+  z-index: var(--nv-z-skip);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--nv-control-h);
+  padding: var(--nv-space-3) var(--nv-space-5);
+  background-color: var(--nv-focus);
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  border: 3px solid var(--nv-navy-900);
+  border-top: 0;
+  border-radius: 0 0 var(--nv-radius-md) var(--nv-radius-md);
+}
+
+.nv-skip-link:focus,
+.nv-skip-link:focus-visible {
+  top: 0;
+  color: var(--nv-navy-900);
+  outline: var(--nv-focus-outline);
+  outline-offset: 2px;
+}
+
+/* ---- Buton --------------------------------------------------------------- */
+.nv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nv-space-2);
+  min-height: var(--nv-control-h);
+  min-width: var(--nv-target-min);
+  padding: var(--nv-space-2) var(--nv-space-5);
+  border: 2px solid transparent;
+  border-radius: var(--nv-radius-md);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--nv-dur) var(--nv-ease),
+              border-color var(--nv-dur) var(--nv-ease),
+              color var(--nv-dur) var(--nv-ease);
+}
+
+.nv-btn:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+.nv-btn__icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* Birincil: yalnız asıl eylem (ör. "Randevu Talebi Oluştur") */
+.nv-btn--primary,
+.nv-btn--primary:visited {
+  background-color: var(--nv-cta-bg);
+  border-color: var(--nv-cta-bg);
+  color: var(--nv-cta-fg);
+}
+.nv-btn--primary:hover,
+.nv-btn--primary:active {
+  background-color: var(--nv-cta-bg-hover);
+  border-color: var(--nv-cta-bg-hover);
+  color: var(--nv-cta-fg);
+}
+
+/* İkincil: lacivert çerçeve (ör. "Hemen Ara") */
+.nv-btn--secondary,
+.nv-btn--secondary:visited {
+  background-color: var(--nv-surface);
+  border-color: var(--nv-navy-900);
+  color: var(--nv-navy-900);
+}
+.nv-btn--secondary:hover,
+.nv-btn--secondary:active {
+  background-color: var(--nv-navy-900);
+  border-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+
+/* Ghost: düşük öncelikli eylem; altı çizili, yine 48px */
+.nv-btn--ghost,
+.nv-btn--ghost:visited {
+  background-color: transparent;
+  color: var(--nv-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.nv-btn--ghost:hover,
+.nv-btn--ghost:active {
+  background-color: var(--nv-navy-50);
+  color: var(--nv-link-hover);
+  text-decoration-thickness: 2px;
+}
+
+.nv-btn--lg {
+  min-height: var(--nv-control-h-lg);
+  padding-inline: var(--nv-space-6);
+  font-size: var(--nv-text-lg);
+}
+
+.nv-btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/* Pasif: soluk gri DEĞİL (okunmaz olurdu); kesik çerçeve + okunur metin */
+.nv-btn:disabled,
+.nv-btn[aria-disabled="true"] {
+  background-color: var(--nv-navy-50);
+  border-color: var(--nv-border-strong);
+  border-style: dashed;
+  color: var(--nv-text-muted);
+  cursor: not-allowed;
+}
+
+/* ---- Form alanı ------------------------------------------------------------
+   Kalıp:
+   <div class="nv-field [nv-field--error]">
+     <label class="nv-label" for="ad">Adınız <span class="nv-label__req">(zorunlu)</span></label>
+     <p class="nv-hint" id="ad-ipucu">…</p>
+     <input class="nv-input" id="ad" aria-describedby="ad-ipucu ad-hata" aria-invalid="true">
+     <p class="nv-error" id="ad-hata">Adınızı yazın.</p>
+   </div> */
+.nv-field {
+  display: grid;
+  align-content: start;   /* ızgarada uzatılınca alan yüksekliği şişmesin */
+  gap: var(--nv-space-2);
+  margin: 0 0 var(--nv-space-5);
+  max-width: var(--nv-measure);
+}
+
+.nv-label {
+  display: block;
+  margin: 0;
+  color: var(--nv-heading);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.35;
+}
+
+.nv-label__req {
+  font-weight: var(--nv-weight-regular);
+  color: var(--nv-text-muted);
+}
+
+.nv-hint {
+  margin: 0;
+  color: var(--nv-text-muted);
+  font-size: var(--nv-text-sm);
+  line-height: 1.5;
+}
+
+.nv-input {
+  display: block;
+  width: 100%;
+  min-height: var(--nv-control-h);
+  padding: var(--nv-space-2) var(--nv-space-4);
+  background-color: var(--nv-field-bg);
+  border: var(--nv-field-border-width) solid var(--nv-field-border);
+  border-radius: var(--nv-radius-md);
+  color: var(--nv-text);
+  /* iOS 16px altında odakta yakınlaştırır; gövde boyutunun altına inmez */
+  font-family: var(--nv-font-sans);
+  font-size: max(1rem, var(--nv-text-body));
+  line-height: 1.4;
+  transition: border-color var(--nv-dur-fast) var(--nv-ease);
+}
+
+textarea.nv-input {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+select.nv-input {
+  padding-inline-end: var(--nv-space-6);
+}
+
+.nv-input::placeholder {
+  color: var(--nv-placeholder);
+  opacity: 1;
+}
+
+.nv-input:hover {
+  border-color: var(--nv-navy-900);
+}
+
+.nv-input:focus-visible {
+  border-color: var(--nv-navy-900);
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+.nv-field--error .nv-input,
+.nv-input[aria-invalid="true"] {
+  border-color: var(--nv-error-text);
+  border-width: 3px;
+}
+
+.nv-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nv-space-2);
+  margin: 0;
+  color: var(--nv-error-text);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.4;
+}
+
+.nv-error:empty {
+  display: none;
+}
+
+.nv-error::before {
+  content: "!";
+  content: "!" / "";
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background-color: var(--nv-error-text);
+  color: var(--nv-paper);
+  font-size: 0.875em;
+  line-height: 1;
+}
+
+/* Onay kutusu / radyo: 24px kutu, satırın tamamı 44px tıklanabilir */
+.nv-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nv-space-3);
+  min-height: var(--nv-target-min);
+  padding-block: var(--nv-space-2);
+  color: var(--nv-text);
+  font-size: var(--nv-text-body);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.nv-check input {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--nv-navy-900);
+  cursor: pointer;
+}
+
+.nv-check input:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+/* Metin içi bağlantı (form, bildirim, kart gövdesi) */
+.nv-link,
+.nv-field a,
+.nv-alert a,
+.nv-card__body a {
+  color: var(--nv-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.nv-link:hover,
+.nv-field a:hover,
+.nv-alert a:hover,
+.nv-card__body a:hover {
+  color: var(--nv-link-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* ---- Kart (yalnız gerçek koleksiyonlar: doktor, merkez) ----------------- */
+.nv-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--nv-surface);
+  border: var(--nv-border-width) solid var(--nv-border-subtle);
+  border-radius: var(--nv-radius-lg);
+  box-shadow: var(--nv-shadow);
+  overflow: hidden;
+  color: var(--nv-text);
+}
+
+.nv-card__media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: var(--nv-mist);
+}
+
+.nv-card__body {
+  display: grid;
+  gap: var(--nv-space-3);
+  padding: var(--nv-space-5);
+}
+
+.nv-card__title {
+  margin: 0;
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-bold);
+  line-height: var(--nv-leading-heading);
+}
+
+.nv-card__meta {
+  margin: 0;
+  color: var(--nv-text-muted);
+  font-size: var(--nv-text-body);
+}
+
+/* Kartın tamamını tıklanabilir yapan bağlantı (başlıktaki <a>) */
+.nv-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+.nv-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--nv-z-base);
+}
+.nv-card__link:hover {
+  text-decoration: underline;
+}
+.nv-card__link:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: 2px;
+}
+/* Destekleyen tarayıcıda odak halkası kartın tamamına da çizilir */
+.nv-card:has(.nv-card__link:focus-visible) {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+.nv-card__actions {
+  position: relative;
+  z-index: calc(var(--nv-z-base) + 1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-3);
+}
+
+/* ---- Rozet (16px — küçük etiket metni yok) ------------------------------ */
+.nv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-1);
+  padding: 0.125rem 0.625rem;
+  border: var(--nv-border-width) solid var(--nv-info-border);
+  border-radius: var(--nv-radius-sm);
+  background-color: var(--nv-info-bg);
+  color: var(--nv-info-fg);
+  font-size: var(--nv-text-sm);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.nv-badge--success { background-color: var(--nv-success-bg); border-color: var(--nv-success-border); color: var(--nv-success-fg); }
+.nv-badge--warning { background-color: var(--nv-warning-bg); border-color: var(--nv-warning-border); color: var(--nv-warning-fg); }
+.nv-badge--danger  { background-color: var(--nv-danger-bg);  border-color: var(--nv-danger-border);  color: var(--nv-danger-fg); }
+.nv-badge--neutral { background-color: var(--nv-paper);      border-color: var(--nv-border-strong);  color: var(--nv-ink); }
+
+/* ---- Bildirim (sayfa içi) ve toast ----------------------------------------
+   Zemin tam opak (proje kuralı: ≥0.7). Anlam renk + başlık metni + sol
+   şerit ile verilir. Markup: role="status" (bilgi/başarı) veya role="alert"
+   (hata). */
+.nv-alert {
+  display: grid;
+  gap: var(--nv-space-1);
+  margin: 0 0 var(--nv-space-5);
+  padding: var(--nv-space-4) var(--nv-space-5);
+  max-width: var(--nv-measure);
+  border: var(--nv-border-width) solid var(--nv-info-border);
+  border-inline-start-width: 6px;
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-info-bg);
+  color: var(--nv-info-fg);
+  font-size: var(--nv-text-body);
+  line-height: var(--nv-leading-body);
+}
+.nv-alert__title {
+  margin: 0;
+  color: inherit;
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.35;
+}
+.nv-alert p { margin: 0; color: inherit; }
+.nv-alert--success { background-color: var(--nv-success-bg); border-color: var(--nv-success-border); color: var(--nv-success-fg); }
+.nv-alert--warning { background-color: var(--nv-warning-bg); border-color: var(--nv-warning-border); color: var(--nv-warning-fg); }
+.nv-alert--danger  { background-color: var(--nv-danger-bg);  border-color: var(--nv-danger-border);  color: var(--nv-danger-fg); }
+
+.nv-toast-region {
+  position: fixed;
+  inset-inline: var(--nv-space-4);
+  bottom: var(--nv-space-4);
+  z-index: var(--nv-z-toast);
+  display: grid;
+  justify-items: center;
+  gap: var(--nv-space-3);
+  pointer-events: none;
+}
+
+.nv-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nv-space-3);
+  width: min(100%, 36rem);
+  padding: var(--nv-space-4) var(--nv-space-2) var(--nv-space-4) var(--nv-space-5);
+  background-color: var(--nv-navy-900);   /* opak: 1.0 */
+  border: 2px solid var(--nv-navy-900);
+  border-inline-start: 6px solid var(--nv-focus);
+  border-radius: var(--nv-radius-md);
+  box-shadow: var(--nv-shadow);
+  color: var(--nv-paper);
+  font-size: var(--nv-text-body);
+  line-height: 1.5;
+}
+.nv-toast--success { border-inline-start-color: #6FD08C; }   /* navy üstünde 8.40:1 (dekor) */
+.nv-toast--danger  { border-inline-start-color: #FF8A9B; }   /* navy üstünde 7.10:1 (dekor) */
+.nv-toast__body { flex: 1; min-width: 0; }
+.nv-toast__title { display: block; font-weight: var(--nv-weight-bold); }
+
+.nv-toast__close {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--nv-target-min);
+  height: var(--nv-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--nv-radius-sm);
+  background: transparent;
+  color: var(--nv-paper);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.nv-toast__close:hover { background-color: var(--nv-navy-700); }
+.nv-toast__close:focus-visible {
+  outline: 3px solid var(--nv-focus);
+  outline-offset: 0;
+}
+
+/* ---- Breadcrumb ------------------------------------------------------------
+   <nav class="nv-breadcrumb" aria-label="Sayfa konumu"><ol class="nv-breadcrumb__list">
+   <li><a href="/">Ana Sayfa</a></li> … <li><span aria-current="page">…</span></li></ol></nav> */
+.nv-breadcrumb {
+  font-size: var(--nv-text-body);
+  line-height: 1.4;
+}
+.nv-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--nv-space-2);
+}
+.nv-breadcrumb__list > li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-2);
+  margin: 0;
+}
+.nv-breadcrumb__list > li + li::before {
+  content: "›";
+  content: "›" / "";
+  color: var(--nv-text-muted);
+  font-weight: var(--nv-weight-bold);
+}
+.nv-breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--nv-target-min);
+  color: var(--nv-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.nv-breadcrumb a:hover {
+  color: var(--nv-link-hover);
+  text-decoration-thickness: 2px;
+}
+.nv-breadcrumb [aria-current="page"] {
+  color: var(--nv-text);
+  font-weight: var(--nv-weight-bold);
+}
+
+/* ---- Yüksek kontrast: tema bölümlerine de yayılan asgari kurallar ------- */
+:root[data-contrast="high"] body {
+  color: #000000;
+  background-color: #FFFFFF;
+}
+:root[data-contrast="high"] a:not(.nv-btn) {
+  text-decoration: underline;
+}

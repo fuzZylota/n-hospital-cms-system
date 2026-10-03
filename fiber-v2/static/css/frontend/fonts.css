@@ -1,0 +1,134 @@
+/* ==========================================================================
+   fonts.css — Atkinson Hyperlegible Next (self-host)
+   --------------------------------------------------------------------------
+   Kaynak: @fontsource/atkinson-hyperlegible-next 5.3.0 (npm), lisans SIL OFL
+   1.1 → ../fonts/atkinson/OFL.txt. Braille Institute'un düşük görme için
+   tasarladığı aile; Google Fonts'a istek atılmaz (KVKK + performans).
+
+   Dosyalar /css/fonts/atkinson/ altında: Go yalnız /css, /js, /assets,
+   /uploads, /files yollarını servis ediyor; /fonts için route eklemek backend
+   işi olduğundan dosyalar zaten servis edilen /css ağacına kondu.
+
+   Alt kümeler (Türkçe ikiye bölünür, ikisi de gerekir):
+     latin     → ç ö ü ı (U+0131) ve temel Latin
+     latin-ext → ğ Ğ ş Ş İ (U+011E/F, U+015E/F, U+0130)
+   Ağırlıklar: 400, 700, 800 (normal) + 400 italik. 400 ve 700'ün latin +
+   latin-ext dosyaları main.jet'te preload ediliyor; 800 ve italik yalnız
+   kullanıldıkları sayfada iner (unicode-range + tembel yükleme).
+
+   CLS önlemi: font-display: swap + metriği eşlenmiş yedek yüz. Yedek
+   yüzlerin size-adjust/ascent/descent değerleri fontTools ile ölçüldü
+   (Türkçe örnek metnin ortalama glif genişliği, OS/2 typo metrikleri;
+   Atkinson USE_TYPO_METRICS bayrağı açık: asc 984, desc 316, upm 1000):
+     Arial/Liberation Sans 400 → size-adjust 97.45%, asc 100.98%, desc 32.43%
+     Arial/Liberation Sans 700 → size-adjust 98.68%, asc  99.72%, desc 32.02%
+     Roboto (Android)       400 → size-adjust 99.74%, asc  98.66%, desc 31.68%
+   ========================================================================== */
+
+/* ---- latin-ext (ğ ş İ …) ---- */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-ext-700-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-ext-800-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-ext-400-italic.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---- latin (ç ö ü ı …) ---- */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atkinson/atkinson-hyperlegible-next-latin-400-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- Metriği eşlenmiş yedek yüzler (swap anındaki kaymayı küçültür) ----
+   local() kaynağı bulunamazsa yüz geçersiz sayılır ve tarayıcı yığındaki
+   bir sonraki aileye geçer (Android'de Arial yok → Roboto yüzü devreye). */
+@font-face {
+  font-family: "Nv Fallback Arial";
+  font-weight: 400;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans");
+  size-adjust: 97.45%;
+  ascent-override: 100.98%;
+  descent-override: 32.43%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nv Fallback Arial";
+  font-weight: 700 800;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold");
+  size-adjust: 98.68%;
+  ascent-override: 99.72%;
+  descent-override: 32.02%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nv Fallback Roboto";
+  font-weight: 400;
+  src: local("Roboto"), local("Roboto-Regular");
+  size-adjust: 99.74%;
+  ascent-override: 98.66%;
+  descent-override: 31.68%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nv Fallback Roboto";
+  font-weight: 700 800;
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  size-adjust: 99.74%;
+  ascent-override: 98.66%;
+  descent-override: 31.68%;
+  line-gap-override: 0%;
+}

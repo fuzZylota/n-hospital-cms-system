@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlar.css">
+<link rel="stylesheet" href="{{ PathOnStart }}css/frontend/doktorlar.css?v=20261003-p2">
 
 <!-- ===========================
      PREMIUM / KURUMSAL KART STİLİ

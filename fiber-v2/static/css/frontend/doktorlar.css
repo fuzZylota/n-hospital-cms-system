@@ -122,7 +122,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    background-color: var(--theme-secondary-color, #df0024) !important;
+    background-color: var(--nv-cta-bg, #DF0024) !important;
     color: #fff !important;
     font-size: 16px !important;
     font-weight: 700 !important;
@@ -139,7 +139,7 @@
     writing-mode: horizontal-tb !important;
     transform: none !important;
 }
-.doctor-randevu-btn:hover { background-color: #b80020 !important; color: #fff !important; }
+.doctor-randevu-btn:hover { background-color: var(--nv-cta-bg-hover, #BE001F) !important; color: #fff !important; }
 
 /* Empty state */
 .empty-state { text-align: center; padding: 40px 20px; }

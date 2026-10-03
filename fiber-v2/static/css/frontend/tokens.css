@@ -1,0 +1,247 @@
+/* ==========================================================================
+   tokens.css — Nivgöz tasarım token katmanı (P2-1)
+   --------------------------------------------------------------------------
+   Tek kaynak: renk, tipografi, boşluk, radius, gölge, z-index, hareket.
+   Bu dosya yalnız DEĞİŞKEN tanımlar; hiçbir öğeyi doğrudan biçimlemez
+   (taban eşlemesi components.css'te). Mediox teması (static/assets/)
+   değiştirilmez.
+
+   Modlar (arayüz düğmesi P2-4'te gelecek; burada yalnız CSS kancaları var):
+     <html data-contrast="high">  → yüksek kontrast
+     <html data-text="large">     → metin bir kademe büyük  (~%119)
+     <html data-text="xlarge">    → metin iki kademe büyük  (~%138)
+
+   KONTRAST TABLOSU — tahmin değil, WCAG 2.x göreli parlaklık formülüyle
+   hesaplandı (python, 2026-10-03). Metin için alt sınır 4.5:1, gövde
+   metni hedefi 7:1. Kırmızı (#DF0024) yalnız birincil CTA zemini ve kritik
+   vurgu; küçük metin rengi olarak kullanılmaz (hata metni red-700'dür).
+
+   METİN (WCAG 1.4.3 / 1.4.6)
+     --nv-ink            on --nv-paper     15.77:1  AAA  gövde metni
+     --nv-ink            on --nv-mist      14.25:1  AAA  gövde metni, mist bölüm
+     --nv-ink            on --nv-navy-50   14.64:1  AAA  form alanına girilen metin
+     --nv-ink-muted      on --nv-paper      8.72:1  AAA  ikincil metin / ipucu
+     --nv-ink-muted      on --nv-mist       7.88:1  AAA  ikincil metin, mist
+     --nv-navy-900       on --nv-paper     15.93:1  AAA  başlık, ikincil buton
+     --nv-navy-900       on --nv-mist      14.39:1  AAA  başlık, mist
+     --nv-paper          on --nv-navy-900  15.93:1  AAA  navy zemin üstünde beyaz
+     --nv-navy-700       on --nv-paper     10.22:1  AAA  bağlantı
+     --nv-navy-700       on --nv-mist       9.23:1  AAA  bağlantı, mist
+     --nv-navy-600       on --nv-paper      7.30:1  AAA  ghost buton
+     --nv-navy-600       on --nv-mist       6.59:1  AA   ghost, mist (gövde metni için kullanma)
+     --nv-paper          on --nv-red-600    5.04:1  AA   birincil CTA (18px kalın)
+     --nv-paper          on --nv-red-700    6.54:1  AA   birincil CTA :hover
+     --nv-paper          on --nv-red-800    8.65:1  AAA  birincil CTA, yüksek kontrast
+     --nv-red-700        on --nv-paper      6.54:1  AA   hata metni
+     --nv-red-800        on --nv-red-50     7.90:1  AAA  hata bildirimi
+     --nv-navy-800       on --nv-navy-50   12.58:1  AAA  bilgi bildirimi / rozet
+     --nv-navy-800       on --nv-mist      12.25:1  AAA  rozet, mist
+     --nv-success-fg     on --nv-success-bg 8.20:1  AAA  başarı bildirimi
+     --nv-warning-fg     on --nv-warning-bg 7.77:1  AAA  uyarı bildirimi
+     --nv-placeholder    on --nv-paper      6.10:1  AA   placeholder (etiket DEĞİL)
+     --nv-placeholder    on --nv-navy-50    5.66:1  AA   placeholder, alan zemini
+     #000000             on #FFFFFF        21.00:1  AAA  yüksek kontrast modu
+   METİN DIŞI (WCAG 1.4.11, ≥3:1)
+     --nv-focus          on --nv-navy-900   9.64:1  odak, amber iç halka koyu zeminde
+     --nv-navy-900       on --nv-paper     15.93:1  odak, navy dış halka açık zeminde
+     --nv-navy-900       on --nv-focus      9.64:1  dış halka / iç halka ayrımı
+     --nv-border-strong  on --nv-paper      5.20:1  form alanı kenarlığı
+     --nv-border-strong  on --nv-mist       4.70:1  form alanı kenarlığı, mist
+     --nv-red-700        on --nv-paper      6.54:1  hatalı alan kenarlığı
+     --nv-success-border on --nv-success-bg 3.88:1  başarı kenarlığı
+     --nv-warning-border on --nv-warning-bg 4.32:1  uyarı kenarlığı
+   KULLANMA: --nv-focus on --nv-paper 1.65:1 → amber halka tek başına beyaz
+   zeminde görünmez; bu yüzden odak her zaman amber + navy çift halkadır.
+   ========================================================================== */
+
+:root {
+  /* ---- Marka tabanı ---------------------------------------------------- */
+  --nv-navy-900: #0A2241;   /* marka laciverti */
+  --nv-red-600:  #DF0024;   /* marka kırmızısı — yalnız CTA / kritik */
+  --nv-ink:      #14233A;   /* gövde metni */
+  --nv-paper:    #FFFFFF;
+  --nv-mist:     #EEF4FB;   /* bölüm ayırıcı zemin */
+
+  /* ---- Navy ton skalası (HSL 214°, lacivertten türetildi) ------------- */
+  --nv-navy-950: #06162A;
+  --nv-navy-800: #0F2E57;
+  --nv-navy-700: #1B4174;
+  --nv-navy-600: #2A5792;
+  --nv-navy-500: #4271AE;   /* metin için değil: mist üstünde 4.51:1 sınırda */
+  --nv-navy-400: #7599C7;   /* yalnız dekor */
+  --nv-navy-300: #A7C0E2;
+  --nv-navy-200: #CBDBF0;
+  --nv-navy-100: #E6EEF9;
+  --nv-navy-50:  #F2F7FC;
+
+  /* ---- Kırmızı ton skalası (markadan siyaha / beyaza karışım) ---------- */
+  --nv-red-900: #7B0014;
+  --nv-red-800: #9C0019;
+  --nv-red-700: #BE001F;
+  --nv-red-100: #FCE6E9;
+  --nv-red-50:  #FDF2F4;
+
+  /* ---- Nötr / anlamsal -------------------------------------------------- */
+  --nv-ink-muted:      #3E4C60;
+  --nv-placeholder:    #566376;
+  --nv-border-strong:  #5F6E82;   /* etkileşimli sınır (≥3:1) */
+  --nv-border-subtle:  #D3DDE9;   /* yalnız dekoratif ayırıcı */
+
+  --nv-success-fg:     #14532B;
+  --nv-success-bg:     #E9F6EE;
+  --nv-success-border: #2F8A4E;
+  --nv-warning-fg:     #6E4400;
+  --nv-warning-bg:     #FFF5DB;
+  --nv-warning-border: #9A6B00;
+  --nv-info-fg:        var(--nv-navy-800);
+  --nv-info-bg:        var(--nv-navy-50);
+  --nv-info-border:    var(--nv-navy-600);
+  --nv-danger-fg:      var(--nv-red-800);
+  --nv-danger-bg:      var(--nv-red-50);
+  --nv-danger-border:  var(--nv-red-700);
+
+  /* ---- Rol token'ları (bileşenler bunları kullanır) -------------------- */
+  --nv-text:            var(--nv-ink);
+  --nv-text-muted:      var(--nv-ink-muted);
+  --nv-heading:         var(--nv-navy-900);
+  --nv-bg:              var(--nv-paper);
+  --nv-bg-alt:          var(--nv-mist);
+  --nv-surface:         var(--nv-paper);
+  --nv-link:            var(--nv-navy-700);
+  --nv-link-hover:      var(--nv-navy-900);
+  --nv-link-decoration: underline;
+  --nv-cta-bg:          var(--nv-red-600);
+  --nv-cta-bg-hover:    var(--nv-red-700);
+  --nv-cta-fg:          var(--nv-paper);
+  --nv-error-text:      var(--nv-red-700);
+  --nv-field-bg:        var(--nv-paper);
+  --nv-field-border:    var(--nv-border-strong);
+
+  /* ---- Odak halkası: amber iç + navy dış, her zeminde görünür --------- */
+  --nv-focus:         #FFBF00;
+  --nv-focus-outer:   var(--nv-navy-900);
+  --nv-focus-width:   3px;
+  /* kullanım: outline: var(--nv-focus-outline); outline-offset: var(--nv-focus-offset);
+               box-shadow: var(--nv-focus-shadow);                                    */
+  --nv-focus-outline: var(--nv-focus-width) solid var(--nv-focus-outer);
+  --nv-focus-offset:  var(--nv-focus-width);
+  --nv-focus-shadow:  0 0 0 var(--nv-focus-width) var(--nv-focus);
+
+  /* ---- Tipografi --------------------------------------------------------
+     rem tabanlı: tarayıcı yazı boyutu ve data-text kademeleri her şeyi
+     orantılı büyütür. Başlık ölçeği 1.25 (major third), clamp ile akışkan;
+     rem + vw karışımı yakınlaştırmada (WCAG 1.4.4) büyümeyi korur. */
+  --nv-font-sans: "Atkinson Hyperlegible Next", "Nv Fallback Arial", "Nv Fallback Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --nv-weight-regular: 400;
+  --nv-weight-bold:    700;
+  --nv-weight-heavy:   800;
+
+  --nv-text-sm:    1rem;        /* 16px — sitedeki en küçük metin */
+  --nv-text-body:  1.0625rem;   /* 17px mobil gövde */
+  --nv-text-lg:    1.25rem;     /* 20px giriş paragrafı */
+  --nv-text-h6:    1.125rem;    /* 18px */
+  --nv-text-h5:    clamp(1.1875rem, 1.1rem + 0.35vw, 1.40625rem);   /* 19 → 22.5px */
+  --nv-text-h4:    clamp(1.3125rem, 1.15rem + 0.65vw, 1.7578rem);   /* 21 → 28px  */
+  --nv-text-h3:    clamp(1.5rem,    1.25rem + 1.1vw,  2.1973rem);   /* 24 → 35px  */
+  --nv-text-h2:    clamp(1.75rem,   1.35rem + 1.8vw,  2.7466rem);   /* 28 → 44px  */
+  --nv-text-h1:    clamp(2rem,      1.45rem + 2.6vw,  3.4332rem);   /* 32 → 55px  */
+
+  --nv-leading-body:    1.6;
+  --nv-leading-heading: 1.2;
+  --nv-measure:         70ch;
+  --nv-tracking-heading: -0.01em;
+
+  /* ---- Boşluk (4px ızgarası) ------------------------------------------ */
+  --nv-space-1:  0.25rem;
+  --nv-space-2:  0.5rem;
+  --nv-space-3:  0.75rem;
+  --nv-space-4:  1rem;
+  --nv-space-5:  1.5rem;
+  --nv-space-6:  2rem;
+  --nv-space-7:  3rem;
+  --nv-space-8:  4rem;
+  --nv-space-9:  6rem;
+
+  /* ---- Dokunma hedefi -------------------------------------------------- */
+  --nv-target-min:  44px;   /* proje alt sınırı */
+  --nv-control-h:   48px;   /* buton / alan yüksekliği */
+  --nv-control-h-lg: 56px;
+
+  /* ---- Kenarlık / radius (hiyerarşiye göre) --------------------------- */
+  --nv-border-width:       1px;
+  --nv-field-border-width: 2px;
+  --nv-radius-sm:   6px;    /* rozet, küçük öğe */
+  --nv-radius-md:   10px;   /* buton, alan */
+  --nv-radius-lg:   16px;   /* kart */
+  --nv-radius-pill: 999px;
+
+  /* ---- Gölge: TEK düzey ------------------------------------------------- */
+  --nv-shadow: 0 1px 2px rgba(10, 34, 65, 0.08), 0 6px 20px rgba(10, 34, 65, 0.08);
+
+  /* ---- z-index ölçeği -------------------------------------------------- */
+  --nv-z-base:     1;
+  --nv-z-dropdown: 1000;
+  --nv-z-sticky:   1100;
+  --nv-z-overlay:  1200;
+  --nv-z-modal:    1300;
+  --nv-z-toast:    1400;
+  --nv-z-skip:     10000;
+
+  /* ---- Hareket (yalnız kullanıcı eylemine yanıt) ----------------------- */
+  --nv-dur-fast: 120ms;
+  --nv-dur:      200ms;
+  --nv-ease:     cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Masaüstü gövde 18px */
+@media (min-width: 768px) {
+  :root { --nv-text-body: 1.125rem; }
+}
+
+/* Hareketi azalt: tüm süreler sıfır */
+@media (prefers-reduced-motion: reduce) {
+  :root { --nv-dur-fast: 0ms; --nv-dur: 0ms; }
+}
+
+/* ---- Metin boyutu kademeleri (html'e data-text) ------------------------
+   Kök yazı boyutu büyür; rem tabanlı tüm token'lar orantılı büyür. Tema
+   px kullandığı için yalnız bizim bileşenlerimiz ve Bootstrap'in rem
+   ölçüleri etkilenir — P2-4+ yeniden yazılan bölümler token kullandıkça
+   kapsam genişler. */
+:root[data-text="large"]  { font-size: 118.75%; }  /* 19px kök → gövde ~21px */
+:root[data-text="xlarge"] { font-size: 137.5%;  }  /* 22px kök → gövde ~25px */
+
+/* ---- Yüksek kontrast modu (html'e data-contrast="high") ----------------
+   Saf siyah/beyaz metin, tonlu zeminler beyaza, dekoratif kenarlıklar
+   siyaha, gölgeler kalkar, bağlantılar her zaman altı çizili, kenarlıklar
+   kalınlaşır. CTA kırmızısı red-800'e koyulaşır (beyazla 8.65:1). */
+:root[data-contrast="high"] {
+  --nv-ink:            #000000;
+  --nv-ink-muted:      #000000;
+  --nv-placeholder:    #333333;   /* 12.63:1 */
+  --nv-mist:           #FFFFFF;
+  --nv-navy-50:        #FFFFFF;
+  --nv-navy-100:       #FFFFFF;
+  --nv-border-strong:  #000000;
+  --nv-border-subtle:  #000000;
+  --nv-heading:        #000000;
+  --nv-link:           var(--nv-navy-900);
+  --nv-link-hover:     #000000;
+  --nv-cta-bg:         var(--nv-red-800);
+  --nv-cta-bg-hover:   var(--nv-red-900);
+  --nv-error-text:     var(--nv-red-800);
+  --nv-success-fg:     #0B3A1C;
+  --nv-success-bg:     #FFFFFF;
+  --nv-success-border: #0B3A1C;
+  --nv-warning-fg:     #4A2E00;
+  --nv-warning-bg:     #FFFFFF;
+  --nv-warning-border: #4A2E00;
+  --nv-info-bg:        #FFFFFF;
+  --nv-info-border:    var(--nv-navy-900);
+  --nv-danger-bg:      #FFFFFF;
+  --nv-danger-border:  var(--nv-red-800);
+  --nv-border-width:       2px;
+  --nv-field-border-width: 3px;
+  --nv-shadow:         none;
+  --nv-focus-width:    4px;
+}

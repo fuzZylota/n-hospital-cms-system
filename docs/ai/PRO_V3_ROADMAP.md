@@ -73,6 +73,15 @@ Riskler:
 - Sitemap: `baseURL` kodda sabit `https://nivgoz.com`; doktor/şube detay sayfaları sitemap'te yok (P4).
 - Gerçek tarayıcıda canlı giriş + form gönderimi ve sunucu nginx yapılandırması ölçülmedi.
 
+## P2-1..3 notları (2026-10-03)
+- Dosyalar: `css/frontend/{tokens,fonts,components}.css`, yazı tipi `static/css/fonts/atkinson/` (Go `/fonts` yolunu servis etmediği için `/css` altında; 104 KB, OFL). Dev UI kiti: `tools/qa/ui-kit.html` (`python3 -m http.server 8099` depo kökünden).
+- **Panelden font seçimi (`options.font_family`) public sitede artık etkisiz**; Google Fonts kaldırıldı. Panelde font seçicinin kaldırılması ayrı iş (P6).
+- Ölçüm (dev tohum verisi): axe ciddi 136 → 114, kritik 0; CLS bozulmadı. Gövde metni 17/18px, satır 1.6. Canlıda font değişiminin CLS etkisi **ölçülmedi**.
+- Kalan kontrast bulgularının çoğu tohum verisindeki camgöbeği ikincil renkten (kod kırmızı varsayıyor); canlı DB'de doğrulanmadı.
+- Gözlem → P3-1: mobilde çerez bandı randevu formunun alanlarını kaplıyor.
+- Gözlem → P2-5/P3: dev tohumunda site adı "N-Hospital", logo kırık; canlıda marka doğru olmalı (doğrulanmadı).
+- CSP'de `fonts.googleapis.com` izinleri artık gereksiz (temizlenecek).
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
@@ -96,9 +105,9 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 - [ ] P1-7 — Açık deploy kapısı: bildirim migration'ını geçici DB'de uygula/test et, production runbook'u hazırla. · `migrations/` · Kapı AÇIK.
 
 ### P2 — Tasarım sistemi (public)
-- [ ] P2-1 — Token katmanı: renk/tip/boşluk/gölge/radius, açık + yüksek kontrast modu. · `static/css/frontend/tokens.css` · Kontrast tablosu belgelenmiş.
-- [ ] P2-2 — Font: Atkinson Hyperlegible Next self-host, `font-display: swap`, preload; Google Fonts kaldırılır. · `static/fonts/` · CLS artmaz.
-- [ ] P2-3 — Bileşenler: buton (3 varyant, 48px), form alanları (görünür etiket, hata metni `aria-describedby`), kart, rozet, bildirim/toast (0.7+ opak), breadcrumb. · `components.css` · Bileşen sayfası (`/_ui`, yalnız dev).
+- [x] P2-1 — Token katmanı: renk/tip/boşluk/gölge/radius, açık + yüksek kontrast modu. · `static/css/frontend/tokens.css` · Kontrast tablosu belgelenmiş.
+- [x] P2-2 — Font: Atkinson Hyperlegible Next self-host, `font-display: swap`, preload; Google Fonts kaldırılır. · `static/fonts/` · CLS artmaz.
+- [x] P2-3 — Bileşenler: buton (3 varyant, 48px), form alanları (görünür etiket, hata metni `aria-describedby`), kart, rozet, bildirim/toast (0.7+ opak), breadcrumb. · `components.css` · Bileşen sayfası (`/_ui`, yalnız dev).
 - [ ] P2-4 — Header + mega menü yeniden: tek satır, büyük dokunma hedefleri, sabit "Randevu Al" + "Ara" CTA, erişilebilirlik düğmesi, mobil tam ekran menü (focus trap). · `components/frontend-header*.jet` · Klavye ile tam gezilebilir.
 - [ ] P2-5 — Footer yeniden: 3 merkez kartı (adres/telefon/harita linki), çalışma saatleri, KVKK, sosyal. · `frontend-footer.jet` · AA.
 - [ ] P2-6 — Hero/slider: tek slide gerçeğine göre statik hero (otomatik kayan yok), net değer önerisi + 2 CTA; slick anasayfadan kalkar. · `components/home/` · LCP < 2.5 sn hedef.
