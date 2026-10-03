@@ -1,6 +1,6 @@
 # Nivgöz Pro v3 — yol haritası
 
-Tarih: 2026-10-03 · Dal: `nivgoz-professional-v2` · Durum: **TASLAK — kullanıcı onayı bekliyor**
+Tarih: 2026-10-03 · Dal: `nivgoz-professional-v2` · Durum: **YÖN ONAYLANDI (2026-10-03)** — backend kapsamda, kendi tasarım sistemi, panel eksiksiz Tabler, gövde fontu Atkinson Hyperlegible Next. ONAY etiketli görevler yine ayrıca sorulur.
 Çalışma protokolü: `.claude/skills/nivgoz-pro/SKILL.md` (spec → uygula → doğrula → commit).
 
 Hedef: nivgoz.com'un ön yüzü, randevu akışı ve yönetim paneli; tasarım,
@@ -18,7 +18,36 @@ ziyaretçi → **erişilebilirlik ve okunabilirlik tasarımın kendisidir.**
   ve geniş belge. Deploy kapısı KAPALI (bildirim migration'ı, bkz. README).
 - 130 Jet şablonu, ~92 bin satır Go.
 
-## Tasarım kararları (öneri)
+## Önceki çalışmanın değerlendirmesi (ChatGPT/Codex, 14–30 Eylül)
+Dallar: `main` (15 Eylül, canlıya en yakın), `codex-performance-v1` (10 commit,
+bu dala zaten birleşmiş), `nivgoz-professional-v2` (main'in 114 commit önünde,
+**hiçbiri canlıda değil**, deploy kapısı KAPALI).
+
+| Dönem | Ne yapıldı | Değer |
+| --- | --- | --- |
+| 14–15 Eyl (Codex) | Font preload, ikon CSS erteleme; robots.txt + sitemap.xml, OG/Twitter, canonical, JSON-LD (MedicalOrganization, Physician, Breadcrumb); body limit 50 MB, JWT exp, cookie Secure/SameSite, global rate limit (100/dk/IP), upload whitelist, graceful shutdown | Yüksek — korunur |
+| 17–27 Eyl | 35 "architecture" commit: neormgo yerine parça parça "owned data layer" (snapshot/repository), notification hub | Orta — yarım geçiş (N05–N11 açık) |
+| 28–30 Eyl | 32 "security" commit: endpoint bazlı rol + şube yetkisi, randevu/iletişim/İK PII sınırları, CV'ler private, ayar secret'ları panelden çıkarıldı | Yüksek — korunur |
+| Tüm dönem | 5 küçük "ui" commit; görsel/tasarım işi neredeyse yok. Panel hâlâ Mediox. | — |
+
+Ölçüm (2026-10-03, bu oturum): eklenen satırların **48.288'i test**, 11.154'ü
+Go, 2.317'si UI, 4.586'sı belge (`docs/ai` toplam 670 KB). 34 test dosyası
+`go/ast` ile kaynağın *yapısını* sabitliyor (ör. "handler bu fonksiyonu tam 1
+kez çağırmalı"). Go testleri: 40 paket geçti, **1 başarısız**
+(`controllers/post` → `TestGeneralFileUploadFilesystemFailureLeavesNoResult`);
+Node testleri 18/18 geçti; `main` build geçiyor.
+
+Riskler:
+- **Geçici admin-only yazma kuralları**: moderatör/santral kesin randevu
+  oluşturamaz/düzenleyemez, talep durumunu değiştiremez. Bu dal bu hâliyle
+  canlıya çıkarsa çağrı merkezi iş akışı durur → rol matrisi kararı (P1-0).
+- AST "wiring" testleri davranışı değil kod biçimini test ediyor; UI/handler
+  yeniden yazımında toplu kırılır. Yaklaşım: yeşil kaldıkça korunur, yeniden
+  yazılan handler'da davranış testine (HTTP + sahte DB) çevrilir (P0-5).
+- Canlıdaki kod `main` + sunucuda elle yapılmış düzeltmeler; bu dalla farkı
+  deploy öncesi ayrıca doğrulanmalı.
+
+## Tasarım kararları (onaylandı)
 | Konu | Öneri | Gerekçe |
 | --- | --- | --- |
 | Gövde fontu | **Atkinson Hyperlegible Next** (self-host, woff2, Türkçe glifler) | Braille Institute'un düşük görme için tasarladığı aile; kitleyle birebir uyumlu, "jenerik AI fontu" değil |
@@ -35,13 +64,16 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 ### P0 — Doğrulama altyapısı (her şeyin önkoşulu)
 - [ ] P0-1 — Yerel geçici ortam: tek komutla boş Postgres (port 55432) + `schema.sql` + örnek seed + uygulama. · `tools/dev/` · Production'a hiçbir bağlantı yok; `tools/dev/up.sh` ile ana sayfa 200 döner.
 - [ ] P0-2 — QA betiği: Playwright + axe-core ile kritik 10 sayfanın 390/1280px ekran görüntüsü, a11y ihlal sayısı, konsol hatası. · `tools/qa/` · Tek komut, JSON + PNG çıktı; baseline kaydı.
+- [ ] P0-4 — Başarısız testi kök nedeniyle düzelt (`TestGeneralFileUploadFilesystemFailureLeavesNoResult`).
+- [ ] P0-5 — AST wiring testleri envanteri: hangileri davranış testine çevrilecek, hangileri silinecek. **ONAY** (test silme).
 - [ ] P0-3 — CI: GitHub Actions'ta `go build`, `go test`, `node --test`. · `.github/workflows/ci.yml` · PR'da yeşil.
 
 ### P1 — Güvenlik ve backend sertleştirme
+- [ ] P1-0 — **ONAY** Kalıcı rol matrisi (admin / moderatör / santral / İK × randevu, talep, iletişim, İK, içerik) → geçici admin-only kurallar kaldırılır. Deploy öncesi zorunlu.
 - [ ] P1-1 — Güvenlik başlıkları middleware'i (CSP report-only → enforce, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, frame-ancestors). · `main/` · securityheaders.com ≥ A.
-- [ ] P1-2 — Public formlara (randevu, iletişim, İK) hız sınırı + honeypot + sunucu tarafı doğrulama (Fiber yerleşik `limiter`, yeni bağımlılık yok). · `baserouter/`, ilgili controller · 429 + kullanıcı dostu mesaj.
-- [ ] P1-3 — Panel oturumu: cookie `HttpOnly; Secure; SameSite=Strict`, CSRF koruması (Fiber yerleşik `csrf`), giriş deneme sınırı. · `main/`, `lib/` · Testli.
-- [ ] P1-4 — `robots.txt` ve dinamik `sitemap.xml` route'ları. · `baserouter/`, `controllers/frontend` · 200 + doğru content-type.
+- [ ] P1-2 — Public formlara (randevu, iletişim, İK) form bazlı sıkı hız sınırı (global 100/dk zaten var) + honeypot + sunucu tarafı doğrulama (Fiber yerleşik `limiter`, yeni bağımlılık yok). · `baserouter/`, ilgili controller · 429 + kullanıcı dostu mesaj.
+- [ ] P1-3 — Panel oturumu: CSRF koruması (Fiber yerleşik `csrf`), giriş deneme sınırı (cookie bayrakları + JWT exp Codex'te yapıldı; doğrulanacak). · `main/`, `lib/` · Testli.
+- [~] P1-4 — `robots.txt` + `sitemap.xml` route'ları var (`18e98fd`); yerel ortamda 200/content-type doğrulanacak.
 - [ ] P1-5 — **ONAY** `dgrijalva/jwt-go` → `golang-jwt/jwt/v5` (bağımlılık değişimi). · `lib/` · Eski token'lar geçiş süresince okunur.
 - [ ] P1-6 — **ONAY** Sunucu: `127.0.0.1:2000` bind, root olmayan systemd servisi, TLS 1.2+, brotli. · deploy notu + `tools/deploy/` · Runbook.
 - [ ] P1-7 — Açık deploy kapısı: bildirim migration'ını geçici DB'de uygula/test et, production runbook'u hazırla. · `migrations/` · Kapı AÇIK.
@@ -63,8 +95,8 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 - [ ] P3-6 — Tıbbi birim/tetkik sayfaları, haberler, iletişim, İK, KVKK, 404.
 
 ### P4 — SEO
-- [ ] P4-1 — Her sayfaya benzersiz title/description, canonical, OG/Twitter. · layout + controller verisi.
-- [ ] P4-2 — JSON-LD: `MedicalOrganization` + 3 `MedicalClinic` (adres, saat, telefon), `Physician`, `BreadcrumbList`, `FAQPage`.
+- [~] P4-1 — (OG/canonical temeli var, `7ea8480`) Her sayfaya benzersiz title/description, canonical, OG/Twitter. · layout + controller verisi.
+- [~] P4-2 — (MedicalOrganization/Physician/Breadcrumb temeli var) JSON-LD tamamla: `MedicalOrganization` + 3 `MedicalClinic` (adres, saat, telefon), `Physician`, `BreadcrumbList`, `FAQPage`.
 - [ ] P4-3 — Türkçe slug'lar, kırık link taraması, 301 eşlemesi.
 
 ### P5 — Performans
@@ -87,7 +119,7 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 - [ ] P7-2 — Uptime/hata izleme, Search Console, Web Vitals RUM.
 
 ## Sıra ve maliyet stratejisi
-P0 → P1 (1–4) → P2 → P3-1 → P6-1/3/4 → P3 kalan → P4 → P5 → P6 kalan → P7.
+P0 → P1-0 (karar) → P1 (1–4) → P2 → P3-1 → P6-1/3/4 → P3 kalan → P4 → P5 → P6 kalan → P7.
 Her görev tek commit; görev başına yalnız ilgili dosyalar okunur; büyük
 belgeler (`docs/ai/*`, 670 KB) yeniden okunmaz — bu dosya tek kaynak.
 
