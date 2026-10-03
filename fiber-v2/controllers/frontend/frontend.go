@@ -2668,7 +2668,7 @@ func SitemapXml(states *models.AppState, utilities *models.Utilities) fiber.Hand
 			"/haberler", "/tibbi-birimler", "/tetkikler",
 			"/merkezlerimiz", "/doktorlarimiz",
 			"/foto-galeri", "/video-galeri",
-			"/cerez-politikasi", "/arama",
+			"/cerez-politikasi",
 		}
 
 		var sb strings.Builder

@@ -145,11 +145,21 @@ func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusRead
 	log.Printf("Html files loaded")
 
 	// new fiber server
-	server := fiber.New(fiber.Config{
+	serverConfig := fiber.Config{
 		Views:       htmlFiles,
 		ViewsLayout: "layouts/main",
 		BodyLimit:   50 * 1024 * 1024,
-	})
+	}
+	// Nginx arkasında istemci IP'si için (hız sınırı kovaları IP başınadır). Boşken
+	// c.IP() nginx'in 127.0.0.1 adresini döner ve tüm ziyaretçiler tek kovayı paylaşır.
+	// Sunucuda PROXY_HEADER=X-Real-IP (nginx: proxy_set_header X-Real-IP $remote_addr)
+	// ayarlanınca yalnız yerel proxy'den gelen başlığa güvenilir.
+	if proxyHeader := os.Getenv("PROXY_HEADER"); proxyHeader != "" {
+		serverConfig.ProxyHeader = proxyHeader
+		serverConfig.EnableTrustedProxyCheck = true
+		serverConfig.TrustedProxies = []string{"127.0.0.1", "::1"}
+	}
+	server := fiber.New(serverConfig)
 
 	// static files and base routes for static files
 	server.Static("/css", "./static/css")
@@ -164,6 +174,9 @@ func newHTTPServer(config appConfig, utilities *models.Utilities, userStatusRead
 	server.Static("/files", "./static/files")
 
 	log.Printf("Static files loaded")
+
+	server.Use(securityHeaders())
+	server.Use(originGuard())
 
 	// Rate limiting: IP başına dakikada 100 istek
 	server.Use(limiter.New(limiter.Config{
