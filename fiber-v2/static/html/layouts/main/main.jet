@@ -16,6 +16,10 @@
     </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- P2-4: Erişilebilirlik tercihi (yüksek kontrast / metin boyutu) ilk
+         boyamadan ÖNCE uygulanır; böylece sayfa önce normal sonra büyük
+         çizilmez (kayma/yanıp sönme yok). Panel: js/frontend/header.js -->
+    <script>(function(){try{var p=JSON.parse(localStorage.getItem('nv_a11y_v1')||'null');if(!p)return;var d=document.documentElement;if(p.contrast==='high')d.setAttribute('data-contrast','high');if(p.text==='large'||p.text==='xlarge')d.setAttribute('data-text',p.text);}catch(e){}})();</script>
 
     <!-- Atkinson Hyperlegible Next self-host (css/frontend/fonts.css). Google
          Fonts kaldirildi. Turkce metin her sayfada hem latin (c o u i) hem
@@ -155,11 +159,15 @@
     {{ if Route == "/" }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" media="print" onload="this.media='all'" />
         <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" media="print" onload="this.media='all'" />
+        {{ if isset(BannerContents) && len(BannerContents) > 1 }}
         <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" media="print" onload="this.media='all'" />
+        {{ end }}
         <noscript>
             <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.carousel.min.css" />
             <link rel="stylesheet" href="{{ PathOnStart }}assets/owl-carousel/css/owl.theme.default.min.css" />
+            {{ if isset(BannerContents) && len(BannerContents) > 1 }}
             <link rel="stylesheet" href="{{ PathOnStart }}assets/slick/css/slick.css" />
+            {{ end }}
         </noscript>
     {{ end }}
 
@@ -549,7 +557,7 @@ color: #fff;
         <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/iletisim.css">
     {{ end }}
 
-    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-p2">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/style.css?v=20261003-p2b">
 
         <link rel="stylesheet" href="{{ PathOnStart }}css/custom.css?v=20260913-footer3">
     <!-- Nivgoz tasarim sistemi (P2): tema CSS'inden SONRA, !important olmadan kazanir -->
@@ -871,6 +879,13 @@ body > .page-wrapper {
     }
 }
     </style>
+    <!-- P2-4/5/6: header, footer, anasayfa hero. Tema + satır içi header
+         bloklarından SONRA yüklenir. -->
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/header.css?v=20261003-p2b">
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/footer.css?v=20261003-p2b">
+    {{ if Route == "/" }}
+    <link rel="stylesheet" href="{{ PathOnStart }}css/frontend/hero.css?v=20261003-p2b">
+    {{ end }}
 {{ if false && Options.Options.GoogleAnalytics != "" }}
         {{ Options.Options.GoogleAnalytics | raw }}
     {{ end }}
@@ -960,11 +975,11 @@ body > .page-wrapper {
         <span class="scroll-to-top__wrapper"><span class="scroll-to-top__inner"></span></span>
     </a>
 
-    <div class="header-four">
+    <header class="header-four">
         {{ include "../../components/frontend-topbar" }}
 
         {{ include "../../components/frontend-header" }}
-    </div>
+    </header>
 
     <div class="page-wrapper{{ if Route == "/" }} homepage{{ end }}">
         
@@ -982,6 +997,7 @@ body > .page-wrapper {
 
     <script defer src="{{ PathOnStart }}js/frontend/fast-randevu.js"></script>
     <script defer src="{{ PathOnStart }}js/frontend/hareket-tercihi.js"></script>
+    <script defer src="{{ PathOnStart }}js/frontend/header.js?v=20261003-p2b"></script>
 
     {{ if Route == "/" }}
         <script defer src="{{ PathOnStart }}js/frontend/not-transparent-when-scrolled-down.js"></script>
@@ -1002,7 +1018,7 @@ body > .page-wrapper {
     {{ end }}
 
     <script defer src="{{ PathOnStart }}assets/jquery/jquery-3.7.0.min.js"></script>
-    <script defer src="{{ PathOnStart }}js/script.js"></script>
+    <script defer src="{{ PathOnStart }}js/script.js?v=20261003-p2b"></script>
     <script defer src="{{ PathOnStart }}assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     {{ if Route == "/randevu" }}
@@ -1016,7 +1032,9 @@ body > .page-wrapper {
 
     {{ if Route == "/" }}
         <script defer src="{{ PathOnStart }}assets/owl-carousel/js/owl.carousel.min.js"></script>
+        {{ if isset(BannerContents) && len(BannerContents) > 1 }}
         <script defer src="{{ PathOnStart }}assets/slick/js/slick.min.js"></script>
+        {{ end }}
     {{ end }}
 
     <script defer src="{{ PathOnStart }}assets/wow/wow.js"></script>
@@ -1026,8 +1044,14 @@ body > .page-wrapper {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // Yalnız metin düğümlerini değiştir: textContent atamak bağlantının
+  // içindeki ikon/etiket öğelerini siliyordu (P2-4).
   document.querySelectorAll('a[href^="tel:"]').forEach(function (a) {
-    a.textContent = a.textContent.replace(/\+/g, '').trim();
+    var walker = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue.indexOf('+') !== -1) node.nodeValue = node.nodeValue.replace(/\+/g, '');
+    }
   });
 });
 </script>

@@ -37,7 +37,10 @@ function assertMarkup(source) {
   assert.match(source, /<form\b[^>]*action="\/arama"[^>]*method="get"/);
   assert.match(source, /<input\b[^>]*id="nvMobileSearchInput"[^>]*name="q"/);
   assert.match(source, /<button\b[^>]*type="submit"[^>]*aria-label="Ara"/);
-  assert.match(source, /<a href="\/randevu" class="mediox-btn main-header__btn">\s*<span>Randevu Al<\/span>/);
+  // P2-4: kalıcı birincil CTA tasarım sistemi butonu ve tek ad ("Randevu Talebi Oluştur")
+  assert.match(source, /<a href="\/randevu" class="nv-btn nv-btn--primary[^"]*">\s*Randevu Talebi Oluştur\s*<\/a>/);
+  // Mobil menü tam ekran modal iletişim kutusu
+  assert.match(source, /<div\b[^>]*id="nvMobileNav"[^>]*role="dialog"[^>]*aria-modal="true"/);
   const order = ['kurumsal', 'subeler', 'tibbi_birimler', 'tedkikler', 'diger']
     .map(type => source.indexOf(`HeaderButtons.ButtonType == "${type}"`));
   assert.ok(order.every((position, index) => position >= 0 && (!index || position > order[index - 1])));

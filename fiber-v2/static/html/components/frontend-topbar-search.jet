@@ -1,26 +1,5 @@
-<script>
-(function(){
-    var toggle = document.getElementById('nvSearchToggle');
-    var box = document.getElementById('nvSearchBox');
-    var input = document.getElementById('nvSearchInput');
-    var open = false;
-    if(toggle && box){
-        toggle.addEventListener('click', function(){
-            if(!open){
-                box.style.maxWidth = '240px';
-                setTimeout(function(){ if(input) input.focus(); }, 300);
-                open = true;
-            } else {
-                box.style.maxWidth = '0';
-                open = false;
-            }
-        });
-        document.addEventListener('click', function(e){
-            if(!document.getElementById('nvTopbarSearch').contains(e.target)){
-                box.style.maxWidth = '0';
-                open = false;
-            }
-        });
-    }
-})();
-</script>
+{* P2-4: Topbar'daki genisleyen arama kutusu kaldirildi; arama artik her
+   genislikte header'daki "Arama" dugmesi (#nvMobileSearchBtn) ve
+   #nvMobileSearchBar ile aciliyor (frontend-header-init.jet). Bu dosya,
+   index.jet ve frontend-topbar.jet'teki include'lar bozulmasin diye bos
+   birakildi. *}

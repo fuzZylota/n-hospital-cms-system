@@ -1,0 +1,292 @@
+/* ==========================================================================
+   footer.css — P2-5 site footer'ı (.nv-site-footer)
+   --------------------------------------------------------------------------
+   Yalnız tokens.css değişkenleri; opaklıkla soldurulmuş metin yok — tüm
+   metin renkleri katı renk (lacivert zemin --nv-navy-900 üstünde):
+     --nv-paper    15.93:1   başlık, bağlantı, telefon
+     --nv-navy-100 13.63:1   ipucu / telif metni (hesap: WCAG göreli parlaklık)
+   Eski .nv-footer / .main-footer kuralları (custom.css, style.css) bu
+   işaretlemeye uygulanmaz; sınıf adları bilerek farklı.
+   ========================================================================== */
+
+.nv-site-footer {
+  position: relative;
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  line-height: var(--nv-leading-body);
+}
+
+.nv-sf__container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: var(--nv-space-7) 16px var(--nv-space-5);
+}
+
+.nv-sf__top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--nv-space-6);
+}
+
+/* Mobil: kısa bağlantı listeleri yan yana (footer boyu yarıya iner),
+   iletişim ve merkezler tam genişlik */
+@media (min-width: 360px) and (max-width: 767.98px) {
+  .nv-sf__top { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--nv-space-4); }
+  .nv-sf__contact,
+  .nv-sf__group--centers { grid-column: 1 / -1; }
+}
+@media (max-width: 575.98px) {
+  .nv-sf__ctas .nv-btn { width: 100%; }
+}
+
+@media (min-width: 768px) {
+  .nv-sf__container { padding-inline: 24px; }
+  .nv-sf__top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1200px) {
+  .nv-sf__top { grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr)); gap: var(--nv-space-6) var(--nv-space-7); }
+}
+
+/* ---- Marka + iletişim ---------------------------------------------------- */
+.nv-sf__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-sf__logo img {
+  display: block;
+  width: auto;
+  height: 56px;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.nv-sf__slogan {
+  margin: var(--nv-space-2) 0 var(--nv-space-5);
+  color: var(--nv-navy-100);
+  font-size: var(--nv-text-body);
+}
+
+.nv-sf__title {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-paper);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-heavy);
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.nv-sf__phone,
+.nv-sf__phone:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-2);
+  min-height: var(--nv-control-h);
+  color: var(--nv-paper);
+  font-size: var(--nv-text-h3);
+  font-weight: var(--nv-weight-heavy);
+  line-height: 1.15;
+  text-decoration: none;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-sf__phone:hover {
+  color: var(--nv-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.nv-sf__phone .nv-icon {
+  width: 0.9em;
+  height: 0.9em;
+}
+
+.nv-sf__mail,
+.nv-sf__mail:visited {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--nv-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  word-break: break-word;
+}
+.nv-sf__mail:hover { color: var(--nv-paper); text-decoration-thickness: 2px; }
+
+.nv-sf__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-3);
+  margin-top: var(--nv-space-4);
+}
+
+/* ---- Bağlantı grupları --------------------------------------------------- */
+.nv-sf__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-sf__list li {
+  margin: 0;
+}
+.nv-sf__list a,
+.nv-sf__list a:visited {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--nv-space-1) 0;
+  color: var(--nv-paper);
+  font-size: var(--nv-text-body);
+  line-height: 1.35;
+  text-decoration: none;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-sf__list a:hover {
+  color: var(--nv-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.nv-sf__list--centers li + li { margin-top: var(--nv-space-1); }
+.nv-sf__center-name {
+  font-weight: var(--nv-weight-bold);
+}
+.nv-sf__center-hint {
+  color: var(--nv-navy-100);
+  font-size: var(--nv-text-sm);
+}
+
+/* ---- Alt bant ------------------------------------------------------------- */
+.nv-sf__bottom {
+  display: grid;
+  gap: var(--nv-space-4);
+  margin-top: var(--nv-space-7);
+  padding-top: var(--nv-space-5);
+  border-top: 1px solid var(--nv-navy-600);
+}
+
+@media (min-width: 992px) {
+  .nv-sf__bottom {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .nv-sf__copy { grid-column: 1 / -1; }
+}
+
+.nv-sf__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--nv-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-sf__legal li { margin: 0; }
+.nv-sf__legal a,
+.nv-sf__legal a:visited,
+.nv-sf__linkbtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--nv-paper);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-sf__legal a:hover,
+.nv-sf__linkbtn:hover {
+  color: var(--nv-paper);
+  text-decoration-thickness: 2px;
+}
+
+.nv-sf__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-sf__social li { margin: 0; }
+.nv-sf__social a,
+.nv-sf__social a:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--nv-paper);
+  border-radius: 50%;
+  color: var(--nv-paper);
+  font-size: 18px;
+  text-decoration: none;
+}
+.nv-sf__social a:hover {
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+}
+
+.nv-sf__copy {
+  color: var(--nv-navy-100);
+  font-size: var(--nv-text-sm);
+}
+.nv-sf__copy p { margin: 0 0 var(--nv-space-1); color: inherit; }
+.nv-sf__copy a,
+.nv-sf__copy a:visited {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--nv-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Mobilde sabit "Hızlı Randevu" çubuğu ve çerez düğmesi son satırı örtmesin */
+@media (max-width: 1024.98px) {
+  .nv-sf__container { padding-bottom: 96px; }
+}
+
+/* ---- Odak: lacivert zeminde amber halka (9.64:1) ------------------------- */
+.nv-site-footer a:focus-visible,
+.nv-site-footer button:focus-visible {
+  outline: var(--nv-focus-width) solid var(--nv-focus);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* ---- Yüksek kontrast ---------------------------------------------------- */
+:root[data-contrast="high"] .nv-site-footer {
+  background-color: #000000;
+}
+:root[data-contrast="high"] .nv-sf__slogan,
+:root[data-contrast="high"] .nv-sf__center-hint,
+:root[data-contrast="high"] .nv-sf__copy {
+  color: #FFFFFF;
+}
+:root[data-contrast="high"] .nv-sf__list a {
+  text-decoration: underline;
+}
+:root[data-contrast="high"] .nv-sf__bottom {
+  border-top: 2px solid #FFFFFF;
+}
+
+/* Tema a{transition:all} odak halkasını geciktirmesin */
+.nv-site-footer a {
+  transition: color var(--nv-dur-fast) var(--nv-ease),
+              background-color var(--nv-dur-fast) var(--nv-ease);
+}

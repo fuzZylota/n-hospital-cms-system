@@ -95,6 +95,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function () {
   var btn = document.querySelector('.mobile-nav__btn.mobile-nav__toggler');
   if (!btn) return;
+  // P2-4: yeni header'da (.nv-hdr) menü düğmesi, Esc, odak ve durum
+  // frontend-header-init.jet'te yönetiliyor; buradaki eski "hamburger"
+  // sınıf eklemeleri (navbar-hamburger-btn / .bar) etiketi bozuyordu.
+  if (btn.closest('.nv-hdr')) return;
 
   btn.classList.add('navbar-toggler','nav-btn-area','navbar-hamburger-btn','collapsed');
 

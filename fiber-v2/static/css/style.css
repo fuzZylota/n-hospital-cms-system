@@ -343,9 +343,7 @@ body.mobile-nav-expanded .mobile-nav__btn span:nth-child(3){transform:translateY
 #nvMobileSearchBar input{ min-width:0; }
 #nvMobileSearchBar input:focus-visible,
 #nvMobileSearchBar button:focus-visible,
-.main-header #nvMobileSearchBtn:focus-visible,
-.main-header .mobile-nav__btn:focus-visible,
-.mobile-nav__wrapper .mobile-nav__close:focus-visible{ outline:3px solid #b91c1c !important; outline-offset:2px; }
+.mobile-nav__wrapper .mobile-nav__close:focus-visible{ outline:var(--nv-focus-outline, 3px solid #0a2241) !important; outline-offset:var(--nv-focus-offset, 2px); box-shadow:var(--nv-focus-shadow, none); }
 
 
 .main-header__logo img,
@@ -3289,16 +3287,14 @@ summary:focus-visible,
     box-shadow: var(--nv-focus-shadow, none);
 }
 
-/* Koyu zeminlerde lacivert halka gorunmez; beyaza cevriliyor.
-   Beyaz uzerinde lacivert ~15:1, lacivert uzerinde beyaz ~15:1
-   kontrast veriyor; WCAG 1.4.11'in 3:1 esigini rahatca asiyor. */
+/* Koyu (lacivert) zeminlerde lacivert dis halka gorunmez; dis halka
+   amber'e (--nv-focus) cevriliyor: lacivert uzerinde 9.64:1.
+   P2-4: eskiden beyaza cevriliyordu; .main-header BEYAZ zemin oldugu icin
+   orada halka kayboluyordu — listeden cikarildi (header.css token halkasi
+   kullaniyor). Yalniz gercekten koyu bolgeler burada. */
 .topbar-one a:focus-visible,
 .topbar-one button:focus-visible,
 .topbar-one input:focus-visible,
-.main-header a:focus-visible,
-.main-header button:focus-visible,
-.mobile-nav__wrapper a:focus-visible,
-.mobile-nav__wrapper button:focus-visible,
 .main-footer a:focus-visible,
 .main-footer button:focus-visible,
 .nv-footer a:focus-visible,
@@ -3306,7 +3302,7 @@ summary:focus-visible,
 .main-slider-three a:focus-visible,
 .fast-randevu a:focus-visible,
 .fast-randevu button:focus-visible {
-    outline-color: #ffffff;
+    outline-color: var(--nv-focus, #FFBF00);
 }
 
 /* Hizli randevu seridindeki girdilerde taban durumda outline:none

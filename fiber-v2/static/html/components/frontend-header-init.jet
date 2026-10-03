@@ -8,15 +8,31 @@
         var menuPanel = document.getElementById('nvMobileNav');
         if (!searchButton || !searchPanel || !menuButton || !menuPanel) return;
 
+        // Menü tam ekran bir iletişim kutusu (role=dialog, aria-modal).
+        // Açıkken arka plan inert yapılır; ekran okuyucu ve Tab yalnız
+        // menünün içinde kalır.
+        var BACKGROUND = '.page-wrapper, .nv-topbar, .main-header, #nvCookieBanner, #nvCookiePrefsBtn, .scroll-to-top';
+        function setBackgroundInert(value) {
+            document.querySelectorAll(BACKGROUND).forEach(function (el) {
+                el.inert = value;
+                if (value) el.setAttribute('aria-hidden', 'true'); else el.removeAttribute('aria-hidden');
+            });
+        }
+        function focusables(root) {
+            return Array.prototype.filter.call(
+                root.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+                function (el) { return el.offsetParent !== null || el === document.activeElement; }
+            );
+        }
         function position(panel) {
             var header = document.querySelector('.header-four');
-            if (header) panel.style.setProperty('top', header.getBoundingClientRect().bottom + 'px', 'important');
+            if (header) panel.style.setProperty('top', Math.max(0, header.getBoundingClientRect().bottom) + 'px', 'important');
         }
         function closeSearch(restoreFocus) {
             if (searchPanel.hidden) return;
             searchPanel.hidden = true;
             searchButton.setAttribute('aria-expanded', 'false');
-            searchButton.setAttribute('aria-label', 'Ara');
+            searchButton.setAttribute('aria-label', 'Arama');
             searchButton.querySelector('i').className = 'icon-search';
             if (restoreFocus || searchPanel.contains(document.activeElement)) searchButton.focus();
         }
@@ -25,6 +41,8 @@
             menuPanel.hidden = true;
             menuPanel.classList.remove('expanded');
             document.body.classList.remove('mobile-nav-expanded', 'mobile-nav-scroll-lock', 'locked');
+            if (document.documentElement) document.documentElement.classList.remove('nv-scroll-lock');
+            setBackgroundInert(false);
             menuButton.setAttribute('aria-expanded', 'false');
             menuButton.setAttribute('aria-label', 'Menüyü aç');
             if (restoreFocus || menuPanel.contains(document.activeElement)) menuButton.focus();
@@ -44,13 +62,14 @@
                     closeMenu(menuToggle !== menuButton);
                 } else {
                     closeSearch(false);
-                    position(menuPanel);
                     menuPanel.hidden = false;
                     menuPanel.classList.add('expanded');
                     document.body.classList.add('mobile-nav-expanded', 'mobile-nav-scroll-lock', 'locked');
+                    if (document.documentElement) document.documentElement.classList.add('nv-scroll-lock');
+                    setBackgroundInert(true);
                     menuButton.setAttribute('aria-expanded', 'true');
                     menuButton.setAttribute('aria-label', 'Menüyü kapat');
-                    var firstLink = menuPanel.querySelector('.mobile-nav__container a') || menuPanel.querySelector('.mobile-nav__content button');
+                    var firstLink = menuPanel.querySelector('.mobile-nav__container a') || menuPanel.querySelector('.nv-mnav__close');
                     if (firstLink) firstLink.focus();
                 }
                 return;
@@ -74,28 +93,25 @@
             if (!menuPanel.hidden && !menuPanel.contains(event.target)) closeMenu(false);
         }, true);
         document.addEventListener('keydown', function (event) {
+            if (event.key === 'Tab' && !menuPanel.hidden) {
+                // Odak tuzağı: son öğeden ilke, ilkten sona döner.
+                var items = focusables(menuPanel);
+                if (!items.length) return;
+                var first = items[0], last = items[items.length - 1];
+                if (event.shiftKey && (document.activeElement === first || !menuPanel.contains(document.activeElement))) {
+                    event.preventDefault(); last.focus();
+                } else if (!event.shiftKey && (document.activeElement === last || !menuPanel.contains(document.activeElement))) {
+                    event.preventDefault(); first.focus();
+                }
+                return;
+            }
             if (event.key !== 'Escape' && event.key !== 'Esc') return;
             if (!searchPanel.hidden) { event.preventDefault(); closeSearch(true); }
             else if (!menuPanel.hidden) { event.preventDefault(); closeMenu(true); }
         }, true);
         window.addEventListener('resize', function () {
             if (!searchPanel.hidden) position(searchPanel);
-            if (!menuPanel.hidden) position(menuPanel);
         });
-    });
-})();
-
-(function(){
-    // Tam URL '/' ile bitince tema ilk menü öğesine "current" ekler;
-    // bu durumda masaüstü ve mobil menülerin ilk öğesinden sınıfı kaldırır.
-    window.addEventListener('load', function(){
-        var fileName = window.location.href.split('/').reverse()[0];
-        if (fileName === '') {
-            document.querySelectorAll('.main-menu__list, .mobile-nav__container .main-menu__list').forEach(function(list){
-                var firstLi = list.children[0];
-                if (firstLi) firstLi.classList.remove('current');
-            });
-        }
     });
 })();
 </script>

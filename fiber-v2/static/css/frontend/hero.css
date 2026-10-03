@@ -1,0 +1,224 @@
+/* ==========================================================================
+   hero.css — P2-6 anasayfa hero (.nv-hero). Yalnız "/" rotasında yüklenir.
+   --------------------------------------------------------------------------
+   Görsel kutusu eski .main-slider-three ölçülerinin aynısı (görselin
+   kırpılması değişmesin, CLS olmasın):
+     mobil  (<768px): genişlik x 0.65, en fazla 350px  (DB'deki mobil görsel)
+     masaüstü      : 1920:700 oranı, en fazla 700px
+   Kutu boyutu CSS'ten geldiği için görsel inmeden önce de yer ayrılmış olur.
+   Metin artık görselin ÜSTÜNE yazılmıyor (görselde gömülü yazı olabilir,
+   kontrastı ölçülemez); başlık ve düğmeler görselin altındaki panelde.
+   ========================================================================== */
+
+.nv-hero {
+  /* .header-four sabit: 46+74 / 44+92 px (bkz. header.css) */
+  margin-top: 120px;
+  background-color: var(--nv-mist);
+  color: var(--nv-ink);
+  font-family: var(--nv-font-sans);
+}
+@media (min-width: 992px) {
+  .nv-hero { margin-top: 136px; }
+}
+
+.nv-hero__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 100 / 65;
+  max-height: 350px;
+  overflow: hidden;
+  background-color: var(--nv-navy-100);
+}
+@media (min-width: 768px) {
+  .nv-hero__media {
+    aspect-ratio: 1920 / 700;
+    max-height: 700px;
+  }
+}
+
+.nv-hero__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.nv-hero__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ---- Metin paneli ------------------------------------------------------- */
+.nv-hero__inner {
+  display: grid;
+  gap: var(--nv-space-5);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: var(--nv-space-6) 16px var(--nv-space-7);
+}
+
+@media (min-width: 992px) {
+  .nv-hero__inner {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--nv-space-7);
+    padding-inline: 24px;
+  }
+}
+
+.nv-hero__title {
+  margin: 0 0 var(--nv-space-3);
+  max-width: 22ch;
+  color: var(--nv-heading);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-h1);
+  font-weight: var(--nv-weight-heavy);
+  line-height: 1.12;
+  letter-spacing: var(--nv-tracking-heading);
+  text-transform: none;
+}
+
+.nv-hero__lead {
+  margin: 0 0 var(--nv-space-5);
+  max-width: 60ch;
+  color: var(--nv-ink);
+  font-size: var(--nv-text-lg);
+  line-height: 1.5;
+}
+
+.nv-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-3);
+}
+@media (max-width: 575.98px) {
+  .nv-hero__actions .nv-btn { width: 100%; }
+}
+
+.nv-hero__more {
+  margin: var(--nv-space-4) 0 0;
+  font-size: var(--nv-text-body);
+}
+.nv-hero__more a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: var(--nv-weight-bold);
+}
+
+/* ---- Merkez seçimi ------------------------------------------------------ */
+.nv-hero__centers-title {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-heading);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.3;
+}
+
+.nv-hero__centers-list {
+  display: grid;
+  gap: var(--nv-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-hero__centers-list li { margin: 0; }
+
+.nv-hero__center,
+.nv-hero__center:visited {
+  display: flex;
+  align-items: center;
+  gap: var(--nv-space-3);
+  min-height: var(--nv-control-h-lg);
+  padding: var(--nv-space-2) var(--nv-space-4);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+  font-size: var(--nv-text-h6);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.3;
+  text-decoration: none;
+}
+.nv-hero__center:hover {
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+  text-decoration: underline;
+}
+.nv-hero__center .nv-icon { width: 1.25em; height: 1.25em; }
+
+.nv-hero a:focus-visible,
+.nv-hero button:focus-visible {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+/* ---- Birden fazla banner: kaydırıcı ------------------------------------- */
+.nv-hero__slider {
+  position: relative;
+  background-color: var(--nv-paper);
+}
+.nv-hero__slide { position: relative; }
+/* cls-guard karşılığı: slick kurulmadan önce yalnız ilk slayt görünür,
+   yükseklik baştan doğru ayrılır (main.jet cls-guard'ı eski
+   .main-slider-three sınıflarını hedefliyor). */
+.nv-hero__carousel:not(.slick-initialized) > .nv-hero__slide:not(:first-child) {
+  display: none;
+}
+
+.nv-hero__slide-link {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  margin: 0;
+}
+
+.nv-hero__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nv-space-4);
+  padding: var(--nv-space-2) 16px;
+  border-bottom: 1px solid var(--nv-border-subtle);
+}
+
+.nv-hero__ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-2);
+  min-height: var(--nv-control-h);
+  min-width: var(--nv-control-h);
+  margin: 0;
+  padding: 0 var(--nv-space-4);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  cursor: pointer;
+}
+.nv-hero__ctrl:hover {
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+
+.nv-hero__count {
+  margin: 0;
+  min-width: 4ch;
+  color: var(--nv-ink);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  text-align: center;
+}
+
+/* Tema a{transition:all} odak halkasını geciktirmesin */
+.nv-hero a {
+  transition: color var(--nv-dur-fast) var(--nv-ease),
+              background-color var(--nv-dur-fast) var(--nv-ease),
+              border-color var(--nv-dur-fast) var(--nv-ease);
+}

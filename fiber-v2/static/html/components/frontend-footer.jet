@@ -1,123 +1,106 @@
-<footer class="main-footer nv-footer section-space-top">
-    <div class="container">
-        <section class="nv-footer__cta" aria-label="İletişim">
-            <h2 class="nv-footer__cta-title">
-                Yardım ister misiniz?
-                <a href="/iletisim">Bizimle iletişime geçin.</a>
-            </h2>
+<footer class="nv-site-footer">
+    <div class="nv-sf__container">
+        <div class="nv-sf__top">
+            <section class="nv-sf__contact" aria-labelledby="nvSfContactTitle">
+                <a href="/" class="nv-sf__logo">
+                    {{ if Options.Medias[1].FilePath != "" }}
+                        <img src="/{{ PathOnStart }}{{ Options.Medias[1].FilePath }}" alt="{{ Options.Medias[1].AltText ? Options.Medias[1].AltText : Options.Options.SiteName + " ana sayfa" }}" width="1000" height="405" loading="lazy" />
+                    {{ else }}
+                        <img src="/{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="{{ Options.Options.SiteName }} ana sayfa" width="2001" height="667" loading="lazy" />
+                    {{ end }}
+                </a>
+                <p class="nv-sf__slogan">Gözünüz, Yaşamınızdır.</p>
 
-            <div class="nv-footer__connect">
-                <a href="tel:{{ Options.Options.ContactPhone }}" class="nv-footer__phone">
-                    <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                <h2 class="nv-sf__title" id="nvSfContactTitle">Randevu ve bilgi</h2>
+                {{ if Options.Options.ContactPhone != "" }}
+                <a class="nv-sf__phone" href="tel:{{ Options.Options.ContactPhone }}">
+                    <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
                     <span>{{ Options.Options.ContactPhone }}</span>
                 </a>
-
-                <div class="nv-footer__social" aria-label="Sosyal medya">
-                    <a href="https://facebook.com/nivgoz" target="_blank" rel="noopener" aria-label="Facebook">
-                        <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://instagram.com/nivgozmerkezi" target="_blank" rel="noopener" aria-label="Instagram">
-                        <i class="fab fa-instagram" aria-hidden="true"></i>
-                    </a>
+                {{ end }}
+                {{ if Options.Options.ContactEmail != "" }}
+                <a class="nv-sf__mail" href="mailto:{{ Options.Options.ContactEmail }}">{{ Options.Options.ContactEmail }}</a>
+                {{ end }}
+                <div class="nv-sf__ctas">
+                    <a href="/randevu" class="nv-btn nv-btn--primary nv-btn--lg">Randevu Talebi Oluştur</a>
+                    {{ if Options.Options.ContactPhone != "" }}
+                    <a href="tel:{{ Options.Options.ContactPhone }}" class="nv-btn nv-btn--secondary nv-btn--lg">Hemen Ara</a>
+                    {{ end }}
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <div class="nv-footer__main">
-            <nav class="nv-footer__nav" aria-label="Footer menüsü">
-                <div class="nv-footer__group">
-                    <h3>Kurumsal</h3>
-                    <ul>
-                        <li><a href="/kurumsal/hakkimizda">Hakkımızda</a></li>
-                        <li><a href="/kurumsal/misyon-vizyon">Misyon &amp; Vizyon</a></li>
-                        <li><a href="/kurumsal/organizasyon-semasi">Organizasyon Şeması</a></li>
-                        <li><a href="/kurumsal/insan-kaynaklari">İnsan Kaynakları</a></li>
-                        <li><a href="/haberler">Güncel Haberler</a></li>
-                    </ul>
-                </div>
-
-                <div class="nv-footer__group">
-                    <h3>Sağlık Hizmetleri</h3>
-                    <ul>
-                        <li><a href="/doktorlarimiz">Doktorlarımız</a></li>
-                        <li><a href="/tibbi-birimler">Tıbbi Birimler</a></li>
-                        <li><a href="/tetkikler">Tetkikler</a></li>
-                        <li><a href="/kurumsal/anlasmali-kurumlar">Anlaşmalı Kurumlar</a></li>
-                        <li><a href="/randevu">Online Randevu</a></li>
-                    </ul>
-                </div>
-
-                <div class="nv-footer__group">
-                    <h3>Öne Çıkan Tetkikler</h3>
-                    <ul class="nv-footer__test-list">
-                        {{ range index, TedkikLink := Options.TedkiklerLinks }}
-                            <li><a href="/tetkikler/{{ TedkikLink.UrlName }}">{{ TedkikLink.Name }}</a></li>
-                        {{ end }}
-                        <li class="nv-footer__all-link"><a href="/tetkikler">Tüm Tetkikleri Gör <span aria-hidden="true">→</span></a></li>
-                    </ul>
-                </div>
-
-                <div class="nv-footer__group">
-                    <h3>Nivgöz</h3>
-                    <ul>
-                        <li><a href="/merkezlerimiz">Merkezlerimiz</a></li>
-                        <li><a href="/ulasim">Ulaşım</a></li>
-                        <li><a href="/foto-galeri">Foto Galeri</a></li>
-                        <li><a href="/video-galeri">Video Galeri</a></li>
-                        <li><a href="/iletisim">İletişim</a></li>
-                    </ul>
-                </div>
+            <nav class="nv-sf__group nv-sf__group--centers" aria-labelledby="nvSfCentersTitle">
+                <h2 class="nv-sf__title" id="nvSfCentersTitle">Merkezlerimiz</h2>
+                <ul class="nv-sf__list nv-sf__list--centers">
+                    {{ range index, SubeLink := Options.SubelerLinks }}
+                        <li>
+                            <a href="/merkezlerimiz/{{ SubeLink.UrlName }}">
+                                <span class="nv-sf__center-name">{{ SubeLink.Name }}</span>
+                                <span class="nv-sf__center-hint">Adres, telefon ve yol tarifi</span>
+                            </a>
+                        </li>
+                    {{ end }}
+                    <li><a href="/merkezlerimiz">Tüm merkezlerimiz</a></li>
+                    <li><a href="/ulasim">Ulaşım</a></li>
+                </ul>
             </nav>
 
-            <aside class="nv-footer__actions" aria-label="Hızlı işlemler">
-                <a href="/randevu" class="nv-footer__action nv-footer__action--primary">
-                    <i class="far fa-calendar-check" aria-hidden="true"></i>
-                    <span>Randevu Al</span>
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-                <a href="/doktorlarimiz" class="nv-footer__action">
-                    <i class="fas fa-user-md" aria-hidden="true"></i>
-                    <span>Doktor Bul</span>
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-                <a href="/merkezlerimiz" class="nv-footer__action">
-                    <i class="far fa-hospital" aria-hidden="true"></i>
-                    <span>Merkezlerimiz</span>
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-                <a href="/iletisim" class="nv-footer__action">
-                    <i class="far fa-comments" aria-hidden="true"></i>
-                    <span>Bize Ulaşın</span>
-                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-            </aside>
+            <nav class="nv-sf__group" aria-labelledby="nvSfServicesTitle">
+                <h2 class="nv-sf__title" id="nvSfServicesTitle">Sağlık hizmetleri</h2>
+                <ul class="nv-sf__list">
+                    <li><a href="/randevu">Randevu talebi</a></li>
+                    <li><a href="/doktorlarimiz">Doktorlarımız</a></li>
+                    <li><a href="/tibbi-birimler">Tıbbi birimler</a></li>
+                    <li><a href="/tetkikler">Tetkikler</a></li>
+                    <li><a href="/kurumsal/anlasmali-kurumlar">Anlaşmalı kurumlar</a></li>
+                </ul>
+            </nav>
+
+            <nav class="nv-sf__group" aria-labelledby="nvSfCorpTitle">
+                <h2 class="nv-sf__title" id="nvSfCorpTitle">Kurumsal</h2>
+                <ul class="nv-sf__list">
+                    <li><a href="/kurumsal/hakkimizda">Hakkımızda</a></li>
+                    <li><a href="/kurumsal/misyon-vizyon">Misyon ve vizyon</a></li>
+                    <li><a href="/kurumsal/organizasyon-semasi">Organizasyon şeması</a></li>
+                    <li><a href="/kurumsal/insan-kaynaklari">İnsan kaynakları</a></li>
+                    <li><a href="/haberler">Güncel haberler</a></li>
+                    <li><a href="/foto-galeri">Foto galeri</a></li>
+                    <li><a href="/video-galeri">Video galeri</a></li>
+                    <li><a href="/iletisim">İletişim</a></li>
+                </ul>
+            </nav>
         </div>
 
-        <div class="nv-footer__brand-row">
-            <a href="/" class="nv-footer__logo logo-retina" aria-label="{{ Options.Options.SiteName }} ana sayfa">
-                {{ if Options.Medias[1].FilePath != "" }}
-                    <img src="/{{ PathOnStart }}{{ Options.Medias[1].FilePath }}" alt="{{ Options.Medias[1].AltText ? Options.Medias[1].AltText : "Nivgöz" }}" title="{{ Options.Medias[1].Title ? Options.Medias[1].Title : "Nivgöz" }}" />
-                {{ else }}
-                    {{ if Options.Medias[0].FilePath != "" }}
-                        <img src="/{{ PathOnStart }}{{ Options.Medias[0].FilePath }}" alt="{{ Options.Medias[0].AltText ? Options.Medias[0].AltText : "Nivgöz" }}" title="{{ Options.Medias[0].Title ? Options.Medias[0].Title : "Nivgöz" }}" />
+        <div class="nv-sf__bottom">
+            <ul class="nv-sf__legal">
+                <li><a href="/kurumsal/kvkk">Kişisel Verilerin Korunması (KVKK)</a></li>
+                <li><a href="/cerez-politikasi">Çerez Politikası</a></li>
+                <li><button type="button" class="nv-sf__linkbtn" onclick="if (window.nvOpenCookieSettings) nvOpenCookieSettings()">Çerez tercihleri</button></li>
+            </ul>
+
+            <ul class="nv-sf__social" aria-label="Sosyal medya">
+                {{ if Options.Options.FacebookUrl != "" && Options.Options.FacebookUrl != "#" }}
+                <li><a href="{{ Options.Options.FacebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook (yeni sekmede açılır)"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
+                {{ end }}
+                {{ if Options.Options.InstagramUrl != "" && Options.Options.InstagramUrl != "#" }}
+                <li><a href="{{ Options.Options.InstagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram (yeni sekmede açılır)"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
+                {{ end }}
+                {{ if Options.Options.LinkedinUrl != "" && Options.Options.LinkedinUrl != "#" }}
+                    {{ if contains(Options.Options.LinkedinUrl, "youtube") }}
+                    <li><a href="{{ Options.Options.LinkedinUrl }}" target="_blank" rel="noopener" aria-label="YouTube (yeni sekmede açılır)"><i class="fab fa-youtube" aria-hidden="true"></i></a></li>
                     {{ else }}
-                        <img src="/{{ PathOnStart }}files/defaults/logo/n-hospital-logo-white.png" alt="Nivgöz" title="Nivgöz" />
+                    <li><a href="{{ Options.Options.LinkedinUrl }}" target="_blank" rel="noopener" aria-label="LinkedIn (yeni sekmede açılır)"><i class="fab fa-linkedin" aria-hidden="true"></i></a></li>
                     {{ end }}
                 {{ end }}
-            </a>
-            <p>Gözünüz, Yaşamınızdır.</p>
-        </div>
-
-        <div class="nv-footer__bottom">
-            <ul class="nv-footer__legal">
-                <li><a href="/kurumsal/kvkk">Kişisel Verilerin Korunması</a></li>
-                <li><a href="/cerez-politikasi">Çerez Politikası</a></li>
+                {{ if Options.Options.TwitterUrl != "" && Options.Options.TwitterUrl != "#" }}
+                <li><a href="{{ Options.Options.TwitterUrl }}" target="_blank" rel="noopener" aria-label="X / Twitter (yeni sekmede açılır)"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
+                {{ end }}
             </ul>
-            <div class="nv-footer__copyright">
+
+            <div class="nv-sf__copy">
                 <p>&copy; <span class="dynamic-year"></span> {{ Options.Options.SiteName }}. Tüm hakları saklıdır.</p>
-                <p>Web tasarım: <a href="https://www.instagram.com/pixmadedigital" target="_blank" rel="noopener">Pixmade Digital</a></p>
+                <p>Web tasarım: <a href="https://www.instagram.com/pixmadedigital" target="_blank" rel="noopener">Pixmade Digital<span class="sr-only"> (yeni sekmede açılır)</span></a></p>
             </div>
         </div>
     </div>
 </footer>
-

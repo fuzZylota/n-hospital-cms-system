@@ -82,6 +82,14 @@ Riskler:
 - Gözlem → P2-5/P3: dev tohumunda site adı "N-Hospital", logo kırık; canlıda marka doğru olmalı (doğrulanmadı).
 - CSP'de `fonts.googleapis.com` izinleri artık gereksiz (temizlenecek).
 
+## P2-4..6 notları (2026-10-03)
+- Yeni: `css/frontend/{header,footer,hero}.css`, `js/frontend/header.js`; header/topbar/footer/banner şablonları yeniden yazıldı. Erişilebilirlik paneli (yüksek kontrast, metin boyutu) `<html data-contrast/data-text>` + localStorage.
+- Ölçüm (dev tohum): axe ciddi 114 → **87**, kritik 0; 44px altı hedef 1012 → **331**; CLS ≤ 0.0001. Klavye/odak/mobil menü/%200 zoom/320px denendi (ajan), sayfa-içi kalan ihlaller içerikten.
+- **Karar bekleyen/gözden geçirilecek:** hero başlığı ("Göz sağlığınız için yakınınızdayız") ve alt cümlesi **taslak metin**, DB'de yok; panelden düzenlenebilir hâle getirilmeli (P6). Eski görünmez h1 site adıydı → SEO etkisi.
+- Footer merkez adres/telefonu gösteremiyor: `SubelerLinks` yalnız ad+URL taşıyor; backend global veriye bu alanları eklemeli (P3-5 ile birlikte).
+- Sosyal linkler artık DB'den; boş/"#" olanlar gizli. Mobil header'da kırmızı CTA yok (menü ilk öğesi + hero + alttaki hızlı randevu çubuğu).
+- Canlı veriyle doğrulanmadı: gerçek banner oranları, sosyal URL'ler, açık logo, menü öğe sayısı. Dil menüsü klavye sırası (tema) ve ölü header/slider stilleri `main.jet`'te duruyor.
+
 ## Fazlar ve görevler
 Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıcı onayı.
 
@@ -108,9 +116,9 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 - [x] P2-1 — Token katmanı: renk/tip/boşluk/gölge/radius, açık + yüksek kontrast modu. · `static/css/frontend/tokens.css` · Kontrast tablosu belgelenmiş.
 - [x] P2-2 — Font: Atkinson Hyperlegible Next self-host, `font-display: swap`, preload; Google Fonts kaldırılır. · `static/fonts/` · CLS artmaz.
 - [x] P2-3 — Bileşenler: buton (3 varyant, 48px), form alanları (görünür etiket, hata metni `aria-describedby`), kart, rozet, bildirim/toast (0.7+ opak), breadcrumb. · `components.css` · Bileşen sayfası (`/_ui`, yalnız dev).
-- [ ] P2-4 — Header + mega menü yeniden: tek satır, büyük dokunma hedefleri, sabit "Randevu Al" + "Ara" CTA, erişilebilirlik düğmesi, mobil tam ekran menü (focus trap). · `components/frontend-header*.jet` · Klavye ile tam gezilebilir.
-- [ ] P2-5 — Footer yeniden: 3 merkez kartı (adres/telefon/harita linki), çalışma saatleri, KVKK, sosyal. · `frontend-footer.jet` · AA.
-- [ ] P2-6 — Hero/slider: tek slide gerçeğine göre statik hero (otomatik kayan yok), net değer önerisi + 2 CTA; slick anasayfadan kalkar. · `components/home/` · LCP < 2.5 sn hedef.
+- [x] P2-4 — Header + mega menü yeniden: tek satır, büyük dokunma hedefleri, sabit "Randevu Al" + "Ara" CTA, erişilebilirlik düğmesi, mobil tam ekran menü (focus trap). · `components/frontend-header*.jet` · Klavye ile tam gezilebilir.
+- [x] P2-5 — Footer yeniden: 3 merkez kartı (adres/telefon/harita linki), çalışma saatleri, KVKK, sosyal. · `frontend-footer.jet` · AA.
+- [x] P2-6 — Hero/slider: tek slide gerçeğine göre statik hero (otomatik kayan yok), net değer önerisi + 2 CTA; slick anasayfadan kalkar. · `components/home/` · LCP < 2.5 sn hedef.
 
 ### P3 — Public sayfalar
 - [ ] P3-1 — **Randevu talep akışı** (sıfırdan): 4 adım (merkez → bölüm → doktor/tarih tercihi → iletişim), ilerleme göstergesi, her adımda doğrulama, onay ekranı + talep numarası, KVKK onayı. · `views/frontend/randevu.jet`, `js/frontend/randevu-page.js` · Ekran okuyucuyla uçtan uca tamamlanır.

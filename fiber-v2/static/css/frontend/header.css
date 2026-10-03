@@ -1,0 +1,837 @@
+/* ==========================================================================
+   header.css — P2-4 üst bilgi şeridi, header, mobil menü, arama, erişilebilirlik
+   --------------------------------------------------------------------------
+   Yalnız tokens.css değişkenleri. main.jet'te tema CSS'i ve satır içi
+   "Header / Topbar consolidated" bloğundan SONRA yüklenir.
+
+   Yükseklikler bilinçli olarak px ve SABİT: .header-four position:fixed ve
+   sayfaların üst boşluğu (header-spacer, page-wrapper padding'i,
+   anasayfa hero margin'i) bu toplam yüksekliğe göre ayarlı:
+     masaüstü (≥992px): üst şerit 44 + header 92 = 136px
+     mobil    (<992px): üst şerit 46 + header 74 = 120px
+   Bu yüzden header'daki metin metin-boyutu (data-text) kademesiyle
+   BÜYÜMEZ (16–18px sabit); büyüyen her şey kaydırılabilir alanlarda:
+   mobil menü, erişilebilirlik paneli, içerik, footer. Tarayıcı
+   yakınlaştırması her şeyi büyütür; kısa ekranda (≤480px yükseklik,
+   ör. 1280x900 @ %200) header sabit kalmaz, sayfayla kayar.
+
+   !important yalnız tema/style.css'teki !important kuralları ezmek için
+   (mobile-nav__btn, .main-header arka planı, .header-four konumu).
+   ========================================================================== */
+
+/* ---- Ortak ikon --------------------------------------------------------- */
+.nv-icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+}
+.nv-icon--chev {
+  width: 1em;
+  height: 1em;
+  transition: transform var(--nv-dur-fast) var(--nv-ease);
+}
+[aria-expanded="true"] > .nv-icon--chev {
+  transform: rotate(180deg);
+}
+
+/* ---- Üst şerit (lacivert) ----------------------------------------------- */
+.nv-topbar {
+  position: relative;
+  /* .main-header (z 10002, main.jet) erişilebilirlik panelini örtmesin */
+  z-index: 10003;
+  height: 46px;
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+  font-family: var(--nv-font-sans);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.nv-topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 100%;
+  padding: 0 12px;
+}
+
+.nv-topbar__info {
+  display: flex;
+  align-items: center;
+  gap: 8px 24px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nv-topbar__wide {
+  display: none !important;
+}
+
+.nv-topbar__link,
+.nv-topbar__link:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--nv-paper);
+  font-size: 16px;
+  font-weight: var(--nv-weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-topbar__link:hover {
+  color: var(--nv-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Telefon numarası mobilde görsel olarak gizli ama ekran okuyucu okur:
+   erişilebilir ad "Hemen Ara 0…" (görünen etiket adın başında). */
+.nv-topbar__call-num {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nv-topbar__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nv-topbar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  margin: 0;
+  padding: 0 10px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--nv-radius-md);
+  background-color: transparent;
+  color: var(--nv-paper);
+  font-family: var(--nv-font-sans);
+  font-size: 16px;
+  font-weight: var(--nv-weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.nv-topbar__btn:hover,
+.nv-topbar__btn[aria-expanded="true"] {
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+}
+
+/* Dil seçici (translator.jet): yalnız boyut — 44px hedef */
+.nv-topbar .nv-lang-btn {
+  height: 44px;
+  min-width: 44px;
+  padding: 0 10px;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--nv-radius-md);
+  background-color: transparent;
+}
+.nv-topbar .nv-lang-btn i {
+  font-size: 12px;
+}
+
+.nv-topbar__social {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nv-topbar__icon-link,
+.nv-topbar__icon-link:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--nv-paper);
+  font-size: 16px;
+  text-decoration: none;
+}
+.nv-topbar__icon-link:hover {
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+}
+
+/* Koyu zeminde odak: amber halka (lacivert üstünde 9.64:1) */
+.nv-topbar a:focus-visible,
+.nv-topbar button:focus-visible {
+  outline: var(--nv-focus-width) solid var(--nv-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+@media (max-width: 379.98px) {
+  /* "Hemen" görsel olarak gizlenir, ekran okuyucu okur (ad: "Hemen Ara 0…") */
+  .nv-topbar__call-hemen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .nv-topbar__inner { padding: 0 8px; gap: 4px; }
+  .nv-topbar__tools { gap: 4px; }
+  .nv-topbar__btn,
+  .nv-topbar .nv-lang-btn { padding: 0 6px; }
+  .nv-topbar__btn .nv-icon--chev { display: none; }
+}
+
+@media (min-width: 992px) {
+  .nv-topbar { height: 44px; }
+  .nv-topbar__inner { padding: 0 24px; }
+  .nv-topbar__wide { display: flex !important; }
+  .nv-topbar__call-num {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    font-weight: var(--nv-weight-regular);
+  }
+}
+
+/* ---- Erişilebilirlik paneli -------------------------------------------- */
+.nv-a11y {
+  position: relative;
+}
+
+.nv-a11y__panel {
+  position: fixed;
+  top: 50px;
+  left: 8px;
+  right: 8px;
+  z-index: 30;
+  max-height: calc(100vh - 66px);
+  overflow-y: auto;
+  padding: var(--nv-space-5);
+  background-color: var(--nv-paper);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-lg);
+  box-shadow: 0 12px 32px rgba(10, 34, 65, 0.28);
+  color: var(--nv-ink);
+  font-size: var(--nv-text-body);
+  line-height: 1.5;
+  text-align: left;
+}
+.nv-a11y__panel[hidden] {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .nv-a11y__panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: auto;
+    right: 0;
+    width: min(24rem, calc(100vw - 32px));
+    max-height: calc(100vh - 160px);
+  }
+}
+
+.nv-a11y__title {
+  margin: 0 0 var(--nv-space-3);
+  color: var(--nv-heading);
+  font-size: var(--nv-text-h5);
+  font-weight: var(--nv-weight-heavy);
+  line-height: 1.25;
+}
+
+.nv-a11y__group {
+  margin: 0 0 var(--nv-space-4);
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.nv-a11y__legend {
+  float: none;
+  width: auto;
+  margin: 0 0 var(--nv-space-2);
+  padding: 0;
+  color: var(--nv-heading);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.35;
+}
+
+.nv-a11y__opts {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nv-space-2);
+}
+
+/* Radyo görsel olarak gizli ama yerinde ve odaklanabilir (ok tuşları çalışır) */
+.nv-a11y__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.nv-a11y__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-2);
+  min-height: var(--nv-control-h);
+  margin: 0;
+  padding: var(--nv-space-2) var(--nv-space-4);
+  border: 2px solid var(--nv-border-strong);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-paper);
+  color: var(--nv-ink);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.2;
+  cursor: pointer;
+}
+.nv-a11y__opt:hover {
+  border-color: var(--nv-navy-900);
+  background-color: var(--nv-navy-50);
+}
+.nv-a11y__opt--lg { font-size: 1.25rem; }
+.nv-a11y__opt--xl { font-size: 1.4375rem; }
+
+/* Seçili: renk + onay işareti (yalnız renge dayanmaz) */
+.nv-a11y__input:checked + .nv-a11y__opt {
+  border-color: var(--nv-navy-900);
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+.nv-a11y__input:checked + .nv-a11y__opt::before {
+  content: "\2713";
+  content: "\2713" / "";
+  font-weight: var(--nv-weight-heavy);
+}
+
+.nv-topbar .nv-a11y__panel a:focus-visible,
+.nv-topbar .nv-a11y__panel button:focus-visible,
+.nv-a11y__input:focus-visible + .nv-a11y__opt {
+  outline: var(--nv-focus-outline);
+  outline-offset: var(--nv-focus-offset);
+  box-shadow: var(--nv-focus-shadow);
+}
+
+.nv-a11y__note {
+  margin: 0 0 var(--nv-space-4);
+  color: var(--nv-text-muted);
+  font-size: var(--nv-text-sm);
+}
+
+/* Panel içindeki düğme lacivert şerit kurallarını almaz */
+.nv-topbar .nv-a11y__close {
+  font-size: var(--nv-text-body);
+}
+
+/* ---- Header (beyaz satır) ---------------------------------------------- */
+html body .main-header.nv-hdr {
+  background-color: var(--nv-paper) !important;
+  border-bottom: 1px solid var(--nv-border-subtle) !important;
+  box-shadow: 0 2px 10px rgba(10, 34, 65, 0.06) !important;
+}
+
+.nv-hdr__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 0 12px;
+}
+
+.nv-hdr__logo {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: var(--nv-radius-sm);
+}
+.nv-hdr__logo img {
+  display: block;
+  width: auto;
+  height: 40px;
+  max-width: 150px;
+  object-fit: contain;
+}
+
+.nv-hdr__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Arama ve Menü: ikon + görünür etiket (yalnız ikon değil) */
+.nv-hdr-btn,
+html body .nv-hdr .nv-hdr__actions .mobile-nav__btn {
+  position: relative;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px;
+  width: auto !important;
+  min-width: 56px;
+  height: 56px !important;
+  margin: 0;
+  padding: 4px 6px !important;
+  border: 2px solid transparent !important;
+  border-radius: var(--nv-radius-md) !important;
+  background: transparent !important;
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: 16px;
+  font-weight: var(--nv-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+}
+.nv-hdr-btn:hover,
+html body .nv-hdr .nv-hdr__actions .mobile-nav__btn:hover,
+.nv-hdr-btn[aria-expanded="true"] {
+  border-color: var(--nv-navy-900) !important;
+  background-color: var(--nv-navy-50) !important;
+}
+.nv-hdr-btn i {
+  font-size: 22px;
+  line-height: 1;
+}
+.nv-hdr .mobile-nav__btn .nv-icon {
+  width: 24px;
+  height: 24px;
+}
+/* style.css .mobile-nav__btn span { 20x2px çizgi } kuralını etiket için geri al */
+html body .nv-hdr .mobile-nav__btn .nv-hdr-btn__label,
+.nv-hdr-btn__label {
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  background: none !important;
+  color: inherit !important;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.nv-hdr__cta {
+  display: none;
+  min-height: 48px;
+  margin-inline: 4px;
+  padding-inline: 18px;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* Beyaz satırda odak: lacivert dış + amber iç (token) — style.css'in
+   eski "koyu bölgede beyaz" ve kırmızı !important kurallarını ezer */
+html body .nv-hdr a:focus-visible,
+html body .nv-hdr button:focus-visible,
+html body .nv-search a:focus-visible,
+html body .nv-search button:focus-visible,
+html body .nv-search input:focus-visible,
+html body .nv-mnav a:focus-visible,
+html body .nv-mnav button:focus-visible {
+  outline: var(--nv-focus-outline) !important;
+  outline-offset: var(--nv-focus-offset) !important;
+  box-shadow: var(--nv-focus-shadow) !important;
+}
+
+@media (min-width: 768px) {
+  .nv-hdr__cta { display: inline-flex; }
+}
+
+@media (min-width: 992px) {
+  .nv-hdr__inner { padding: 0 24px; gap: 16px; }
+  .nv-hdr__logo img { height: 54px; max-width: 200px; }
+}
+
+/* ---- Masaüstü menü (≥1200px) -------------------------------------------- */
+.nv-nav {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .nv-nav {
+    display: block;
+    margin-left: auto;
+  }
+  .nv-hdr__actions { margin-left: 8px; }
+  html body .nv-hdr .nv-hdr__actions .mobile-nav__btn { display: none !important; }
+}
+
+/* Metin büyütüldüğünde menü sığmaz: hamburger daha geniş ekranda devreye girer */
+@media (min-width: 1200px) and (max-width: 1439.98px) {
+  :root[data-text] .nv-nav { display: none; }
+  :root[data-text] .nv-hdr__actions { margin-left: auto; }
+  :root[data-text] body .nv-hdr .nv-hdr__actions .mobile-nav__btn { display: inline-flex !important; }
+}
+
+.nv-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nv-nav__item {
+  position: relative;
+  margin: 0;
+}
+
+.nv-nav__toggle,
+.nv-nav__link,
+.nv-nav__link:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 12px;
+  border: 2px solid transparent;
+  border-radius: var(--nv-radius-md);
+  background: transparent;
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: 17px;
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.nv-nav__toggle:hover,
+.nv-nav__link:hover,
+.nv-nav__toggle[aria-expanded="true"] {
+  border-color: var(--nv-navy-900);
+  background-color: var(--nv-navy-50);
+  color: var(--nv-navy-900);
+}
+/* Geçerli bölüm: alt çizgi (renk tek başına değil) */
+.nv-nav__item.is-current > .nv-nav__toggle,
+.nv-nav__link[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.35em;
+}
+
+.nv-nav__sub {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 17rem;
+  max-width: 24rem;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background-color: var(--nv-paper);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-lg);
+  box-shadow: 0 12px 32px rgba(10, 34, 65, 0.2);
+}
+.nv-nav__sub[hidden] { display: none; }
+.nv-nav__item:last-child .nv-nav__sub { left: auto; right: 0; }
+
+.nv-nav__sub li { margin: 0; }
+.nv-nav__sub a,
+.nv-nav__sub a:visited {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: var(--nv-radius-sm);
+  color: var(--nv-ink);
+  font-size: 17px;
+  font-weight: var(--nv-weight-regular);
+  line-height: 1.3;
+  text-decoration: none;
+}
+.nv-nav__sub a:hover {
+  background-color: var(--nv-navy-50);
+  color: var(--nv-navy-900);
+  text-decoration: underline;
+}
+.nv-nav__sub a[aria-current="page"] {
+  font-weight: var(--nv-weight-bold);
+  text-decoration: underline;
+}
+.nv-nav__all {
+  margin-bottom: 4px !important;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--nv-border-subtle);
+}
+.nv-nav__all a,
+.nv-nav__all a:visited {
+  color: var(--nv-link);
+  font-weight: var(--nv-weight-bold);
+}
+
+/* ---- Mobil menü: tam ekran iletişim kutusu ------------------------------ */
+.nv-mnav {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--nv-paper);
+  color: var(--nv-ink);
+  font-family: var(--nv-font-sans);
+}
+.nv-mnav[hidden] { display: none !important; }
+
+html.nv-scroll-lock,
+html.nv-scroll-lock body {
+  overflow: hidden !important;
+}
+
+.nv-mnav__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nv-space-3);
+  padding: 12px 16px;
+  background-color: var(--nv-paper);
+  border-bottom: 2px solid var(--nv-navy-900);
+}
+
+.nv-mnav__title {
+  margin: 0;
+  color: var(--nv-heading);
+  font-size: var(--nv-text-h4);
+  font-weight: var(--nv-weight-heavy);
+  line-height: 1.2;
+}
+
+.nv-mnav__close {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nv-space-2);
+  min-height: var(--nv-control-h);
+  min-width: var(--nv-control-h);
+  margin: 0;
+  padding: 0 var(--nv-space-4);
+  border: 2px solid var(--nv-navy-900);
+  border-radius: var(--nv-radius-md);
+  background-color: var(--nv-paper);
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+}
+.nv-mnav__close:hover {
+  background-color: var(--nv-navy-900);
+  color: var(--nv-paper);
+}
+.nv-mnav__close .nv-icon { width: 24px; height: 24px; }
+
+.nv-mnav__body {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--nv-space-5) 16px var(--nv-space-7);
+}
+
+.nv-mnav__ctas {
+  display: grid;
+  gap: var(--nv-space-3);
+  margin-bottom: var(--nv-space-5);
+}
+
+.nv-mnav__list,
+.nv-mnav__sub {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nv-mnav__list {
+  border-top: 1px solid var(--nv-border-subtle);
+}
+.nv-mnav__list > li {
+  margin: 0;
+  border-bottom: 1px solid var(--nv-border-subtle);
+}
+
+.nv-mnav__link,
+.nv-mnav__link:visited,
+.nv-mnav__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nv-space-3);
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: var(--nv-space-3) var(--nv-space-2);
+  border: 0;
+  background: transparent;
+  color: var(--nv-navy-900);
+  font-family: var(--nv-font-sans);
+  font-size: var(--nv-text-lg);
+  font-weight: var(--nv-weight-bold);
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.nv-mnav__link:hover,
+.nv-mnav__toggle:hover {
+  background-color: var(--nv-navy-50);
+  color: var(--nv-navy-900);
+}
+.nv-mnav__link[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+}
+.nv-mnav__toggle .nv-icon--chev { width: 1.25rem; height: 1.25rem; }
+
+.nv-mnav__sub {
+  margin: 0 0 var(--nv-space-3) var(--nv-space-2);
+  padding-left: var(--nv-space-3);
+  border-left: 3px solid var(--nv-navy-200);
+}
+.nv-mnav__sub[hidden] { display: none; }
+.nv-mnav__sub a,
+.nv-mnav__sub a:visited {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: var(--nv-space-2);
+  color: var(--nv-ink);
+  font-size: var(--nv-text-h6);
+  line-height: 1.35;
+  text-decoration: none;
+}
+.nv-mnav__sub a:hover,
+.nv-mnav__sub a[aria-current="page"] {
+  text-decoration: underline;
+}
+.nv-mnav__sub li:first-child a {
+  color: var(--nv-link);
+  font-weight: var(--nv-weight-bold);
+}
+
+.nv-mnav__contact {
+  margin: var(--nv-space-5) 0 0;
+  font-size: var(--nv-text-body);
+}
+.nv-mnav__contact a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--nv-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  word-break: break-word;
+}
+
+/* ---- Arama paneli -------------------------------------------------------- */
+#nvMobileSearchBar.nv-search {
+  padding: var(--nv-space-4) 16px;
+  border-bottom: 2px solid var(--nv-navy-900);
+  background-color: var(--nv-paper);
+  box-shadow: 0 8px 20px rgba(10, 34, 65, 0.15);
+}
+.nv-search__form {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+.nv-search__label {
+  display: block;
+  margin: 0 0 var(--nv-space-2);
+  color: var(--nv-heading);
+  font-size: var(--nv-text-body);
+  font-weight: var(--nv-weight-bold);
+}
+.nv-search__row {
+  display: flex;
+  gap: var(--nv-space-2);
+}
+.nv-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.nv-search__submit {
+  flex: none;
+  min-width: 88px;
+}
+
+/* ---- Kısa ekran (büyük yakınlaştırma, yatay telefon) --------------------
+   Sabit header ekranın yarısını kaplamasın: aynı yeri kaplamaya devam eder
+   (absolute da akıştan çıkar, üst boşluklar değişmez) ama sayfayla kayar. */
+@media (max-height: 480px) {
+  html body .header-four {
+    position: absolute !important;
+  }
+}
+
+/* ---- Yüksek kontrast ---------------------------------------------------- */
+:root[data-contrast="high"] .nv-topbar {
+  background-color: #000000;
+}
+:root[data-contrast="high"] body .main-header.nv-hdr {
+  border-bottom: 3px solid #000000 !important;
+  box-shadow: none !important;
+}
+:root[data-contrast="high"] .nv-nav__toggle,
+:root[data-contrast="high"] .nv-nav__link,
+:root[data-contrast="high"] .nv-hdr-btn,
+:root[data-contrast="high"] body .nv-hdr .nv-hdr__actions .mobile-nav__btn,
+:root[data-contrast="high"] .nv-mnav__link,
+:root[data-contrast="high"] .nv-mnav__toggle {
+  color: #000000;
+}
+:root[data-contrast="high"] .nv-nav__sub,
+:root[data-contrast="high"] .nv-a11y__panel {
+  border-color: #000000;
+  box-shadow: none;
+}
+
+/* Tema a{transition:all .5s} odak halkasını da yavaşça büyütüyordu;
+   halka anında görünsün diye geçiş yalnız renk/zemin özelliklerinde. */
+.nv-topbar a,
+.nv-hdr a,
+.nv-mnav a,
+.nv-search a {
+  transition: color var(--nv-dur-fast) var(--nv-ease),
+              background-color var(--nv-dur-fast) var(--nv-ease),
+              border-color var(--nv-dur-fast) var(--nv-ease);
+}
+
+.nv-nowrap { white-space: nowrap; }
+.nv-mnav__ctas .nv-btn { flex-wrap: wrap; }

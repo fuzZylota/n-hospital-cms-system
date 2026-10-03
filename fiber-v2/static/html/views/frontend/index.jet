@@ -1,5 +1,4 @@
-<h1 class="sr-only">{{ Options.Options.SiteName }}</h1>
-
+{* Sayfanin tek <h1>'i hero'da (components/home/banner.jet, P2-6). *}
 {{ include "../../components/home/popup" }}
 
 {{ include "../../components/home/banner" }}

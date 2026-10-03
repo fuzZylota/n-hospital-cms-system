@@ -1,102 +1,157 @@
-{{ range index1, BannerContent := BannerContents }}{{ if index1 == 0 }}
-{{ BannerMobil := BannerContent.ContentCss != "" ? BannerContent.ContentCss : BannerContent.ContentHtml }}
+{* P2-6 — Anasayfa hero.
+   - Tek banner (bugünkü canlı durum): statik hero; slick yüklenmez/kurulmaz.
+   - Birden fazla banner: kaydırıcı, otomatik geçiş KAPALI, görünür
+     Önceki/Sonraki düğmeleri (main.jet slick'i yalnız bu durumda yükler).
+   - Sayfanın tek <h1>'i burada (index.jet'teki sr-only h1 kaldırıldı).
+   - Görsel: ContentHtml = masaüstü, ContentCss = mobil görsel yolu (DB).
+     İçinde "<" olan kayıt eski biçim (HTML işaretlemesi) sayılır ve
+     görsel olarak basılmaz; aksi halde src özniteliği bozuluyordu. *}
+{{ heroCount := 0 }}
+{{ range index1, BannerContent := BannerContents }}{{ if BannerContent.ContentHtml != "" && !contains(BannerContent.ContentHtml, "<") }}{{ heroCount = heroCount + 1 }}{{ if heroCount == 1 }}
+{{ BannerMobil := BannerContent.ContentCss != "" && !contains(BannerContent.ContentCss, "<") ? BannerContent.ContentCss : BannerContent.ContentHtml }}
 <link rel="preload" as="image" fetchpriority="high" href="/{{ BannerContent.ContentHtml | raw }}" media="(min-width: 768px)">
 <link rel="preload" as="image" fetchpriority="high" href="/{{ BannerMobil | raw }}" media="(max-width: 767px)">
-<style>
-@media (min-width: 768px) {
-    #nvBannerBg0 { background-image: url(/{{ BannerContent.ContentHtml | raw }}); }
-}
-@media (max-width: 767px) {
-    #nvBannerBg0 { background-image: url(/{{ BannerMobil | raw }}); }
-}
-</style>
-{{ end }}{{ end }}
-<!-- mobile button-group hide removed: buttons now shown compact on mobile too -->
-<section class="main-slider-three">
-    <button type="button" class="nv-slider-arrow nv-slider-arrow--prev" aria-label="Önceki slide">
-        <span>&larr;</span>
-    </button>
-    <button type="button" class="nv-slider-arrow nv-slider-arrow--next" aria-label="Sonraki slide">
-        <span>&rarr;</span>
-    </button>
-    <button type="button" class="nv-slider-pause" id="nvSliderPause" aria-label="Otomatik geçişi durdur" aria-pressed="false">
-        <span class="nv-slider-pause__icon" aria-hidden="true">&#10073;&#10073;</span>
-    </button>
-    <div class="main-slider-three__carousel mediox-slick__carousel" data-slick-options='{"slidesToShow":1,"slidesToScroll":1,"fade":true,"autoplay":true,"autoplaySpeed":4000,"speed":2000,"infinite":true,"dots":false,"arrows":true}'>
-        {{ range index1, BannerContent := BannerContents }}
-            {{ if BannerContent.ContentType == "banner_page" }}
-                <div class="main-slider-three__item" {{ if len(BannerContent.TibbiBirimUrlName) > 0 }}data-mobile-link="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}"{{ end }}>
-                    <div class="main-slider-three__bg"
-                         data-desktop="/{{ BannerContent.ContentHtml | raw }}"
-                         data-mobile="{{ if BannerContent.ContentCss != "" }}/{{ BannerContent.ContentCss | raw }}{{ else }}/{{ BannerContent.ContentHtml | raw }}{{ end }}"
-                         {{ if index1 == 0 }}id="nvBannerBg0"{{ end }}></div>
-                    <div class="main-slider-three__container container">
-                        <div class="banner-row row">
-                            <div class="col-xxl-10 col-xl-9 mx-auto">
-                                <div class="main-slider-three__content">
-                                    <div class="main-slider-three__button-group">
-                                        {{ if len(BannerContent.TibbiBirimUrlName) > 0 }}
-                                        <div class="main-slider-three__button-group__inner">
-                                            <div class="main-slider-three__button main-slider-three__button--1">
-                                                <a href="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}" class="mediox-btn" style="background-color: #1a3c6e !important; box-shadow: none !important; !important; border: none !important; overflow: hidden !important;">
-                                                    <span>İncele</span>
-                                                    <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        {{ end }}
-                                        <div class="main-slider-three__button-group__inner">
-                                            <div class="main-slider-three__button main-slider-three__button--2">
-                                                <a href="/randevu" class="mediox-btn" style="background-color: #1a3c6e !important; box-shadow: none !important; !important; border: none !important; overflow: hidden !important;">
-                                                    <span>Randevu Al</span>
-                                                    <span class="mediox-btn__icon"><i class="icon-up-right-arrow"></i></span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+{{ end }}{{ end }}{{ end }}
+<section class="nv-hero" aria-labelledby="nvHeroTitle">
+    {{ if heroCount == 1 }}
+        {{ range index1, BannerContent := BannerContents }}{{ if BannerContent.ContentHtml != "" && !contains(BannerContent.ContentHtml, "<") }}
+        {{ BannerMobil := BannerContent.ContentCss != "" && !contains(BannerContent.ContentCss, "<") ? BannerContent.ContentCss : BannerContent.ContentHtml }}
+        <div class="nv-hero__media">
+            <picture>
+                <source media="(max-width: 767px)" srcset="/{{ BannerMobil | raw }}" width="1000" height="650">
+                <img class="nv-hero__img" src="/{{ BannerContent.ContentHtml | raw }}" alt="" width="1920" height="700" fetchpriority="high">
+            </picture>
+        </div>
+        {{ end }}{{ end }}
+    {{ else if heroCount > 1 }}
+        <div class="nv-hero__slider" role="region" aria-roledescription="kaydırıcı" aria-label="Öne çıkanlar">
+            <div class="mediox-slick__carousel nv-hero__carousel" id="nvHeroCarousel" data-slick-options='{"slidesToShow":1,"slidesToScroll":1,"fade":true,"autoplay":false,"speed":300,"infinite":true,"dots":false,"arrows":false,"accessibility":false,"swipe":true}'>
+                {{ slideNo := 0 }}
+                {{ range index1, BannerContent := BannerContents }}{{ if BannerContent.ContentHtml != "" && !contains(BannerContent.ContentHtml, "<") }}
+                {{ slideNo = slideNo + 1 }}
+                {{ BannerMobil := BannerContent.ContentCss != "" && !contains(BannerContent.ContentCss, "<") ? BannerContent.ContentCss : BannerContent.ContentHtml }}
+                <div class="nv-hero__slide" role="group" aria-roledescription="slayt" aria-label="{{ slideNo }} / {{ heroCount }}">
+                    <div class="nv-hero__media">
+                        <picture>
+                            <source media="(max-width: 767px)" srcset="/{{ BannerMobil | raw }}" width="1000" height="650">
+                            {{ if slideNo == 1 }}
+                            <img class="nv-hero__img" src="/{{ BannerContent.ContentHtml | raw }}" alt="" width="1920" height="700" fetchpriority="high">
+                            {{ else }}
+                            <img class="nv-hero__img" src="/{{ BannerContent.ContentHtml | raw }}" alt="" width="1920" height="700" loading="lazy">
+                            {{ end }}
+                        </picture>
                     </div>
+                    {{ if len(BannerContent.TibbiBirimUrlName) > 0 }}
+                    <p class="nv-hero__slide-link">
+                        <a class="nv-btn nv-btn--secondary" href="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}">
+                            {{ birimAdi := "" }}
+                            {{ range index2, TibbiBirimLink := Options.TibbiBirimlerLinks }}{{ if TibbiBirimLink.UrlName == BannerContent.TibbiBirimUrlName }}{{ birimAdi = TibbiBirimLink.Name }}{{ end }}{{ end }}
+                            {{ if birimAdi != "" }}{{ birimAdi }} hakkında bilgi alın{{ else }}Bu tedavi hakkında bilgi alın{{ end }}
+                        </a>
+                    </p>
+                    {{ end }}
                 </div>
+                {{ end }}{{ end }}
+            </div>
+            <div class="nv-hero__controls">
+                <button type="button" class="nv-hero__ctrl" data-nv-hero="prev" aria-controls="nvHeroCarousel">
+                    <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>
+                    <span>Önceki</span>
+                </button>
+                <p class="nv-hero__count" aria-live="polite"><span data-nv-hero-current>1</span> / {{ heroCount }}</p>
+                <button type="button" class="nv-hero__ctrl" data-nv-hero="next" aria-controls="nvHeroCarousel">
+                    <span>Sonraki</span>
+                    <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></svg>
+                </button>
+            </div>
+        </div>
+    {{ end }}
+
+    <div class="nv-hero__panel">
+        <div class="nv-hero__inner">
+            <div class="nv-hero__text">
+                <h1 class="nv-hero__title" id="nvHeroTitle">Göz sağlığınız için yakınınızdayız</h1>
+                <p class="nv-hero__lead">Randevu talebinizi internetten birkaç adımda oluşturabilir ya da bizi hemen arayabilirsiniz.</p>
+                <div class="nv-hero__actions">
+                    <a href="/randevu" class="nv-btn nv-btn--primary nv-btn--lg">Randevu Talebi Oluştur</a>
+                    {{ if Options.Options.ContactPhone != "" }}
+                    <a href="tel:{{ Options.Options.ContactPhone }}" class="nv-btn nv-btn--secondary nv-btn--lg">
+                        <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+                        <span>Hemen Ara</span>
+                    </a>
+                    {{ end }}
+                </div>
+                {{ if heroCount == 1 }}
+                    {{ range index1, BannerContent := BannerContents }}
+                    {{ if len(BannerContent.TibbiBirimUrlName) > 0 && BannerContent.ContentHtml != "" && !contains(BannerContent.ContentHtml, "<") }}
+                    <p class="nv-hero__more">
+                        <a class="nv-link" href="/tibbi-birimler/{{ BannerContent.TibbiBirimUrlName }}">
+                            {{ birimAdi := "" }}
+                            {{ range index2, TibbiBirimLink := Options.TibbiBirimlerLinks }}{{ if TibbiBirimLink.UrlName == BannerContent.TibbiBirimUrlName }}{{ birimAdi = TibbiBirimLink.Name }}{{ end }}{{ end }}
+                            {{ if birimAdi != "" }}{{ birimAdi }} hakkında bilgi alın{{ else }}Görseldeki tedavi hakkında bilgi alın{{ end }}
+                        </a>
+                    </p>
+                    {{ end }}
+                    {{ end }}
+                {{ end }}
+            </div>
+            {{ if len(Options.SubelerLinks) > 0 }}
+            <div class="nv-hero__centers">
+                <p class="nv-hero__centers-title" id="nvHeroCentersTitle">Size en yakın merkezi seçin</p>
+                <ul class="nv-hero__centers-list" aria-labelledby="nvHeroCentersTitle">
+                    {{ range index1, SubeLink := Options.SubelerLinks }}
+                    <li>
+                        <a class="nv-hero__center" href="/merkezlerimiz/{{ SubeLink.UrlName }}">
+                            <svg class="nv-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                            <span>{{ SubeLink.Name }}</span>
+                        </a>
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
             {{ end }}
-        {{ end }}
+        </div>
     </div>
 </section>
+{{ if heroCount > 1 }}
 <script>
-(function(){
-    // Ilk slide LCP ogesi. Gorseli yukaridaki <style> icinde medya
-    // sorgusuyla ve <link rel=preload> ile yonetiliyor; JS ona hic
-    // dokunmuyor. Dokunsaydi mobilde once masaustu gorseli inip sonra
-    // mobil gorselle degistirilirdi, ikisi birden indirilirdi.
-    // Kalan slide'lar window.load sonrasina birakiliyor.
-    function kalanlariYukle(){
-        var isMobile = window.innerWidth <= 767;
-        var bgs = document.querySelectorAll('.main-slider-three__bg[data-mobile]');
-        for(var i = 1; i < bgs.length; i++){
-            var url = isMobile ? bgs[i].getAttribute('data-mobile') : bgs[i].getAttribute('data-desktop');
-            if(url){ bgs[i].style.backgroundImage = 'url(' + url + ')'; }
+(function () {
+    // Hareketi azalt tercihinde geçiş süresi 0 (slick kurulmadan önce).
+    var el = document.getElementById('nvHeroCarousel');
+    if (!el) return;
+    try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            var o = JSON.parse(el.getAttribute('data-slick-options'));
+            o.speed = 0; o.fade = false;
+            el.setAttribute('data-slick-options', JSON.stringify(o));
         }
-    }
-
-    if(document.readyState === 'complete'){
-        kalanlariYukle();
-    } else {
-        window.addEventListener('load', kalanlariYukle);
-    }
-    var resizeTimer;
-    window.addEventListener('resize', function(){
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(kalanlariYukle, 150);
-    });
-
-    if(window.innerWidth > 767) return;
-    document.querySelectorAll('.main-slider-three__item[data-mobile-link]').forEach(function(item){
-        item.style.cursor = 'pointer';
-        item.addEventListener('click', function(e){
-            if(e.target.closest('button') || e.target.closest('a')) return;
-            window.location.href = item.getAttribute('data-mobile-link');
+    } catch (e) {}
+    function wire() {
+        var $ = window.jQuery;
+        if (!$ || !$.fn || !$.fn.slick) return;
+        var $c = $(el);
+        var current = document.querySelector('[data-nv-hero-current]');
+        function syncSlides() {
+            $c.find('.slick-slide').each(function () {
+                var active = this.classList.contains('slick-current');
+                this.inert = !active;
+                if (active) this.removeAttribute('aria-hidden'); else this.setAttribute('aria-hidden', 'true');
+            });
+        }
+        $c.on('afterChange', function (e, slick, i) {
+            if (current) current.textContent = String(i + 1);
+            syncSlides();
         });
-    });
+        document.querySelectorAll('[data-nv-hero]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                $c.slick(b.getAttribute('data-nv-hero') === 'prev' ? 'slickPrev' : 'slickNext');
+            });
+        });
+        if ($c.hasClass('slick-initialized')) syncSlides();
+        else $c.on('init', syncSlides);
+    }
+    // Tema JS'i (mediox.js) slick'i DOMContentLoaded'da kurar; ardından bağla.
+    window.addEventListener('load', wire);
 })();
 </script>
+{{ end }}
