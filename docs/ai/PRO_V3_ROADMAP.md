@@ -64,7 +64,8 @@ Biçim: `[ ] ID — iş · Dosyalar · Kabul`. **ONAY** = başlamadan kullanıc�
 ### P0 — Doğrulama altyapısı (her şeyin önkoşulu)
 - [ ] P0-1 — Yerel geçici ortam: tek komutla boş Postgres (port 55432) + `schema.sql` + örnek seed + uygulama. · `tools/dev/` · Production'a hiçbir bağlantı yok; `tools/dev/up.sh` ile ana sayfa 200 döner.
 - [ ] P0-2 — QA betiği: Playwright + axe-core ile kritik 10 sayfanın 390/1280px ekran görüntüsü, a11y ihlal sayısı, konsol hatası. · `tools/qa/` · Tek komut, JSON + PNG çıktı; baseline kaydı.
-- [ ] P0-4 — Başarısız testi kök nedeniyle düzelt (`TestGeneralFileUploadFilesystemFailureLeavesNoResult`).
+- [x] P0-4 — `TestGeneralFileUploadFilesystemFailureLeavesNoResult`: kök neden `lib.UniqueFilePath` hatayı sonuç alanına koyup `nil` dönüyordu (ENOTDIR'de upload 400 veriyordu). Artık hata ikinci değer olarak da dönüyor; sabitlenmiş gövde özeti güncellendi.
+- [ ] P0-4b — Kararsız test: `controllers/post/branslar` → `TestAddBranchOnlyRemovesItsNewUploadAfterDatabaseFailure` (bu değişiklikten bağımsız; 3 denemede 2-3 kez düşüyor, "branch (1).png: file exists").
 - [ ] P0-5 — AST wiring testleri envanteri: hangileri davranış testine çevrilecek, hangileri silinecek. **ONAY** (test silme).
 - [ ] P0-3 — CI: GitHub Actions'ta `go build`, `go test`, `node --test`. · `.github/workflows/ci.yml` · PR'da yeşil.
 

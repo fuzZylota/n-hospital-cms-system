@@ -1403,7 +1403,7 @@ func TestRemovedFieldDumpDirectGoInventory(t *testing.T) {
 }
 
 var cvHelperBodySignatures = map[string]string{
-	"UniqueFilePath":        "43ce1b8794ce1eb2d271786ac962f852068307106b66885ee41109799c4f4774",
+	"UniqueFilePath":        "7b9132d8ba9a9f7000cf35dbf4a5f3bfc8c9e150079c8bc3d408a97311011e11",
 	"SaveFileWithBuffering": "d98ef35f33a6d63ff192facb3c3022b1a6fc16fbdff8477fa191bd54f8a048a8",
 }
 

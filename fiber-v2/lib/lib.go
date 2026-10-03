@@ -524,12 +524,8 @@ func UniqueFilePath(path string) (UniqueFilePathResponse, error) {
 			Error:     nil,
 		}, nil
 	} else if err != nil {
-		return UniqueFilePathResponse{
-			BaseName:  "",
-			FilePath:  "",
-			Extension: "",
-			Error:     fmt.Errorf("dosya kontrol edilemedi: %w", err),
-		}, nil
+		checkErr := fmt.Errorf("dosya kontrol edilemedi: %w", err)
+		return UniqueFilePathResponse{Error: checkErr}, checkErr
 	}
 
 	dir := filepath.Dir(path)
@@ -551,12 +547,8 @@ func UniqueFilePath(path string) (UniqueFilePathResponse, error) {
 				Error:     nil,
 			}, nil
 		} else if err != nil {
-			return UniqueFilePathResponse{
-				BaseName:  "",
-				FilePath:  "",
-				Extension: "",
-				Error:     fmt.Errorf("dosya kontrol edilemedi: %w", err),
-			}, nil
+			checkErr := fmt.Errorf("dosya kontrol edilemedi: %w", err)
+			return UniqueFilePathResponse{Error: checkErr}, checkErr
 		}
 		counter++
 	}
